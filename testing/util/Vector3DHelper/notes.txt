@@ -1,0 +1,13 @@
+The testing functions can be found in UnitTests.java. Because these tests require visual confirmation, screenshots of the results have been saved in this folder.
+
+
+Test 1: getRandomDirection() - PASS
+This function should return a random point on the surface of a r=1 sphere. The distribution of points across the surface of the sphere should be even. In particular, there should be no grouping in the corners or at the poles - which is common with incorrect algorithms.
+
+The test function testVector3DHelperRandomDirection() plots 50000 points returned from the function, and displays the result. The resulting graph can be seen in ./Test01.png. As can be seen, the point on the surface of the r=1 sphere are distributed evenly without grouping.
+
+
+Test2: getRandomDirectionInCone(…)
+This function should return a random point on the surface of a r=1 sphere constrained to within a given angle from a given point. The distribution of points on the surface of the sphere should be even. In particular, there should be no grouping towards the centre or the edges of the cone. In addition, the centre of the group of points should be the given vector.
+
+The test function testVector3DHelperRandomDirectionInCone() picks 4 random directions using getRandomDirection(), then plot 20000 points output from the function using the returned direction and an angle of pi/6 (30 degrees). In addition, the chosen direction vector is plotted as a guide. The resting graph can be seen in ./Test02.png. As can be seen, there are four separate cones, each with points evenly distributed and the centres of the given direction is at the centre of the points.
