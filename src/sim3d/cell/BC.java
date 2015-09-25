@@ -23,14 +23,22 @@ public class BC extends DrawableCell implements Steppable
     {
     }
 
+    private boolean m_bRandom = true;
+    
     // bleh
     private Double3D d3Face = Vector3DHelper.getRandomDirection();
+    
+    private double applyCarrying(double dValue)
+    {
+    	return dValue * Options.BC.CONC_CARRYING() / ( Options.BC.CONC_CARRYING() + dValue );
+    }
     
     public void step( final SimState state )
     {
     	if ( canMove() )
     	{
 	    	double[][][] aadConcs = Particle.get(Particle.TYPE.CXCL13, (int)x, (int)y, (int)z);
+	    	
 	    	
 	    	// TODO consider how to best add noise, this or the cone thing
 	    	/*for ( int x = 0; x < 3; x++ )
@@ -48,20 +56,22 @@ public class BC extends DrawableCell implements Steppable
 	    	Double3D vMovement = new Double3D();
 	
 	    	// X
-	    	vMovement = vMovement.add(new Double3D(1, 0, 0).multiply(aadConcs[2][1][1]-aadConcs[0][1][1]));
+	    	vMovement = vMovement.add(new Double3D(1, 0, 0).multiply(applyCarrying(aadConcs[2][1][1])-applyCarrying(aadConcs[0][1][1]))).multiply(1-Options.RNG.nextDouble()*Options.BC.VECTOR_NOISE());
 	    	// Y
-	    	vMovement = vMovement.add(new Double3D(0, 1, 0).multiply(aadConcs[1][2][1]-aadConcs[1][0][1]));
+	    	vMovement = vMovement.add(new Double3D(0, 1, 0).multiply(applyCarrying(aadConcs[1][2][1])-applyCarrying(aadConcs[1][0][1]))).multiply(1-Options.RNG.nextDouble()*Options.BC.VECTOR_NOISE());
 	    	// Z
-	    	vMovement = vMovement.add(new Double3D(0, 0, 1).multiply(aadConcs[1][1][2]-aadConcs[1][1][0]));
+	    	vMovement = vMovement.add(new Double3D(0, 0, 1).multiply(applyCarrying(aadConcs[1][1][2])-applyCarrying(aadConcs[1][1][0]))).multiply(1-Options.RNG.nextDouble()*Options.BC.VECTOR_NOISE());
 	    	
 	    	if ( vMovement.length() > Options.BC.VECTOR_MIN() )
 	    	{
-	    		vMovement = vMovement.normalize();
+	    		m_bRandom = false;
+	    		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(vMovement.normalize(), Options.BC.DIRECTION_ERROR());
 	    	}
 	    	else
 	    	{
+	    		m_bRandom = true;
 	    		// no data! so do a random turn
-	    		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(d3Face, Math.PI);
+	    		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(d3Face, Options.BC.RANDOM_TURN_ANGLE());
 	    	}
 	    	
 	    	// Remember which way we're now facing
@@ -75,9 +85,10 @@ public class BC extends DrawableCell implements Steppable
 	    	setObjectLocation( new Double3D(x, y, z) );
     	}
 
-    	Particle.add(Particle.TYPE.CCL19, (int)x, (int)y, (int)z, -2 );
+    	//Particle.add(Particle.TYPE.CCL19, (int)x, (int)y, (int)z, -2 );
     }
 
+    private boolean m_bCantMove = false;
     private boolean canMove()
     {
     	// Find neighbours within move distance
@@ -88,12 +99,24 @@ public class BC extends DrawableCell implements Steppable
     	Bag bagNeighbours = drawEnvironment.getNeighborsWithinDistance( new Double2D(x,y), Options.BC.TRAVEL_DISTANCE() );
     	
     	// TODO my brain hurts and I haven't really thought much about this
-    	return Options.RNG.nextDouble() < Math.exp(-Math.pow(Math.max(0, bagNeighbours.size()), 2)/400);
+    	m_bCantMove = Options.RNG.nextDouble() > Math.exp(-Math.pow(Math.max(0, bagNeighbours.size()), 2)/400);
+    	return !m_bCantMove;
     }
     
     public final void draw(Object object,  final Graphics2D graphics, final DrawInfo2D info)
     {
-    	graphics.setColor(getColorWithDepth(Options.BC.DRAW_COLOR()));
+    	if ( m_bCantMove )
+    	{
+    		graphics.setColor(getColorWithDepth(Color.red));
+    	}
+    	else if ( m_bRandom )
+    	{
+    		graphics.setColor(getColorWithDepth(Options.BC.RANDOM_COLOR()));
+    	}
+    	else
+    	{
+    		graphics.setColor(getColorWithDepth(Options.BC.DRAW_COLOR()));
+    	}
     	graphics.fillOval((int)info.draw.x, (int)info.draw.y, (int)info.draw.width, (int)info.draw.height);
     }
 }

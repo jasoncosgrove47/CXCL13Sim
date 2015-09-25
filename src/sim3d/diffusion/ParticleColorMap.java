@@ -45,10 +45,10 @@ public class ParticleColorMap implements ColorMap {
 	@Override
 	public int getRGB(double arg0) {
 		// TODO Auto-generated method stub
-		arg0 /= 5;
+		arg0 = Math.log(arg0*1000+1)/2;
 		if ( arg0 > 2 )
 		{
-			return ( Color.HSBtoRGB((float)((arg0-2)/20 + 0.66666), 1, 1) ^ 255 << 24 ) | 255 << 24;
+			return ( Color.HSBtoRGB((float)((arg0-2)/50 + 0.66666), 1, 1) ^ 255 << 24 ) | 255 << 24;
 		}
 		else
 		{

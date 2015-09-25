@@ -5,6 +5,8 @@ package sim3d;
   See the file "LICENSE" for more information
 */
 
+import sim.portrayal.SimplePortrayal2D;
+
 //package sim.app.woims;
 
 
@@ -18,6 +20,7 @@ import sim3d.diffusion.ParticleColorMap;
 import sim.engine.*;
 import sim.display.*;
 import javax.swing.*;
+
 import java.awt.Color;
 
 public class DemoUI extends GUIState
@@ -59,8 +62,8 @@ public class DemoUI extends GUIState
         ovaPortrayal.setField(Ova.drawEnvironment);
         frcPortrayal.setField(FDC.drawEnvironment);
         bcPortrayal.setField(BC.drawEnvironment);
-        //particlePortrayal.setField(Particle.getInstance(Particle.TYPE.CXCL13));
-        //particlePortrayal.setMap(new ParticleColorMap());
+        particlePortrayal.setField(Particle.getInstance(Particle.TYPE.CXCL13).m_dg2Display);
+        particlePortrayal.setMap(new ParticleColorMap());
                 
         // reschedule the displayer
         display.reset();
@@ -78,10 +81,12 @@ public class DemoUI extends GUIState
         display = new Display2D(600,600,this);
 
         displayFrame = display.createFrame();
+
         displayFrame.setTitle("Demo");
         c.registerFrame(displayFrame);   // register the frame so it appears in the "Display" list
         displayFrame.setVisible(true);
-        //display.attach( particlePortrayal, "Particles" );
+        
+        display.attach( particlePortrayal, "Particles" );
         display.attach( ovaPortrayal, "Ova" );
         display.attach( frcPortrayal, "FRC" );
         display.attach( bcPortrayal, "BC" );
@@ -95,5 +100,10 @@ public class DemoUI extends GUIState
         displayFrame = null;
         display = null;
         }
+    
+    public Object getSimulationInspectedObject()
+    {
+    return state;
+    }
 
     }
