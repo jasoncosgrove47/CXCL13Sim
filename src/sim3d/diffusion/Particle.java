@@ -208,14 +208,15 @@ public class Particle extends DoubleGrid3D implements Steppable
 	
 	public void step( final SimState state )
 	{
+		diffuse();
 		for (int i = 0; i < Options.DIFFUSION_STEPS; i++)
 		{
-			diffuse();
 		}
-		//updateDisplay();
+		updateDisplay();
 	}
 	public void diffuse()
 	{
+		//TODO the scheduler is doing things in the wrong order, make sure the diffusion comes last!!!!
 		double adConcentrations[][][] = new double[m_iWidth][m_iHeight][m_iDepth];
 		//field = new double[m_iWidth][m_iHeight][m_iDepth];
 		
@@ -226,12 +227,8 @@ public class Particle extends DoubleGrid3D implements Steppable
 			{
 				for(int z = 0; z < m_iDepth; z++)
 				{
-					if ( field[x][y][z] > 0 )
-					{
-						x = x;
-					}
 					adConcentrations[x][y][z] = field[x][y][z];// * m_dDecayRateInv;
-					//field[x][y][z] = 0;
+					field[x][y][z] = 0;
 				}
 			}
 		}
@@ -312,16 +309,16 @@ public class Particle extends DoubleGrid3D implements Steppable
 						}
 						// so these will always be a step late. I don't think that's too much of an issue
 						// TODO consider using the dirichlet code and loop through these cases individually 
-						field[(xEdge == -1) ? x : xEdge] // if it's -1, set it to the current x val
+						/*field[(xEdge == -1) ? x : xEdge] // if it's -1, set it to the current x val
 							 [(yEdge == -1) ? y : yEdge] // etc.
 							 [(zEdge == -1) ? z : zEdge] // i.e. this one isn't on the edge
-									 += newValue;
+									 += newValue;*/
 					}
 					else
 					{
-						if ( adConcentrations[x][y][z] > 0 )
+						if ( x * y * z == 1 )
 						{
-							x = x;
+							x=x;
 						}
 						// sum up all the surrounding values multiplied by their respective coefficient
 						double newValue = 0;

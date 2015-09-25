@@ -14,7 +14,7 @@ public class Options
 	
 	public static int WIDTH = 100;
 	public static int HEIGHT = 100;
-	public static int DEPTH = 3;
+	public static int DEPTH = 15;
 	public static double MAX_DISTANCE = 5;
 	public static int DIFFUSION_STEPS = 1;
 	
@@ -43,7 +43,7 @@ public class Options
 	public static class FDC
 	{
 		public static double DISCRETISATION = 5;
-		public static int COUNT = 1000;
+		public static int COUNT = 10000;
 		public static double DRAW_SCALE(){ return 0.5; }
 		public static Color DRAW_COLOR(){ return new Color(200,130,60); }
 		public static double CXCL13_EMITTED(){ return 1; }

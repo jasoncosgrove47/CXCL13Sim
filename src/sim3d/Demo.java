@@ -63,7 +63,7 @@ public class Demo extends SimState
             
             schedule.scheduleRepeating(ova);
         }*/
-        double xPos = 1, yPos = 1, zPos = 1;
+        double xPos = 2, yPos = 2, zPos = 1;
         outerloop:
         for(int x=0;x<Options.FDC.COUNT;x++)
         {
@@ -102,10 +102,7 @@ public class Demo extends SimState
         }
 
         // add particles
-        new Particle(schedule, Particle.TYPE.CCL19, Options.WIDTH, Options.HEIGHT, Options.DEPTH);
-        new Particle(schedule, Particle.TYPE.CCL21, Options.WIDTH, Options.HEIGHT, Options.DEPTH);
         new Particle(schedule, Particle.TYPE.CXCL13, Options.WIDTH, Options.HEIGHT, Options.DEPTH);
-        new Particle(schedule, Particle.TYPE.EBI2L, Options.WIDTH, Options.HEIGHT, Options.DEPTH);
     }
     
     public void finish()
