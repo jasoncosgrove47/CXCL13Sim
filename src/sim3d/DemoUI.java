@@ -59,8 +59,8 @@ public class DemoUI extends GUIState
         ovaPortrayal.setField(Ova.drawEnvironment);
         frcPortrayal.setField(FDC.drawEnvironment);
         bcPortrayal.setField(BC.drawEnvironment);
-        particlePortrayal.setField(Particle.getInstance(Particle.TYPE.CXCL13));
-        particlePortrayal.setMap(new ParticleColorMap());
+        //particlePortrayal.setField(Particle.getInstance(Particle.TYPE.CXCL13));
+        //particlePortrayal.setMap(new ParticleColorMap());
                 
         // reschedule the displayer
         display.reset();
@@ -81,7 +81,7 @@ public class DemoUI extends GUIState
         displayFrame.setTitle("Demo");
         c.registerFrame(displayFrame);   // register the frame so it appears in the "Display" list
         displayFrame.setVisible(true);
-        display.attach( particlePortrayal, "Particles" );
+        //display.attach( particlePortrayal, "Particles" );
         display.attach( ovaPortrayal, "Ova" );
         display.attach( frcPortrayal, "FRC" );
         display.attach( bcPortrayal, "BC" );

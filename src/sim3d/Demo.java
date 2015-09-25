@@ -55,7 +55,7 @@ public class Demo extends SimState
         }*/
         for(int x=0;x<Options.FDC.COUNT;x++)
         {
-            Double2D loc = new Double2D(random.nextInt(Options.WIDTH-2)+1, random.nextInt(Options.HEIGHT-2)+1);
+            Double3D loc = new Double3D(random.nextInt(Options.WIDTH-2)+1, random.nextInt(Options.HEIGHT-2)+1, Options.DEPTH-1);
             FDC frc = new FDC();
             
             frc.setObjectLocation(loc);
@@ -64,7 +64,7 @@ public class Demo extends SimState
         }
         for(int x=0;x<Options.BC.COUNT;x++)
         {
-            Double2D loc = new Double2D(random.nextInt(Options.WIDTH-2)+1, random.nextInt(Options.HEIGHT-2)+1);
+            Double3D loc = new Double3D(random.nextInt(Options.WIDTH-2)+1, random.nextInt(Options.HEIGHT-2)+1, random.nextInt(Options.DEPTH-2)+1);
             BC bc = new BC();
             
             bc.setObjectLocation(loc);
@@ -73,10 +73,10 @@ public class Demo extends SimState
         }
 
         // add particles
-        new Particle(schedule, Particle.TYPE.CCL19, Options.WIDTH, Options.HEIGHT);
-        new Particle(schedule, Particle.TYPE.CCL21, Options.WIDTH, Options.HEIGHT);
-        new Particle(schedule, Particle.TYPE.CXCL13, Options.WIDTH, Options.HEIGHT);
-        new Particle(schedule, Particle.TYPE.EBI2L, Options.WIDTH, Options.HEIGHT);
+        new Particle(schedule, Particle.TYPE.CCL19, Options.WIDTH, Options.HEIGHT, Options.DEPTH);
+        new Particle(schedule, Particle.TYPE.CCL21, Options.WIDTH, Options.HEIGHT, Options.DEPTH);
+        new Particle(schedule, Particle.TYPE.CXCL13, Options.WIDTH, Options.HEIGHT, Options.DEPTH);
+        new Particle(schedule, Particle.TYPE.EBI2L, Options.WIDTH, Options.HEIGHT, Options.DEPTH);
     }
     
     public void finish()

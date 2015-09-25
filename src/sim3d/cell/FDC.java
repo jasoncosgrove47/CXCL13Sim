@@ -48,7 +48,8 @@ public class FDC extends DrawableCell implements Steppable
         }
 
         graphics.fillPolygon(X, Y, nPoints);*/
-        graphics.setColor(Options.FDC.DRAW_COLOR());
+
+    	graphics.setColor(getColorWithDepth(Options.BC.DRAW_COLOR()));
     	graphics.fillOval((int)info.draw.x, (int)info.draw.y, (int)info.draw.width, (int)info.draw.height);
     }
 }

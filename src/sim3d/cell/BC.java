@@ -2,6 +2,7 @@ package sim3d.cell;
 import sim.util.*;
 import sim3d.Options;
 import sim3d.diffusion.Particle;
+import sim3d.util.Vector3DHelper;
 import sim.engine.*;
 import sim.field.continuous.Continuous2D;
 
@@ -18,15 +19,12 @@ public class BC extends DrawableCell implements Steppable
 		return drawEnvironment;
 	}
 	
-	private double posX;
-	private double posY;
-	
     public BC() 
     {
     }
 
     // bleh
-    private Double3D d2Face = new Double3D(1,0,0).rotate(Options.RNG.nextDouble()*Math.PI*2);
+    private Double3D d3Face = Vector3DHelper.getRandomDirection();
     
     public void step( final SimState state )
     {
@@ -34,8 +32,8 @@ public class BC extends DrawableCell implements Steppable
     	{
 	    	double[][][] aadConcs = Particle.get(Particle.TYPE.CXCL13, (int)x, (int)y, (int)z);
 	    	
-	    	//add some noise
-	    	for ( int x = 0; x < 3; x++ )
+	    	// TODO consider how to best add noise, this or the cone thing
+	    	/*for ( int x = 0; x < 3; x++ )
 	    	{
 	    		for ( int y = 0; y < 3; y++ )
 	    		{
@@ -45,65 +43,57 @@ public class BC extends DrawableCell implements Steppable
 		    			aadConcs[x][y][z] = Math.min(aadConcs[x][y][z], Options.BC.RECEPTOR_MAX());
 		    		}
 	    		}
-	    	}
+	    	}/**/
 	    	
 	    	Double3D vMovement = new Double3D();
 	
-	    	// calculate direction vector
-	    	//vMovement = vMovement.add(new Double2D(-1,-1).multiply(aadConcs[0][0]-aadConcs[2][2]));
-	    	vMovement = vMovement.add(new Double3D(0,-Math.sqrt(2)).multiply(aadConcs[1][0][1]-aadConcs[1][2][1]));
-	    	//vMovement = vMovement.add(new Double2D(1,-1).multiply(aadConcs[2][0]-aadConcs[0][2]));
-	    	vMovement = vMovement.add(new Double3D(-Math.sqrt(2),0).multiply(aadConcs[0][1][1]-aadConcs[2][1][1]));
+	    	// X
+	    	vMovement = vMovement.add(new Double3D(1, 0, 0).multiply(aadConcs[2][1][1]-aadConcs[0][1][1]));
+	    	// Y
+	    	vMovement = vMovement.add(new Double3D(0, 1, 0).multiply(aadConcs[1][2][1]-aadConcs[1][0][1]));
+	    	// Z
+	    	vMovement = vMovement.add(new Double3D(0, 0, 1).multiply(aadConcs[1][1][2]-aadConcs[1][1][0]));
 	    	
-	    	// sqrt2 because the magnitude of the directional vectors is sqrt2
-	    	if ( vMovement.length() > Math.sqrt(2) * Options.BC.VECTOR_MIN() )
+	    	if ( vMovement.length() > Options.BC.VECTOR_MIN() )
 	    	{
 	    		vMovement = vMovement.normalize();
 	    	}
 	    	else
 	    	{
 	    		// no data! so do a random turn
-	    		vMovement = d2Face.rotate(Options.RNG.nextDouble()*Math.PI - Math.PI/2);
+	    		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(d3Face, Math.PI);
 	    	}
 	    	
-	    	d2Face = vMovement;
+	    	// Remember which way we're now facing
+	    	d3Face = vMovement;
 	    	
-	    	posX = x + vMovement.x*Options.BC.TRAVEL_DISTANCE();
-	    	posY = y + vMovement.y*Options.BC.TRAVEL_DISTANCE();
-	    	posZ = z + vMovement.z*Options.BC.TRAVEL_DISTANCE();
+	    	x = Math.min(Options.WIDTH-1, Math.max(1, x + vMovement.x*Options.BC.TRAVEL_DISTANCE()));
+	    	y = Math.min(Options.HEIGHT-1, Math.max(1, y + vMovement.y*Options.BC.TRAVEL_DISTANCE()));
+	    	z = Math.min(Options.DEPTH-1, Math.max(1, z + vMovement.z*Options.BC.TRAVEL_DISTANCE()));
 	    	
-	    	setObjectLocation( new Double2D(posX, posY, posZ));
+	    	// TODO better handling of edges
+	    	setObjectLocation( new Double3D(x, y, z) );
     	}
 
-    	Particle.add(Particle.TYPE.CCL19, (int)x, (int)y, -2 );
+    	Particle.add(Particle.TYPE.CCL19, (int)x, (int)y, (int)z, -2 );
     }
 
     private boolean canMove()
     {
     	// Find neighbours within move distance
+    	// TODO this doesn't take into account the z dimension, but it is close enough for now I think
+    	// Perhaps it would be better to check if neighbouring cells or cells intersecting movement are full?
+    	// ie. get a direction, keep moving until you finish or hit another cell
+    	// but this would be that order matters... hmm
     	Bag bagNeighbours = drawEnvironment.getNeighborsWithinDistance( new Double2D(x,y), Options.BC.TRAVEL_DISTANCE() );
     	
-    	// Separate the neighbours from the ones on the same spot
-    	// TODO is there any point in doing this since I'm not using discrete space?
-    	// Perhaps a better way would be to somehow limit movement in specific
-    	int iNeighbours = bagNeighbours.size();
-    	int iSameLoc = 0;
-    	for ( int i = 0; i < iNeighbours; i++ )
-    	{
-    		BC bcNeighbour = (BC)bagNeighbours.get(i);
-    		if ( bcNeighbour.x == x && bcNeighbour.y == y )
-    		{
-    			iSameLoc++;
-    		}
-    	}
-    	iNeighbours -= iSameLoc;
-    	
-    	return Options.RNG.nextDouble() < Math.exp(-Math.pow(2, Math.max(0, iNeighbours/64-iSameLoc/8)));
+    	// TODO my brain hurts and I haven't really thought much about this
+    	return Options.RNG.nextDouble() < Math.exp(-Math.pow(Math.max(0, bagNeighbours.size()), 2)/400);
     }
     
     public final void draw(Object object,  final Graphics2D graphics, final DrawInfo2D info)
     {
-        get3DDrawInfo(info, graphics, Options.BC.DRAW_COLOR());
+    	graphics.setColor(getColorWithDepth(Options.BC.DRAW_COLOR()));
     	graphics.fillOval((int)info.draw.x, (int)info.draw.y, (int)info.draw.width, (int)info.draw.height);
     }
 }

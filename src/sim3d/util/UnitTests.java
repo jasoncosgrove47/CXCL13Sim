@@ -23,7 +23,7 @@ public class UnitTests extends AbstractAnalysis {
 
 	public void testVector3DHelperRandomDirection()
 	{
-		int size = 5000;
+		int size = 50000;
 		Coord3d[] points = new Coord3d[size];
         Color[]   colors = new Color[size];
 		
