@@ -85,7 +85,7 @@ public class BC extends DrawableCell implements Steppable
 	    	setObjectLocation( new Double3D(x, y, z) );
     	}
 
-    	//Particle.add(Particle.TYPE.CCL19, (int)x, (int)y, (int)z, -2 );
+    	//Particle.add(Particle.TYPE.CCL19, (int)x, (int)y, (int)z, -1 );
     }
 
     private boolean m_bCantMove = false;

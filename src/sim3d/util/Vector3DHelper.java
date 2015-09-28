@@ -51,6 +51,26 @@ public class Vector3DHelper
 		// Change from cylindrical coordinates to spherical
 		return rotateUsingVector(new Double3D(Math.sqrt(1-z*z)*Math.cos(phi), Math.sqrt(1-z*z)*Math.sin(phi), z), d3Direction);
 	}
+	
+	public static Double3D[] getEqDistPointsOnSphere(int iNumPoints)
+	{
+		Double3D[] ad3Return = new Double3D[iNumPoints];
+		double phi = (Math.sqrt(5)+1)/2 -1;
+		double ga = phi * 2 * Math.PI;
+		for(int i = 0; i < iNumPoints; i++)
+		{
+			double dLongitude = ga*i;
+			double dLatitude = Math.asin(-1 + 2.0*i/iNumPoints);
+
+			double x = Math.cos(dLatitude) * Math.cos(dLongitude);
+			double y = Math.cos(dLatitude) * Math.sin(dLongitude);
+			double z = Math.sin(dLatitude);
+			
+			ad3Return[i] = new Double3D(x, y, z).normalize();
+		}
+		
+		return ad3Return;
+	}
 
 	/**
 	 * Generates a random point on the surface of the unit sphere within a specified cone biased towards
@@ -88,6 +108,11 @@ public class Vector3DHelper
 		{
 			//we're in the right direction
 			return d3Point;
+		}
+		else if (d3Direction.z == -1)
+		{
+			// We're facing the wrong way! Just negate the z coordinate
+			return new Double3D(d3Point.x, d3Point.y, -d3Point.z);
 		}
 		
 		//math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-b-in-3d/476311#476311

@@ -112,13 +112,33 @@ public class UnitTests extends AbstractAnalysis {
         chart.getScene().add(scatter);
 	}
 
+	public void testVector3DHelperEqDistPointsOnSphere()
+	{
+		int size = 5000;
+		Coord3d[] points = new Coord3d[size];
+        Color[]   colors = new Color[size];
+		
+        Double3D[] ad3Points = Vector3DHelper.getEqDistPointsOnSphere(size);
+        
+        for(int i=0; i<size; i++){
+            points[i] = new Coord3d(ad3Points[i].x, ad3Points[i].y, ad3Points[i].z);
+            colors[i] = new Color(0, 0, 0, 100);
+        }
+        
+        Scatter scatter = new Scatter(points, colors);
+        scatter.width = 5;
+        chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
+        chart.getScene().add(scatter);
+	}
+	
 	@Override
 	public void init() throws Exception
 	{
 		Options.RNG = new MersenneTwisterFast();
 
 		//testVector3DHelperRandomDirection();
-		testVector3DHelperRandomDirectionInCone();
+		//testVector3DHelperRandomDirectionInCone();
+		testVector3DHelperEqDistPointsOnSphere();
 		
 	}
 }

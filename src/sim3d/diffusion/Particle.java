@@ -102,7 +102,7 @@ public class Particle extends DoubleGrid3D implements Steppable
 		
 		// setup up stepping
 		ms_pParticles[ms_emTypeMap.get(pType)] = this;
-		schedule.scheduleRepeating(this);
+		schedule.scheduleRepeating(this, 1, 1);
 	}
 	
 	
@@ -239,9 +239,9 @@ public class Particle extends DoubleGrid3D implements Steppable
 			zEdge = -1;
 		
 		// so we don't have to keep recalculating these
-		int iWidth = m_iWidth -1;
-		int iHeight = m_iHeight -1;
-		int iDepth = m_iDepth -1;
+		int iWidth = m_iWidth - 1;
+		int iHeight = m_iHeight - 1;
+		int iDepth = m_iDepth - 1;
 		
 		for(int x = 0; x < m_iWidth; x++)
 		{
@@ -309,17 +309,13 @@ public class Particle extends DoubleGrid3D implements Steppable
 						}
 						// so these will always be a step late. I don't think that's too much of an issue
 						// TODO consider using the dirichlet code and loop through these cases individually 
-						/*field[(xEdge == -1) ? x : xEdge] // if it's -1, set it to the current x val
+						field[(xEdge == -1) ? x : xEdge] // if it's -1, set it to the current x val
 							 [(yEdge == -1) ? y : yEdge] // etc.
 							 [(zEdge == -1) ? z : zEdge] // i.e. this one isn't on the edge
-									 += newValue;*/
+									 += newValue;
 					}
 					else
 					{
-						if ( x * y * z == 1 )
-						{
-							x=x;
-						}
 						// sum up all the surrounding values multiplied by their respective coefficient
 						double newValue = 0;
 						for (int r = -1; r < 2; r++)
@@ -332,7 +328,7 @@ public class Particle extends DoubleGrid3D implements Steppable
 								}
 							}
 						}
-						field[x][y][z] = newValue;
+						field[x][y][z] += newValue;
 					}
 					zEdge = -1;
 				}

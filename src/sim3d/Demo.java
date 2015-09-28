@@ -11,9 +11,11 @@ package sim3d;
 import sim.engine.*;
 import sim.util.*;
 import sim3d.cell.BC;
+import sim3d.cell.DrawableCell;
 import sim3d.cell.FDC;
 import sim3d.cell.Ova;
 import sim3d.diffusion.Particle;
+import sim3d.util.FRCStromaGenerator;
 import sim.field.continuous.*;
 
 public class Demo extends SimState
@@ -30,6 +32,7 @@ public class Demo extends SimState
 
 	public void setDisplayLevel(int m_iDisplayLevel) {
 		Particle.setDisplayLevel(m_iDisplayLevel-1);
+		DrawableCell.setDisplayLevel(m_iDisplayLevel-1);
 	}
 	
 	public Object domDisplayLevel() { return new sim.util.Interval(1, Options.DEPTH); }
@@ -63,33 +66,23 @@ public class Demo extends SimState
             
             schedule.scheduleRepeating(ova);
         }*/
-        double xPos = 2, yPos = 2, zPos = 1;
-        outerloop:
-        for(int x=0;x<Options.FDC.COUNT;x++)
+        boolean[][][] ba3CellLocs = FRCStromaGenerator.generateStroma3D(Options.WIDTH-2, Options.HEIGHT-2, Options.DEPTH-2, Options.FDC.COUNT);
+        for(int x = 0; x < Options.WIDTH-2; x++)
         {
-        	xPos = (Options.WIDTH-2+xPos+Options.RNG.nextInt(3)-1)%(Options.WIDTH-2)+1;
-        	yPos = (Options.HEIGHT-2+yPos+Options.RNG.nextInt(3)-1)%(Options.HEIGHT-2)+1;
-        	zPos = (Options.DEPTH-2+zPos+Options.RNG.nextInt(3)-1)%(Options.DEPTH-2)+1;
-        	
-        	for( Object t : FDC.drawEnvironment.allObjects)
-        	{
-        		FDC a = (FDC)t;
-        		if ( a.x == xPos && a.y == yPos && a.z == zPos)
-        		{
-        			xPos = a.x;
-        			yPos = a.y;
-        			zPos = a.z;
-        			x--;
-        			continue outerloop;
-        		}
-        	}
-        	
-            Double3D loc = new Double3D(xPos, yPos, zPos);
-            FDC fdc = new FDC();
-            
-            fdc.setObjectLocation(loc);
-            
-            schedule.scheduleRepeating(fdc);
+        	for(int y = 0; y < Options.HEIGHT-2; y++)
+            {
+        		for(int z = 0; z < Options.DEPTH-2; z++)
+                {
+        			if ( ba3CellLocs[x][y][z] )
+        			{
+	                    FDC fdc = new FDC();
+	                    
+	                    fdc.setObjectLocation( new Double3D(x+1, y+1, z+1) );
+	                    
+	                    schedule.scheduleRepeating(fdc, 0, 1);
+        			}
+                }
+            }
         }
         for(int x=0;x<Options.BC.COUNT;x++)
         {
@@ -98,7 +91,7 @@ public class Demo extends SimState
             
             bc.setObjectLocation(loc);
             
-            schedule.scheduleRepeating(bc);
+            schedule.scheduleRepeating(bc, 0, 1);
         }
 
         // add particles
