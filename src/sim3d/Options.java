@@ -14,13 +14,13 @@ public class Options
 	
 	public static int WIDTH = 100;
 	public static int HEIGHT = 100;
-	public static int DEPTH = 15;
+	public static int DEPTH = 5;
 	public static double MAX_DISTANCE = 5;
-	public static int DIFFUSION_STEPS = 1;
+	public static int DIFFUSION_STEPS = 2;
 	
 	public static class BC
 	{
-		public static int COUNT = 300;
+		public static int COUNT = 2000;
 		public static double DISCRETISATION = 5;
 		public static double CONC_CARRYING(){ return 0.014; }
 		public static double VECTOR_MIN() { return 0.01; }
@@ -50,6 +50,6 @@ public class Options
 	}
 	
 	public static class FRCGenerator {
-		public static int MAX_EDGE_LENGTH = 4;
+		public static int MAX_EDGE_LENGTH(){ return 3; }
 	}
 }

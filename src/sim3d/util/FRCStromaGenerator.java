@@ -34,7 +34,7 @@ public class FRCStromaGenerator {
 					break;
 				}
 				
-				int iEdges = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3NextCell, Options.FRCGenerator.MAX_EDGE_LENGTH).size();
+				int iEdges = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3NextCell, Options.FRCGenerator.MAX_EDGE_LENGTH()).size();
 				
 				iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(6-iEdges)+1));
 				
@@ -117,7 +117,7 @@ public class FRCStromaGenerator {
 						 + 13.0/3.0*Math.pow(length,  3)
 						 - 12*Math.pow(length,  2)
 						 + 61.0/6.0*length
-						 + 3.5;
+						 + 3;
 				
 				d3aReturn[i] = Vector3DHelper.getRandomDirection().multiply(length);
 
@@ -165,9 +165,9 @@ public class FRCStromaGenerator {
 			}
 			iIndex = Options.RNG.nextInt(i3lCellLocations.size());
 			
-			ArrayList<Int3D> i3aAdjCells = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3lCellLocations.get(iIndex), Options.FRCGenerator.MAX_EDGE_LENGTH);
+			ArrayList<Int3D> i3aAdjCells = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3lCellLocations.get(iIndex), Options.FRCGenerator.MAX_EDGE_LENGTH());
 			
-			if ( i3aAdjCells.size() > 7 )
+			if ( i3aAdjCells.size() > 8 )
 			{
 				i3lCellLocations.remove(iIndex);
 				continue;

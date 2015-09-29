@@ -79,7 +79,7 @@ public class Demo extends SimState
 	                    
 	                    fdc.setObjectLocation( new Double3D(x+1, y+1, z+1) );
 	                    
-	                    schedule.scheduleRepeating(fdc, 0, 1);
+	                    schedule.scheduleRepeating(fdc, 2, 1);
         			}
                 }
             }

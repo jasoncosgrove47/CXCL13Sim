@@ -25,8 +25,7 @@ public class BC extends DrawableCell implements Steppable
 
     private boolean m_bRandom = true;
     
-    // bleh
-    private Double3D d3Face = Vector3DHelper.getRandomDirection();
+    private Double3D m_d3Face = Vector3DHelper.getRandomDirection();
     
     private double applyCarrying(double dValue)
     {
@@ -71,15 +70,15 @@ public class BC extends DrawableCell implements Steppable
 	    	{
 	    		m_bRandom = true;
 	    		// no data! so do a random turn
-	    		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(d3Face, Options.BC.RANDOM_TURN_ANGLE());
+	    		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(m_d3Face, Options.BC.RANDOM_TURN_ANGLE());
 	    	}
 	    	
 	    	// Remember which way we're now facing
-	    	d3Face = vMovement;
+	    	m_d3Face = vMovement;
 	    	
-	    	x = Math.min(Options.WIDTH-1, Math.max(1, x + vMovement.x*Options.BC.TRAVEL_DISTANCE()));
-	    	y = Math.min(Options.HEIGHT-1, Math.max(1, y + vMovement.y*Options.BC.TRAVEL_DISTANCE()));
-	    	z = Math.min(Options.DEPTH-1, Math.max(1, z + vMovement.z*Options.BC.TRAVEL_DISTANCE()));
+	    	x = Math.min(Options.WIDTH-2, Math.max(1, x + vMovement.x*Options.BC.TRAVEL_DISTANCE()));
+	    	y = Math.min(Options.HEIGHT-2, Math.max(1, y + vMovement.y*Options.BC.TRAVEL_DISTANCE()));
+	    	z = Math.min(Options.DEPTH-2, Math.max(1, z + vMovement.z*Options.BC.TRAVEL_DISTANCE()));
 	    	
 	    	// TODO better handling of edges
 	    	setObjectLocation( new Double3D(x, y, z) );
@@ -96,11 +95,11 @@ public class BC extends DrawableCell implements Steppable
     	// Perhaps it would be better to check if neighbouring cells or cells intersecting movement are full?
     	// ie. get a direction, keep moving until you finish or hit another cell
     	// but this would be that order matters... hmm
-    	Bag bagNeighbours = drawEnvironment.getNeighborsWithinDistance( new Double2D(x,y), Options.BC.TRAVEL_DISTANCE() );
+    	//Bag bagNeighbours = drawEnvironment.getNeighborsWithinDistance( new Double2D(x,y), Options.BC.TRAVEL_DISTANCE() );
     	
     	// TODO my brain hurts and I haven't really thought much about this
-    	m_bCantMove = Options.RNG.nextDouble() > Math.exp(-Math.pow(Math.max(0, bagNeighbours.size()), 2)/400);
-    	return !m_bCantMove;
+    	//m_bCantMove = Options.RNG.nextDouble() > Math.exp(-Math.pow(Math.max(0, bagNeighbours.size()), 2)/400);
+    	return true;
     }
     
     public final void draw(Object object,  final Graphics2D graphics, final DrawInfo2D info)
@@ -117,6 +116,6 @@ public class BC extends DrawableCell implements Steppable
     	{
     		graphics.setColor(getColorWithDepth(Options.BC.DRAW_COLOR()));
     	}
-    	graphics.fillOval((int)info.draw.x, (int)info.draw.y, (int)info.draw.width, (int)info.draw.height);
+    	graphics.fillOval((int)Math.round(info.draw.x), (int)Math.round(info.draw.y), (int)Math.round(info.draw.width), (int)Math.round(info.draw.height));
     }
 }
