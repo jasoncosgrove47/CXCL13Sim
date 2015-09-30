@@ -36,7 +36,7 @@ public class FRCStromaGenerator {
 				
 				int iEdges = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3NextCell, Options.FRCGenerator.MAX_EDGE_LENGTH()).size();
 				
-				iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(6-iEdges)+1));
+				iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(5-iEdges)+2));
 				
 				if ( iEdges < 0 )
 				{
@@ -54,6 +54,7 @@ public class FRCStromaGenerator {
 			if (bSuccess)
 			{
 				iRemainingCells -= createNewCells(iWidth, iHeight, iDepth, i3lCellLocations, ba3CellLocations, i3NextCell, d3aDirections);
+				i3lCellLocations.remove(i3NextCell);
 			}
 		}
 		
@@ -70,11 +71,15 @@ public class FRCStromaGenerator {
 			x = (int) Math.round(i3Origin.x + d3Direction.x);
 			y = (int) Math.round(i3Origin.y + d3Direction.y);
 			z = (int) Math.round(i3Origin.z + d3Direction.z);
-			
+
 			Int3D i3NewPoint = new Int3D(x, y, z);
 			
-			// Check if one already exists nearby
-			if(ba3CellLocations[x][y][z])
+			// check if out of bounds or point already exists or one is adjacent
+			if ( x < 0 || x >= iWidth
+			  || y < 0 || y >= iHeight
+			  || z < 0 || z >= iDepth
+			  || ba3CellLocations[x][y][z]
+			  || getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3NewPoint, 1).size() > 0 )
 			{
 				continue;
 			}
@@ -100,15 +105,10 @@ public class FRCStromaGenerator {
 				return null;
 			}
 			
-			int iInnerSkips = 0;
 			Double3D d3VectorSum = new Double3D();
 			
 			for(int i = 0; i < iCellCount; i++)
 			{
-				if ( iInnerSkips > 1000 )
-				{
-					return null;
-				}
 				
 				// -0.5x^4 + 13/3x^3 - 12x^2 + 61/6x + 2 
 				
@@ -120,26 +120,11 @@ public class FRCStromaGenerator {
 						 + 3;
 				
 				d3aReturn[i] = Vector3DHelper.getRandomDirection().multiply(length);
-
-				int x, y, z;
-				x = (int) Math.round(i3Location.x + d3aReturn[i].x);
-				y = (int) Math.round(i3Location.y + d3aReturn[i].y);
-				z = (int) Math.round(i3Location.z + d3aReturn[i].z);
-				
-				if ( x < 0 || x >= iWidth
-				  || y < 0 || y >= iHeight
-				  || z < 0 || z >= iDepth
-				  || ba3CellLocations[x][y][z])
-				{
-					i--;
-					iInnerSkips++;
-					continue;
-				}
 				
 				d3VectorSum = d3VectorSum.add(d3aReturn[i]);
 			}
 			
-			if ( d3VectorSum.length() < 2 )
+			if ( d3VectorSum.length() < 0.4 )
 			{
 				bSuccess = true;
 			}
@@ -187,7 +172,7 @@ public class FRCStromaGenerator {
 		return i3lCellLocations.get(iIndex);
 	}
 	
-	private static ArrayList<Int3D> getAdjacentCells(int iWidth, int iHeight, int iDepth, boolean[][][] ba3CellLocations, Int3D i3Point, int iMaxDistance)
+	public static ArrayList<Int3D> getAdjacentCells(int iWidth, int iHeight, int iDepth, boolean[][][] ba3CellLocations, Int3D i3Point, int iMaxDistance)
 	{
 		ArrayList<Int3D> i3lReturn = new ArrayList<Int3D>();
 

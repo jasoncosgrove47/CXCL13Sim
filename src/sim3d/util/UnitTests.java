@@ -1,5 +1,7 @@
 package sim3d.util;
 
+import java.util.ArrayList;
+
 import org.jzy3d.analysis.AbstractAnalysis;
 import org.jzy3d.analysis.AnalysisLauncher;
 import org.jzy3d.chart.factories.AWTChartComponentFactory;
@@ -12,15 +14,82 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 
 import ec.util.MersenneTwisterFast;
 import sim.util.Double3D;
+import sim.util.Int3D;
 import sim3d.Options;
 
 public class UnitTests extends AbstractAnalysis {
 
 	public static void main(String[] args) throws Exception {
-		AnalysisLauncher.open(new UnitTests());
+		//AnalysisLauncher.open(new UnitTests());
 	}
 
+	public void testFRCStromaGenerator()
+	{
+		int size = Options.FDC.COUNT;
+		
+		boolean[][][] ba3Stroma = FRCStromaGenerator.generateStroma3D(Options.WIDTH-2,  Options.HEIGHT-2, Options.DEPTH-2, size);
+		ArrayList<Coord3d> c3dalPoints = new ArrayList<Coord3d>();
+		ArrayList<Coord3d> c3dalLines = new ArrayList<Coord3d>();
+		
+		int edges = 0;
+		
+        for ( int x = 0; x < Options.WIDTH-2; x++ )
+        {
+        	for ( int y = 0; y < Options.HEIGHT-2; y++ )
+            {
+        		for ( int z = 0; z < Options.DEPTH-2; z++ )
+                {
+                	if ( ba3Stroma[x][y][z] )
+                	{
+                		ArrayList<Int3D> cells = FRCStromaGenerator.getAdjacentCells(Options.WIDTH-2,  Options.HEIGHT-2, Options.DEPTH-2, ba3Stroma, new Int3D(x, y, z), Options.FRCGenerator.MAX_EDGE_LENGTH());
+                		c3dalPoints.add( new Coord3d(x, y, z) );
+                		edges += cells.size();
+                		for ( Int3D cell : cells )
+                		{
+                			drawLine(c3dalLines, new Coord3d(x, y, z), new Coord3d(cell.x, cell.y, cell.z));
+                		}
+                	}
+                }
+            }
+        }
+        
+        System.out.printf("%f", ((double)edges)/c3dalPoints.size());
+        
+        /*/Coord3d[] points = new Coord3d[c3dalPoints.size()];
+        Color[]   colors = new Color[c3dalPoints.size()];
+        
+        for ( int i = 0; i < c3dalPoints.size(); i++ )
+        {
+        	points[i] = c3dalPoints.get(i);
+        	colors[i] = new Color(0,0,0,200);
+        }
 
+        Coord3d[] lines = new Coord3d[c3dalLines.size()];
+        Color[]   linecolors = new Color[c3dalLines.size()];
+        for ( int i = 0; i < c3dalLines.size(); i++ )
+        {
+        	lines[i] = c3dalLines.get(i);
+        	linecolors[i] = new Color(255,0,0,40);
+        }
+
+        /*Scatter scatter = new Scatter(points, colors);
+        scatter.width = 3;
+        Scatter scatter2 = new Scatter(lines, linecolors);
+        scatter2.width = 1;
+        chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
+        chart.getScene().add(scatter);
+        chart.getScene().add(scatter2);*/
+	}
+	
+	public void drawLine(ArrayList<Coord3d> points, Coord3d p1, Coord3d p2)
+	{
+		Coord3d diff = p2.sub(p1).mul(0.05f);
+		for (int i = 0; i < 19; i++)
+		{
+			points.add(p1.add(diff.mul(i)));
+		}
+	}
+	
 	public void testVector3DHelperRandomDirection()
 	{
 		int size = 50000;
@@ -138,7 +207,8 @@ public class UnitTests extends AbstractAnalysis {
 
 		//testVector3DHelperRandomDirection();
 		//testVector3DHelperRandomDirectionInCone();
-		testVector3DHelperEqDistPointsOnSphere();
+		//testVector3DHelperEqDistPointsOnSphere();
+		testFRCStromaGenerator();
 		
 	}
 }
