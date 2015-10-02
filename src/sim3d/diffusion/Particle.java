@@ -7,6 +7,7 @@ import sim.engine.Steppable;
 import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.DoubleGrid3D;
 import sim3d.Options;
+import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
 // TODO parametrise diffusion on a per solute basis
 
@@ -80,7 +81,8 @@ public class Particle extends DoubleGrid3D implements Steppable
 	private int m_iHeight;
 	private int m_iDepth;
 	
-	private double[][][] m_adDiffusionCoefficients;
+	private DiffusionAlgorithm m_daDiffusionAlgorithm;
+	
 	public DoubleGrid2D m_dg2Display;
 	
 	public Particle(Schedule schedule, TYPE pType, int iWidth, int iHeight, int iDepth)
@@ -98,7 +100,7 @@ public class Particle extends DoubleGrid3D implements Steppable
 		m_iDepth = iDepth;
 		
 		// (in 2D) works out to be Gaussian blur convolution matrix {{1,2,1},{2,4,2},{1,2,1}}
-		setDiffusionCoefficients(0.75, 2);
+		m_daDiffusionAlgorithm = new sim3d.diffusion.algorithms.Grajdeanu(10, iWidth, iHeight, iDepth);
 		
 		// setup up stepping
 		ms_pParticles[ms_emTypeMap.get(pType)] = this;
@@ -115,51 +117,6 @@ public class Particle extends DoubleGrid3D implements Steppable
 				m_dg2Display.set(x, y, field[x][y][m_iDisplayLevel]);
 			}
 		}
-	}
-	
-	public void setDiffusionCoefficients(double dDispersePercent, double dDistanceFactor)
-	{
-		// initialise member variable
-		m_adDiffusionCoefficients = new double[3][3][3];
-		
-		// used to calculate amount dispersed to the corresponding squares
-		double[][][] adDistances = new double[3][3][3];
-		
-		// normalise so that the outer boxes sum to dDispersePercent
-		double dTotalDistance = 0;
-		for (int x = -1; x < 2; x++)
-		{
-			for (int y = -1; y< 2; y++)
-			{
-				for (int z = -1; z < 2; z++)
-				{
-					// Not concerned with the middle square
-					if ( x == 0 && y == 0 && z == 0 )
-					{
-						continue;
-					}
-					
-					adDistances[x+1][y+1][z+1] = Math.pow(Math.sqrt(x*x + y*y + z*z), dDistanceFactor);
-					dTotalDistance += adDistances[x+1][y+1][z+1];
-				}
-			}
-		}
-		double dNormalisingCoefficient = dDispersePercent / dTotalDistance;
-		
-		// set the coefficients using distances and normalising constants
-		for (int x = 0; x < 3; x++)
-		{
-			for (int y = 0; y< 3; y++)
-			{
-				for (int z = 0; z < 3; z++)
-				{
-					m_adDiffusionCoefficients[x][y][z] = dNormalisingCoefficient / adDistances[x][y][z];
-				}
-			}
-		}
-		
-		// set the middle square
-		m_adDiffusionCoefficients[1][1][1] = 1-dDispersePercent;
 	}
 	
 	// Add or remove(!) amounts
@@ -204,22 +161,22 @@ public class Particle extends DoubleGrid3D implements Steppable
 	}
 	
 	// Actually the inverse of the decay rate to improve efficiency
-	public double m_dDecayRateInv = 0.99;
+	public double m_dDecayRateInv = 0.9;
 	
 	public void step( final SimState state )
 	{
-		diffuse();
+		decay();
+		
 		for (int i = 0; i < Options.DIFFUSION_STEPS; i++)
 		{
+			m_daDiffusionAlgorithm.diffuse(this);
 		}
+		
 		updateDisplay();
 	}
-	public void diffuse()
+	
+	public void decay()
 	{
-		//TODO the scheduler is doing things in the wrong order, make sure the diffusion comes last!!!!
-		double adConcentrations[][][] = new double[m_iWidth][m_iHeight][m_iDepth];
-		//field = new double[m_iWidth][m_iHeight][m_iDepth];
-		
 		// Adjust for decay
 		for(int x = 0; x < m_iWidth; x++)
 		{
@@ -227,114 +184,9 @@ public class Particle extends DoubleGrid3D implements Steppable
 			{
 				for(int z = 0; z < m_iDepth; z++)
 				{
-					adConcentrations[x][y][z] = field[x][y][z];// * m_dDecayRateInv;
-					field[x][y][z] = 0;
+					field[x][y][z] *=  m_dDecayRateInv;
 				}
 			}
-		}
-		
-		// Make this a bit quicker by only doing it once for each x, and width times for each y
-		int xEdge = -1,
-			yEdge = -1,
-			zEdge = -1;
-		
-		// so we don't have to keep recalculating these
-		int iWidth = m_iWidth - 1;
-		int iHeight = m_iHeight - 1;
-		int iDepth = m_iDepth - 1;
-		
-		for(int x = 0; x < m_iWidth; x++)
-		{
-			// So this will be calculated m_iWidth times in total
-			if ( x == 0 )
-			{
-				xEdge = 1; 
-			}
-			else if ( x == iWidth )
-			{
-				xEdge = m_iWidth - 2;
-			}
-			
-			for(int y = 0; y < m_iHeight; y++)
-			{
-				// So this will be calculated m_iWidth*m_iHeight times in total
-				if ( y == 0 )
-				{
-					yEdge = 1; 
-				}
-				else if ( y == iHeight )
-				{
-					yEdge = m_iHeight - 2;
-				}
-				
-				for(int z = 0; z < m_iDepth; z++)
-				{
-					// and this will be calculated m_iWidth*m_iHeight*m_iDepth times in total
-					if ( z == 0 )
-					{
-						zEdge = 1; 
-					}
-					else if ( z == iDepth )
-					{
-						zEdge = m_iDepth - 2;
-					}
-					
-					// TODO is bitwise and (xEdge&yEdge&zEdge != -1) or just adding faster than this?
-					// they're quicker operations, but will always go through all the cases whereas this
-					// will stop as soon as one returns true
-					if ( xEdge != -1 || yEdge != -1 || zEdge != -1 )
-					{
-						double newValue = 0;
-						for (int r = -1; r < 2; r++)
-						{
-							if ( x+r < 0 || x+r+1 > m_iWidth )
-							{
-								continue;
-							}
-							for (int s = -1; s < 2; s++)
-							{
-								if ( y+s < 0 || y+s+1 > m_iHeight )
-								{
-									continue;
-								}
-								for (int t = -1; t < 2; t++)
-								{
-									if ( z+t < 0 || z+t+1 > m_iDepth )
-									{
-										continue;
-									}
-									newValue += m_adDiffusionCoefficients[r+1][s+1][t+1] * adConcentrations[x+r][y+s][z+t];
-								}
-							}
-						}
-						// so these will always be a step late. I don't think that's too much of an issue
-						// TODO consider using the dirichlet code and loop through these cases individually 
-						field[(xEdge == -1) ? x : xEdge] // if it's -1, set it to the current x val
-							 [(yEdge == -1) ? y : yEdge] // etc.
-							 [(zEdge == -1) ? z : zEdge] // i.e. this one isn't on the edge
-									 += newValue;
-					}
-					else
-					{
-						// sum up all the surrounding values multiplied by their respective coefficient
-						double newValue = 0;
-						for (int r = -1; r < 2; r++)
-						{
-							for (int s = -1; s < 2; s++)
-							{
-								for (int t = -1; t < 2; t++)
-								{
-									newValue += m_adDiffusionCoefficients[r+1][s+1][t+1] * adConcentrations[x+r][y+s][z+t];
-								}
-							}
-						}
-						field[x][y][z] += newValue;
-					}
-					zEdge = -1;
-				}
-				yEdge = -1;
-			}
-			xEdge = -1;
 		}
 	}
 }
