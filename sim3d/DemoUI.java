@@ -12,13 +12,14 @@ import sim.portrayal.SimplePortrayal2D;
 
 import sim.portrayal.continuous.*;
 import sim.portrayal.grid.FastValueGridPortrayal2D;
+import sim.engine.*;
+import sim.display.*;
 import sim3d.cell.BC;
 import sim3d.cell.FDC;
 import sim3d.cell.Ova;
 import sim3d.diffusion.Particle;
 import sim3d.diffusion.ParticleColorMap;
-import sim.engine.*;
-import sim.display.*;
+
 import javax.swing.*;
 
 import java.awt.Color;

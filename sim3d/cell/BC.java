@@ -1,13 +1,14 @@
 package sim3d.cell;
 import sim.util.*;
-import sim3d.Options;
-import sim3d.diffusion.Particle;
-import sim3d.util.Vector3DHelper;
 import sim.engine.*;
 import sim.field.continuous.Continuous2D;
 
 import java.awt.*;
+
 import sim.portrayal.*;
+import sim3d.Options;
+import sim3d.diffusion.Particle;
+import sim3d.util.Vector3DHelper;
 
 public class BC extends DrawableCell implements Steppable
 {
