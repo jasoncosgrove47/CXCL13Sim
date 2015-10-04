@@ -18,6 +18,9 @@ import sim3d.diffusion.Particle;
 import sim3d.util.FRCStromaGenerator;
 import sim.field.continuous.*;
 
+
+//code needs much more comments!
+
 public class Demo extends SimState
 {
     private static final long serialVersionUID = 1;
