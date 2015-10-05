@@ -13,14 +13,16 @@ import org.jzy3d.plot3d.primitives.Scatter;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
 import ec.util.MersenneTwisterFast;
+import sim.engine.Schedule;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Options;
+import sim3d.diffusion.Particle;
 
 public class UnitTests extends AbstractAnalysis {
 
 	public static void main(String[] args) throws Exception {
-		//AnalysisLauncher.open(new UnitTests());
+		AnalysisLauncher.open(new UnitTests());
 	}
 
 	public void testFRCStromaGenerator()
@@ -53,9 +55,7 @@ public class UnitTests extends AbstractAnalysis {
             }
         }
         
-        System.out.printf("%f", ((double)edges)/c3dalPoints.size());
-        
-        /*/Coord3d[] points = new Coord3d[c3dalPoints.size()];
+        Coord3d[] points = new Coord3d[c3dalPoints.size()];
         Color[]   colors = new Color[c3dalPoints.size()];
         
         for ( int i = 0; i < c3dalPoints.size(); i++ )
@@ -72,13 +72,13 @@ public class UnitTests extends AbstractAnalysis {
         	linecolors[i] = new Color(255,0,0,40);
         }
 
-        /*Scatter scatter = new Scatter(points, colors);
+        Scatter scatter = new Scatter(points, colors);
         scatter.width = 3;
         Scatter scatter2 = new Scatter(lines, linecolors);
         scatter2.width = 1;
         chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
         chart.getScene().add(scatter);
-        chart.getScene().add(scatter2);*/
+        chart.getScene().add(scatter2);
 	}
 	
 	public void drawLine(ArrayList<Coord3d> points, Coord3d p1, Coord3d p2)
@@ -200,6 +200,33 @@ public class UnitTests extends AbstractAnalysis {
         chart.getScene().add(scatter);
 	}
 	
+	public void testParticleDiffusion(){
+		Schedule schedule = new Schedule();
+		Particle p = new Particle(schedule, Particle.TYPE.CCL19, 125,125,125);
+		
+		p.add(62, 62, 62, 1);
+		p.m_dDecayRateInv = 1;
+		for ( int i = 0; i < 60; i++ )
+		{
+			p.step(null);
+		}
+
+		double distance = 0;
+		
+		for ( int x = 0; x < 125; x++ )
+		{
+			for ( int y = 0; y < 125; y++ )
+			{
+				for ( int z = 0; z < 125; z++ )
+				{
+					distance += ((62-x)*(62-x) + (62-y)*(62-y) + (62-z)*(62-z))*p.field[x][y][z];
+				}
+			}
+		}
+		
+		System.out.printf("Mean Square Dist = %f", distance);
+	}
+	
 	@Override
 	public void init() throws Exception
 	{
@@ -209,6 +236,6 @@ public class UnitTests extends AbstractAnalysis {
 		//testVector3DHelperRandomDirectionInCone();
 		//testVector3DHelperEqDistPointsOnSphere();
 		testFRCStromaGenerator();
-		
+		//testParticleDiffusion();
 	}
 }

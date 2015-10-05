@@ -13,6 +13,32 @@ public class BC extends DrawableCell implements Steppable
 {
 	private static final long serialVersionUID = 1;
 
+	/**
+	 * (Display) Whether the last movement was random or directed.
+	 */
+    private boolean m_bRandom = true;
+    /**
+     * (Display) Whether the cell could move or not in the last time step.
+     */
+    private boolean m_bCantMove = false;
+    /**
+     * The direction the cell is facing
+     */
+    private Double3D m_d3Face = Vector3DHelper.getRandomDirection();
+
+    /**
+     * (ODE) The number of receptors on the cell surface
+     */
+    private double m_dSurfaceReceptors = 10;
+    /**
+     * (ODE) The number of receptors inside the cell
+     */
+    private double m_dInternalisedReceptors = 5;
+    /**
+     * (ODE) The number of receptors inactive due to binding
+     */
+    private double m_dBoundReceptors = 5;
+    
 	/* Draw Environment accessor */
 	public static Continuous2D drawEnvironment;
 	@Override public Continuous2D getDrawEnvironment(){
@@ -22,45 +48,13 @@ public class BC extends DrawableCell implements Steppable
     public BC() 
     {
     }
-
-    private boolean m_bRandom = true;
-    
-    private Double3D m_d3Face = Vector3DHelper.getRandomDirection();
-    
-    private double applyCarrying(double dValue)
-    {
-    	return dValue * Options.BC.CONC_CARRYING() / ( Options.BC.CONC_CARRYING() + dValue );
-    }
     
     public void step( final SimState state )
     {
     	if ( canMove() )
     	{
-	    	double[][][] aadConcs = Particle.get(Particle.TYPE.CXCL13, (int)x, (int)y, (int)z);
-	    	
-	    	
-	    	// TODO consider how to best add noise, this or the cone thing
-	    	/*for ( int x = 0; x < 3; x++ )
-	    	{
-	    		for ( int y = 0; y < 3; y++ )
-	    		{
-		    		for ( int z = 0; z < 3; z++ )
-		    		{
-		    			aadConcs[x][y][z] *= 1 - Options.RNG.nextDouble()*Options.BC.RECEPTOR_NOISE();
-		    			aadConcs[x][y][z] = Math.min(aadConcs[x][y][z], Options.BC.RECEPTOR_MAX());
-		    		}
-	    		}
-	    	}/**/
-	    	
-	    	Double3D vMovement = new Double3D();
-	
-	    	// X
-	    	vMovement = vMovement.add(new Double3D(1, 0, 0).multiply(applyCarrying(aadConcs[2][1][1])-applyCarrying(aadConcs[0][1][1]))).multiply(1-Options.RNG.nextDouble()*Options.BC.VECTOR_NOISE());
-	    	// Y
-	    	vMovement = vMovement.add(new Double3D(0, 1, 0).multiply(applyCarrying(aadConcs[1][2][1])-applyCarrying(aadConcs[1][0][1]))).multiply(1-Options.RNG.nextDouble()*Options.BC.VECTOR_NOISE());
-	    	// Z
-	    	vMovement = vMovement.add(new Double3D(0, 0, 1).multiply(applyCarrying(aadConcs[1][1][2])-applyCarrying(aadConcs[1][1][0]))).multiply(1-Options.RNG.nextDouble()*Options.BC.VECTOR_NOISE());
-	    	
+    		Double3D vMovement = getMoveDirection();
+
 	    	if ( vMovement.length() > Options.BC.VECTOR_MIN() )
 	    	{
 	    		m_bRandom = false;
@@ -76,30 +70,50 @@ public class BC extends DrawableCell implements Steppable
 	    	// Remember which way we're now facing
 	    	m_d3Face = vMovement;
 	    	
-	    	x = Math.min(Options.WIDTH-2, Math.max(1, x + vMovement.x*Options.BC.TRAVEL_DISTANCE()));
-	    	y = Math.min(Options.HEIGHT-2, Math.max(1, y + vMovement.y*Options.BC.TRAVEL_DISTANCE()));
-	    	z = Math.min(Options.DEPTH-2, Math.max(1, z + vMovement.z*Options.BC.TRAVEL_DISTANCE()));
+
+	    	x += vMovement.x*Options.BC.TRAVEL_DISTANCE();
+	    	y += vMovement.y*Options.BC.TRAVEL_DISTANCE();
+	    	z += vMovement.z*Options.BC.TRAVEL_DISTANCE();
+	    	
+	    	// Handle bounces
+	    	if ( x > Options.WIDTH - 1 )
+	    	{
+	    		x = Math.max(1, 2*(Options.WIDTH - 1) - x);
+	    		m_d3Face = new Double3D(-m_d3Face.x, m_d3Face.y, m_d3Face.z);
+	    	}
+	    	else if ( x < 1 )
+	    	{
+	    		x = Math.min(Options.WIDTH-2, 2 - x);
+	    		m_d3Face = new Double3D(-m_d3Face.x, m_d3Face.y, m_d3Face.z);
+	    	}
+	    	
+	    	if ( y > Options.HEIGHT - 1 )
+	    	{
+	    		y = Math.max(1, 2*(Options.HEIGHT - 1) - y);
+	    		m_d3Face = new Double3D(m_d3Face.x, -m_d3Face.y, m_d3Face.z);
+	    	}
+	    	else if ( y < 1 )
+	    	{
+	    		y = Math.min(Options.HEIGHT-2, 2 - y);
+	    		m_d3Face = new Double3D(m_d3Face.x, -m_d3Face.y, m_d3Face.z);
+	    	}
+	    	
+	    	if ( z > Options.DEPTH - 1 )
+	    	{
+	    		z = Math.max(1, 2*(Options.DEPTH - 1) - z);
+	    		m_d3Face = new Double3D(m_d3Face.x, m_d3Face.y, -m_d3Face.z);
+	    	}
+	    	else if ( z < 1 )
+	    	{
+	    		z = Math.min(Options.DEPTH-2, 2 - z);
+	    		m_d3Face = new Double3D(m_d3Face.x, m_d3Face.y, -m_d3Face.z);
+	    	}
 	    	
 	    	// TODO better handling of edges
 	    	setObjectLocation( new Double3D(x, y, z) );
     	}
 
-    	//Particle.add(Particle.TYPE.CCL19, (int)x, (int)y, (int)z, -1 );
-    }
-
-    private boolean m_bCantMove = false;
-    private boolean canMove()
-    {
-    	// Find neighbours within move distance
-    	// TODO this doesn't take into account the z dimension, but it is close enough for now I think
-    	// Perhaps it would be better to check if neighbouring cells or cells intersecting movement are full?
-    	// ie. get a direction, keep moving until you finish or hit another cell
-    	// but this would be that order matters... hmm
-    	//Bag bagNeighbours = drawEnvironment.getNeighborsWithinDistance( new Double2D(x,y), Options.BC.TRAVEL_DISTANCE() );
-    	
-    	// TODO my brain hurts and I haven't really thought much about this
-    	//m_bCantMove = Options.RNG.nextDouble() > Math.exp(-Math.pow(Math.max(0, bagNeighbours.size()), 2)/400);
-    	return true;
+    	receptorStep();
     }
     
     public final void draw(Object object,  final Graphics2D graphics, final DrawInfo2D info)
@@ -117,5 +131,100 @@ public class BC extends DrawableCell implements Steppable
     		graphics.setColor(getColorWithDepth(Options.BC.DRAW_COLOR()));
     	}
     	graphics.fillOval((int)Math.round(info.draw.x), (int)Math.round(info.draw.y), (int)Math.round(info.draw.width), (int)Math.round(info.draw.height));
+    }
+    
+    /**
+     * Private Methods
+     */
+
+    /**
+     * Determine whether or not a cell can move
+     * @return
+     */
+    private boolean canMove()
+    {
+    	// Find neighbours within move distance
+    	// TODO this doesn't take into account the z dimension, but it is close enough for now I think
+    	// Perhaps it would be better to check if neighbouring cells or cells intersecting movement are full?
+    	// ie. get a direction, keep moving until you finish or hit another cell
+    	// but this would be that order matters... hmm
+    	//Bag bagNeighbours = drawEnvironment.getNeighborsWithinDistance( new Double2D(x,y), Options.BC.TRAVEL_DISTANCE() );
+    	
+    	// TODO my brain hurts and I haven't really thought much about this
+    	//m_bCantMove = Options.RNG.nextDouble() > Math.exp(-Math.pow(Math.max(0, bagNeighbours.size()), 2)/400);
+    	return true;
+    }
+    
+    private Double3D getMoveDirection()
+    {
+    	// Get the surrounding concentrations
+    	double[][][] aadConcs = Particle.get(Particle.TYPE.CXCL13, (int)x, (int)y, (int)z);
+    	
+    	// {x+, x-, y+, y-, z+, z-}
+    	int[] iaReceptors = new int[6];
+
+    	// {x+, x-, y+, y-, z+, z-}
+    	double[] daConcs = {aadConcs[2][1][1],
+    						aadConcs[0][1][1],
+    						aadConcs[1][2][1],
+    						aadConcs[1][0][1],
+    						aadConcs[1][1][2],
+    						aadConcs[1][1][0]};
+    	
+    	// evenly allocate the receptors
+    	for ( int i = 0; i < 6; i++ )
+    	{
+    		iaReceptors[i] += Math.floor(m_dSurfaceReceptors/6);
+    	}
+    	
+    	// allocate the remainder evenly
+    	for ( int i = (int)Math.floor(m_dSurfaceReceptors)%6; i > 0; i-- )
+    	{
+    		iaReceptors[Options.RNG.nextInt(6)]++;
+    	}
+    	
+    	int[] iaBoundReceptors = new int[6];
+    	for ( int i = 0; i < 6; i++ )
+    	{
+    		for ( int receptors = 0; receptors < iaReceptors[i]; receptors++ )
+    		{
+    			if ( Options.RNG.nextDouble() < 1 - Math.pow(1-Options.BC.RECEPTOR_BIND_CHANCE(), (int)daConcs[i]) )
+    			{
+    				daConcs[i]--;
+    				m_dSurfaceReceptors--;
+    				m_dBoundReceptors++;
+    				iaBoundReceptors[i]++;
+    			}
+    		}
+    	}
+
+		Particle.add(Particle.TYPE.CXCL13, (int)x+1, (int)y,   (int)z,   -iaBoundReceptors[0]);
+		Particle.add(Particle.TYPE.CXCL13, (int)x-1, (int)y,   (int)z,   -iaBoundReceptors[1]);
+		Particle.add(Particle.TYPE.CXCL13, (int)x,   (int)y+1, (int)z,   -iaBoundReceptors[2]);
+		Particle.add(Particle.TYPE.CXCL13, (int)x,   (int)y-1, (int)z,   -iaBoundReceptors[3]);
+		Particle.add(Particle.TYPE.CXCL13, (int)x,   (int)y,   (int)z+1, -iaBoundReceptors[4]);
+		Particle.add(Particle.TYPE.CXCL13, (int)x,   (int)y,   (int)z-1, -iaBoundReceptors[5]);
+    	
+    	Double3D vMovement = new Double3D();
+
+    	// X
+    	vMovement = vMovement.add(new Double3D(1, 0, 0).multiply(iaBoundReceptors[0]-iaBoundReceptors[1]));
+    	// Y
+    	vMovement = vMovement.add(new Double3D(0, 1, 0).multiply(iaBoundReceptors[2]-iaBoundReceptors[3]));
+    	// Z
+    	vMovement = vMovement.add(new Double3D(0, 0, 1).multiply(iaBoundReceptors[4]-iaBoundReceptors[5]));
+    	
+    	return vMovement;
+    }
+    
+    private void receptorStep()
+    {
+    	for ( int i = 0; i < 10; i++ )
+    	{
+    		m_dSurfaceReceptors 	 += 0.1*Options.BC.ODE.SurfaceExpressionCoeff() * m_dInternalisedReceptors;
+    		m_dInternalisedReceptors += 0.1*Options.BC.ODE.InternalisationCoeff() * m_dBoundReceptors
+    								 -  0.1*Options.BC.ODE.SurfaceExpressionCoeff() * m_dInternalisedReceptors;
+    		m_dBoundReceptors 		 -= 0.1*Options.BC.ODE.InternalisationCoeff() * m_dBoundReceptors;
+    	}
     }
 }

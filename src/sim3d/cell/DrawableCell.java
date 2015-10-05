@@ -8,6 +8,7 @@ import sim.portrayal.SimplePortrayal2D;
 import sim.util.Double2D;
 import sim.util.Double3D;
 import sim3d.Options;
+import sim3d.diffusion.Particle;
 
 public abstract class DrawableCell extends SimplePortrayal2D
 {
@@ -43,5 +44,8 @@ public abstract class DrawableCell extends SimplePortrayal2D
 	    z = location.z;
 	
 	    getDrawEnvironment().setObjectLocation( this, new Double2D( x, y ) );
+	    
+	    Particle.setDisplayLevel((int)z);
+		DrawableCell.setDisplayLevel((int)z);
     }
 }

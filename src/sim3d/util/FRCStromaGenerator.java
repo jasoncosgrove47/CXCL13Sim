@@ -36,7 +36,7 @@ public class FRCStromaGenerator {
 				
 				int iEdges = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3NextCell, Options.FRCGenerator.MAX_EDGE_LENGTH()).size();
 				
-				iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(5-iEdges)+2));
+				iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(2-iEdges)+2));
 				
 				if ( iEdges < 0 )
 				{
@@ -119,7 +119,15 @@ public class FRCStromaGenerator {
 						 + 61.0/6.0*length
 						 + 3;
 				
-				d3aReturn[i] = Vector3DHelper.getRandomDirection().multiply(length);
+				if ( iDepth == 1 )
+				{
+					d3aReturn[i] = Vector3DHelper.getRandomDirection();
+					d3aReturn[i] = new Double3D(d3aReturn[i].x, d3aReturn[i].y, 0).normalize().multiply(length+1);
+				}
+				else
+				{
+					d3aReturn[i] = Vector3DHelper.getRandomDirection().multiply(length);
+				}
 				
 				d3VectorSum = d3VectorSum.add(d3aReturn[i]);
 			}

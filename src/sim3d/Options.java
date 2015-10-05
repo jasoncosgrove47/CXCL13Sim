@@ -14,23 +14,28 @@ public class Options
 	
 	public static int WIDTH = 100;
 	public static int HEIGHT = 100;
-	public static int DEPTH = 5;
+	public static int DEPTH = 12;
 	public static double MAX_DISTANCE = 5;
 	public static int DIFFUSION_STEPS = 2;
 	
 	public static class BC
 	{
-		public static int COUNT = 2000;
+		public static int COUNT = 1;
 		public static double DISCRETISATION = 5;
-		public static double CONC_CARRYING(){ return 0.014; }
-		public static double VECTOR_MIN() { return 0.01; }
-		public static double VECTOR_NOISE(){ return 0; }
-		public static double TRAVEL_DISTANCE(){ return 0.1; }
+		public static double CONC_CARRYING(){ return 1.2; }
+		public static double VECTOR_MIN() { return 0.5; }
+		public static double TRAVEL_DISTANCE(){ return 1; }
 		public static double DIRECTION_ERROR(){ return Math.PI/2; }
 		public static double RANDOM_TURN_ANGLE(){ return Math.PI/12; }
 		public static double DRAW_SCALE(){ return 0.7; }
 		public static Color DRAW_COLOR(){ return new Color(90,90,255); }
 		public static Color RANDOM_COLOR(){ return new Color(90,255,255); }
+		public static double RECEPTOR_BIND_CHANCE(){ return 0.1; }
+		public static class ODE
+		{
+			public static double SurfaceExpressionCoeff(){ return 0.1; }
+			public static double InternalisationCoeff(){ return 0.2; }
+		}
 	}
 	public static class OVA
 	{
@@ -46,7 +51,7 @@ public class Options
 		public static int COUNT = 15000;
 		public static double DRAW_SCALE(){ return 0.5; }
 		public static Color DRAW_COLOR(){ return new Color(200,130,60); }
-		public static double CXCL13_EMITTED(){ return 1; }
+		public static double CXCL13_EMITTED(){ return 3; }
 	}
 	
 	public static class FRCGenerator {
