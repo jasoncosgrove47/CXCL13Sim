@@ -52,6 +52,12 @@ public class Vector3DHelper
 		return rotateUsingVector(new Double3D(Math.sqrt(1-z*z)*Math.cos(phi), Math.sqrt(1-z*z)*Math.sin(phi), z), d3Direction);
 	}
 	
+	/**
+	 * Generates points approximately equidistant on a sphere using the fibonacci sequence.
+	 * @param iNumPoints Desired number of points
+	 * @return An array of equidistant points on a unit sphere.
+	 * @see {@link http://www.openprocessing.org/sketch/41142}
+	 */
 	public static Double3D[] getEqDistPointsOnSphere(int iNumPoints)
 	{
 		Double3D[] ad3Return = new Double3D[iNumPoints];
