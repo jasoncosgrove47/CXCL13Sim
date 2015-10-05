@@ -2,13 +2,13 @@ package sim3d;
 
 import sim.engine.*;
 import sim.util.*;
-import sim3d.cell.BC;
-import sim3d.cell.DrawableCell;
-import sim3d.cell.FDC;
-import sim3d.cell.Ova;
+import sim.field.continuous.*;
+import sim3d.cell.*;
 import sim3d.diffusion.Particle;
 import sim3d.util.FRCStromaGenerator;
-import sim.field.continuous.*;
+
+
+//code needs much more comments!
 
 public class Demo extends SimState
 {
