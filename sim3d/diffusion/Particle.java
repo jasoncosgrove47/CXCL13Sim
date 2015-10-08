@@ -107,6 +107,10 @@ public class Particle extends DoubleGrid3D implements Steppable
 		schedule.scheduleRepeating(this, 1, 1);
 	}
 	
+	public void setDiffusionAlgorithm(DiffusionAlgorithm daDiffAlg)
+	{
+		m_daDiffusionAlgorithm = daDiffAlg;
+	}
 	
 	public void updateDisplay()
 	{

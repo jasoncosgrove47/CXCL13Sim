@@ -6,8 +6,22 @@ import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Options;
 
+/**
+ * A Singleton class implementing the method of generating stroma proposed by Kislitsyn et al.
+ * in "Computational Approach to 3D Modeling of the Lymph Node Geometry", Computation, 2015.
+ * 
+ * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
+ */
 public class FRCStromaGenerator {
 
+	/**
+	 * Generates a stromal network and returns the nodes in a 3D boolean array.
+	 * @param iWidth Width of grid
+	 * @param iHeight Height of grid
+	 * @param iDepth Depth of grid
+	 * @param iCellCount Max number of stromal cells (note: this is a upper bound only)
+	 * @return
+	 */
 	public static boolean[][][] generateStroma3D(int iWidth, int iHeight, int iDepth, int iCellCount)
 	{
 		boolean[][][] ba3CellLocations = new boolean[iWidth][iHeight][iDepth];
@@ -36,7 +50,7 @@ public class FRCStromaGenerator {
 				
 				int iEdges = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3NextCell, Options.FRCGenerator.MAX_EDGE_LENGTH()).size();
 				
-				iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(2-iEdges)+2));
+				iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(5)+1));
 				
 				if ( iEdges < 0 )
 				{
