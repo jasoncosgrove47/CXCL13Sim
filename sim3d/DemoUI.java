@@ -50,7 +50,7 @@ public class DemoUI extends GUIState
         // tell the portrayals what to portray and how to portray them
         frcPortrayal.setField(FDC.drawEnvironment);
         bcPortrayal.setField(BC.drawEnvironment);
-        particlePortrayal.setField(Particle.getInstance(Particle.TYPE.CXCL13).m_dg2Display);
+        particlePortrayal.setField(Particle.getInstance(Particle.TYPE.CXCL13).m_ig2Display);
         particlePortrayal.setMap(new ParticleColorMap());
                 
         // reschedule the displayer

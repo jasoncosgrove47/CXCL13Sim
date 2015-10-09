@@ -28,17 +28,21 @@ public class BC extends DrawableCell implements Steppable
     private Double3D m_d3Face = Vector3DHelper.getRandomDirection();
 
     /**
-     * (ODE) The number of receptors on the cell surface
+     * (ODE) The number of free receptors on the cell surface
      */
-    private double m_dSurfaceReceptors = 10;
+    public int m_iR_free = 1000;
     /**
-     * (ODE) The number of receptors inside the cell
+     * (ODE)
      */
-    private double m_dInternalisedReceptors = 5;
+    public int m_iR_i = 1000;
     /**
-     * (ODE) The number of receptors inactive due to binding
+     * (ODE)
      */
-    private double m_dBoundReceptors = 5;
+    public int m_iR_d = 500;
+    /**
+     * (ODE)
+     */
+    public int m_iL_r = 500;
     
 	/* Draw Environment accessor */
 	public static Continuous2D drawEnvironment;
@@ -54,16 +58,27 @@ public class BC extends DrawableCell implements Steppable
     {
     	if ( canMove() )
     	{
-    		Double3D vMovement = getMoveDirection();
-
-	    	if ( vMovement.length() > Options.BC.VECTOR_MIN() )
-	    	{
-	    		m_bRandom = false;
-	    		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(vMovement.normalize(), Options.BC.DIRECTION_ERROR());
+    		m_bRandom = true;
+    		
+    		// Have to be careful it actually gets set!
+    		// needs to be null because there's no else for the next if statement
+    		Double3D vMovement = null;
+    		if ( m_iR_free > Options.BC.MIN_RECEPTORS())
+    		{
+	    		vMovement = getMoveDirection();
+	    		if ( vMovement.length() > 0 )
+	    		{
+	    			m_bRandom = false;
+	    			vMovement = m_d3Face.add(Vector3DHelper.getBiasedRandomDirectionInCone(vMovement.normalize(), Options.BC.DIRECTION_ERROR()));
+	    			if ( vMovement.length() > 0 )
+	    			{
+	    				vMovement = vMovement.normalize();
+	    			}
+	    		}
 	    	}
-	    	else
+    		
+	    	if (m_bRandom)
 	    	{
-	    		m_bRandom = true;
 	    		// no data! so do a random turn
 	    		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(m_d3Face, Options.BC.RANDOM_TURN_ANGLE());
 	    	}
@@ -110,7 +125,6 @@ public class BC extends DrawableCell implements Steppable
 	    		m_d3Face = new Double3D(m_d3Face.x, m_d3Face.y, -m_d3Face.z);
 	    	}
 	    	
-	    	// TODO better handling of edges
 	    	setObjectLocation( new Double3D(x, y, z) );
     	}
 
@@ -159,44 +173,25 @@ public class BC extends DrawableCell implements Steppable
     private Double3D getMoveDirection()
     {
     	// Get the surrounding concentrations
-    	double[][][] aadConcs = Particle.get(Particle.TYPE.CXCL13, (int)x, (int)y, (int)z);
+    	int[][][] ia3Concs = Particle.get(Particle.TYPE.CXCL13, (int)x, (int)y, (int)z);
     	
     	// {x+, x-, y+, y-, z+, z-}
-    	int[] iaReceptors = new int[6];
+    	int iReceptors = (int)(m_iR_free/6);
 
     	// {x+, x-, y+, y-, z+, z-}
-    	double[] daConcs = {aadConcs[2][1][1],
-    						aadConcs[0][1][1],
-    						aadConcs[1][2][1],
-    						aadConcs[1][0][1],
-    						aadConcs[1][1][2],
-    						aadConcs[1][1][0]};
-    	
-    	// evenly allocate the receptors
-    	for ( int i = 0; i < 6; i++ )
-    	{
-    		iaReceptors[i] += Math.floor(m_dSurfaceReceptors/6);
-    	}
-    	
-    	// allocate the remainder evenly
-    	for ( int i = (int)Math.floor(m_dSurfaceReceptors)%6; i > 0; i-- )
-    	{
-    		iaReceptors[Options.RNG.nextInt(6)]++;
-    	}
+    	int[] iaConcs = {ia3Concs[2][1][1],
+    					 ia3Concs[0][1][1],
+    					 ia3Concs[1][2][1],
+    					 ia3Concs[1][0][1],
+    					 ia3Concs[1][1][2],
+    					 ia3Concs[1][1][0]};
     	
     	int[] iaBoundReceptors = new int[6];
     	for ( int i = 0; i < 6; i++ )
     	{
-    		for ( int receptors = 0; receptors < iaReceptors[i]; receptors++ )
-    		{
-    			if ( Options.RNG.nextDouble() < 1 - Math.pow(1-Options.BC.RECEPTOR_BIND_CHANCE(), (int)daConcs[i]) )
-    			{
-    				daConcs[i]--;
-    				m_dSurfaceReceptors--;
-    				m_dBoundReceptors++;
-    				iaBoundReceptors[i]++;
-    			}
-    		}
+    		iaBoundReceptors[i] = (int)Options.BC.ODE.K_a()*iReceptors*iaConcs[i];
+			m_iR_free -= iaBoundReceptors[i];
+			m_iL_r  += iaBoundReceptors[i];
     	}
 
 		Particle.add(Particle.TYPE.CXCL13, (int)x+1, (int)y,   (int)z,   -iaBoundReceptors[0]);
@@ -220,12 +215,20 @@ public class BC extends DrawableCell implements Steppable
     
     private void receptorStep()
     {
-    	for ( int i = 0; i < 10; i++ )
+    	int iTimesteps = 10;
+    	int iR_i, iR_d, iL_r;
+    	for ( int i = 0; i < iTimesteps; i++ )
     	{
-    		m_dSurfaceReceptors 	 += 0.1*Options.BC.ODE.SurfaceExpressionCoeff() * m_dInternalisedReceptors;
-    		m_dInternalisedReceptors += 0.1*Options.BC.ODE.InternalisationCoeff() * m_dBoundReceptors
-    								 -  0.1*Options.BC.ODE.SurfaceExpressionCoeff() * m_dInternalisedReceptors;
-    		m_dBoundReceptors 		 -= 0.1*Options.BC.ODE.InternalisationCoeff() * m_dBoundReceptors;
+    		iR_i = m_iR_i;
+    		iR_d = m_iR_d;
+    		iL_r = m_iL_r;
+    		
+    		m_iR_free	+= (1/iTimesteps)*Options.BC.ODE.K_r() * iR_i;
+    		m_iR_i		+= (1/iTimesteps)*Options.BC.ODE.K_r() * iR_d
+    					 - (1/iTimesteps)*Options.BC.ODE.K_i() * iR_i;
+    		m_iR_d		+= (1/iTimesteps)*iL_r*iL_r/(Options.BC.ODE.gamma()*(1 + Math.pow(iL_r/Options.BC.ODE.delta(), 2) + iL_r))
+    				     - (1/iTimesteps)*Options.BC.ODE.K_r() * iR_d;
+    		m_iL_r		-= (1/iTimesteps)*iL_r*iL_r/(Options.BC.ODE.gamma()*(1 + Math.pow(iL_r/Options.BC.ODE.delta(), 2) + iL_r));
     	}
     }
 }

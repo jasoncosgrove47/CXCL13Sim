@@ -9,17 +9,17 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
+import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
+import sim3d.Options;
 import sim3d.diffusion.Particle;
 
 /**
  * @author simonjarrett
  *
  */
-public class DiffusionAlgorithmTest {
-
-	private static final double DELTA = 1e-15;
-	
+public class DiffusionAlgorithmTest
+{
 	private Schedule schedule = new Schedule();
 	private Particle m_pParticle = new Particle(schedule, Particle.TYPE.CXCL13, 23, 23, 23);
 	
@@ -27,7 +27,9 @@ public class DiffusionAlgorithmTest {
 	 * @throws java.lang.Exception
 	 */
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() throws Exception
+	{
+		Options.RNG = new MersenneTwisterFast();
 	}
 
 	/**
@@ -35,9 +37,10 @@ public class DiffusionAlgorithmTest {
 	 */
 	@Test
 	public void testConservation() {		
-		m_pParticle.field[11][11][11] = 1;
+		m_pParticle.field[11][11][11] = 100;
+		m_pParticle.field[11][12][11] = 100;
 		
-		double dPartSum = 0.0;
+		int iPartSum = 0;
 		
 		// Sanity checking. Make sure the particle field is empty
 		for ( int x = 0; x < 23; x++ )
@@ -46,19 +49,19 @@ public class DiffusionAlgorithmTest {
 			{
 				for ( int z = 0; z < 23; z++ )
 				{
-					dPartSum += m_pParticle.field[x][y][z];
+					iPartSum += m_pParticle.field[x][y][z];
 				}
 			}
 		}
 		
 		m_pParticle.m_dDecayRateInv = 1;
 		
-		for ( int i = 0; i < 60; i++ )
+		for ( int i = 0; i < 10; i++ )
 		{
 			m_pParticle.step(null);
 		}
 		
-		assertEquals(dPartSum, 1.0, DELTA);
+		assertEquals(200, iPartSum);
 	}
 	
 	/**
@@ -76,7 +79,7 @@ public class DiffusionAlgorithmTest {
 		
 		m_pParticle.field[11][11][11] = 1;
 		
-		double dPartSum = 0.0;
+		int iPartSum = 0;
 		
 		// Sanity checking. Make sure the particle field is empty
 		for ( int x = 0; x < 23; x++ )
@@ -85,7 +88,7 @@ public class DiffusionAlgorithmTest {
 			{
 				for ( int z = 0; z < 23; z++ )
 				{
-					dPartSum += m_pParticle.field[x][y][z];
+					iPartSum += m_pParticle.field[x][y][z];
 				}
 			}
 		}
@@ -97,7 +100,7 @@ public class DiffusionAlgorithmTest {
 			m_pParticle.step(null);
 		}
 		
-		assertEquals(dPartSum, 1.0, DELTA);
+		assertEquals(1, iPartSum);
 	}
 	
 	/**
@@ -108,14 +111,14 @@ public class DiffusionAlgorithmTest {
 	{
 		m_pParticle.setDiffusionAlgorithm(new Grajdeanu(1.0, 23,23,23));
 		
-		m_pParticle.field[11][11][11] = 1;
+		m_pParticle.field[11][11][11] = 1000;
 
 		for ( int i = 0; i < 10; i++ )
 		{
 			m_pParticle.step(null);
 		}
 		
-		double dMeanSquare = 0;
+		int iMeanSquare = 0;
 		
 		for ( int x = 0; x < 23; x++ )
 		{
@@ -123,11 +126,11 @@ public class DiffusionAlgorithmTest {
 			{
 				for ( int z = 0; z < 23; z++ )
 				{
-					dMeanSquare += m_pParticle.field[x][y][z] * ((11-x)*(11-x) + (11-y)*(11-y) + (11-z)*(11-z));
+					iMeanSquare += m_pParticle.field[x][y][z] * ((11-x)*(11-x) + (11-y)*(11-y) + (11-z)*(11-z));
 				}
 			}
 		}
 		
-		assertEquals(1.0, dMeanSquare, DELTA);
+		assertEquals(1, iMeanSquare);
 	}
 }

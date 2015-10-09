@@ -4,14 +4,14 @@ import java.util.EnumMap;
 import sim.engine.Schedule;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import sim.field.grid.DoubleGrid2D;
-import sim.field.grid.DoubleGrid3D;
+import sim.field.grid.IntGrid2D;
+import sim.field.grid.IntGrid3D;
 import sim3d.Options;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
 // TODO parametrise diffusion on a per solute basis
 
-public class Particle extends DoubleGrid3D implements Steppable
+public class Particle extends IntGrid3D implements Steppable
 {
 	private static final long serialVersionUID = 1;
 
@@ -53,7 +53,7 @@ public class Particle extends DoubleGrid3D implements Steppable
 		return ms_pParticles[ms_emTypeMap.get(pType)];
 	}
 	
-	public static void add(TYPE ParticleIndex, int x, int y, int z, double amount)
+	public static void add(TYPE ParticleIndex, int x, int y, int z, int amount)
 	{
 		int index = ms_emTypeMap.get(ParticleIndex);
 		final Particle pTarget = ms_pParticles[index];
@@ -66,10 +66,10 @@ public class Particle extends DoubleGrid3D implements Steppable
 		int index = ms_emTypeMap.get(ParticleIndex);
 		final Particle pTarget = ms_pParticles[index];
 		
-		pTarget.add(x, y, z, factor);
+		pTarget.scale(x, y, z, factor);
 	}
 	
-	public static double[][][] get(TYPE ParticleIndex, int x, int y, int z)
+	public static int[][][] get(TYPE ParticleIndex, int x, int y, int z)
 	{
 		int index = ms_emTypeMap.get(ParticleIndex);
 		final Particle pTarget = ms_pParticles[index];
@@ -83,13 +83,13 @@ public class Particle extends DoubleGrid3D implements Steppable
 	
 	private DiffusionAlgorithm m_daDiffusionAlgorithm;
 	
-	public DoubleGrid2D m_dg2Display;
+	public IntGrid2D m_ig2Display;
 	
 	public Particle(Schedule schedule, TYPE pType, int iWidth, int iHeight, int iDepth)
 	{
 		super(iWidth, iHeight, iDepth);
 		
-		 m_dg2Display = new DoubleGrid2D(iWidth, iHeight);
+		 m_ig2Display = new IntGrid2D(iWidth, iHeight);
 		
 		// Register this in the EnumMap
 		ms_emTypeMap.put(pType, ms_emTypeMap.size());
@@ -118,25 +118,25 @@ public class Particle extends DoubleGrid3D implements Steppable
 		{
 			for (int y = 0; y < m_iHeight; y++)
 			{
-				m_dg2Display.set(x, y, field[x][y][m_iDisplayLevel]);
+				m_ig2Display.set(x, y, field[x][y][m_iDisplayLevel]);
 			}
 		}
 	}
 	
 	// Add or remove(!) amounts
-	public void add(int x, int y, int z, double amount)
+	public void add(int x, int y, int z, int amount)
 	{
 		field[x%m_iWidth][y%m_iHeight][z%m_iDepth] = Math.max(0, field[x%m_iWidth][y%m_iHeight][z%m_iDepth] + amount);
 	}
 	
 	public void scale(int x, int y, int z, double factor)
 	{
-		field[x%m_iWidth][y%m_iHeight][z%m_iDepth] = field[x%m_iWidth][y%m_iHeight][z%m_iDepth] * factor;
+		field[x%m_iWidth][y%m_iHeight][z%m_iDepth] = (int)(0.5 + field[x%m_iWidth][y%m_iHeight][z%m_iDepth] * factor);
 	}
 	
-	public double[][][] getArea(int x, int y, int z)
+	public int[][][] getArea(int x, int y, int z)
 	{
-		double[][][] adReturn = new double[3][3][3];
+		int[][][] aiReturn = new int[3][3][3];
 		
 		for ( int r = 0; r < 3; r++ )
 		{
@@ -156,12 +156,12 @@ public class Particle extends DoubleGrid3D implements Steppable
 					{
 						continue;
 					}
-					adReturn[r][s][t] = field[x+r-1][y+s-1][z+t-1];
+					aiReturn[r][s][t] = field[x+r-1][y+s-1][z+t-1];
 				}
 			}
 		}
 		
-		return adReturn;
+		return aiReturn;
 	}
 	
 	// Actually the inverse of the decay rate to improve efficiency
@@ -188,7 +188,7 @@ public class Particle extends DoubleGrid3D implements Steppable
 			{
 				for(int z = 0; z < m_iDepth; z++)
 				{
-					field[x][y][z] *=  m_dDecayRateInv;
+					field[x][y][z] = (int)(0.5 + field[x][y][z] * m_dDecayRateInv);
 				}
 			}
 		}

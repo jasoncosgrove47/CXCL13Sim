@@ -136,7 +136,7 @@ public class FRCStromaGenerator {
 				if ( iDepth == 1 )
 				{
 					d3aReturn[i] = Vector3DHelper.getRandomDirection();
-					d3aReturn[i] = new Double3D(d3aReturn[i].x, d3aReturn[i].y, 0).normalize().multiply(length+1);
+					d3aReturn[i] = new Double3D(d3aReturn[i].x, d3aReturn[i].y, 0).normalize().multiply((length+1)*3);
 				}
 				else
 				{
