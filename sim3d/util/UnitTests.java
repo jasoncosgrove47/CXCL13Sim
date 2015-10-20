@@ -92,18 +92,28 @@ public class UnitTests extends AbstractAnalysis {
 	
 	public void testVector3DHelperRandomDirection()
 	{
-		int size = 50000;
+		int size = 10000;
 		Coord3d[] points = new Coord3d[size];
         Color[]   colors = new Color[size];
 		
         for(int i=0; i<size; i++){
-        	Double3D rand = Vector3DHelper.getRandomDirection();
+        	Double3D rand = Vector3DHelper.getRandomDirectionInCone(new Double3D(0,0,1), Math.PI/3);
             points[i] = new Coord3d(rand.x, rand.y, rand.z);
             colors[i] = new Color(0, 0, 0, 100);
         }
         
         Scatter scatter = new Scatter(points, colors);
         chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
+        BoundingBox3d bounds = new BoundingBox3d();
+        bounds.setXmin(-1f);
+        bounds.setXmax(1f);
+        bounds.setYmin(-1f);
+        bounds.setYmax(1f);
+        bounds.setZmin(-1f);
+        bounds.setZmax(1f);
+        
+        chart.getView().setBoundManual(bounds);
+        
         chart.getScene().add(scatter);
 	}
 

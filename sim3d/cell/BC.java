@@ -6,6 +6,7 @@ import sim.field.continuous.Continuous2D;
 import java.awt.*;
 
 import sim.portrayal.*;
+import sim3d.Grapher;
 import sim3d.Options;
 import sim3d.diffusion.Particle;
 import sim3d.util.Vector3DHelper;
@@ -189,9 +190,9 @@ public class BC extends DrawableCell implements Steppable
     	int[] iaBoundReceptors = new int[6];
     	for ( int i = 0; i < 6; i++ )
     	{
-    		iaBoundReceptors[i] = (int)Options.BC.ODE.K_a()*iReceptors*iaConcs[i];
+    		iaBoundReceptors[i] = (int)(Options.BC.ODE.K_a()*Math.sqrt(iReceptors*iaConcs[i]));
 			m_iR_free -= iaBoundReceptors[i];
-			m_iL_r  += iaBoundReceptors[i];
+			m_iL_r    += iaBoundReceptors[i];
     	}
 
 		Particle.add(Particle.TYPE.CXCL13, (int)x+1, (int)y,   (int)z,   -iaBoundReceptors[0]);
@@ -213,6 +214,8 @@ public class BC extends DrawableCell implements Steppable
     	return vMovement;
     }
     
+    public boolean displayGraph = false;
+    
     private void receptorStep()
     {
     	int iTimesteps = 10;
@@ -222,13 +225,25 @@ public class BC extends DrawableCell implements Steppable
     		iR_i = m_iR_i;
     		iR_d = m_iR_d;
     		iL_r = m_iL_r;
-    		
-    		m_iR_free	+= (1/iTimesteps)*Options.BC.ODE.K_r() * iR_i;
-    		m_iR_i		+= (1/iTimesteps)*Options.BC.ODE.K_r() * iR_d
-    					 - (1/iTimesteps)*Options.BC.ODE.K_i() * iR_i;
-    		m_iR_d		+= (1/iTimesteps)*iL_r*iL_r/(Options.BC.ODE.gamma()*(1 + Math.pow(iL_r/Options.BC.ODE.delta(), 2) + iL_r))
-    				     - (1/iTimesteps)*Options.BC.ODE.K_r() * iR_d;
-    		m_iL_r		-= (1/iTimesteps)*iL_r*iL_r/(Options.BC.ODE.gamma()*(1 + Math.pow(iL_r/Options.BC.ODE.delta(), 2) + iL_r));
+
+    		m_iR_d		+= (int)((1.0/iTimesteps)*iL_r*iL_r/(Options.BC.ODE.gamma()*(1 + Math.pow(iL_r/Options.BC.ODE.delta(), 2) + iL_r)))
+    				     - (int)((1.0/iTimesteps)*Options.BC.ODE.K_i() * iR_d);
+    		m_iR_i		+= (int)((1.0/iTimesteps)*Options.BC.ODE.K_i() * iR_d)
+					 	 - (int)((1.0/iTimesteps)*Options.BC.ODE.K_r() * iR_i);
+    		m_iR_free	+= (int)((1.0/iTimesteps)*Options.BC.ODE.K_r() * iR_i);
+    		m_iL_r		-= (int)((1.0/iTimesteps)*iL_r*iL_r/(Options.BC.ODE.gamma()*(1 + Math.pow(iL_r/Options.BC.ODE.delta(), 2) + iL_r)));
+    	}
+		
+    	if ( displayGraph )
+    	{
+    		Grapher.dataSets.get(0).add(m_iR_free);
+    		Grapher.dataSets.get(1).add(m_iR_i);
+    		Grapher.dataSets.get(2).add(m_iR_d);
+    		Grapher.dataSets.get(3).add(m_iL_r);
+    	}
+    	if ( displayGraph && Grapher.dataSets.get(0).size() % 50 == 49 )
+    	{
+    		Grapher.updateGraph();
     	}
     }
 }

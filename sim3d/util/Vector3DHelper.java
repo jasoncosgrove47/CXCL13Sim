@@ -20,7 +20,7 @@ public class Vector3DHelper
 		//return new Double3D(Math.abs(Options.RNG.nextGaussian()), Options.RNG.nextGaussian(), Options.RNG.nextGaussian()).normalize();
 		
 
-		// getRandomDirectionInCode()
+		// see getRandomDirectionInCone()
 		double z = Options.RNG.nextDouble()*2-1;
 		double phi = Options.RNG.nextDouble()*2*Math.PI;
 		

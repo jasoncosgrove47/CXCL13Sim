@@ -104,7 +104,7 @@ public class Particle extends IntGrid3D implements Steppable
 		
 		// setup up stepping
 		ms_pParticles[ms_emTypeMap.get(pType)] = this;
-		schedule.scheduleRepeating(this, 1, 1);
+		schedule.scheduleRepeating(this, 3, 1);
 	}
 	
 	public void setDiffusionAlgorithm(DiffusionAlgorithm daDiffAlg)

@@ -45,7 +45,7 @@ public abstract class DrawableCell extends SimplePortrayal2D
 	
 	    getDrawEnvironment().setObjectLocation( this, new Double2D( x, y ) );
 	    
-	    //Particle.setDisplayLevel((int)z);
-		//DrawableCell.setDisplayLevel((int)z);
+	    Particle.setDisplayLevel((int)z);
+		DrawableCell.setDisplayLevel((int)z);
     }
 }

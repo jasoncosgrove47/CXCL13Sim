@@ -1,5 +1,7 @@
 package sim3d;
 
+import java.util.ArrayList;
+
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -84,6 +86,21 @@ public class Demo extends SimState
             bc.setObjectLocation(loc);
             
             schedule.scheduleRepeating(bc, 0, 1);
+            
+            if ( x == 0 )
+            {
+            	Grapher.dataSets = new ArrayList<ArrayList<Integer>>();
+            	Grapher.dataSets.add(new ArrayList<Integer>());
+            	Grapher.dataSets.add(new ArrayList<Integer>());
+            	Grapher.dataSets.add(new ArrayList<Integer>());
+            	Grapher.dataSets.add(new ArrayList<Integer>());
+            	Grapher.dataSetNames = new ArrayList<String>();
+            	Grapher.dataSetNames.add("iR_free");
+        		Grapher.dataSetNames.add("iR_i");
+        		Grapher.dataSetNames.add("iR_d");
+        		Grapher.dataSetNames.add("iL_r");
+            	bc.displayGraph = true;
+            }
         }
 
         // add particles

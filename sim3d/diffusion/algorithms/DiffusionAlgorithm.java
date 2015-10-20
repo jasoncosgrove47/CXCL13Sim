@@ -83,13 +83,14 @@ public class DiffusionAlgorithm
 							for (int t = -1; t < 2; t++)
 							{
 								//pSpace.field[x][y][z] += m_adDiffusionCoefficients[r+1][s+1][t+1] * (adConcentrations[x+r][y+s][z+t] - adConcentrations[x][y][z]);
+								// D*dT/dX^2 from http://pauli.uni-muenster.de/tp/fileadmin/lehre/NumMethoden/WS0910/ScriptPDE/Heat.pdf
 								int iDelta = (int) (m_adDiffusionCoefficients[r+1][s+1][t+1] * (ia3Concentrations[x][y][z] - ia3Concentrations[x+r][y+s][z+t]));
 								if ( iDelta > 0 )
 								{
 									pSpace.field[x+r][y+s][z+t] += iDelta;
 									pSpace.field[x][y][z] -= iDelta;
-									iCount += (int) (m_adDiffusionCoefficients[r+1][s+1][t+1] * (ia3Concentrations[x][y][z]));
 								}
+								iCount += (int) (m_adDiffusionCoefficients[r+1][s+1][t+1] * (ia3Concentrations[x][y][z]));
 							}
 						}
 					}
