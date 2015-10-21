@@ -27,7 +27,9 @@ public class FRCStromaGenerator {
 		boolean[][][] ba3CellLocations = new boolean[iWidth][iHeight][iDepth];
 		
 		// It will be efficient to keep track of cells and locations separately
-		ArrayList<Int3D> i3lCellLocations = new ArrayList<Int3D>(); 
+		ArrayList<Int3D> i3lCellLocations = new ArrayList<Int3D>();
+		
+		// Add one in the centre
 		i3lCellLocations.add(new Int3D(iWidth/2, iHeight/2, iDepth/2));
 		ba3CellLocations[iWidth/2][iHeight/2][iDepth/2] = true;
 		
@@ -36,40 +38,26 @@ public class FRCStromaGenerator {
 		while ( iRemainingCells > 0 && i3lCellLocations.size() > 0 )
 		{
 			Double3D[] d3aDirections = new Double3D[0];
-			Int3D i3NextCell;
 			
-			boolean bSuccess = false;
-			do
-			{
-				i3NextCell = pickNextCell(iWidth, iHeight, iDepth, i3lCellLocations, ba3CellLocations);
-				
-				if ( i3NextCell == null )
-				{
-					break;
-				}
-				
-				int iEdges = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3NextCell, Options.FRCGenerator.MAX_EDGE_LENGTH()).size();
-				
-				iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(5)+1));
-				
-				if ( iEdges < 0 )
-				{
-					continue;
-				}
-				
-				d3aDirections = generateDirections(iWidth, iHeight, iDepth, ba3CellLocations, i3NextCell, iEdges);
-				
-				if ( d3aDirections != null )
-				{
-					bSuccess = true;
-				}
-			} while (!bSuccess);
+			Int3D i3NextCell = pickNextCell(iWidth, iHeight, iDepth, i3lCellLocations, ba3CellLocations);
 			
-			if (bSuccess)
+			if ( i3NextCell == null )
 			{
-				iRemainingCells -= createNewCells(iWidth, iHeight, iDepth, i3lCellLocations, ba3CellLocations, i3NextCell, d3aDirections);
-				i3lCellLocations.remove(i3NextCell);
+				break;
 			}
+			
+			int iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(5)+2));
+			if ( iRemainingCells == iCellCount - 1 )
+			{
+				// This is the first time so we want at least 2 edges otherwise generation will break sometimes
+				iEdges++;
+			}
+			
+			d3aDirections = generateDirections(iWidth, iHeight, iDepth, ba3CellLocations, i3NextCell, iEdges);
+			
+			iRemainingCells -= createNewCells(iWidth, iHeight, iDepth, i3lCellLocations, ba3CellLocations, i3NextCell, d3aDirections);
+			
+			i3lCellLocations.remove(i3NextCell);
 		}
 		
 		return ba3CellLocations;
@@ -109,52 +97,52 @@ public class FRCStromaGenerator {
 	private static Double3D[] generateDirections(int iWidth, int iHeight, int iDepth, boolean[][][] ba3CellLocations, Int3D i3Location, int iCellCount)
 	{
  		Double3D[] d3aReturn = new Double3D[iCellCount];
-		boolean bSuccess = false;
 		
-		int iOuterSkips = 0;
-		do
+ 		d3aReturn[0] = new Double3D();
+ 		
+		for(int i = 1; i < iCellCount; i++)
 		{
-			if ( iOuterSkips > 1000 )
-			{
-				return null;
-			}
 			
-			Double3D d3VectorSum = new Double3D();
+			// -0.5x^4 + 13/3x^3 - 12x^2 + 61/6x + 3 
+			// http://www.wolframalpha.com/input/?i=plot+-0.5x%5E4+%2B+13%2F3x%5E3+-+12x%5E2+%2B+61%2F6x+%2B+3.5+between+x%3D0+and+x%3D4
+			double length = Options.RNG.nextDouble()*4;
+			length = - 0.5*Math.pow(length,  4)
+					 + 13.0/3.0*Math.pow(length,  3)
+					 - 12*Math.pow(length,  2)
+					 + 61.0/6.0*length
+					 + 3.5;
 			
-			for(int i = 0; i < iCellCount; i++)
+			if ( iDepth == 1 )
 			{
-				
-				// -0.5x^4 + 13/3x^3 - 12x^2 + 61/6x + 2 
-				
-				double length = Options.RNG.nextDouble()*4;
-				length = - 0.5*Math.pow(length,  4)
-						 + 13.0/3.0*Math.pow(length,  3)
-						 - 12*Math.pow(length,  2)
-						 + 61.0/6.0*length
-						 + 3;
-				
-				if ( iDepth == 1 )
-				{
-					d3aReturn[i] = Vector3DHelper.getRandomDirection();
-					d3aReturn[i] = new Double3D(d3aReturn[i].x, d3aReturn[i].y, 0).normalize().multiply((length+1)*3);
-				}
-				else
-				{
-					d3aReturn[i] = Vector3DHelper.getRandomDirection().multiply(length);
-				}
-				
-				d3VectorSum = d3VectorSum.add(d3aReturn[i]);
-			}
-			
-			if ( d3VectorSum.length() < 0.4 )
-			{
-				bSuccess = true;
+				d3aReturn[i] = Vector3DHelper.getRandomDirection();
+				d3aReturn[i] = new Double3D(d3aReturn[i].x, d3aReturn[i].y, 0).normalize().multiply((length+1)*3);
 			}
 			else
 			{
-				iOuterSkips++;
+				d3aReturn[i] = Vector3DHelper.getRandomDirection().multiply(length);
 			}
-		} while (!bSuccess);
+			
+			d3aReturn[0] = d3aReturn[0].subtract(d3aReturn[i]);
+		}
+		
+		if ( iCellCount == 1 )
+		{
+			// We've only got one so doesn't make sense to balance them out
+			// TODO this function doesn't take previous nodes into consideration
+			double length = Options.RNG.nextDouble()*4;
+			length = - 0.5*Math.pow(length,  4)
+					 + 13.0/3.0*Math.pow(length,  3)
+					 - 12*Math.pow(length,  2)
+					 + 61.0/6.0*length
+					 + 3.5;
+			
+			d3aReturn[0] = Vector3DHelper.getRandomDirection().multiply(length);
+		}
+		else
+		{
+			// add some noise
+			d3aReturn[0] = d3aReturn[0].add(Vector3DHelper.getRandomDirection().multiply(Options.RNG.nextDouble()*0.4));
+		}
 		
 		return d3aReturn;
 	}
@@ -174,7 +162,7 @@ public class FRCStromaGenerator {
 			
 			ArrayList<Int3D> i3aAdjCells = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3lCellLocations.get(iIndex), Options.FRCGenerator.MAX_EDGE_LENGTH());
 			
-			if ( i3aAdjCells.size() > 8 )
+			if ( i3aAdjCells.size() > 7 )
 			{
 				i3lCellLocations.remove(iIndex);
 				continue;
