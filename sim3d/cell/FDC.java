@@ -12,10 +12,13 @@ import sim.field.continuous.Continuous2D;
 
 import java.awt.*;
 import sim.portrayal.*;
+import sim.util.Double3D;
 import sim3d.Options;
+import sim3d.collisiondetection.Collidable;
+import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 
-public class FDC extends DrawableCell implements Steppable
+public class FDC extends DrawableCell implements Steppable, Collidable
 {
 	private static final long serialVersionUID = 1;
 	
@@ -50,6 +53,19 @@ public class FDC extends DrawableCell implements Steppable
         graphics.fillPolygon(X, Y, nPoints);*/
 
     	graphics.setColor(getColorWithDepth(Options.FDC.DRAW_COLOR()));
-    	graphics.fillOval((int)info.draw.x, (int)info.draw.y, (int)info.draw.width, (int)info.draw.height);
+    	graphics.fillOval((int)Math.round(info.draw.x-info.draw.width/2), (int)Math.round(info.draw.y-info.draw.height/2), (int)Math.round(info.draw.width), (int)Math.round(info.draw.height));
     }
+
+
+	@Override
+	public boolean isStatic() 
+	{
+		return true;
+	}
+
+	@Override
+	public void addCollisions(CollisionGrid cgGrid)
+	{
+		cgGrid.addSphereToGrid(this, new Double3D(x, y, z), Options.FDC.STROMA_NODE_RADIUS);
+	}
 }

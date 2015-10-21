@@ -8,10 +8,12 @@ import java.awt.*;
 import sim.portrayal.*;
 import sim3d.Grapher;
 import sim3d.Options;
+import sim3d.collisiondetection.Collidable;
+import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 import sim3d.util.Vector3DHelper;
 
-public class BC extends DrawableCell implements Steppable
+public class BC extends DrawableCell implements Steppable, Collidable
 {
 	private static final long serialVersionUID = 1;
 
@@ -146,7 +148,7 @@ public class BC extends DrawableCell implements Steppable
     	{
     		graphics.setColor(getColorWithDepth(Options.BC.DRAW_COLOR()));
     	}
-    	graphics.fillOval((int)Math.round(info.draw.x), (int)Math.round(info.draw.y), (int)Math.round(info.draw.width), (int)Math.round(info.draw.height));
+    	graphics.fillOval((int)Math.round(info.draw.x-info.draw.width/2), (int)Math.round(info.draw.y-info.draw.height/2), (int)Math.round(info.draw.width), (int)Math.round(info.draw.height));
     }
     
     /**
@@ -246,4 +248,16 @@ public class BC extends DrawableCell implements Steppable
     		Grapher.updateGraph();
     	}
     }
+
+	@Override
+	public boolean isStatic()
+	{
+		return false;
+	}
+
+	@Override
+	public void addCollisions(CollisionGrid cgGrid)
+	{
+		cgGrid.addLineToGrid(this, new Double3D(x, y, z), new Double3D(x+m_d3Edge.x, y+m_d3Edge.y, z+m_d3Edge.z), Options.FDC.STROMA_EDGE_RADIUS);
+	}
 }

@@ -22,7 +22,6 @@ public class Options
 	public static double DIFFUSION_TIMESTEP = Math.pow(GRID_SIZE, 2)/(3.7*DIFFUSION_COEFFICIENT);
 	public static int DIFFUSION_STEPS = (int)(1/DIFFUSION_TIMESTEP);
 	
-	
 	public static class BC
 	{
 		public static int COUNT = 1;
@@ -59,6 +58,8 @@ public class Options
 		public static double DRAW_SCALE(){ return 0.5; }
 		public static Color DRAW_COLOR(){ return new Color(200,130,60); }
 		public static int CXCL13_EMITTED(){ return 500; }
+		public static double STROMA_NODE_RADIUS = 0.5;
+		public static double STROMA_EDGE_RADIUS = 0.1;
 	}
 	
 	public static class FRCGenerator {

@@ -2,5 +2,7 @@ package sim3d.collisiondetection;
 
 public interface Collidable
 {
-	public boolean m_bStatic = true;
+	public abstract boolean isStatic();
+	
+	public abstract void addCollisions(CollisionGrid cgGrid);
 }

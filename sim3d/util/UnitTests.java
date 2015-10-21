@@ -17,6 +17,7 @@ import sim.engine.Schedule;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Options;
+import sim3d.cell.StromaEdge;
 import sim3d.diffusion.Particle;
 
 public class UnitTests extends AbstractAnalysis {
@@ -28,8 +29,9 @@ public class UnitTests extends AbstractAnalysis {
 	public void testFRCStromaGenerator()
 	{
 		int size = Options.FDC.COUNT;
-		
-		boolean[][][] ba3Stroma = FRCStromaGenerator.generateStroma3D(Options.WIDTH-2,  Options.HEIGHT-2, Options.DEPTH-2, size);
+
+        ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>(); 
+		boolean[][][] ba3Stroma = FRCStromaGenerator.generateStroma3D(Options.WIDTH-2,  Options.HEIGHT-2, Options.DEPTH-2, size, sealEdges);
 		ArrayList<Coord3d> c3dalPoints = new ArrayList<Coord3d>();
 		ArrayList<Coord3d> c3dalLines = new ArrayList<Coord3d>();
 		
