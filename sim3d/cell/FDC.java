@@ -13,6 +13,7 @@ import sim.field.continuous.Continuous2D;
 import java.awt.*;
 import sim.portrayal.*;
 import sim.util.Double3D;
+import sim.util.Int3D;
 import sim3d.Options;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
@@ -64,8 +65,20 @@ public class FDC extends DrawableCell implements Steppable, Collidable
 	}
 
 	@Override
-	public void addCollisions(CollisionGrid cgGrid)
+	public void registerCollisions(CollisionGrid cgGrid)
 	{
 		cgGrid.addSphereToGrid(this, new Double3D(x, y, z), Options.FDC.STROMA_NODE_RADIUS);
+	}
+
+	@Override
+	public void addCollisionPoint(Int3D i3Point)
+	{
+		// We're not interested in collisions as we're static
+		return;	
+	}
+	@Override
+	public void handleCollisions(CollisionGrid cgGrid)
+	{
+		return false;
 	}
 }

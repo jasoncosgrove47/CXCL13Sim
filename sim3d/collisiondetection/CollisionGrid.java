@@ -51,6 +51,15 @@ public class CollisionGrid implements Steppable
 		if ( m_clGridSpaces[x][y][z].size() == 2 )
 		{
 			m_i3lCollisionPoints.add(new Int3D(x, y, z));
+			
+			// There's a potential collision so tell the cells, too
+			m_clGridSpaces[x][y][z].get(0).addCollisionPoint(new Int3D(x, y, z));
+			cObject.addCollisionPoint(new Int3D(x, y, z));
+		}
+		else if ( m_clGridSpaces[x][y][z].size() > 2 )
+		{
+			// There's a potential collision so tell the cells, too
+			cObject.addCollisionPoint(new Int3D(x, y, z));
 		}
 	}
 	

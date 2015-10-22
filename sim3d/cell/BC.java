@@ -3,7 +3,12 @@ import sim.util.*;
 import sim.engine.*;
 import sim.field.continuous.Continuous2D;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+//import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 
 import sim.portrayal.*;
 import sim3d.Grapher;
@@ -94,40 +99,8 @@ public class BC extends DrawableCell implements Steppable, Collidable
 	    	y += vMovement.y*Options.BC.TRAVEL_DISTANCE();
 	    	z += vMovement.z*Options.BC.TRAVEL_DISTANCE();
 	    	
-	    	// Handle bounces
-	    	if ( x > Options.WIDTH - 1 )
-	    	{
-	    		x = Math.max(1, 2*(Options.WIDTH - 1) - x);
-	    		m_d3Face = new Double3D(-m_d3Face.x, m_d3Face.y, m_d3Face.z);
-	    	}
-	    	else if ( x < 1 )
-	    	{
-	    		x = Math.min(Options.WIDTH-2, 2 - x);
-	    		m_d3Face = new Double3D(-m_d3Face.x, m_d3Face.y, m_d3Face.z);
-	    	}
-	    	
-	    	if ( y > Options.HEIGHT - 1 )
-	    	{
-	    		y = Math.max(1, 2*(Options.HEIGHT - 1) - y);
-	    		m_d3Face = new Double3D(m_d3Face.x, -m_d3Face.y, m_d3Face.z);
-	    	}
-	    	else if ( y < 1 )
-	    	{
-	    		y = Math.min(Options.HEIGHT-2, 2 - y);
-	    		m_d3Face = new Double3D(m_d3Face.x, -m_d3Face.y, m_d3Face.z);
-	    	}
-	    	
-	    	if ( z > Options.DEPTH - 1 )
-	    	{
-	    		z = Math.max(1, 2*(Options.DEPTH - 1) - z);
-	    		m_d3Face = new Double3D(m_d3Face.x, m_d3Face.y, -m_d3Face.z);
-	    	}
-	    	else if ( z < 1 )
-	    	{
-	    		z = Math.min(Options.DEPTH-2, 2 - z);
-	    		m_d3Face = new Double3D(m_d3Face.x, m_d3Face.y, -m_d3Face.z);
-	    	}
-	    	
+	    	handleBounce();
+
 	    	setObjectLocation( new Double3D(x, y, z) );
     	}
 
@@ -249,6 +222,8 @@ public class BC extends DrawableCell implements Steppable, Collidable
     	}
     }
 
+    List<Double3D> m_d3aMovements = new ArrayList<Double3D>();
+    
 	@Override
 	public boolean isStatic()
 	{
@@ -256,8 +231,201 @@ public class BC extends DrawableCell implements Steppable, Collidable
 	}
 
 	@Override
-	public void addCollisions(CollisionGrid cgGrid)
+	public void registerCollisions(CollisionGrid cgGrid)
 	{
-		cgGrid.addLineToGrid(this, new Double3D(x, y, z), new Double3D(x+m_d3Edge.x, y+m_d3Edge.y, z+m_d3Edge.z), Options.FDC.STROMA_EDGE_RADIUS);
+		double dPosX = x;
+		double dPosY = y;
+		double dPosZ = z;
+		
+		for ( Double3D d3Movement : m_d3aMovements )
+		{
+			cgGrid.addLineToGrid(this, new Double3D(dPosX, dPosY, dPosZ), new Double3D(dPosX+d3Movement.x, dPosY+d3Movement.y, dPosZ+d3Movement.z), Options.BC.COLLISION_RADIUS);
+			
+			dPosX += d3Movement.x;
+			dPosY += d3Movement.y;
+			dPosZ += d3Movement.z;
+		}
+	}
+	
+	/**
+	 * Bounces the cell back inside the boundaries
+	 */
+	private void handleBounce()
+	{
+		/*
+		 * Very long method! There's a lot of repeated code, but it's hard to efficiently
+	 	 * abstract that out into more methods.
+	 	 * TODO zero division argh!
+		 */
+		
+		double dPosX = x;
+		double dPosY = y;
+		double dPosZ = z;
+
+		// We should in theory only have to check the last step for bounces
+		int iMovementIndex = m_d3aMovements.size()-1;
+
+		// add all movement vectors before the last one
+		for ( int i = 0; i < iMovementIndex; i++ )
+		{
+			dPosX += m_d3aMovements.get(i).x;
+			dPosY += m_d3aMovements.get(i).y;
+			dPosZ += m_d3aMovements.get(i).z;
+		}
+
+		Double3D d3Movement = m_d3aMovements.get(iMovementIndex);
+		
+		double dNewPosX = dPosX + d3Movement.x;
+		double dNewPosY = dPosY + d3Movement.y;
+		double dNewPosZ = dPosZ + d3Movement.z;
+		
+		// If we go out of bounds on either side
+		if ( dNewPosX > Options.WIDTH - 1 || dNewPosX < 1 )
+    	{
+			// figure out how far down we go before we hit the edge
+			double dCutOff = 1;
+			if ( dNewPosX < 1 )
+			{
+				dCutOff = (dPosX - 1)/d3Movement.x;
+			}
+			else
+			{
+				dCutOff = ((Options.WIDTH-1) - dPosX)/d3Movement.x;
+			}
+			
+			// Create 2 new vectors split at the cutoff point, the latter mirrored along the x axis
+			Double3D d3TruncMovement = d3Movement.multiply(dCutOff);
+			Double3D d3Remainder = new Double3D(-d3Movement.x + d3TruncMovement.x,
+												 d3Movement.y - d3TruncMovement.y,
+												 d3Movement.z - d3TruncMovement.z
+												);
+    		
+			// Replace the current one, then add the new one after it
+    		m_d3aMovements.set(iMovementIndex, d3TruncMovement);
+    		m_d3aMovements.add(d3Remainder);
+    	}
+    	
+		// If we go out of bounds at the top or bottom in the overall movement
+    	if ( dNewPosY > Options.HEIGHT - 1 || dNewPosY < 1 )
+    	{
+    		// There might be multiple vectors now, so we need to keep track of position, and whether we've hit the wall yet or not
+    		double dTempPosY = dPosY;
+    		boolean bFlipped = false;
+    		
+    		for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
+    		{
+    			d3Movement = m_d3aMovements.get(i);
+
+    			// if we have already hit the wall, we just flip the y axis of all the movements
+    			if ( bFlipped )
+    			{
+    				m_d3aMovements.set(i, new Double3D(d3Movement.x, -d3Movement.y, d3Movement.z));
+    				continue;
+    			}
+    			
+    			// does this sub movement go out of bounds
+    			if ( dTempPosY + m_d3aMovements.get(i).y > Options.HEIGHT - 1 )
+    			{
+    				// Figure out at which point it goes out
+    				double dCutOff = 1;
+    				if ( dNewPosY < 1 )
+    				{
+    					dCutOff = (dTempPosY - 1)/d3Movement.y;
+    				}
+    				else
+    				{	
+    					dCutOff = ((Options.HEIGHT-1) - dTempPosY)/d3Movement.y;
+    				}
+    				
+    				// Create 2 new vectors split at the cutoff point, the latter mirrored along the y axis
+    				Double3D d3TruncMovement = d3Movement.multiply(dCutOff);
+    				Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x,
+    													-d3Movement.y + d3TruncMovement.y,
+    													 d3Movement.z - d3TruncMovement.z
+    													);
+    	    		
+    				// Replace the current one, then add the new one after it
+    	    		m_d3aMovements.set(i, d3TruncMovement);
+    	    		m_d3aMovements.add(i+1, d3Remainder);
+    	    		
+    				bFlipped = true;
+    			}
+    			
+    			dTempPosY += m_d3aMovements.get(i).y;
+    		}
+    	}
+
+		// If we go out of bounds at the front or back in the overall movement
+    	if ( dNewPosZ > Options.DEPTH - 1 || dNewPosZ < 1 )
+    	{
+    		// There might be multiple vectors now, so we need to keep track of position, and whether we've hit the wall yet or not
+    		double dTempPosZ = dPosZ;
+
+    		boolean bFlipped = false;
+    		for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
+    		{
+    			d3Movement = m_d3aMovements.get(i);
+
+    			// if we have already hit the wall, we just flip the z axis of all the movements
+    			if ( bFlipped )
+    			{
+    				m_d3aMovements.set(i, new Double3D(d3Movement.x, d3Movement.y, -d3Movement.z));
+    				continue;
+    			}
+
+    			// does this sub movement go out of bounds
+    			if ( dTempPosZ + m_d3aMovements.get(i).z > Options.DEPTH - 1 )
+    			{
+    				// Figure out at which point it goes out
+    				double dCutOff = 1;
+    				if ( dNewPosZ < 1 )
+    				{
+    					dCutOff = (dTempPosZ - 1)/d3Movement.z;
+    				}
+    				else
+    				{	
+    					dCutOff = ((Options.DEPTH-1) - dTempPosZ)/d3Movement.z;
+    				}
+
+    				// Create 2 new vectors split at the cutoff point, the latter mirrored along the z axis
+    				Double3D d3TruncMovement = d3Movement.multiply(dCutOff);
+    				Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x,
+    													 d3Movement.y - d3TruncMovement.y,
+    													-d3Movement.z + d3TruncMovement.z
+    													);
+
+    				// Replace the current one, then add the new one after it
+    	    		m_d3aMovements.set(i, d3TruncMovement);
+    	    		m_d3aMovements.add(i+1, d3Remainder);
+    	    		
+    				bFlipped = true;
+    			}
+    			
+    			dTempPosZ += m_d3aMovements.get(i).z;
+    		}
+    	}
+	}
+
+	List<Int3D> i3lCollisionPoints = new ArrayList<Int3D>();
+	
+	@Override
+	public void addCollisionPoint(Int3D i3Point)
+	{
+		// TODO Auto-generated method stub
+		i3lCollisionPoints.add(i3Point);
+	}
+
+	@Override
+	public void handleCollisions(CollisionGrid cgGrid)
+	{
+		TreeSet<Collidable> csCollidables = new TreeSet();
+		
+		for ( Int3D i3Point : i3lCollisionPoints )
+		{
+			for ( Collidable cCollidable : cgGrid.getPoints(i3Point) )
+			{
+				csCollidables.add(cCollidable);
+			}
+		}
 	}
 }

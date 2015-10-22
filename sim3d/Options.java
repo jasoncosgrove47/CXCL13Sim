@@ -34,6 +34,7 @@ public class Options
 		public static Color DRAW_COLOR(){ return new Color(90,90,255); }
 		public static Color RANDOM_COLOR(){ return new Color(90,255,255); }
 		public static double RECEPTOR_BIND_CHANCE(){ return 0.1; }
+		public static double COLLISION_RADIUS = 1;
 		public static class ODE
 		{
 			public static double K_a(){ return 0.03; }

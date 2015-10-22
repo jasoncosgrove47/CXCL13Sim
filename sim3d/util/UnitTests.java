@@ -35,8 +35,6 @@ public class UnitTests extends AbstractAnalysis {
 		ArrayList<Coord3d> c3dalPoints = new ArrayList<Coord3d>();
 		ArrayList<Coord3d> c3dalLines = new ArrayList<Coord3d>();
 		
-		int edges = 0;
-		
         for ( int x = 0; x < Options.WIDTH-2; x++ )
         {
         	for ( int y = 0; y < Options.HEIGHT-2; y++ )
@@ -47,7 +45,7 @@ public class UnitTests extends AbstractAnalysis {
                 	{
                 		ArrayList<Int3D> cells = FRCStromaGenerator.getAdjacentCells(Options.WIDTH-2,  Options.HEIGHT-2, Options.DEPTH-2, ba3Stroma, new Int3D(x, y, z), Options.FRCGenerator.MAX_EDGE_LENGTH());
                 		c3dalPoints.add( new Coord3d(x, y, z) );
-                		edges += cells.size();
+                		
                 		for ( Int3D cell : cells )
                 		{
                 			drawLine(c3dalLines, new Coord3d(x, y, z), new Coord3d(cell.x, cell.y, cell.z));

@@ -72,7 +72,7 @@ public class Demo extends SimState
 	                    
 	                    schedule.scheduleRepeating(fdc, 2, 1);
 	                    
-	                    fdc.addCollisions(cgGrid);
+	                    fdc.registerCollisions(cgGrid);
         			}
                 }
             }
@@ -80,7 +80,7 @@ public class Demo extends SimState
         for ( StromaEdge seEdge : sealEdges )
         {
         	seEdge.setObjectLocation(new Double3D(seEdge.x+1, seEdge.y+1, seEdge.z+1));
-        	seEdge.addCollisions(cgGrid);
+        	seEdge.registerCollisions(cgGrid);
         }
         
         // All the static cells are in, now reset the collision data
