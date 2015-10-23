@@ -86,6 +86,8 @@ public class Demo extends SimState
         // All the static cells are in, now reset the collision data
         cgGrid.step(null);
         
+        BC.m_cgGrid = cgGrid;
+        
         for(int x=0;x<Options.BC.COUNT;x++)
         {
             Double3D loc = new Double3D(random.nextInt(Options.WIDTH-2)+1, random.nextInt(Options.HEIGHT-2)+1, random.nextInt(Options.DEPTH-2)+1);

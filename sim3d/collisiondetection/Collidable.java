@@ -9,4 +9,12 @@ public interface Collidable
 	public abstract void addCollisionPoint(Int3D i3Point);
 	public abstract void registerCollisions(CollisionGrid cgGrid);
 	public abstract void handleCollisions(CollisionGrid cgGrid);
+	
+	public static enum CLASS
+	{
+		BC,
+		STROMA,
+		STROMA_EDGE
+	}
+	public abstract CLASS getCollisionClass();
 }

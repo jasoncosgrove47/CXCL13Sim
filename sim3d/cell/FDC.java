@@ -79,6 +79,12 @@ public class FDC extends DrawableCell implements Steppable, Collidable
 	@Override
 	public void handleCollisions(CollisionGrid cgGrid)
 	{
-		return false;
+		return;
+	}
+
+	@Override
+	public CLASS getCollisionClass()
+	{
+		return CLASS.STROMA;
 	}
 }

@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 //import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -52,6 +53,8 @@ public class BC extends DrawableCell implements Steppable, Collidable
      */
     public int m_iL_r = 500;
     
+    public static CollisionGrid m_cgGrid;
+    
 	/* Draw Environment accessor */
 	public static Continuous2D drawEnvironment;
 	@Override public Continuous2D getDrawEnvironment(){
@@ -64,47 +67,53 @@ public class BC extends DrawableCell implements Steppable, Collidable
     
     public void step( final SimState state )
     {
-    	if ( canMove() )
+    	if ( m_d3aMovements != null )
     	{
-    		m_bRandom = true;
-    		
-    		// Have to be careful it actually gets set!
-    		// needs to be null because there's no else for the next if statement
-    		Double3D vMovement = null;
-    		if ( m_iR_free > Options.BC.MIN_RECEPTORS())
+    		for ( Double3D d3Movement : m_d3aMovements )
     		{
-	    		vMovement = getMoveDirection();
-	    		if ( vMovement.length() > 0 )
-	    		{
-	    			m_bRandom = false;
-	    			vMovement = m_d3Face.add(Vector3DHelper.getBiasedRandomDirectionInCone(vMovement.normalize(), Options.BC.DIRECTION_ERROR()));
-	    			if ( vMovement.length() > 0 )
-	    			{
-	    				vMovement = vMovement.normalize();
-	    			}
-	    		}
-	    	}
-    		
-	    	if (m_bRandom)
-	    	{
-	    		// no data! so do a random turn
-	    		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(m_d3Face, Options.BC.RANDOM_TURN_ANGLE());
-	    	}
-	    	
-	    	// Remember which way we're now facing
-	    	m_d3Face = vMovement;
-	    	
+    			x += d3Movement.x;
+    			y += d3Movement.y;
+    			z += d3Movement.z;
 
-	    	x += vMovement.x*Options.BC.TRAVEL_DISTANCE();
-	    	y += vMovement.y*Options.BC.TRAVEL_DISTANCE();
-	    	z += vMovement.z*Options.BC.TRAVEL_DISTANCE();
-	    	
-	    	handleBounce();
+    	    	// Remember which way we're now facing
+    			m_d3Face = d3Movement;
+    		}
 
 	    	setObjectLocation( new Double3D(x, y, z) );
     	}
+		m_bRandom = true;
+		
+		// Have to be careful it actually gets set!
+		// needs to be null because there's no else for the next if statement
+		Double3D vMovement = null;
+		if ( m_iR_free > Options.BC.MIN_RECEPTORS())
+		{
+    		vMovement = getMoveDirection();
+    		if ( vMovement.length() > 0 )
+    		{
+    			m_bRandom = false;
+    			vMovement = m_d3Face.add(Vector3DHelper.getBiasedRandomDirectionInCone(vMovement.normalize(), Options.BC.DIRECTION_ERROR()));
+    			if ( vMovement.length() > 0 )
+    			{
+    				vMovement = vMovement.normalize();
+    			}
+    		}
+    	}
+		
+    	if (m_bRandom)
+    	{
+    		// no data! so do a random turn
+    		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(m_d3Face, Options.BC.RANDOM_TURN_ANGLE());
+    	}
+    	
+    	m_d3aMovements.clear();
+    	m_d3aMovements.add(vMovement.multiply(Options.BC.TRAVEL_DISTANCE()));
+    	
+    	handleBounce();
 
     	receptorStep();
+    	
+    	registerCollisions(m_cgGrid);
     }
     
     public final void draw(Object object,  final Graphics2D graphics, final DrawInfo2D info)
@@ -315,8 +324,8 @@ public class BC extends DrawableCell implements Steppable, Collidable
     		for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
     		{
     			d3Movement = m_d3aMovements.get(i);
-
-    			// if we have already hit the wall, we just flip the y axis of all the movements
+    			
+    			// if we have already hit the wall, we just flip the y axis of all the remaining movements
     			if ( bFlipped )
     			{
     				m_d3aMovements.set(i, new Double3D(d3Movement.x, -d3Movement.y, d3Movement.z));
@@ -324,11 +333,11 @@ public class BC extends DrawableCell implements Steppable, Collidable
     			}
     			
     			// does this sub movement go out of bounds
-    			if ( dTempPosY + m_d3aMovements.get(i).y > Options.HEIGHT - 1 )
+    			if ( dTempPosY + d3Movement.y < 1 || dTempPosY + d3Movement.y > Options.HEIGHT - 1 )
     			{
     				// Figure out at which point it goes out
     				double dCutOff = 1;
-    				if ( dNewPosY < 1 )
+    				if ( dTempPosY + d3Movement.y < 1 )
     				{
     					dCutOff = (dTempPosY - 1)/d3Movement.y;
     				}
@@ -348,10 +357,13 @@ public class BC extends DrawableCell implements Steppable, Collidable
     	    		m_d3aMovements.set(i, d3TruncMovement);
     	    		m_d3aMovements.add(i+1, d3Remainder);
     	    		
+    	    		// if we don't increment i, it will get flipped again!
+    	    		i++;
+    	    		
     				bFlipped = true;
     			}
     			
-    			dTempPosY += m_d3aMovements.get(i).y;
+    			dTempPosY += d3Movement.y;
     		}
     	}
 
@@ -360,25 +372,26 @@ public class BC extends DrawableCell implements Steppable, Collidable
     	{
     		// There might be multiple vectors now, so we need to keep track of position, and whether we've hit the wall yet or not
     		double dTempPosZ = dPosZ;
-
     		boolean bFlipped = false;
+    		
     		for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
     		{
     			d3Movement = m_d3aMovements.get(i);
+    			
 
-    			// if we have already hit the wall, we just flip the z axis of all the movements
+    			// if we have already hit the wall, we just flip the y axis of all the movements
     			if ( bFlipped )
     			{
     				m_d3aMovements.set(i, new Double3D(d3Movement.x, d3Movement.y, -d3Movement.z));
     				continue;
     			}
-
+    			
     			// does this sub movement go out of bounds
-    			if ( dTempPosZ + m_d3aMovements.get(i).z > Options.DEPTH - 1 )
+    			if ( dTempPosZ + d3Movement.z < 1 || dTempPosZ + d3Movement.z > Options.DEPTH - 1 )
     			{
     				// Figure out at which point it goes out
     				double dCutOff = 1;
-    				if ( dNewPosZ < 1 )
+    				if ( dTempPosZ + d3Movement.z < 1 )
     				{
     					dCutOff = (dTempPosZ - 1)/d3Movement.z;
     				}
@@ -386,46 +399,82 @@ public class BC extends DrawableCell implements Steppable, Collidable
     				{	
     					dCutOff = ((Options.DEPTH-1) - dTempPosZ)/d3Movement.z;
     				}
-
-    				// Create 2 new vectors split at the cutoff point, the latter mirrored along the z axis
+    				
+    				// Create 2 new vectors split at the cutoff point, the latter mirrored along the y axis
     				Double3D d3TruncMovement = d3Movement.multiply(dCutOff);
     				Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x,
     													 d3Movement.y - d3TruncMovement.y,
     													-d3Movement.z + d3TruncMovement.z
     													);
-
+    	    		
     				// Replace the current one, then add the new one after it
     	    		m_d3aMovements.set(i, d3TruncMovement);
     	    		m_d3aMovements.add(i+1, d3Remainder);
     	    		
+    	    		// if we don't increment i, it will get flipped again!
+    	    		i++;
+    	    		
     				bFlipped = true;
     			}
     			
-    			dTempPosZ += m_d3aMovements.get(i).z;
+    			dTempPosZ += d3Movement.z;
     		}
     	}
 	}
 
-	List<Int3D> i3lCollisionPoints = new ArrayList<Int3D>();
+	List<Int3D> m_i3lCollisionPoints = new ArrayList<Int3D>();
 	
 	@Override
 	public void addCollisionPoint(Int3D i3Point)
 	{
-		// TODO Auto-generated method stub
-		i3lCollisionPoints.add(i3Point);
+		m_i3lCollisionPoints.add(i3Point);
+		m_bCollisionsHandled = false;
 	}
 
+	private boolean m_bCollisionsHandled = false;
+	
 	@Override
 	public void handleCollisions(CollisionGrid cgGrid)
 	{
-		TreeSet<Collidable> csCollidables = new TreeSet();
+		if ( m_bCollisionsHandled )
+		{
+			return;
+		}
 		
-		for ( Int3D i3Point : i3lCollisionPoints )
+		// We're using a set because it stores values uniquely!
+		HashSet<Collidable> csCollidables = new HashSet<Collidable>();
+		
+		for ( Int3D i3Point : m_i3lCollisionPoints )
 		{
 			for ( Collidable cCollidable : cgGrid.getPoints(i3Point) )
 			{
 				csCollidables.add(cCollidable);
 			}
 		}
+		
+		System.out.println(csCollidables.size());
+		
+		for ( Collidable cCell : csCollidables )
+		{
+			switch ( cCell.getCollisionClass() )
+			{
+				// These first two are probable hits as they won't be moving
+				case STROMA_EDGE:
+					break;
+				case STROMA:
+					break;
+				case BC:
+					break;
+			};
+		}
+		
+		m_bCollisionsHandled = true;
+		m_i3lCollisionPoints.clear();
+	}
+
+	@Override
+	public CLASS getCollisionClass()
+	{
+		return CLASS.BC;
 	}
 }

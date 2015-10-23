@@ -76,6 +76,12 @@ public class StromaEdge extends DrawableCell implements Collidable
 	@Override
 	public void handleCollisions(CollisionGrid cgGrid)
 	{
-		return false;
+		return;
+	}
+
+	@Override
+	public CLASS getCollisionClass()
+	{
+		return CLASS.STROMA_EDGE;
 	}
 }

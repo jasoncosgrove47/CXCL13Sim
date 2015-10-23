@@ -37,11 +37,17 @@ public class CollisionGrid implements Steppable
 		{
 			m_ia3GridUpdateStep[x][y][z] = m_iCurrentStep;
 			
-			for (Collidable object : m_clGridSpaces[x][y][z])
+			int i = 0;
+			
+			while ( i < m_clGridSpaces[x][y][z].size() )
 			{
-				if ( !object.isStatic() )
+				if ( !m_clGridSpaces[x][y][z].get(i).isStatic() )
 				{
-					m_clGridSpaces[x][y][z].remove(object);
+					m_clGridSpaces[x][y][z].remove(i);
+				}
+				else
+				{
+					i++;
 				}
 			}
 		}
@@ -75,6 +81,11 @@ public class CollisionGrid implements Steppable
 		
 		m_clGridSpaces = new ArrayList[m_iWidth][m_iHeight][m_iDepth];
 		m_ia3GridUpdateStep = new int[m_iWidth][m_iHeight][m_iDepth];
+	}
+	
+	public List<Collidable> getPoints( Int3D i3Loc )
+	{
+		return m_clGridSpaces[i3Loc.x][i3Loc.y][i3Loc.z];
 	}
 	
 	public boolean BoxSphereIntersect(double dSphereX, double dSphereY, double dSphereZ, double dRadiusSquare,
@@ -254,8 +265,17 @@ public class CollisionGrid implements Steppable
 	@Override
 	public void step(SimState state)
 	{
-		System.out.println(m_i3lCollisionPoints.size());
-		m_i3lCollisionPoints = new ArrayList<Int3D>();
+		//System.out.println(m_i3lCollisionPoints.size());
+		
+		for ( Int3D i3CollisionPoint : m_i3lCollisionPoints )
+		{
+			for ( Collidable cObj : getPoints(i3CollisionPoint) )
+			{
+				cObj.handleCollisions(this);
+			}
+		}
+		
+		m_i3lCollisionPoints.clear();
 		m_iCurrentStep++;
 	}
 }
