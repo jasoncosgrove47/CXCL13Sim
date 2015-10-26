@@ -39,6 +39,16 @@ public class StromaEdge extends DrawableCell implements Collidable
 	
 	private Double3D m_d3Edge;
 	
+	public Double3D getPoint1()
+	{
+		return new Double3D(x, y, z);
+	}
+	
+	public Double3D getPoint2()
+	{
+		return  new Double3D(x + m_d3Edge.x, y + m_d3Edge.y, z + m_d3Edge.z);
+	}
+	
     public final void draw(Object object,  final Graphics2D graphics, final DrawInfo2D info)
     {
     	Color transp = getColorWithDepth(Options.FDC.DRAW_COLOR());

@@ -454,18 +454,22 @@ public class BC extends DrawableCell implements Steppable, Collidable
 		
 		System.out.println(csCollidables.size());
 		
+		double dCurrentCollisionPoint = 0;
+		
+		forloop:
 		for ( Collidable cCell : csCollidables )
 		{
 			switch ( cCell.getCollisionClass() )
 			{
 				// These first two are probable hits as they won't be moving
 				case STROMA_EDGE:
+					dCurrentCollisionPoint = collideStromaEdge((StromaEdge) cCell, dCurrentCollisionPoint);
 					break;
 				case STROMA:
 					break;
 				case BC:
 					break;
-			};
+			}
 		}
 		
 		m_bCollisionsHandled = true;
@@ -476,5 +480,28 @@ public class BC extends DrawableCell implements Steppable, Collidable
 	public CLASS getCollisionClass()
 	{
 		return CLASS.BC;
+	}
+	
+	private double collideStromaEdge(StromaEdge seEdge, double dCurrentCollisionPoint)
+	{
+		Double3D d3Point1 = seEdge.getPoint1();
+		Double3D d3Point2 = seEdge.getPoint2();
+		
+		Double3D d3CurPos = new Double3D(x, y, z);
+		
+		for ( Double3D d3Movement: m_d3aMovements )
+		{
+			// Check if we are actually going towards either point
+			Double3D ac = d3Point1.subtract(d3CurPos);
+			Double3D ad = d3Point2.subtract(d3CurPos);
+			
+			// we are moving away from both points
+			if ( Vector3DHelper.dotProduct(ac, d3Movement) < 0 && Vector3DHelper.dotProduct(ad, d3Movement) < 0 )
+			{
+				continue;
+			}
+		}
+		
+		return dCurrentCollisionPoint;
 	}
 }
