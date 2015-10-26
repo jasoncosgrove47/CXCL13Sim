@@ -491,14 +491,28 @@ public class BC extends DrawableCell implements Steppable, Collidable
 		
 		for ( Double3D d3Movement: m_d3aMovements )
 		{
+			double s = 0;
+			double t = 0;
+			//https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf p146
 			// Check if we are actually going towards either point
-			Double3D ac = d3Point1.subtract(d3CurPos);
-			Double3D ad = d3Point2.subtract(d3CurPos);
+			Double3D d1 = d3Movement;
+			Double3D d2 = d3Point2.subtract(d3Point1);
+			Double3D r = d3CurPos.subtract(d3Point1);
+
+			double a = Vector3DHelper.dotProduct(d1, d1);
+			double b = Vector3DHelper.dotProduct(d1, d2);
+			double c = Vector3DHelper.dotProduct(d1, r);
+			double e = Vector3DHelper.dotProduct(d2, d2);
+			double f = Vector3DHelper.dotProduct(d2, r);
 			
-			// we are moving away from both points
-			if ( Vector3DHelper.dotProduct(ac, d3Movement) < 0 && Vector3DHelper.dotProduct(ad, d3Movement) < 0 )
+			// differing from the link, we assume that neither are points (zero length)
+			
+			double denom = a*e-b*b; // >= 0
+			
+			// not parallel, so compute closest point and clamp to segment 1
+			if ( denom != 0 )
 			{
-				continue;
+				s = Math.min(1.0, Math.max(0.0, (b*f - c*e) / denom));
 			}
 		}
 		
