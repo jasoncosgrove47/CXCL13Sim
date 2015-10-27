@@ -20,7 +20,7 @@ public class ParticleColorMap implements ColorMap {
 	@Override
 	public Color getColor(double arg0) {
 		// TODO Auto-generated method stub
-		return new Color(255,0,0,(int)(arg0*255));
+		return new Color(getRGB(arg0));
 	}
 
 	public static int hsvToRgb(double hue, double saturation, double value) {

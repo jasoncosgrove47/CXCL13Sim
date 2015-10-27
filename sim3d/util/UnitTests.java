@@ -8,7 +8,6 @@ import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
-import org.jzy3d.maths.Scale;
 import org.jzy3d.plot3d.primitives.Scatter;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
@@ -45,14 +44,16 @@ public class UnitTests extends AbstractAnalysis {
                 	{
                 		ArrayList<Int3D> cells = FRCStromaGenerator.getAdjacentCells(Options.WIDTH-2,  Options.HEIGHT-2, Options.DEPTH-2, ba3Stroma, new Int3D(x, y, z), Options.FRCGenerator.MAX_EDGE_LENGTH());
                 		c3dalPoints.add( new Coord3d(x, y, z) );
-                		
-                		for ( Int3D cell : cells )
-                		{
-                			drawLine(c3dalLines, new Coord3d(x, y, z), new Coord3d(cell.x, cell.y, cell.z));
-                		}
                 	}
                 }
             }
+        }
+        
+        for ( StromaEdge seEdge : sealEdges )
+        {
+        	Double3D d3Point1 = seEdge.getPoint1();
+        	Double3D d3Point2 = seEdge.getPoint2();
+        	drawLine(c3dalLines, new Coord3d(d3Point1.x, d3Point1.y, d3Point1.z), new Coord3d(d3Point2.x, d3Point2.y, d3Point2.z));
         }
         
         Coord3d[] points = new Coord3d[c3dalPoints.size()];
@@ -69,7 +70,7 @@ public class UnitTests extends AbstractAnalysis {
         for ( int i = 0; i < c3dalLines.size(); i++ )
         {
         	lines[i] = c3dalLines.get(i);
-        	linecolors[i] = new Color(255,0,0,40);
+        	linecolors[i] = new Color(255,0,0,200);
         }
 
         Scatter scatter = new Scatter(points, colors);

@@ -2,6 +2,7 @@ package sim3d.cell;
 import sim.util.*;
 import sim.engine.*;
 import sim.field.continuous.Continuous2D;
+import sim.field.continuous.Continuous3D;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -11,7 +12,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 
+import javax.media.j3d.Transform3D;
+import javax.media.j3d.TransformGroup;
+
 import sim.portrayal.*;
+import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Grapher;
 import sim3d.Options;
 import sim3d.collisiondetection.Collidable;
@@ -19,7 +24,7 @@ import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 import sim3d.util.Vector3DHelper;
 
-public class BC extends DrawableCell implements Steppable, Collidable
+public class BC extends DrawableCell3D implements Steppable, Collidable
 {
 	private static final long serialVersionUID = 1;
 
@@ -56,8 +61,8 @@ public class BC extends DrawableCell implements Steppable, Collidable
     public static CollisionGrid m_cgGrid;
     
 	/* Draw Environment accessor */
-	public static Continuous2D drawEnvironment;
-	@Override public Continuous2D getDrawEnvironment(){
+	public static Continuous3D drawEnvironment;
+	@Override public Continuous3D getDrawEnvironment(){
 		return drawEnvironment;
 	}
 	
@@ -518,4 +523,34 @@ public class BC extends DrawableCell implements Steppable, Collidable
 		
 		return dCurrentCollisionPoint;
 	}
+	
+    public TransformGroup createModel(Object obj)
+    {
+    	TransformGroup globalTG = new TransformGroup();
+
+        SpherePortrayal3D s = new SpherePortrayal3D(Color.blue, 1 , 6);
+        s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
+        TransformGroup localTG = s.getModel(obj, null);
+        
+        localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        globalTG.addChild(localTG);
+        
+	    return globalTG;
+    }
+            
+    public TransformGroup getModel(Object obj, TransformGroup transf)
+    {
+	    if(transf==null)
+	    {
+	    	transf = new TransformGroup();
+
+	        SpherePortrayal3D s = new SpherePortrayal3D(Options.BC.DRAW_COLOR(), 1 , 6);
+	        s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
+	        TransformGroup localTG = s.getModel(obj, null);
+	        
+	        localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+	        transf.addChild(localTG);
+	    }
+	    return transf;
+    }
 }

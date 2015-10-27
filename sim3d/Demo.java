@@ -2,6 +2,12 @@ package sim3d;
 
 import java.util.ArrayList;
 
+import javax.media.j3d.LineArray;
+import javax.vecmath.Point3d;
+import javax.vecmath.Point3f;
+
+import javafx.geometry.Point3D;
+import sim.display3d.Display3D;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -17,9 +23,10 @@ public class Demo extends SimState
 {
     private static final long serialVersionUID = 1;
 
-    public Continuous2D ovaEnvironment;
-    public Continuous2D frcEnvironment;
-    public Continuous2D bcEnvironment;
+    public Continuous3D frcEnvironment;
+    public Continuous3D bcEnvironment;
+    
+    public static Display3D display3D;
     
     public int getDisplayLevel() {
 		return Particle.getDisplayLevel()+1;
@@ -43,14 +50,11 @@ public class Demo extends SimState
     {
         super.start();  // clear out the schedule
 
-        ovaEnvironment = new Continuous2D( Options.OVA.DISCRETISATION, Options.WIDTH, Options.HEIGHT );
-        Ova.drawEnvironment = ovaEnvironment;
-
-        frcEnvironment = new Continuous2D( Options.FDC.DISCRETISATION, Options.WIDTH, Options.HEIGHT );
+        frcEnvironment = new Continuous3D( Options.FDC.DISCRETISATION, Options.WIDTH, Options.HEIGHT, Options.DEPTH );
         FDC.drawEnvironment = frcEnvironment;
         StromaEdge.drawEnvironment = frcEnvironment;
 
-        bcEnvironment = new Continuous2D( Options.BC.DISCRETISATION, Options.WIDTH, Options.HEIGHT );
+        bcEnvironment = new Continuous3D( Options.BC.DISCRETISATION, Options.WIDTH, Options.HEIGHT, Options.DEPTH );
         BC.drawEnvironment = bcEnvironment;
         
         CollisionGrid cgGrid = new CollisionGrid(Options.WIDTH, Options.HEIGHT, Options.DEPTH, 1);

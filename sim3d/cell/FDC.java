@@ -9,9 +9,14 @@ package sim3d.cell;
 
 import sim.engine.*;
 import sim.field.continuous.Continuous2D;
+import sim.field.continuous.Continuous3D;
 
 import java.awt.*;
+
+import javax.media.j3d.TransformGroup;
+
 import sim.portrayal.*;
+import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Options;
@@ -19,13 +24,13 @@ import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 
-public class FDC extends DrawableCell implements Steppable, Collidable
+public class FDC extends DrawableCell3D implements Steppable, Collidable
 {
 	private static final long serialVersionUID = 1;
 	
 	/* Draw Environment accessor */
-	public static Continuous2D drawEnvironment;
-	@Override public Continuous2D getDrawEnvironment(){
+	public static Continuous3D drawEnvironment;
+	@Override public Continuous3D getDrawEnvironment(){
 		return drawEnvironment;
 	}
 
@@ -87,4 +92,20 @@ public class FDC extends DrawableCell implements Steppable, Collidable
 	{
 		return CLASS.STROMA;
 	}
+	
+    public TransformGroup getModel(Object obj, TransformGroup transf)
+    {
+	    if(transf==null)
+	    {
+	    	transf = new TransformGroup();
+
+	        SpherePortrayal3D s = new SpherePortrayal3D(Options.FDC.DRAW_COLOR(), 0.2, 6);
+	        s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
+	        TransformGroup localTG = s.getModel(obj, null);
+	        
+	        localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+	        transf.addChild(localTG);
+	    }
+	    return transf;
+    }
 }

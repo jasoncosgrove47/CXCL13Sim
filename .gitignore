@@ -2,3 +2,4 @@
 .DS_STORE
 .classpath
 bin
+*.class

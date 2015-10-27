@@ -4,20 +4,30 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 
+import javax.media.j3d.Group;
+import javax.media.j3d.LineArray;
+import javax.media.j3d.Shape3D;
+import javax.media.j3d.TransformGroup;
+import javax.vecmath.Point3d;
+
 import sim.field.continuous.Continuous2D;
+import sim.field.continuous.Continuous3D;
 import sim.portrayal.DrawInfo2D;
+import sim.portrayal3d.simple.CylinderPortrayal3D;
+import sim.portrayal3d.simple.Shape3DPortrayal3D;
+import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Options;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 
-public class StromaEdge extends DrawableCell implements Collidable
+public class StromaEdge extends DrawableCell3D implements Collidable
 {
 	private static final long serialVersionUID = 1L;
 	
-	public static Continuous2D drawEnvironment;
-	@Override public Continuous2D getDrawEnvironment(){
+	public static Continuous3D drawEnvironment;
+	@Override public Continuous3D getDrawEnvironment(){
 		return drawEnvironment;
 	}
 
@@ -94,4 +104,25 @@ public class StromaEdge extends DrawableCell implements Collidable
 	{
 		return CLASS.STROMA_EDGE;
 	}
+	
+    public TransformGroup getModel(Object obj, TransformGroup transf)
+    {
+	    if(transf==null)
+	    {
+	    	transf = new TransformGroup();
+	    	
+        	LineArray lineArr = new LineArray(2, LineArray.COORDINATES);
+        	lineArr.setCoordinate(0, new Point3d(0, 0, 0));
+        	lineArr.setCoordinate(1, new Point3d(m_d3Edge.x, m_d3Edge.y, m_d3Edge.z));
+        	Shape3D s3Shape = new Shape3D(lineArr);
+        	
+	        Shape3DPortrayal3D s = new Shape3DPortrayal3D(s3Shape);
+	        s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
+	        TransformGroup localTG = s.getModel(obj, null);
+	        
+	        localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+	        transf.addChild(localTG);
+	    }
+	    return transf;
+    }
 }
