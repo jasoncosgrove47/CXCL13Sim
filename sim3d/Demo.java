@@ -103,16 +103,6 @@ public class Demo extends SimState
             
             if ( x == 0 )
             {
-            	Grapher.dataSets = new ArrayList<ArrayList<Integer>>();
-            	Grapher.dataSets.add(new ArrayList<Integer>());
-            	Grapher.dataSets.add(new ArrayList<Integer>());
-            	Grapher.dataSets.add(new ArrayList<Integer>());
-            	Grapher.dataSets.add(new ArrayList<Integer>());
-            	Grapher.dataSetNames = new ArrayList<String>();
-            	Grapher.dataSetNames.add("iR_free");
-        		Grapher.dataSetNames.add("iR_i");
-        		Grapher.dataSetNames.add("iR_d");
-        		Grapher.dataSetNames.add("iL_r");
             	bc.displayGraph = true;
             }
         }

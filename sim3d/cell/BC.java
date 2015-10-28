@@ -12,10 +12,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 
+import javax.media.j3d.Appearance;
+import javax.media.j3d.ColoringAttributes;
+import javax.media.j3d.LineArray;
+import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
+import javax.media.j3d.TransparencyAttributes;
+import javax.vecmath.Point3d;
 
 import sim.portrayal.*;
+import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Grapher;
 import sim3d.Options;
@@ -74,6 +81,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
     {
     	if ( m_d3aMovements != null )
     	{
+    		m_d3aMovementsOld = m_d3aMovements;
     		for ( Double3D d3Movement : m_d3aMovements )
     		{
     			x += d3Movement.x;
@@ -111,7 +119,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
     		vMovement = Vector3DHelper.getBiasedRandomDirectionInCone(m_d3Face, Options.BC.RANDOM_TURN_ANGLE());
     	}
     	
-    	m_d3aMovements.clear();
+    	m_d3aMovements = new ArrayList<Double3D>();
     	m_d3aMovements.add(vMovement.multiply(Options.BC.TRAVEL_DISTANCE()));
     	
     	handleBounce();
@@ -225,18 +233,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
     	if ( displayGraph )
     	{
-    		Grapher.dataSets.get(0).add(m_iR_free);
-    		Grapher.dataSets.get(1).add(m_iR_i);
-    		Grapher.dataSets.get(2).add(m_iR_d);
-    		Grapher.dataSets.get(3).add(m_iL_r);
-    	}
-    	if ( displayGraph && Grapher.dataSets.get(0).size() % 50 == 49 )
-    	{
-    		Grapher.updateGraph();
+    		Grapher.addPoint(m_iR_free);
+    		//Grapher.dataSets.get(1).add(m_iR_i);
+    		//Grapher.dataSets.get(2).add(m_iR_d);
+    		//Grapher.dataSets.get(3).add(m_iL_r);
     	}
     }
 
     List<Double3D> m_d3aMovements = new ArrayList<Double3D>();
+    List<Double3D> m_d3aMovementsOld = new ArrayList<Double3D>();
     
 	@Override
 	public boolean isStatic()
@@ -487,22 +492,23 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		return CLASS.BC;
 	}
 	
+	public static final double BC_SE_COLLIDE_DIST_SQ = (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS) * (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS);
+	
 	private double collideStromaEdge(StromaEdge seEdge, double dCurrentCollisionPoint)
 	{
-		Double3D d3Point1 = seEdge.getPoint1();
-		Double3D d3Point2 = seEdge.getPoint2();
+		Double3D p1 = new Double3D(x, y, z);
+		Double3D p2 = seEdge.getPoint1();
+		Double3D d2 = seEdge.getPoint2().subtract(p2);
 		
-		Double3D d3CurPos = new Double3D(x, y, z);
+		double totalDist = 0;
 		
-		for ( Double3D d3Movement: m_d3aMovements )
+		for ( Double3D d1: m_d3aMovements )
 		{
 			double s = 0;
 			double t = 0;
 			//https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf p146
-			// Check if we are actually going towards either point
-			Double3D d1 = d3Movement;
-			Double3D d2 = d3Point2.subtract(d3Point1);
-			Double3D r = d3CurPos.subtract(d3Point1);
+
+			Double3D r = p1.subtract(p2);
 
 			double a = Vector3DHelper.dotProduct(d1, d1);
 			double b = Vector3DHelper.dotProduct(d1, d2);
@@ -519,37 +525,92 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			{
 				s = Math.min(1.0, Math.max(0.0, (b*f - c*e) / denom));
 			}
+			
+			t = b*s + f;
+			
+			if ( t < 0 )
+			{
+				t = 0;
+				s = Math.max(0,  Math.min(1,  -c/a));
+			}
+			else if ( t > e )
+			{
+				t = 1;
+				s = Math.max(0,  Math.min(1,  (b-c)/a));
+			}
+			else
+			{
+				t /= e;
+			}
+
+			Double3D c1 = p1.add(d1.multiply(s));
+			Double3D c2 = p2.add(d2.multiply(t));
+			
+			double length = Vector3DHelper.dotProduct(c1.subtract(c2), c1.subtract(c2));
+			
+			if ( length < BC_SE_COLLIDE_DIST_SQ )
+			{
+				return dCurrentCollisionPoint + totalDist + d1.length()*s;
+			}
+			else
+			{
+				p1 = p1.add(d1);
+				totalDist += d1.length();
+			}
 		}
 		
 		return dCurrentCollisionPoint;
 	}
 	
-    public TransformGroup createModel(Object obj)
-    {
-    	TransformGroup globalTG = new TransformGroup();
-
-        SpherePortrayal3D s = new SpherePortrayal3D(Color.blue, 1 , 6);
-        s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
-        TransformGroup localTG = s.getModel(obj, null);
-        
-        localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        globalTG.addChild(localTG);
-        
-	    return globalTG;
-    }
-            
     public TransformGroup getModel(Object obj, TransformGroup transf)
     {
-	    if(transf==null)
+    	// TODO could potentially add lines showing where the cell is about to move to, too!
+	    if(transf==null || true)
 	    {
 	    	transf = new TransformGroup();
 
-	        SpherePortrayal3D s = new SpherePortrayal3D(Options.BC.DRAW_COLOR(), 1 , 6);
+	        SpherePortrayal3D s = new SpherePortrayal3D(Options.BC.DRAW_COLOR(), 0.5, 6);
 	        s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 	        TransformGroup localTG = s.getModel(obj, null);
 	        
 	        localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 	        transf.addChild(localTG);
+	        
+	        if ( m_d3aMovementsOld.size() > 0 )
+	        {
+	        	LineArray lineArr = new LineArray(m_d3aMovementsOld.size()*2, LineArray.COORDINATES);
+	        	lineArr.setCoordinate(0, new Point3d(0, 0, 0));
+	        	
+	        	int i = 1;
+	        	double xPos = 0, yPos = 0, zPos = 0;
+	        	
+	        	for ( int iIndex = m_d3aMovementsOld.size()-1; iIndex >= 0; iIndex-- )
+	        	{
+	        		Double3D d3Movement = m_d3aMovementsOld.get(iIndex);
+	        		
+	        		if ( i > 1 )
+	        		{
+	        			lineArr.setCoordinate(i, new Point3d(xPos, yPos, zPos));
+	        			i++;
+	        		}
+	        		xPos -= d3Movement.x;
+	        		yPos -= d3Movement.y;
+	        		zPos -= d3Movement.z;
+	        		lineArr.setCoordinate(i, new Point3d(xPos, yPos, zPos));
+	        		i++;
+	        	}
+	        	Appearance aAppearance = new Appearance();
+	        	Color col = Options.BC.DRAW_COLOR();
+	        	aAppearance.setColoringAttributes(new ColoringAttributes(col.getRed()/255f, col.getGreen()/255f, col.getBlue()/255f, ColoringAttributes.FASTEST));
+	        	
+	        	Shape3D s3Shape = new Shape3D(lineArr, aAppearance);
+	        	Shape3DPortrayal3D s2 = new Shape3DPortrayal3D(s3Shape, aAppearance);
+	        	s2.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
+		        TransformGroup localTG2 = s2.getModel(obj, null);
+		        
+		        localTG2.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+		        transf.addChild(localTG2);
+	        }
 	    }
 	    return transf;
     }

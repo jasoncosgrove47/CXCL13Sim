@@ -4,10 +4,14 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 
+import javax.media.j3d.Appearance;
+import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.Group;
 import javax.media.j3d.LineArray;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.TransformGroup;
+import javax.media.j3d.TransparencyAttributes;
+import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 
 import sim.field.continuous.Continuous2D;
@@ -114,9 +118,16 @@ public class StromaEdge extends DrawableCell3D implements Collidable
         	LineArray lineArr = new LineArray(2, LineArray.COORDINATES);
         	lineArr.setCoordinate(0, new Point3d(0, 0, 0));
         	lineArr.setCoordinate(1, new Point3d(m_d3Edge.x, m_d3Edge.y, m_d3Edge.z));
-        	Shape3D s3Shape = new Shape3D(lineArr);
         	
-	        Shape3DPortrayal3D s = new Shape3DPortrayal3D(s3Shape);
+        	Appearance aAppearance = new Appearance();
+        	Color col = Options.FDC.DRAW_COLOR();
+        	aAppearance.setColoringAttributes(new ColoringAttributes(col.getRed()/255f, col.getGreen()/255f, col.getBlue()/255f, ColoringAttributes.FASTEST));
+        	aAppearance.setTransparencyAttributes(new TransparencyAttributes(TransparencyAttributes.FASTEST, 0.4f));
+        	/*lineArr.setColor(0, new Color3f(col.getRed()/255f, col.getGreen()/255f, col.getBlue()/255f));
+        	lineArr.setColor(1, new Color3f(col.getRed()/255f, col.getGreen()/255f, col.getBlue()/255f));*/
+        	Shape3D s3Shape = new Shape3D(lineArr, aAppearance);
+        	
+	        Shape3DPortrayal3D s = new Shape3DPortrayal3D(s3Shape, aAppearance);
 	        s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 	        TransformGroup localTG = s.getModel(obj, null);
 	        
