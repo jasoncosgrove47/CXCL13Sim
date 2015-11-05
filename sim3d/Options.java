@@ -12,9 +12,9 @@ public class Options
 {
 	public static MersenneTwisterFast RNG;
 	
-	public static int WIDTH = 50;
-	public static int HEIGHT = 50;
-	public static int DEPTH = 7;
+	public static int WIDTH = 5;
+	public static int HEIGHT = 5;
+	public static int DEPTH = 5;
 	public static double MAX_DISTANCE = 5;
 	public static double GRID_SIZE = 0.00001;
 	public static double DIFFUSION_COEFFICIENT = 1.519 * Math.pow(10, -10);

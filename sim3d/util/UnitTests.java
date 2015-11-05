@@ -91,6 +91,60 @@ public class UnitTests extends AbstractAnalysis {
 		}
 	}
 	
+	public void drawLine(ArrayList<Coord3d> points, Double3D d1, Double3D d2)
+	{
+		Coord3d p1 = new Coord3d(d1.x, d1.y, d1.z);
+		Coord3d p2 = new Coord3d(d2.x, d2.y, d2.z);
+		
+		Coord3d diff = p2.sub(p1).mul(0.02f);
+		for (int i = 0; i < 50; i++)
+		{
+			points.add(p1.add(diff.mul(i)));
+		}
+	}
+	
+	public void testRotateVectorToVector()
+	{
+		int lines = 4;
+		Coord3d[] points = new Coord3d[lines*50];
+        Color[]   colors = new Color[lines*50];
+        
+        ArrayList<Coord3d> c3dalPoints = new ArrayList<Coord3d>();
+
+        Double3D d3Point1 = Vector3DHelper.getRandomDirection();
+        Double3D d3Point2 = Vector3DHelper.getRandomDirection();
+        
+        Double3D zero = new Double3D(0,0,0);
+
+        drawLine(c3dalPoints, zero, d3Point1);
+        drawLine(c3dalPoints, zero, d3Point2);
+        
+        Double3D curPoint = new Double3D(d3Point1.x, d3Point1.y, d3Point1.z);
+        
+        for ( int i = 2; i < lines; i++ )
+        {
+        	curPoint = Vector3DHelper.rotateVectorToVector(curPoint, d3Point1, d3Point2);
+        	drawLine(c3dalPoints, zero, curPoint);
+        }
+        
+        for ( int i = 0; i < 100; i++ )
+        {
+        	points[i] = c3dalPoints.get(i);
+        	colors[i] = new Color(0,(i<50)?255:0,(i<50)?0:255,255);
+        }
+        
+        for ( int i = 100; i < c3dalPoints.size(); i++ )
+        {
+        	points[i] = c3dalPoints.get(i);
+        	colors[i] = new Color((int)(200+(i-100.0)/(lines*50.0) * 55),0,0,255);
+        }
+        
+		Scatter scatter = new Scatter(points, colors);
+        scatter.width = 6;
+        chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
+        chart.getScene().add(scatter);
+	}
+	
 	public void testVector3DHelperRandomDirection()
 	{
 		int size = 10000;
@@ -246,7 +300,8 @@ public class UnitTests extends AbstractAnalysis {
 		//testVector3DHelperRandomDirection();
 		//testVector3DHelperRandomDirectionInCone();
 		//testVector3DHelperEqDistPointsOnSphere();
-		testFRCStromaGenerator();
+		//testFRCStromaGenerator();
 		//testParticleDiffusion();
+		testRotateVectorToVector();
 	}
 }

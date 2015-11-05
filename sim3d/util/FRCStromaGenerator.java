@@ -99,6 +99,7 @@ public class FRCStromaGenerator {
 			// Check if point already exists (in which case we don't remove the edge)
 			else if ( ba3CellLocations[x][y][z] )
 			{
+				d3aDirections[i] = null;
 				continue;
 			}
 			else 

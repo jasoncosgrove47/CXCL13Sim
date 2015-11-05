@@ -140,6 +140,46 @@ public class Vector3DHelper
 	}
 	
 	/**
+	 * Given a unit directional vector, this generates a rotation such that the vector (0,0,1) rotates to
+	 * the aforementioned directional vector. This rotation is then applied to a given point.
+	 * @param d3Point The vector to apply the rotation to
+	 * @param d3Direction The end position of the rotation on the vector (0, 0, 1)
+	 * @return The rotated vector
+	 * TODO This could easily be changed to using an arbitrary vector instead of (0, 0, 1), but the latter is
+	 * all we need for the moment
+	 */
+	public static Double3D rotateVectorToVector(Double3D d3Point, Double3D d3OldDirection, Double3D d3NewDirection)
+	{
+		if ( dotProduct(d3NewDirection, d3OldDirection) == 1 )
+		{
+			//we're in the right direction
+			return d3Point;
+		}
+		else if ( dotProduct(d3NewDirection, d3OldDirection) == -1 )
+		{
+			// We're facing the wrong way! Just negate the coordinates
+			return new Double3D(-d3Point.x, -d3Point.y, -d3Point.z);
+		}
+		
+		//math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-b-in-3d/476311#476311
+		
+		Double3D d3Cross = crossProduct(d3OldDirection, d3NewDirection);
+		double a = (1-dotProduct(d3OldDirection, d3NewDirection))/(d3Cross.length()*d3Cross.length());
+
+		double x = d3Point.x * (1 + a*(-d3Cross.z*d3Cross.z - d3Cross.y*d3Cross.y))
+				 + d3Point.y * (-d3Cross.z + a*d3Cross.x*d3Cross.y)
+				 + d3Point.z * (d3Cross.y + a*d3Cross.x*d3Cross.z);
+		double y = d3Point.x * (d3Cross.z + a*d3Cross.x*d3Cross.y)
+				 + d3Point.y * (1 + a*(-d3Cross.z*d3Cross.z - d3Cross.x*d3Cross.x))
+				 + d3Point.z * (-d3Cross.x + a*d3Cross.y*d3Cross.z);
+		double z = d3Point.x * (-d3Cross.y + a*d3Cross.x*d3Cross.z)
+				 + d3Point.y * (d3Cross.x + a*d3Cross.y*d3Cross.z)
+				 + d3Point.z * (1 + a*(-d3Cross.x*d3Cross.x - d3Cross.y*d3Cross.y));
+		
+		return new Double3D(x, y, z);
+	}
+	
+	/**
 	 * Helper function that will calculate the cross product between two vectors
 	 * @param v1 The first vector
 	 * @param v2 The second vector

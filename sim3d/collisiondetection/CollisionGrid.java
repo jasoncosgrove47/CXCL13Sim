@@ -64,8 +64,15 @@ public class CollisionGrid implements Steppable
 		}
 		else if ( m_clGridSpaces[x][y][z].size() > 2 )
 		{
+			if ( !m_i3lCollisionPoints.contains(new Int3D(x, y, z)) )
+			{
+				m_i3lCollisionPoints.add(new Int3D(x, y, z));
+			}
 			// There's a potential collision so tell the cells, too
-			cObject.addCollisionPoint(new Int3D(x, y, z));
+			for ( Collidable cCollidable : m_clGridSpaces[x][y][z] )
+			{
+				cCollidable.addCollisionPoint(new Int3D(x, y, z));
+			}
 		}
 	}
 	
@@ -266,12 +273,17 @@ public class CollisionGrid implements Steppable
 	public void step(SimState state)
 	{
 		//System.out.println(m_i3lCollisionPoints.size());
-		
-		for ( Int3D i3CollisionPoint : m_i3lCollisionPoints )
+		while ( m_i3lCollisionPoints.size() > 0 )
 		{
-			for ( Collidable cObj : getPoints(i3CollisionPoint) )
+			Int3D i3CollisionPoint = m_i3lCollisionPoints.get(0);
+			m_i3lCollisionPoints.remove(0);
+		
+			List<Collidable> cPoints = getPoints(i3CollisionPoint);
+			int iMax = cPoints.size();
+			
+			for ( int i = 0; i < iMax; i++ )
 			{
-				cObj.handleCollisions(this);
+				cPoints.get(i).handleCollisions(this);
 			}
 		}
 		

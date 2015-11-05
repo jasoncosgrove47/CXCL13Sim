@@ -8,6 +8,7 @@ import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.Group;
 import javax.media.j3d.LineArray;
+import javax.media.j3d.LineAttributes;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.TransformGroup;
 import javax.media.j3d.TransparencyAttributes;
@@ -125,6 +126,10 @@ public class StromaEdge extends DrawableCell3D implements Collidable
         	aAppearance.setTransparencyAttributes(new TransparencyAttributes(TransparencyAttributes.FASTEST, 0.4f));
         	/*lineArr.setColor(0, new Color3f(col.getRed()/255f, col.getGreen()/255f, col.getBlue()/255f));
         	lineArr.setColor(1, new Color3f(col.getRed()/255f, col.getGreen()/255f, col.getBlue()/255f));*/
+        	LineAttributes la = new LineAttributes();
+        	la.setLineWidth((float)Options.FDC.STROMA_EDGE_RADIUS*200);
+        	aAppearance.setLineAttributes(la);
+        	
         	Shape3D s3Shape = new Shape3D(lineArr, aAppearance);
         	
 	        Shape3DPortrayal3D s = new Shape3DPortrayal3D(s3Shape, aAppearance);
@@ -137,3 +142,21 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	    return transf;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
