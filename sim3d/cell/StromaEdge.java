@@ -127,7 +127,7 @@ public class StromaEdge extends DrawableCell3D implements Collidable
         	/*lineArr.setColor(0, new Color3f(col.getRed()/255f, col.getGreen()/255f, col.getBlue()/255f));
         	lineArr.setColor(1, new Color3f(col.getRed()/255f, col.getGreen()/255f, col.getBlue()/255f));*/
         	LineAttributes la = new LineAttributes();
-        	la.setLineWidth((float)Options.FDC.STROMA_EDGE_RADIUS*200);
+        	la.setLineWidth((float)Options.FDC.STROMA_EDGE_RADIUS*20);
         	aAppearance.setLineAttributes(la);
         	
         	Shape3D s3Shape = new Shape3D(lineArr, aAppearance);

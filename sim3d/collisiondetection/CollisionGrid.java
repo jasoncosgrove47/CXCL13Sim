@@ -7,6 +7,7 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.util.Double3D;
 import sim.util.Int3D;
+import sim3d.util.Vector3DHelper;
 
 public class CollisionGrid implements Steppable
 {
@@ -230,21 +231,21 @@ public class CollisionGrid implements Steppable
 					
 					double length = 0;
 					
-					Double3D ab = d3DiscretisedPoint1.subtract(d3DiscretisedPoint2);
+					Double3D ab = d3DiscretisedPoint2.subtract(d3DiscretisedPoint1);
 					// add 0.5 so it's the centre of the square
 					Double3D ac = new Double3D(x + 0.5 - d3DiscretisedPoint1.x,
 											   y + 0.5 - d3DiscretisedPoint1.y,
 											   z + 0.5 - d3DiscretisedPoint1.z);
 					
-					double e = ac.x*ab.x + ac.y*ab.y + ac.z*ab.z;
+					double e = Vector3DHelper.dotProduct(ac,  ab);
 					
 					if ( e <= 0 )
 					{
-						length = ac.x*ac.x + ac.y*ac.y + ac.z*ac.z;
+						length = Vector3DHelper.dotProduct(ac,  ac);
 					}
 					else
 					{
-						double f = ab.x*ab.x + ab.y*ab.y + ab.z*ab.z;
+						double f = Vector3DHelper.dotProduct(ab,  ab);
 						
 						if ( e >= f )
 						{
@@ -252,11 +253,11 @@ public class CollisionGrid implements Steppable
 													   y + 0.5 - d3DiscretisedPoint2.y,
 													   z + 0.5 - d3DiscretisedPoint2.z);
 							
-							length = bc.x*bc.x + bc.y*bc.y + bc.z*bc.z;
+							length = Vector3DHelper.dotProduct(bc,  bc);
 						}
 						else
 						{
-							length = ac.x*ac.x + ac.y*ac.y + ac.z*ac.z - e * e / f;
+							length = Vector3DHelper.dotProduct(ac,  ac) - e * e / f;
 						}
 					}
 					

@@ -12,9 +12,9 @@ public class Options
 {
 	public static MersenneTwisterFast RNG;
 	
-	public static int WIDTH = 5;
-	public static int HEIGHT = 5;
-	public static int DEPTH = 5;
+	public static int WIDTH = 50;
+	public static int HEIGHT = 50;
+	public static int DEPTH = 7;
 	public static double MAX_DISTANCE = 5;
 	public static double GRID_SIZE = 0.00001;
 	public static double DIFFUSION_COEFFICIENT = 1.519 * Math.pow(10, -10);
@@ -27,14 +27,14 @@ public class Options
 		public static int COUNT = 1;
 		public static double DISCRETISATION = 5;
 		public static int MIN_RECEPTORS() { return 1600; }
-		public static double TRAVEL_DISTANCE(){ return 1; }
+		public static double TRAVEL_DISTANCE(){ return 100; }
 		public static double DIRECTION_ERROR(){ return Math.PI/2; }
 		public static double RANDOM_TURN_ANGLE(){ return Math.PI/12; }
 		public static double DRAW_SCALE(){ return 0.7; }
 		public static Color DRAW_COLOR(){ return new Color(90,90,255); }
 		public static Color RANDOM_COLOR(){ return new Color(90,255,255); }
 		public static double RECEPTOR_BIND_CHANCE(){ return 0.1; }
-		public static double COLLISION_RADIUS = 1;
+		public static double COLLISION_RADIUS = 0.5;
 		public static class ODE
 		{
 			public static double K_a(){ return 0.03; }
