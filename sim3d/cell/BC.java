@@ -363,6 +363,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			}
 			
 			// Remember which way we're now facing
+			//TODO this errors :z (infinite or 0, probs 0)
 			m_d3Face = m_d3aMovements.get( m_d3aMovements.size() - 1 ).normalize();
 			
 			setObjectLocation( new Double3D( x, y, z ) );
@@ -384,7 +385,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			}
 		}
 		
-		if ( vMovement == null )
+		if ( vMovement == null || vMovement.lengthSq() == 0 )
 		{
 			// no data! so do a random turn
 			vMovement = Vector3DHelper.getBiasedRandomDirectionInCone( m_d3Face, Options.BC.RANDOM_TURN_ANGLE() );
@@ -552,11 +553,16 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				}
 				
 				// Set the new movement
-				m_d3aMovements.set( i, d1.multiply( s ) );
+				d1 = d1.multiply( s );
+				
+				if ( d1.lengthSq() > 0 )
+				{
+					m_d3aMovements.set( i, d1 );
+					i++;
+				}
 				
 				// We need to add up all vectors after this one so we can add a
 				// new vector of this length
-				i++;
 				double dNewLength = 0;
 				while (m_d3aMovements.size() > i)
 				{
@@ -567,7 +573,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				// add the remaining length of the current movement
 				dNewLength += d1.length() * (1 - s);
 				
-				m_d3aMovements.add( d3NewDir.multiply( dNewLength ) );
+				d3NewDir = d3NewDir.multiply( dNewLength );
+				
+				if ( d3NewDir.lengthSq() > 0 )
+				{
+					m_d3aMovements.add( d3NewDir );
+				}
 				
 				return true;
 			}
@@ -707,11 +718,19 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 						
 						// Replace the current one, then add the new one after
 						// it
-						m_d3aMovements.set( i, d3TruncMovement );
-						m_d3aMovements.add( i + 1, d3Remainder );
+						if ( d3TruncMovement.lengthSq() > 0 )
+						{
+							m_d3aMovements.set( i, d3TruncMovement );
+							m_d3aMovements.add( i + 1, d3Remainder );
+							
+							// if we don't increment i, it will get flipped again!
+							i++;
+						}
+						else
+						{
+							m_d3aMovements.set( i, d3Remainder );
+						}
 						
-						// if we don't increment i, it will get flipped again!
-						i++;
 						
 						bFlipped = true;
 						bBounce = true;
@@ -763,11 +782,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 						
 						// Replace the current one, then add the new one after
 						// it
-						m_d3aMovements.set( i, d3TruncMovement );
-						m_d3aMovements.add( i + 1, d3Remainder );
-						
-						// if we don't increment i, it will get flipped again!
-						i++;
+						if ( d3TruncMovement.lengthSq() > 0 )
+						{
+							m_d3aMovements.set( i, d3TruncMovement );
+							m_d3aMovements.add( i + 1, d3Remainder );
+							
+							// if we don't increment i, it will get flipped again!
+							i++;
+						}
+						else
+						{
+							m_d3aMovements.set( i, d3Remainder );
+						}
 						
 						bFlipped = true;
 						bBounce = true;
@@ -819,11 +845,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 						
 						// Replace the current one, then add the new one after
 						// it
-						m_d3aMovements.set( i, d3TruncMovement );
-						m_d3aMovements.add( i + 1, d3Remainder );
-						
-						// if we don't increment i, it will get flipped again!
-						i++;
+						if ( d3TruncMovement.lengthSq() > 0 )
+						{
+							m_d3aMovements.set( i, d3TruncMovement );
+							m_d3aMovements.add( i + 1, d3Remainder );
+							
+							// if we don't increment i, it will get flipped again!
+							i++;
+						}
+						else
+						{
+							m_d3aMovements.set( i, d3Remainder );
+						}
 						
 						bFlipped = true;
 						bBounce = true;

@@ -72,7 +72,7 @@ public class Demo extends SimState
         			{
 	                    FDC fdc = new FDC();
 	                    
-	                    fdc.setObjectLocation( new Double3D(x+1, y+1, z+1) );
+	                    fdc.setObjectLocation( new Double3D(x+1.5, y+1.5, z+1.5) );
 	                    
 	                    schedule.scheduleRepeating(fdc, 2, 1);
 	                    
@@ -83,7 +83,7 @@ public class Demo extends SimState
         }
         for ( StromaEdge seEdge : sealEdges )
         {
-        	seEdge.setObjectLocation(new Double3D(seEdge.x+1, seEdge.y+1, seEdge.z+1));
+        	seEdge.setObjectLocation(new Double3D(seEdge.x+1.5, seEdge.y+1.5, seEdge.z+1.5));
         	seEdge.registerCollisions(cgGrid);
         }
         

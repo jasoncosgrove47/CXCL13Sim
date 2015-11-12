@@ -27,7 +27,7 @@ public class Options
 		public static int COUNT = 1;
 		public static double DISCRETISATION = 5;
 		public static int MIN_RECEPTORS() { return 1600; }
-		public static double TRAVEL_DISTANCE(){ return 100; }
+		public static double TRAVEL_DISTANCE(){ return 300; }
 		public static double DIRECTION_ERROR(){ return Math.PI/2; }
 		public static double RANDOM_TURN_ANGLE(){ return Math.PI/12; }
 		public static double DRAW_SCALE(){ return 0.7; }

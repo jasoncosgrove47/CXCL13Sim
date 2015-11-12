@@ -28,9 +28,7 @@ public class Grapher
 	
 	public static void init()
 	{
-		System.out.println("Before...");
         chart = new TimeSeriesChartGenerator();
-		System.out.println("After!");
         chart.setTitle("B Cell Receptors");
         chart.setRangeAxisLabel("qreate");
         chart.setDomainAxisLabel("Time");

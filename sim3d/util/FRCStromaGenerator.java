@@ -1,6 +1,7 @@
 package sim3d.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import sim.util.Double3D;
@@ -76,10 +77,12 @@ public class FRCStromaGenerator {
 		return ba3CellLocations;
 	}
 	
-	private static int createNewCells(int iWidth, int iHeight, int iDepth, ArrayList<Int3D> i3lCellLocations, boolean[][][] ba3CellLocations, Int3D i3Origin, Double3D[] d3aDirections)
+	//TODO draw the edges up to the borders??
+	protected static int createNewCells(int iWidth, int iHeight, int iDepth, ArrayList<Int3D> i3lCellLocations, boolean[][][] ba3CellLocations, Int3D i3Origin, Double3D[] d3aDirections)
 	{
 		int iCellsCreated = 0;
 		
+		d3aDirectionsLoop:
 		for ( int i = 0; i < d3aDirections.length; i++ )
 		{
 			int x, y, z;
@@ -104,18 +107,19 @@ public class FRCStromaGenerator {
 			}
 			else 
 			{
-				ArrayList<Int3D> i3lAdjacent = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3NewPoint, 1);
+				ArrayList<Int3D> i3lAdjacent = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3NewPoint, 2);
 				
-				// Now we check if there's already one adjacent in which case we don't create another
-				// but move the vector to the existing cell
-				if ( i3lAdjacent.size() > 0 )
+				// shuffle it so we're not biased in direction
+				Collections.shuffle( i3lAdjacent );
+				
+				for ( Int3D newLoc : i3lAdjacent )
 				{
-					// Pick a random adjacent location, likely only 1 though
-					Int3D newLoc = i3lAdjacent.get(Options.RNG.nextInt(i3lAdjacent.size()));
-					
-					d3aDirections[i] = new Double3D(newLoc.x - i3Origin.x, newLoc.y - i3Origin.y, newLoc.z - i3Origin.z);
-					
-					continue;
+					if ( calcDistance(i3NewPoint,newLoc) <= 1.73 )
+					{
+						d3aDirections[i] = new Double3D(newLoc.x - i3Origin.x, newLoc.y - i3Origin.y, newLoc.z - i3Origin.z);
+						
+						continue d3aDirectionsLoop;
+					}
 				}
 			}
 			
@@ -130,7 +134,7 @@ public class FRCStromaGenerator {
 		return iCellsCreated;
 	}
 	
-	private static Double3D[] generateDirections(int iWidth, int iHeight, int iDepth, boolean[][][] ba3CellLocations, Int3D i3Location, int iCellCount)
+	protected static Double3D[] generateDirections(int iWidth, int iHeight, int iDepth, boolean[][][] ba3CellLocations, Int3D i3Location, int iCellCount)
 	{
  		Double3D[] d3aReturn = new Double3D[iCellCount];
 		
@@ -143,13 +147,17 @@ public class FRCStromaGenerator {
 				
 				// -0.5x^4 + 13/3x^3 - 12x^2 + 61/6x + 3 
 				// http://www.wolframalpha.com/input/?i=plot+-0.5x%5E4+%2B+13%2F3x%5E3+-+12x%5E2+%2B+61%2F6x+%2B+3.5+between+x%3D0+and+x%3D4
+				// http://www.wolframalpha.com/input/?i=integrate+0.4-%28190+%2B+110%28x-0.4%29+-+100%28x-0.4%29%28x-1.4%29+%2B+35+%28x-0.4%29%28x-1.4%29%28x-2.4%29+-+%2895%2F12%29%28x-0.4%29%28x-1.4%29%28x-2.4%29%28x-3.4%29%29%2F878.906+between+x+%3D+0+and+5
+				// http://www.wolframalpha.com/input/?i=0.392281+x-0.342923+x%5E2%2B0.151204+x%5E3-0.0270696+x%5E4%2B0.00180148+x%5E5+between+x+%3D+0+and+5
 				// TODO I misread the paper and this is a PDF - we want the CDF
-				double length = Options.RNG.nextDouble()*4;
-				length = - 0.5*Math.pow(length,  4)
-						 + 13.0/3.0*Math.pow(length,  3)
-						 - 12*Math.pow(length,  2)
-						 + 61.0/6.0*length
-						 + 3.5;
+				double length = Options.RNG.nextDouble()*5;
+				length =   0.00180148*Math.pow(length,  5)
+						 - 0.0270696*Math.pow(length,  4)
+						 + 0.1511204*Math.pow(length,  3)
+						 - 0.342923*Math.pow(length,  2)
+						 + 0.392281*length;
+				
+				length = 1.1 + length*3;
 				
 				if ( iDepth == 1 )
 				{
@@ -168,12 +176,14 @@ public class FRCStromaGenerator {
 			{
 				// We've only got one so doesn't make sense to balance them out
 				// TODO this function doesn't take previous nodes into consideration
-				double length = Options.RNG.nextDouble()*4;
-				length = - 0.5*Math.pow(length,  4)
-						 + 13.0/3.0*Math.pow(length,  3)
-						 - 12*Math.pow(length,  2)
-						 + 61.0/6.0*length
-						 + 3.5;
+				double length = Options.RNG.nextDouble()*5;
+				length =   0.00180148*Math.pow(length,  5)
+						 - 0.0270696*Math.pow(length,  4)
+						 + 0.1511204*Math.pow(length,  3)
+						 - 0.342923*Math.pow(length,  2)
+						 + 0.392281*length;
+				
+				length = 1.1 + length*3;
 				
 				d3aReturn[0] = Vector3DHelper.getRandomDirection().multiply(length);
 			}
@@ -188,7 +198,7 @@ public class FRCStromaGenerator {
 		return d3aReturn;
 	}
 	
-	private static Int3D pickNextCell(int iWidth, int iHeight, int iDepth, ArrayList<Int3D> i3lCellLocations, boolean[][][] ba3CellLocations)
+	protected static Int3D pickNextCell(int iWidth, int iHeight, int iDepth, ArrayList<Int3D> i3lCellLocations, boolean[][][] ba3CellLocations)
 	{
 		int iIndex = 0;
 		boolean bSuitable = false;
@@ -258,7 +268,7 @@ public class FRCStromaGenerator {
 		return i3lReturn;
 	}
 	
-	private static double calcDistance(Int3D i3Point1, Int3D i3Point2)
+	protected static double calcDistance(Int3D i3Point1, Int3D i3Point2)
 	{
 		return ( Math.sqrt( Math.pow(Math.abs(i3Point1.x-i3Point2.x), 2)
 				          + Math.pow(Math.abs(i3Point1.y-i3Point2.y), 2)
