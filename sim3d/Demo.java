@@ -60,30 +60,23 @@ public class Demo extends SimState
         CollisionGrid cgGrid = new CollisionGrid(Options.WIDTH, Options.HEIGHT, Options.DEPTH, 1);
         schedule.scheduleRepeating(cgGrid, 3, 1);
         
+        ArrayList<Double3D> d3lCellLocations = new ArrayList<Double3D>();
         ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>(); 
-        boolean[][][] ba3CellLocs = FRCStromaGenerator.generateStroma3D(Options.WIDTH-2, Options.HEIGHT-2, Options.DEPTH-2, Options.FDC.COUNT, sealEdges);
-        for(int x = 0; x < Options.WIDTH-2; x++)
+        FRCStromaGenerator.generateStroma3D(Options.WIDTH-2, Options.HEIGHT-2, Options.DEPTH-2, Options.FDC.COUNT, d3lCellLocations, sealEdges);
+        
+        for ( Double3D d3Cell : d3lCellLocations )
         {
-        	for(int y = 0; y < Options.HEIGHT-2; y++)
-            {
-        		for(int z = 0; z < Options.DEPTH-2; z++)
-                {
-        			if ( ba3CellLocs[x][y][z] )
-        			{
-	                    FDC fdc = new FDC();
-	                    
-	                    fdc.setObjectLocation( new Double3D(x+1.5, y+1.5, z+1.5) );
-	                    
-	                    schedule.scheduleRepeating(fdc, 2, 1);
-	                    
-	                    fdc.registerCollisions(cgGrid);
-        			}
-                }
-            }
+        	FDC fdc = new FDC();
+        
+	        fdc.setObjectLocation( new Double3D(d3Cell.x+1, d3Cell.y+1, d3Cell.z+1) );
+	        
+	        schedule.scheduleRepeating(fdc, 2, 1);
+	        
+	        fdc.registerCollisions(cgGrid);
         }
         for ( StromaEdge seEdge : sealEdges )
         {
-        	seEdge.setObjectLocation(new Double3D(seEdge.x+1.5, seEdge.y+1.5, seEdge.z+1.5));
+        	seEdge.setObjectLocation(new Double3D(seEdge.x+1, seEdge.y+1, seEdge.z+1));
         	seEdge.registerCollisions(cgGrid);
         }
         

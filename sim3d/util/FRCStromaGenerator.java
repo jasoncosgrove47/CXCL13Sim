@@ -1,11 +1,9 @@
 package sim3d.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import sim.util.Double3D;
-import sim.util.Int3D;
 import sim3d.Options;
 import sim3d.cell.StromaEdge;
 
@@ -14,7 +12,6 @@ import sim3d.cell.StromaEdge;
  * in "Computational Approach to 3D Modeling of the Lymph Node Geometry", Computation, 2015.
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
- * TODO this will only create cells with integer coordinates. Surely could be done better!
  */
 public class FRCStromaGenerator {
 
@@ -26,26 +23,36 @@ public class FRCStromaGenerator {
 	 * @param iCellCount Max number of stromal cells (note: this is a upper bound only)
 	 * @return
 	 */
-	public static boolean[][][] generateStroma3D(int iWidth, int iHeight, int iDepth, int iCellCount, List<StromaEdge> selEdges)
+	public static int generateStroma3D(int iWidth, int iHeight, int iDepth, int iCellCount, ArrayList<Double3D> d3lCellLocations, List<StromaEdge> selEdges)
 	{
-		boolean[][][] ba3CellLocations = new boolean[iWidth][iHeight][iDepth];
-		
 		// It will be efficient to keep track of cells and locations separately
-		ArrayList<Int3D> i3lCellLocations = new ArrayList<Int3D>();
+		ArrayList<Double3D>[][][] d3la3CellLocations = new ArrayList[iWidth][iHeight][iDepth];
+		ArrayList<Double3D> d3lUnbranchedCells = new ArrayList<Double3D>();
+		
+		for ( int x = 0; x < iWidth; x++ )
+		{
+			for ( int y = 0; y < iHeight; y++ )
+			{
+				for ( int z = 0; z < iDepth; z++ )
+				{
+					d3la3CellLocations[x][y][z] = new ArrayList<Double3D>();
+				}
+			}
+		}
 		
 		// Add one in the centre
-		i3lCellLocations.add(new Int3D(iWidth/2, iHeight/2, iDepth/2));
-		ba3CellLocations[iWidth/2][iHeight/2][iDepth/2] = true;
+		Double3D d3InitialCell = new Double3D(iWidth/2.0, iHeight/2.0, iDepth/2.0);
+		d3lUnbranchedCells.add(d3InitialCell);
+		d3la3CellLocations[iWidth/2][iHeight/2][iDepth/2].add( d3InitialCell );
 		
 		int iRemainingCells = iCellCount - 1;
 		
-		while ( iRemainingCells > 0 && i3lCellLocations.size() > 0 )
+		while ( iRemainingCells > 0 && d3lUnbranchedCells.size() > 0 )
 		{
-			Double3D[] d3aDirections = new Double3D[0];
+			//Double3D d3NextCell = pickNextCell(iWidth, iHeight, iDepth, d3lUnbranchedCells, d3la3CellLocations);
+			Double3D d3NextCell = d3lUnbranchedCells.get( Options.RNG.nextInt(d3lUnbranchedCells.size()) );
 			
-			Int3D i3NextCell = pickNextCell(iWidth, iHeight, iDepth, i3lCellLocations, ba3CellLocations);
-			
-			if ( i3NextCell == null )
+			if ( d3NextCell == null )
 			{
 				break;
 			}
@@ -53,88 +60,111 @@ public class FRCStromaGenerator {
 			int iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(5)+2));
 			if ( iRemainingCells == iCellCount - 1 )
 			{
-				// This is the first time so we want at least 2 edges otherwise generation will break sometimes
-				// TODO there is still a very small chance it will break, but it's very rare
+				// This is the first time so we want at few edges otherwise generation will break sometimes
 				iEdges++;
 			}
 			
-			d3aDirections = generateDirections(iWidth, iHeight, iDepth, ba3CellLocations, i3NextCell, iEdges);
+			Double3D[] d3aDirections = generateDirections(iWidth, iHeight, iDepth, d3la3CellLocations, d3NextCell, iEdges);
 			
-			iRemainingCells -= createNewCells(iWidth, iHeight, iDepth, i3lCellLocations, ba3CellLocations, i3NextCell, d3aDirections);
+			iRemainingCells -= createNewCells(iWidth, iHeight, iDepth, d3lUnbranchedCells, d3la3CellLocations, d3NextCell, d3aDirections);
 			
 			for ( Double3D d3Direction : d3aDirections )
 			{
 				if ( d3Direction != null )
 				{
-					selEdges.add(new StromaEdge(new Double3D(i3NextCell),
-												new Double3D(i3NextCell.x+d3Direction.x, i3NextCell.y+d3Direction.y, i3NextCell.z+d3Direction.z)));
+					selEdges.add(new StromaEdge(new Double3D(d3NextCell),
+												new Double3D(d3NextCell.x+d3Direction.x, d3NextCell.y+d3Direction.y, d3NextCell.z+d3Direction.z)));
 				}
 			}
-			
-			i3lCellLocations.remove(i3NextCell);
+
+			d3lCellLocations.add(d3NextCell);
+			d3lUnbranchedCells.remove(d3NextCell);
 		}
 		
-		return ba3CellLocations;
+		return iCellCount - iRemainingCells;
 	}
 	
-	//TODO draw the edges up to the borders??
-	protected static int createNewCells(int iWidth, int iHeight, int iDepth, ArrayList<Int3D> i3lCellLocations, boolean[][][] ba3CellLocations, Int3D i3Origin, Double3D[] d3aDirections)
+	protected static int createNewCells(int iWidth, int iHeight, int iDepth, ArrayList<Double3D> d3lCellLocations, ArrayList<Double3D>[][][] d3la3CellLocations, Double3D d3Origin, Double3D[] d3aDirections)
 	{
 		int iCellsCreated = 0;
 		
-		d3aDirectionsLoop:
 		for ( int i = 0; i < d3aDirections.length; i++ )
 		{
-			int x, y, z;
-			x = (int) Math.round(i3Origin.x + d3aDirections[i].x);
-			y = (int) Math.round(i3Origin.y + d3aDirections[i].y);
-			z = (int) Math.round(i3Origin.z + d3aDirections[i].z);
+			double x, y, z;
+			x = d3Origin.x + d3aDirections[i].x;
+			y = d3Origin.y + d3aDirections[i].y;
+			z = d3Origin.z + d3aDirections[i].z;
 
-			Int3D i3NewPoint = new Int3D(x, y, z);
+			Double3D d3NewPoint = new Double3D(x, y, z);
 			
 			// check if out of bounds
 			if ( x < 0 || x >= iWidth || y < 0 || y >= iHeight || z < 0 || z >= iDepth )
 			{
-				// Set it to null so the parent knows it's not been created
-				d3aDirections[i] = null;
-				continue;
-			}
-			// Check if point already exists (in which case we don't remove the edge)
-			else if ( ba3CellLocations[x][y][z] )
-			{
-				d3aDirections[i] = null;
+				double dCoeff = 1;
+				if ( x < 0 )
+				{
+					dCoeff = Math.min( dCoeff, -d3Origin.x/d3aDirections[i].x);
+				}
+				else if ( x > iWidth )
+				{
+					dCoeff = Math.min( dCoeff, (iWidth-d3Origin.x)/d3aDirections[i].x);
+				}
+				
+				if ( y < 0 )
+				{
+					dCoeff = Math.min( dCoeff, -d3Origin.y/d3aDirections[i].y);
+				}
+				else if ( y > iHeight )
+				{
+					dCoeff = Math.min( dCoeff, (iHeight-d3Origin.y)/d3aDirections[i].y);
+				}
+				
+				if ( z < 0 )
+				{
+					dCoeff = Math.min( dCoeff, -d3Origin.z/d3aDirections[i].z);
+				}
+				else if ( z > iDepth )
+				{
+					dCoeff = Math.min( dCoeff, (iDepth-d3Origin.z)/d3aDirections[i].z);
+				}
+				
+				if ( dCoeff > 0 )
+				{
+					d3aDirections[i] = d3aDirections[i].multiply( dCoeff );
+				}
+				else
+				{
+					// Set it to null so the parent knows it's not been created
+					d3aDirections[i] = null;
+				}
+				
 				continue;
 			}
 			else 
 			{
-				ArrayList<Int3D> i3lAdjacent = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3NewPoint, 2);
+				ArrayList<Double3D> d3lAdjacent = getAdjacentCells(iWidth, iHeight, iDepth, d3la3CellLocations, d3NewPoint, 1.6);
 				
-				// shuffle it so we're not biased in direction
-				Collections.shuffle( i3lAdjacent );
-				
-				for ( Int3D newLoc : i3lAdjacent )
+				if ( d3lAdjacent.size() != 0 )
 				{
-					if ( calcDistance(i3NewPoint,newLoc) <= 1.73 )
-					{
-						d3aDirections[i] = new Double3D(newLoc.x - i3Origin.x, newLoc.y - i3Origin.y, newLoc.z - i3Origin.z);
-						
-						continue d3aDirectionsLoop;
-					}
+					Double3D newLoc = d3lAdjacent.get( Options.RNG.nextInt(d3lAdjacent.size()) );
+					d3aDirections[i] = new Double3D(newLoc.x - d3Origin.x, newLoc.y - d3Origin.y, newLoc.z - d3Origin.z);
+					
+					continue;
 				}
 			}
 			
 			// make the edges match up with the new cells
-			d3aDirections[i] = new Double3D(x - i3Origin.x, y - i3Origin.y, z - i3Origin.z);
-			
-			i3lCellLocations.add(i3NewPoint);
-			ba3CellLocations[x][y][z] = true;
+			//d3aDirections[i] = new Double3D(x - d3Origin.x, y - d3Origin.y, z - d3Origin.z);
+
+			d3lCellLocations.add(d3NewPoint);
+			d3la3CellLocations[(int)x][(int)y][(int)z].add(d3NewPoint);
 			iCellsCreated++;
 		}
 		
 		return iCellsCreated;
 	}
 	
-	protected static Double3D[] generateDirections(int iWidth, int iHeight, int iDepth, boolean[][][] ba3CellLocations, Int3D i3Location, int iCellCount)
+	protected static Double3D[] generateDirections(int iWidth, int iHeight, int iDepth, ArrayList<Double3D>[][][] d3la3CellLocations, Double3D d3Location, int iCellCount)
 	{
  		Double3D[] d3aReturn = new Double3D[iCellCount];
 		
@@ -149,7 +179,6 @@ public class FRCStromaGenerator {
 				// http://www.wolframalpha.com/input/?i=plot+-0.5x%5E4+%2B+13%2F3x%5E3+-+12x%5E2+%2B+61%2F6x+%2B+3.5+between+x%3D0+and+x%3D4
 				// http://www.wolframalpha.com/input/?i=integrate+0.4-%28190+%2B+110%28x-0.4%29+-+100%28x-0.4%29%28x-1.4%29+%2B+35+%28x-0.4%29%28x-1.4%29%28x-2.4%29+-+%2895%2F12%29%28x-0.4%29%28x-1.4%29%28x-2.4%29%28x-3.4%29%29%2F878.906+between+x+%3D+0+and+5
 				// http://www.wolframalpha.com/input/?i=0.392281+x-0.342923+x%5E2%2B0.151204+x%5E3-0.0270696+x%5E4%2B0.00180148+x%5E5+between+x+%3D+0+and+5
-				// TODO I misread the paper and this is a PDF - we want the CDF
 				double length = Options.RNG.nextDouble()*5;
 				length =   0.00180148*Math.pow(length,  5)
 						 - 0.0270696*Math.pow(length,  4)
@@ -198,26 +227,20 @@ public class FRCStromaGenerator {
 		return d3aReturn;
 	}
 	
-	protected static Int3D pickNextCell(int iWidth, int iHeight, int iDepth, ArrayList<Int3D> i3lCellLocations, boolean[][][] ba3CellLocations)
+	protected static Double3D pickNextCell(int iWidth, int iHeight, int iDepth, ArrayList<Double3D> d3lCellLocations, ArrayList<Double3D>[][][] d3la3CellLocations)
 	{
 		int iIndex = 0;
 		boolean bSuitable = false;
 		
 		do
 		{
-			if ( i3lCellLocations.size() == 0 )
+			if ( d3lCellLocations.size() == 0 )
 			{
 				return null;
 			}
-			iIndex = Options.RNG.nextInt(i3lCellLocations.size());
+			iIndex = Options.RNG.nextInt(d3lCellLocations.size());
 			
-			ArrayList<Int3D> i3aAdjCells = getAdjacentCells(iWidth, iHeight, iDepth, ba3CellLocations, i3lCellLocations.get(iIndex), Options.FRCGenerator.MAX_EDGE_LENGTH());
-			
-			if ( i3aAdjCells.size() > 8 )
-			{
-				i3lCellLocations.remove(iIndex);
-				continue;
-			}
+			ArrayList<Double3D> i3aAdjCells = getAdjacentCells(iWidth, iHeight, iDepth, d3la3CellLocations, d3lCellLocations.get(iIndex), Options.FRCGenerator.MAX_EDGE_LENGTH());
 			
 			double dProbability = Math.pow(1.0/i3aAdjCells.size(), 2);
 			
@@ -228,26 +251,26 @@ public class FRCStromaGenerator {
 		} while (bSuitable == false);
 		
 		
-		return i3lCellLocations.get(iIndex);
+		return d3lCellLocations.get(iIndex);
 	}
 	
-	public static ArrayList<Int3D> getAdjacentCells(int iWidth, int iHeight, int iDepth, boolean[][][] ba3CellLocations, Int3D i3Point, int iMaxDistance)
+	public static ArrayList<Double3D> getAdjacentCells(int iWidth, int iHeight, int iDepth, ArrayList<Double3D>[][][] d3la3CellLocations, Double3D d3Point, double iMaxDistance)
 	{
-		ArrayList<Int3D> i3lReturn = new ArrayList<Int3D>();
+		ArrayList<Double3D> d3lReturn = new ArrayList<Double3D>();
 
 		// Precompute these for efficiency
 		// +1 because we want the distance between the close edges of the cells
-		int iXLim = Math.min(iMaxDistance + i3Point.x, iWidth-1);
-		int iYLim = Math.min(iMaxDistance + i3Point.y, iHeight-1);
-		int iZLim = Math.min(iMaxDistance + i3Point.z, iDepth-1);
+		int iXLim = (int)Math.min(iMaxDistance + d3Point.x, iWidth-1);
+		int iYLim = (int)Math.min(iMaxDistance + d3Point.y, iHeight-1);
+		int iZLim = (int)Math.min(iMaxDistance + d3Point.z, iDepth-1);
 		
-		for ( int x = Math.max(0, i3Point.x-iMaxDistance); x <= iXLim; x++ )
+		for ( int x = (int)Math.max(0, d3Point.x-iMaxDistance); x <= iXLim; x++ )
 		{
-			for ( int y = Math.max(0, i3Point.y-iMaxDistance); y <= iYLim; y++ )
+			for ( int y = (int)Math.max(0, d3Point.y-iMaxDistance); y <= iYLim; y++ )
 			{
-				for ( int z = Math.max(0, i3Point.z-iMaxDistance); z <= iZLim; z++ )
+				for ( int z = (int)Math.max(0, d3Point.z-iMaxDistance); z <= iZLim; z++ )
 				{
-					if ( x == i3Point.x && y == i3Point.y && z == i3Point.z )
+					if ( x == d3Point.x && y == d3Point.y && z == d3Point.z )
 					{
 						continue;
 					}
@@ -255,24 +278,25 @@ public class FRCStromaGenerator {
 					// and the distance is less than the max distance
 					// we take one away from the max distance because we want
 					// the distance between the closer edges
-					if ( ( ba3CellLocations[x][y][z] )
-					  && ( calcDistance(i3Point, new Int3D(x, y, z)) <= iMaxDistance )
-					   )
+					for ( Double3D d3CollisionPoint : d3la3CellLocations[x][y][z] )
 					{
-						i3lReturn.add(new Int3D(x, y, z));
+						if ( calcDistance(d3Point, d3CollisionPoint) <= iMaxDistance )
+						{
+							d3lReturn.add(d3CollisionPoint);
+						}
 					}
 				}
 			}
 		}
 		
-		return i3lReturn;
+		return d3lReturn;
 	}
 	
-	protected static double calcDistance(Int3D i3Point1, Int3D i3Point2)
+	protected static double calcDistance(Double3D i3Point1, Double3D i3Point2)
 	{
-		return ( Math.sqrt( Math.pow(Math.abs(i3Point1.x-i3Point2.x), 2)
-				          + Math.pow(Math.abs(i3Point1.y-i3Point2.y), 2)
-				          + Math.pow(Math.abs(i3Point1.z-i3Point2.z), 2)
+		return ( Math.sqrt( Math.pow(i3Point1.x-i3Point2.x, 2)
+				          + Math.pow(i3Point1.y-i3Point2.y, 2)
+				          + Math.pow(i3Point1.z-i3Point2.z, 2)
 						  )
 		       );
 	}

@@ -29,8 +29,9 @@ public class UnitTests extends AbstractAnalysis {
 	{
 		int size = Options.FDC.COUNT;
 
+        ArrayList<Double3D> d3lCellLocations = new ArrayList<Double3D>();
         ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>(); 
-		boolean[][][] ba3Stroma = FRCStromaGenerator.generateStroma3D(Options.WIDTH-2,  Options.HEIGHT-2, Options.DEPTH-2, size, sealEdges);
+		/*boolean[][][] ba3Stroma = FRCStromaGenerator.generateStroma3D(Options.WIDTH-2,  Options.HEIGHT-2, Options.DEPTH-2, size, d3lCellLocations, sealEdges);
 		ArrayList<Coord3d> c3dalPoints = new ArrayList<Coord3d>();
 		ArrayList<Coord3d> c3dalLines = new ArrayList<Coord3d>();
 		
@@ -79,7 +80,7 @@ public class UnitTests extends AbstractAnalysis {
         scatter2.width = 1;
         chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
         chart.getScene().add(scatter);
-        chart.getScene().add(scatter2);
+        chart.getScene().add(scatter2);*/
 	}
 	
 	public void drawLine(ArrayList<Coord3d> points, Coord3d p1, Coord3d p2)

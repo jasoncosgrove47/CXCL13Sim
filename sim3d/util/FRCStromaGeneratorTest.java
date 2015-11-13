@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ec.util.MersenneTwisterFast;
+import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Options;
 import sim3d.cell.StromaEdge;
@@ -37,8 +38,9 @@ public class FRCStromaGeneratorTest
 	@Test
 	public void testEdgeLength()
 	{
+        ArrayList<Double3D> d3lCellLocations = new ArrayList<Double3D>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		FRCStromaGenerator.generateStroma3D(100, 100, 100, 10000, selEdges);
+		FRCStromaGenerator.generateStroma3D(100, 100, 100, 10000, d3lCellLocations, selEdges);
 		
 		double dTotal = 0;
 		for ( StromaEdge seEdge : selEdges )
@@ -57,24 +59,11 @@ public class FRCStromaGeneratorTest
 	@Test
 	public void testEdgeCount()
 	{
+        ArrayList<Double3D> d3lCellLocations = new ArrayList<Double3D>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		boolean[][][] ba3Cells = FRCStromaGenerator.generateStroma3D(100, 100, 100, 10000, selEdges);
+		FRCStromaGenerator.generateStroma3D(100, 100, 100, 10000, d3lCellLocations, selEdges);
 		
-		int iCellCount = 0;
-		
-		for ( int x = 0; x < 100; x++ )
-		{
-			for ( int y = 0; y < 100; y++ )
-			{
-				for ( int z = 0; z < 100; z++ )
-				{
-					if ( ba3Cells[x][y][z] )
-					{
-						iCellCount++;
-					}
-				}
-			}
-		}
+		int iCellCount = d3lCellLocations.size();
 		
 		// Each edge is connected to 2 cells! *not exactly true, but close enough
 		double dEdgesPerFDC = selEdges.size()*2.0 / iCellCount;
@@ -134,8 +123,8 @@ public class FRCStromaGeneratorTest
 	@Test
 	public void testCalcDistance()
 	{
-		Int3D i3Point1 = new Int3D(1,0,1);
-		Int3D i3Point2 = new Int3D(0,0,0);
-		assertEquals(Math.sqrt( 2 ), FRCStromaGenerator.calcDistance( i3Point1, i3Point2 ), 0.001);
+		Double3D d3Point1 = new Double3D(1,0,1);
+		Double3D d3Point2 = new Double3D(0,0,0);
+		assertEquals(Math.sqrt( 2 ), FRCStromaGenerator.calcDistance( d3Point1, d3Point2 ), 0.001);
 	}
 }
