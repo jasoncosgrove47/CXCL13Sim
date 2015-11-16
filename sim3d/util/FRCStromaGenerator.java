@@ -13,8 +13,29 @@ import sim3d.cell.StromaEdge;
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
-public class FRCStromaGenerator {
-
+public class FRCStromaGenerator
+{
+	/**
+	 * Class to keep track of edges for each cell
+	 *
+	 */
+	public static class FRCCell
+	{
+		public Double3D d3Location;
+		public int iEdges = 0;
+		public FRCCell (double x, double y, double z)
+		{
+			d3Location = new Double3D(x, y, z);
+		}
+		/**
+		 * @param double3d
+		 */
+		public FRCCell( Double3D double3d )
+		{
+			d3Location = double3d;
+		}
+	}
+	
 	/**
 	 * Generates a stromal network and returns the nodes in a 3D boolean array.
 	 * @param iWidth Width of grid
@@ -23,11 +44,11 @@ public class FRCStromaGenerator {
 	 * @param iCellCount Max number of stromal cells (note: this is a upper bound only)
 	 * @return
 	 */
-	public static int generateStroma3D(int iWidth, int iHeight, int iDepth, int iCellCount, ArrayList<Double3D> d3lCellLocations, List<StromaEdge> selEdges)
+	public static int generateStroma3D(int iWidth, int iHeight, int iDepth, int iCellCount, ArrayList<FRCCell> frclCellLocations, List<StromaEdge> selEdges)
 	{
 		// It will be efficient to keep track of cells and locations separately
-		ArrayList<Double3D>[][][] d3la3CellLocations = new ArrayList[iWidth][iHeight][iDepth];
-		ArrayList<Double3D> d3lUnbranchedCells = new ArrayList<Double3D>();
+		ArrayList<FRCCell>[][][] frcla3CellLocations = new ArrayList[iWidth][iHeight][iDepth];
+		ArrayList<FRCCell> frclUnbranchedCells = new ArrayList<FRCCell>();
 		
 		for ( int x = 0; x < iWidth; x++ )
 		{
@@ -35,67 +56,70 @@ public class FRCStromaGenerator {
 			{
 				for ( int z = 0; z < iDepth; z++ )
 				{
-					d3la3CellLocations[x][y][z] = new ArrayList<Double3D>();
+					frcla3CellLocations[x][y][z] = new ArrayList<FRCCell>();
 				}
 			}
 		}
 		
 		// Add one in the centre
-		Double3D d3InitialCell = new Double3D(iWidth/2.0, iHeight/2.0, iDepth/2.0);
-		d3lUnbranchedCells.add(d3InitialCell);
-		d3la3CellLocations[iWidth/2][iHeight/2][iDepth/2].add( d3InitialCell );
+		FRCCell frcInitialCell = new FRCCell(iWidth/2.0, iHeight/2.0, iDepth/2.0);
+		frclUnbranchedCells.add(frcInitialCell);
+		frcla3CellLocations[iWidth/2][iHeight/2][iDepth/2].add( frcInitialCell );
 		
 		int iRemainingCells = iCellCount - 1;
 		
-		while ( iRemainingCells > 0 && d3lUnbranchedCells.size() > 0 )
+		while ( iRemainingCells > 0 && frclUnbranchedCells.size() > 0 )
 		{
 			//Double3D d3NextCell = pickNextCell(iWidth, iHeight, iDepth, d3lUnbranchedCells, d3la3CellLocations);
-			Double3D d3NextCell = d3lUnbranchedCells.get( Options.RNG.nextInt(d3lUnbranchedCells.size()) );
+			FRCCell frcNextCell = frclUnbranchedCells.get( Options.RNG.nextInt(frclUnbranchedCells.size()) );
 			
-			if ( d3NextCell == null )
+			if ( frcNextCell == null )
 			{
 				break;
 			}
 			
-			int iEdges = Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(5)+2));
+			int iEdges = Math.max( 0, Math.min(iRemainingCells, (int)Math.round(Options.RNG.nextDouble()*(5)+2)) - frcNextCell.iEdges );
 			if ( iRemainingCells == iCellCount - 1 )
 			{
 				// This is the first time so we want at few edges otherwise generation will break sometimes
 				iEdges++;
 			}
 			
-			Double3D[] d3aDirections = generateDirections(iWidth, iHeight, iDepth, d3la3CellLocations, d3NextCell, iEdges);
-			
-			iRemainingCells -= createNewCells(iWidth, iHeight, iDepth, d3lUnbranchedCells, d3la3CellLocations, d3NextCell, d3aDirections);
-			
-			for ( Double3D d3Direction : d3aDirections )
+			if ( iEdges > 0 )
 			{
-				if ( d3Direction != null )
+				Double3D[] d3aDirections = generateDirections(iWidth, iHeight, iDepth, frcla3CellLocations, frcNextCell, iEdges);
+				
+				iRemainingCells -= createNewCells(iWidth, iHeight, iDepth, frclUnbranchedCells, frcla3CellLocations, frcNextCell, d3aDirections);
+				
+				for ( Double3D d3Direction : d3aDirections )
 				{
-					selEdges.add(new StromaEdge(new Double3D(d3NextCell),
-												new Double3D(d3NextCell.x+d3Direction.x, d3NextCell.y+d3Direction.y, d3NextCell.z+d3Direction.z)));
+					if ( d3Direction != null )
+					{
+						selEdges.add(new StromaEdge(frcNextCell.d3Location,
+													new Double3D(frcNextCell.d3Location.x+d3Direction.x, frcNextCell.d3Location.y+d3Direction.y, frcNextCell.d3Location.z+d3Direction.z)));
+					}
 				}
 			}
 
-			d3lCellLocations.add(d3NextCell);
-			d3lUnbranchedCells.remove(d3NextCell);
+			frclCellLocations.add(frcNextCell);
+			frclUnbranchedCells.remove(frcNextCell);
 		}
 		
 		return iCellCount - iRemainingCells;
 	}
 	
-	protected static int createNewCells(int iWidth, int iHeight, int iDepth, ArrayList<Double3D> d3lCellLocations, ArrayList<Double3D>[][][] d3la3CellLocations, Double3D d3Origin, Double3D[] d3aDirections)
+	protected static int createNewCells(int iWidth, int iHeight, int iDepth, ArrayList<FRCCell> frclCellLocations, ArrayList<FRCCell>[][][] frcla3CellLocations, FRCCell frcOrigin, Double3D[] d3aDirections)
 	{
 		int iCellsCreated = 0;
 		
 		for ( int i = 0; i < d3aDirections.length; i++ )
 		{
 			double x, y, z;
-			x = d3Origin.x + d3aDirections[i].x;
-			y = d3Origin.y + d3aDirections[i].y;
-			z = d3Origin.z + d3aDirections[i].z;
+			x = frcOrigin.d3Location.x + d3aDirections[i].x;
+			y = frcOrigin.d3Location.y + d3aDirections[i].y;
+			z = frcOrigin.d3Location.z + d3aDirections[i].z;
 
-			Double3D d3NewPoint = new Double3D(x, y, z);
+			FRCCell frcNewPoint = new FRCCell(x, y, z);
 			
 			// check if out of bounds
 			if ( x < 0 || x >= iWidth || y < 0 || y >= iHeight || z < 0 || z >= iDepth )
@@ -103,32 +127,32 @@ public class FRCStromaGenerator {
 				double dCoeff = 1;
 				if ( x < 0 )
 				{
-					dCoeff = Math.min( dCoeff, -d3Origin.x/d3aDirections[i].x);
+					dCoeff = Math.min( dCoeff, -frcOrigin.d3Location.x/d3aDirections[i].x);
 				}
 				else if ( x > iWidth )
 				{
-					dCoeff = Math.min( dCoeff, (iWidth-d3Origin.x)/d3aDirections[i].x);
+					dCoeff = Math.min( dCoeff, (iWidth-frcOrigin.d3Location.x)/d3aDirections[i].x);
 				}
 				
 				if ( y < 0 )
 				{
-					dCoeff = Math.min( dCoeff, -d3Origin.y/d3aDirections[i].y);
+					dCoeff = Math.min( dCoeff, -frcOrigin.d3Location.y/d3aDirections[i].y);
 				}
 				else if ( y > iHeight )
 				{
-					dCoeff = Math.min( dCoeff, (iHeight-d3Origin.y)/d3aDirections[i].y);
+					dCoeff = Math.min( dCoeff, (iHeight-frcOrigin.d3Location.y)/d3aDirections[i].y);
 				}
 				
 				if ( z < 0 )
 				{
-					dCoeff = Math.min( dCoeff, -d3Origin.z/d3aDirections[i].z);
+					dCoeff = Math.min( dCoeff, -frcOrigin.d3Location.z/d3aDirections[i].z);
 				}
 				else if ( z > iDepth )
 				{
-					dCoeff = Math.min( dCoeff, (iDepth-d3Origin.z)/d3aDirections[i].z);
+					dCoeff = Math.min( dCoeff, (iDepth-frcOrigin.d3Location.z)/d3aDirections[i].z);
 				}
 				
-				if ( dCoeff > 0 )
+				if ( false && dCoeff > 0 )
 				{
 					d3aDirections[i] = d3aDirections[i].multiply( dCoeff );
 				}
@@ -140,36 +164,46 @@ public class FRCStromaGenerator {
 				
 				continue;
 			}
-			else 
+			
+			ArrayList<FRCCell> d3lAdjacent = getAdjacentCells(iWidth, iHeight, iDepth, frcla3CellLocations, frcNewPoint, 1.5);
+			
+			if ( d3lAdjacent.size() > 1 || ( d3lAdjacent.size() == 1 && d3lAdjacent.get(0) != frcOrigin ) )
 			{
-				ArrayList<Double3D> d3lAdjacent = getAdjacentCells(iWidth, iHeight, iDepth, d3la3CellLocations, d3NewPoint, 1.6);
+				FRCCell newLoc = d3lAdjacent.get( Options.RNG.nextInt(d3lAdjacent.size()) );
 				
-				if ( d3lAdjacent.size() != 0 )
+				while ( newLoc == frcOrigin )
 				{
-					Double3D newLoc = d3lAdjacent.get( Options.RNG.nextInt(d3lAdjacent.size()) );
-					d3aDirections[i] = new Double3D(newLoc.x - d3Origin.x, newLoc.y - d3Origin.y, newLoc.z - d3Origin.z);
-					
-					continue;
+					newLoc = d3lAdjacent.get( Options.RNG.nextInt(d3lAdjacent.size()) );
 				}
+				
+				d3aDirections[i] = new Double3D(newLoc.d3Location.x - frcOrigin.d3Location.x, newLoc.d3Location.y - frcOrigin.d3Location.y, newLoc.d3Location.z - frcOrigin.d3Location.z);
+				
+				frcNewPoint = newLoc;
+			}
+			else
+			{
+				frclCellLocations.add(frcNewPoint);
+				frcla3CellLocations[(int)x][(int)y][(int)z].add(frcNewPoint);
 			}
 			
-			// make the edges match up with the new cells
-			//d3aDirections[i] = new Double3D(x - d3Origin.x, y - d3Origin.y, z - d3Origin.z);
-
-			d3lCellLocations.add(d3NewPoint);
-			d3la3CellLocations[(int)x][(int)y][(int)z].add(d3NewPoint);
+			frcNewPoint.iEdges++;
+			frcOrigin.iEdges++;
 			iCellsCreated++;
 		}
 		
 		return iCellsCreated;
 	}
 	
-	protected static Double3D[] generateDirections(int iWidth, int iHeight, int iDepth, ArrayList<Double3D>[][][] d3la3CellLocations, Double3D d3Location, int iCellCount)
+	protected static Double3D[] generateDirections(int iWidth, int iHeight, int iDepth, ArrayList<FRCCell>[][][] frcla3CellLocations, FRCCell frcLocation, int iCellCount)
 	{
  		Double3D[] d3aReturn = new Double3D[iCellCount];
+
+		boolean bFail = false;
 		
  		do
  		{
+ 			bFail = false;
+ 			
 	 		d3aReturn[0] = new Double3D();
 	 		
 			for(int i = 1; i < iCellCount; i++)
@@ -182,7 +216,7 @@ public class FRCStromaGenerator {
 				double length = Options.RNG.nextDouble()*5;
 				length =   0.00180148*Math.pow(length,  5)
 						 - 0.0270696*Math.pow(length,  4)
-						 + 0.1511204*Math.pow(length,  3)
+						 + 0.151204*Math.pow(length,  3)
 						 - 0.342923*Math.pow(length,  2)
 						 + 0.392281*length;
 				
@@ -198,6 +232,27 @@ public class FRCStromaGenerator {
 					d3aReturn[i] = Vector3DHelper.getRandomDirection().multiply(length);
 				}
 				
+				if ( getAdjacentCells(iWidth, iHeight, iDepth, frcla3CellLocations, new FRCCell(frcLocation.d3Location.add(d3aReturn[i])), 1.1).size() > 0 )
+				{
+					i--;
+					continue;
+				}
+				
+				boolean bCollision = false;
+				for ( int j = 0; j < i; j++ )
+				{
+					if ( calcDistance(d3aReturn[i], d3aReturn[j]) < 1.1 )
+					{
+						bCollision = true;
+						break;
+					}
+				}
+				if ( bCollision )
+				{
+					i--;
+					continue;
+				}
+				
 				d3aReturn[0] = d3aReturn[0].subtract(d3aReturn[i]);
 			}
 			
@@ -208,7 +263,7 @@ public class FRCStromaGenerator {
 				double length = Options.RNG.nextDouble()*5;
 				length =   0.00180148*Math.pow(length,  5)
 						 - 0.0270696*Math.pow(length,  4)
-						 + 0.1511204*Math.pow(length,  3)
+						 + 0.151204*Math.pow(length,  3)
 						 - 0.342923*Math.pow(length,  2)
 						 + 0.392281*length;
 				
@@ -219,28 +274,50 @@ public class FRCStromaGenerator {
 			else
 			{
 				// add some noise
-				d3aReturn[0] = d3aReturn[0].add(Vector3DHelper.getRandomDirection().multiply(Options.RNG.nextDouble()*0.4));
+				d3aReturn[0] = d3aReturn[0].add(Vector3DHelper.getRandomDirection().multiply(Options.RNG.nextDouble()*0.04));
 			}
+			
+			if ( getAdjacentCells(iWidth, iHeight, iDepth, frcla3CellLocations, new FRCCell(frcLocation.d3Location.add(d3aReturn[0])), 1.1).size() > 0 )
+			{
+				bFail = true;
+				continue;
+			}
+			
+			boolean bCollision = false;
+			for ( int i = 1; i < iCellCount; i++ )
+			{
+				if ( calcDistance(d3aReturn[i], d3aReturn[0]) < 1.1 )
+				{
+					bCollision = true;
+					break;
+				}
+			}
+			if ( bCollision )
+			{
+				bFail = true;
+				continue;
+			}
+			
 			// just check we aren't making a huge edge!
- 		} while (d3aReturn[0].length() > 6);
+ 		} while (!bFail && d3aReturn[0].length() > 4.5 && d3aReturn[0].length() < 1.1);
 		
 		return d3aReturn;
 	}
 	
-	protected static Double3D pickNextCell(int iWidth, int iHeight, int iDepth, ArrayList<Double3D> d3lCellLocations, ArrayList<Double3D>[][][] d3la3CellLocations)
+	protected static FRCCell pickNextCell(int iWidth, int iHeight, int iDepth, ArrayList<FRCCell> frclCellLocations, ArrayList<FRCCell>[][][] frcla3CellLocations)
 	{
 		int iIndex = 0;
 		boolean bSuitable = false;
 		
 		do
 		{
-			if ( d3lCellLocations.size() == 0 )
+			if ( frclCellLocations.size() == 0 )
 			{
 				return null;
 			}
-			iIndex = Options.RNG.nextInt(d3lCellLocations.size());
+			iIndex = Options.RNG.nextInt(frclCellLocations.size());
 			
-			ArrayList<Double3D> i3aAdjCells = getAdjacentCells(iWidth, iHeight, iDepth, d3la3CellLocations, d3lCellLocations.get(iIndex), Options.FRCGenerator.MAX_EDGE_LENGTH());
+			ArrayList<FRCCell> i3aAdjCells = getAdjacentCells(iWidth, iHeight, iDepth, frcla3CellLocations, frclCellLocations.get(iIndex), Options.FRCGenerator.MAX_EDGE_LENGTH());
 			
 			double dProbability = Math.pow(1.0/i3aAdjCells.size(), 2);
 			
@@ -251,26 +328,26 @@ public class FRCStromaGenerator {
 		} while (bSuitable == false);
 		
 		
-		return d3lCellLocations.get(iIndex);
+		return frclCellLocations.get(iIndex);
 	}
 	
-	public static ArrayList<Double3D> getAdjacentCells(int iWidth, int iHeight, int iDepth, ArrayList<Double3D>[][][] d3la3CellLocations, Double3D d3Point, double iMaxDistance)
+	public static ArrayList<FRCCell> getAdjacentCells(int iWidth, int iHeight, int iDepth, ArrayList<FRCCell>[][][] frcla3CellLocations, FRCCell frcPoint, double iMaxDistance)
 	{
-		ArrayList<Double3D> d3lReturn = new ArrayList<Double3D>();
+		ArrayList<FRCCell> frclReturn = new ArrayList<FRCCell>();
 
 		// Precompute these for efficiency
 		// +1 because we want the distance between the close edges of the cells
-		int iXLim = (int)Math.min(iMaxDistance + d3Point.x, iWidth-1);
-		int iYLim = (int)Math.min(iMaxDistance + d3Point.y, iHeight-1);
-		int iZLim = (int)Math.min(iMaxDistance + d3Point.z, iDepth-1);
+		int iXLim = (int)Math.min(iMaxDistance + frcPoint.d3Location.x, iWidth-1);
+		int iYLim = (int)Math.min(iMaxDistance + frcPoint.d3Location.y, iHeight-1);
+		int iZLim = (int)Math.min(iMaxDistance + frcPoint.d3Location.z, iDepth-1);
 		
-		for ( int x = (int)Math.max(0, d3Point.x-iMaxDistance); x <= iXLim; x++ )
+		for ( int x = (int)Math.max(0, frcPoint.d3Location.x-iMaxDistance); x <= iXLim; x++ )
 		{
-			for ( int y = (int)Math.max(0, d3Point.y-iMaxDistance); y <= iYLim; y++ )
+			for ( int y = (int)Math.max(0, frcPoint.d3Location.y-iMaxDistance); y <= iYLim; y++ )
 			{
-				for ( int z = (int)Math.max(0, d3Point.z-iMaxDistance); z <= iZLim; z++ )
+				for ( int z = (int)Math.max(0, frcPoint.d3Location.z-iMaxDistance); z <= iZLim; z++ )
 				{
-					if ( x == d3Point.x && y == d3Point.y && z == d3Point.z )
+					if ( x == frcPoint.d3Location.x && y == frcPoint.d3Location.y && z == frcPoint.d3Location.z )
 					{
 						continue;
 					}
@@ -278,18 +355,23 @@ public class FRCStromaGenerator {
 					// and the distance is less than the max distance
 					// we take one away from the max distance because we want
 					// the distance between the closer edges
-					for ( Double3D d3CollisionPoint : d3la3CellLocations[x][y][z] )
+					for ( FRCCell frcCollisionPoint : frcla3CellLocations[x][y][z] )
 					{
-						if ( calcDistance(d3Point, d3CollisionPoint) <= iMaxDistance )
+						if ( calcDistance(frcPoint, frcCollisionPoint) <= iMaxDistance )
 						{
-							d3lReturn.add(d3CollisionPoint);
+							frclReturn.add(frcCollisionPoint);
 						}
 					}
 				}
 			}
 		}
 		
-		return d3lReturn;
+		return frclReturn;
+	}
+	
+	protected static double calcDistance(FRCCell i3Point1, FRCCell i3Point2)
+	{
+		return calcDistance( i3Point1.d3Location, i3Point2.d3Location );
 	}
 	
 	protected static double calcDistance(Double3D i3Point1, Double3D i3Point2)

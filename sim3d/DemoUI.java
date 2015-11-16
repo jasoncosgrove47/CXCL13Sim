@@ -26,6 +26,8 @@ public class DemoUI extends GUIState
     public Display3D display3D;
     public JFrame d3DisplayFrame;
     public JFrame chartFrame;
+    public JFrame chartFrame2;
+    public JFrame chartFrame3;
     
     ContinuousPortrayal3D frcPortrayal = new ContinuousPortrayal3D();
     ContinuousPortrayal3D bcPortrayal = new ContinuousPortrayal3D();
@@ -105,6 +107,20 @@ public class DemoUI extends GUIState
         chartFrame.pack();
         chartFrame.setLocation(0, 700);
         c.registerFrame(chartFrame);
+
+        chartFrame2 = Grapher.bcFRCEdgeSizeChart.createFrame();
+        // perhaps you might move the chart to where you like.
+        chartFrame2.setVisible(true);
+        chartFrame2.pack();
+        chartFrame2.setLocation(0, 700);
+        c.registerFrame(chartFrame2);
+
+        chartFrame3 = Grapher.bcFRCEdgeNumberChart.createFrame();
+        // perhaps you might move the chart to where you like.
+        chartFrame3.setVisible(true);
+        chartFrame3.pack();
+        chartFrame3.setLocation(0, 700);
+        c.registerFrame(chartFrame3);
     }
         
     public void quit()

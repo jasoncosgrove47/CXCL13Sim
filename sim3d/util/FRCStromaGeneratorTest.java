@@ -15,6 +15,7 @@ import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Options;
 import sim3d.cell.StromaEdge;
+import sim3d.util.FRCStromaGenerator.FRCCell;
 
 /**
  * @author sjj509
@@ -38,19 +39,26 @@ public class FRCStromaGeneratorTest
 	@Test
 	public void testEdgeLength()
 	{
-        ArrayList<Double3D> d3lCellLocations = new ArrayList<Double3D>();
+        ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
 		FRCStromaGenerator.generateStroma3D(100, 100, 100, 10000, d3lCellLocations, selEdges);
 		
 		double dTotal = 0;
 		for ( StromaEdge seEdge : selEdges )
 		{
+			Double3D d3Point = seEdge.getPoint2();
+			
+			if ( d3Point.x <= 0 || d3Point.x >= 100 || d3Point.y <= 0 || d3Point.y >= 100 || d3Point.z <= 0 || d3Point.z >= 100)
+			{
+				continue;
+			}
+			
 			dTotal += seEdge.getPoint2().subtract( seEdge.getPoint1() ).length();
 		}
 		dTotal /= selEdges.size();
 		
-		// Value taken from literature + radius of cell
-		assertEquals(2.163, dTotal, 0.1);
+		// Value taken from literature + radius of cell*2
+		assertEquals(2.163, dTotal, 0.2);
 	}
 	
 	/**
@@ -59,17 +67,23 @@ public class FRCStromaGeneratorTest
 	@Test
 	public void testEdgeCount()
 	{
-        ArrayList<Double3D> d3lCellLocations = new ArrayList<Double3D>();
+        ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
 		FRCStromaGenerator.generateStroma3D(100, 100, 100, 10000, d3lCellLocations, selEdges);
 		
-		int iCellCount = d3lCellLocations.size();
+		int iCellCount = 0;
+		int iEdgeCount = 0;
 		
-		// Each edge is connected to 2 cells! *not exactly true, but close enough
-		double dEdgesPerFDC = selEdges.size()*2.0 / iCellCount;
+		for ( FRCCell frcCell : d3lCellLocations )
+		{
+			iCellCount++;
+			iEdgeCount += frcCell.iEdges;
+		}
+		
+		double dEdgesPerFDC = (double)iEdgeCount / (double)iCellCount;
 		
 		// Value taken from literature
-		assertEquals(4, dEdgesPerFDC, 0.01);
+		assertEquals(4, dEdgesPerFDC, 0.2);
 	}
 	
 	/**
@@ -115,16 +129,5 @@ public class FRCStromaGeneratorTest
 	public void testGetAdjacentCells()
 	{
 		fail( "Not yet implemented" );
-	}
-	
-	/**
-	 * Test method for {@link sim3d.util.FRCStromaGenerator#calcDistance(sim.util.Int3D, sim.util.Int3D)}.
-	 */
-	@Test
-	public void testCalcDistance()
-	{
-		Double3D d3Point1 = new Double3D(1,0,1);
-		Double3D d3Point2 = new Double3D(0,0,0);
-		assertEquals(Math.sqrt( 2 ), FRCStromaGenerator.calcDistance( d3Point1, d3Point2 ), 0.001);
-	}
+	}*/
 }

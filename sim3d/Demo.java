@@ -15,6 +15,7 @@ import sim3d.cell.*;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 import sim3d.util.FRCStromaGenerator;
+import sim3d.util.FRCStromaGenerator.FRCCell;
 
 
 //code needs much more comments!
@@ -60,15 +61,16 @@ public class Demo extends SimState
         CollisionGrid cgGrid = new CollisionGrid(Options.WIDTH, Options.HEIGHT, Options.DEPTH, 1);
         schedule.scheduleRepeating(cgGrid, 3, 1);
         
-        ArrayList<Double3D> d3lCellLocations = new ArrayList<Double3D>();
+        ArrayList<FRCCell> frclCellLocations = new ArrayList<FRCCell>();
         ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>(); 
-        FRCStromaGenerator.generateStroma3D(Options.WIDTH-2, Options.HEIGHT-2, Options.DEPTH-2, Options.FDC.COUNT, d3lCellLocations, sealEdges);
+        FRCStromaGenerator.generateStroma3D(Options.WIDTH-2, Options.HEIGHT-2, Options.DEPTH-2, Options.FDC.COUNT, frclCellLocations, sealEdges);
         
-        for ( Double3D d3Cell : d3lCellLocations )
+        for ( FRCCell frcCell : frclCellLocations )
         {
+        	Grapher.bcFRCEdgeNumberSeries[Math.min(frcCell.iEdges-1, 11)]++;
         	FDC fdc = new FDC();
         
-	        fdc.setObjectLocation( new Double3D(d3Cell.x+1, d3Cell.y+1, d3Cell.z+1) );
+	        fdc.setObjectLocation( new Double3D(frcCell.d3Location.x+1, frcCell.d3Location.y+1, frcCell.d3Location.z+1) );
 	        
 	        schedule.scheduleRepeating(fdc, 2, 1);
 	        
@@ -76,9 +78,26 @@ public class Demo extends SimState
         }
         for ( StromaEdge seEdge : sealEdges )
         {
+        	Double3D d3Point = seEdge.getPoint1();
+        	Double3D d3Point2 = seEdge.getPoint1();
+        	if ( !( d3Point.x <= 0 || d3Point.x >= (Options.WIDTH-2) || d3Point.y <= 0 || d3Point.y >= (Options.HEIGHT-2) || d3Point.z <= 0 || d3Point.z >= (Options.DEPTH-2))
+        	  && !( d3Point2.x <= 0 || d3Point2.x >= (Options.WIDTH-2) || d3Point2.y <= 0 || d3Point2.y >= (Options.HEIGHT-2) || d3Point2.z <= 0 || d3Point2.z >= (Options.DEPTH-2)) )
+			{
+				int iCat = (int)(2*(seEdge.getPoint2().subtract( seEdge.getPoint1() ).length()));
+				
+				if ( iCat < 2 )
+				{
+					iCat = iCat;
+				}
+				Grapher.bcFRCEdgeSizeSeries[Math.min(iCat, 11)]++;
+			}
+        	
         	seEdge.setObjectLocation(new Double3D(seEdge.x+1, seEdge.y+1, seEdge.z+1));
         	seEdge.registerCollisions(cgGrid);
         }
+
+        Grapher.bcFRCEdgeNumberChart.updateChartWithin( 11312, 1000 );
+        Grapher.bcFRCEdgeSizeChart.updateChartWithin( 11313, 1000 );
         
         // All the static cells are in, now reset the collision data
         cgGrid.step(null);
