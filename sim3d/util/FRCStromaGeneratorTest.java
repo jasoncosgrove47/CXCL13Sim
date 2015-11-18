@@ -88,6 +88,22 @@ public class FRCStromaGeneratorTest
 	
 	/**
 	 * Test method for {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}.
+	 */
+	@Test
+	public void testCellCount()
+	{
+        ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
+		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
+		FRCStromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations, selEdges);
+		
+		int iCellCount = d3lCellLocations.size();
+		
+		// Value taken from literature
+		assertEquals(350, iCellCount, 100);
+	}
+	
+	/**
+	 * Test method for {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}.
 	 * /
 	@Test
 	public void testGenerateStroma3D()

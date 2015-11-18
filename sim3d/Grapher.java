@@ -33,7 +33,7 @@ public class Grapher
         
         for (int i=0; i<20; i++)
         {
-        	labels[i] = String.format("%.1f - %.1f", 0.5*i, 0.5*i + 0.5);
+        	labels[i] = String.format("%d", 2*i);
         }
         
         bcFRCEdgeSizeChart.addSeries( bcFRCEdgeSizeSeries, labels, "a", null );

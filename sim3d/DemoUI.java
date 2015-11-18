@@ -3,6 +3,7 @@ package sim3d;
 import sim.portrayal.continuous.*;
 import sim.portrayal.grid.FastValueGridPortrayal2D;
 import sim.portrayal3d.continuous.ContinuousPortrayal3D;
+import sim.portrayal3d.grid.ValueGridPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.portrayal3d.simple.ValuePortrayal3D;
 import sim.util.media.chart.TimeSeriesChartGenerator;
@@ -32,7 +33,7 @@ public class DemoUI extends GUIState
     ContinuousPortrayal3D frcPortrayal = new ContinuousPortrayal3D();
     ContinuousPortrayal3D bcPortrayal = new ContinuousPortrayal3D();
     FastValueGridPortrayal2D particlePortrayal = new FastValueGridPortrayal2D();
-    ValuePortrayal3D p3dParticles = new ValuePortrayal3D();
+    ValueGridPortrayal3D p3dParticles = new ValueGridPortrayal3D();
     ContinuousPortrayal3D p3dPortrayal = new ContinuousPortrayal3D();
     
     public static void main(String[] args)
@@ -70,9 +71,9 @@ public class DemoUI extends GUIState
         frcPortrayal.setField(FDC.drawEnvironment);
         bcPortrayal.setField(BC.drawEnvironment);
         
-        particlePortrayal.setField(Particle.getInstance(Particle.TYPE.CXCL13).m_ig2Display);
-        particlePortrayal.setMap(new ParticleColorMap());
-                
+        p3dParticles.setField(Particle.getInstance(Particle.TYPE.CXCL13));
+        //p3dParticles.setMap(new ParticleColorMap());
+        p3dParticles.setMap(new sim.util.gui.SimpleColorMap(0.0, 3000, new Color(0,0,0,0), Color.WHITE));
         
         display3D.createSceneGraph();
         display3D.reset();
@@ -97,6 +98,7 @@ public class DemoUI extends GUIState
         
         display3D.attach( frcPortrayal, "FRC" );
         display3D.attach( bcPortrayal, "BC" );
+        //display3D.attach( p3dParticles, "Particles" );
         
         Grapher.init();
         Grapher.schedule = state.schedule;

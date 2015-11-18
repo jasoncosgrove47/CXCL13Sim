@@ -83,13 +83,9 @@ public class Demo extends SimState
         	if ( !( d3Point.x <= 0 || d3Point.x >= (Options.WIDTH-2) || d3Point.y <= 0 || d3Point.y >= (Options.HEIGHT-2) || d3Point.z <= 0 || d3Point.z >= (Options.DEPTH-2))
         	  && !( d3Point2.x <= 0 || d3Point2.x >= (Options.WIDTH-2) || d3Point2.y <= 0 || d3Point2.y >= (Options.HEIGHT-2) || d3Point2.z <= 0 || d3Point2.z >= (Options.DEPTH-2)) )
 			{
-				int iCat = (int)(2*(seEdge.getPoint2().subtract( seEdge.getPoint1() ).length()));
+				int iCat = (int)(5*(seEdge.getPoint2().subtract( seEdge.getPoint1() ).length()-1.2));
 				
-				if ( iCat < 2 )
-				{
-					iCat = iCat;
-				}
-				Grapher.bcFRCEdgeSizeSeries[Math.min(iCat, 11)]++;
+				Grapher.bcFRCEdgeSizeSeries[Math.max( 0, Math.min(iCat, 19))]++;
 			}
         	
         	seEdge.setObjectLocation(new Double3D(seEdge.x+1, seEdge.y+1, seEdge.z+1));
