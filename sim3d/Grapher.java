@@ -1,10 +1,7 @@
 package sim3d;
 
-import java.util.ArrayList;
-
 import sim.engine.Schedule;
 import sim.util.media.chart.BarChartGenerator;
-import sim.util.media.chart.PieChartSeriesAttributes;
 import sim.util.media.chart.TimeSeriesChartGenerator;
 
 public class Grapher
@@ -66,6 +63,7 @@ public class Grapher
     	bcFRCEdgeSizeChart.stopMovie();
 	}
 	
+	@SuppressWarnings( "deprecation" )
 	public static void init()
 	{
         chart = new TimeSeriesChartGenerator();
@@ -74,10 +72,10 @@ public class Grapher
         chart.setDomainAxisLabel("Time");
         
         bcFRCEdgeNumberChart = new BarChartGenerator();
-        bcFRCEdgeNumberChart.setTitle("FRC Edge Numbers");
+        bcFRCEdgeNumberChart.setTitle("FDC Edge Numbers");
         
         bcFRCEdgeSizeChart = new BarChartGenerator();
-        bcFRCEdgeSizeChart.setTitle("FRC Edge Sizes");
+        bcFRCEdgeSizeChart.setTitle("FDC Edge Sizes");
 
         bcFRCEdgeSizeSeries = new double[20];
         bcFRCEdgeNumberSeries = new double[12];

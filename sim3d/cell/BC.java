@@ -144,8 +144,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	@Override
 	public TransformGroup getModel( Object obj, TransformGroup transf )
 	{
-		// TODO could potentially add lines showing where the cell is about to
-		// move to, too!
 		if ( transf == null || true )
 		{
 			transf = new TransformGroup();
@@ -363,7 +361,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			}
 			
 			// Remember which way we're now facing
-			//TODO this errors :z (infinite or 0, probs 0)
 			m_d3Face = m_d3aMovements.get( m_d3aMovements.size() - 1 ).normalize();
 			
 			setObjectLocation( new Double3D( x, y, z ) );
@@ -869,7 +866,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	}
 	
 	/**
-	 * Perform a step for the receptor TODO: this assumes a timestep of 1 second
+	 * Perform a step for the receptor TODO: this assumes a timestep of 1 second!
 	 */
 	private void receptorStep()
 	{

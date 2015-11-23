@@ -105,8 +105,6 @@ public class Vector3DHelper
 	 * @param d3Point The vector to apply the rotation to
 	 * @param d3Direction The end position of the rotation on the vector (0, 0, 1)
 	 * @return The rotated vector
-	 * TODO This could easily be changed to using an arbitrary vector instead of (0, 0, 1), but the latter is
-	 * all we need for the moment
 	 */
 	public static Double3D rotateUsingVector(Double3D d3Point, Double3D d3Direction)
 	{
@@ -140,13 +138,13 @@ public class Vector3DHelper
 	}
 	
 	/**
-	 * Given a unit directional vector, this generates a rotation such that the vector (0,0,1) rotates to
-	 * the aforementioned directional vector. This rotation is then applied to a given point.
+	 * Given 2 unit directional vectors, this generates a rotation that rotates from one direction to
+	 * the other. This rotation is then applied to a given point.
 	 * @param d3Point The vector to apply the rotation to
-	 * @param d3Direction The end position of the rotation on the vector (0, 0, 1)
+	 * @param d3Direction The start position of the rotation
+	 * @param d3NewDirection The end position of the rotation
 	 * @return The rotated vector
-	 * TODO This could easily be changed to using an arbitrary vector instead of (0, 0, 1), but the latter is
-	 * all we need for the moment
+	 * TODO can we specify an angle here?
 	 */
 	public static Double3D rotateVectorToVector(Double3D d3Point, Double3D d3OldDirection, Double3D d3NewDirection)
 	{

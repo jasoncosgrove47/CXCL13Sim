@@ -48,6 +48,7 @@ public class FRCStromaGenerator
 	public static int generateStroma3D(int iWidth, int iHeight, int iDepth, int iCellCount, ArrayList<FRCCell> frclCellLocations, List<StromaEdge> selEdges)
 	{
 		// It will be efficient to keep track of cells and locations separately
+		@SuppressWarnings( "unchecked" ) // because it is of an abstract interface
 		ArrayList<FRCCell>[][][] frcla3CellLocations = new ArrayList[iWidth][iHeight][iDepth];
 		ArrayList<FRCCell> frclUnbranchedCells = new ArrayList<FRCCell>();
 		
@@ -79,7 +80,7 @@ public class FRCStromaGenerator
 				break;
 			}
 			
-			ArrayList<FRCCell> i3aAdjCells = getAdjacentCells(iWidth, iHeight, iDepth, frcla3CellLocations, frcNextCell, 1.7);
+			//ArrayList<FRCCell> i3aAdjCells = getAdjacentCells(iWidth, iHeight, iDepth, frcla3CellLocations, frcNextCell, 1.7);
 			
 			int iEdges = Math.max( 0, Math.min(iRemainingCells, (int)(Math.pow(Options.RNG.nextDouble(),1.5)*(2.1)+2.9)) - frcNextCell.iEdges );
 			if ( iRemainingCells == iCellCount - 1 )
@@ -155,15 +156,16 @@ public class FRCStromaGenerator
 					dCoeff = Math.min( dCoeff, (iDepth-frcOrigin.d3Location.z)/d3aDirections[i].z);
 				}
 				
-				if ( false && dCoeff > 0 )
+				// TODO how do we handle the edges?
+				/*if ( false && dCoeff > 0 )
 				{
 					d3aDirections[i] = d3aDirections[i].multiply( dCoeff );
 				}
 				else
-				{
+				{/**/
 					// Set it to null so the parent knows it's not been created
 					d3aDirections[i] = null;
-				}
+				/*}/**/
 				
 				frcOrigin.iEdges++;
 				
@@ -299,7 +301,6 @@ public class FRCStromaGenerator
 	
 	protected static FRCCell pickNextCell(int iWidth, int iHeight, int iDepth, ArrayList<FRCCell> frclCellLocations, ArrayList<FRCCell>[][][] frcla3CellLocations)
 	{
-		int iIndex = 0;
 		boolean bSuitable = true;
 		
 		do

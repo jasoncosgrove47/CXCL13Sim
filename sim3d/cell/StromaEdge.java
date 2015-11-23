@@ -6,21 +6,16 @@ import java.awt.Graphics2D;
 
 import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
-import javax.media.j3d.Group;
 import javax.media.j3d.LineArray;
 import javax.media.j3d.LineAttributes;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.TransformGroup;
 import javax.media.j3d.TransparencyAttributes;
-import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 
-import sim.field.continuous.Continuous2D;
 import sim.field.continuous.Continuous3D;
 import sim.portrayal.DrawInfo2D;
-import sim.portrayal3d.simple.CylinderPortrayal3D;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
-import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Options;
@@ -29,7 +24,6 @@ import sim3d.collisiondetection.CollisionGrid;
 
 public class StromaEdge extends DrawableCell3D implements Collidable
 {
-	private static final long serialVersionUID = 1L;
 	
 	public static Continuous3D drawEnvironment;
 	@Override public Continuous3D getDrawEnvironment(){

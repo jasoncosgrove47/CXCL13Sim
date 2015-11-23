@@ -1,25 +1,18 @@
 package sim3d;
 
-import sim.portrayal.continuous.*;
 import sim.portrayal.grid.FastValueGridPortrayal2D;
 import sim.portrayal3d.continuous.ContinuousPortrayal3D;
 import sim.portrayal3d.grid.ValueGridPortrayal3D;
-import sim.portrayal3d.simple.SpherePortrayal3D;
-import sim.portrayal3d.simple.ValuePortrayal3D;
-import sim.util.media.chart.TimeSeriesChartGenerator;
 import sim.engine.*;
 import sim.display.*;
 import sim.display3d.Display3D;
 import sim3d.cell.BC;
 import sim3d.cell.FDC;
 import sim3d.diffusion.Particle;
-import sim3d.diffusion.ParticleColorMap;
 
 import javax.swing.*;
 
 import java.awt.Color;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class DemoUI extends GUIState
 {

@@ -2,11 +2,6 @@ package sim3d;
 
 import java.util.ArrayList;
 
-import javax.media.j3d.LineArray;
-import javax.vecmath.Point3d;
-import javax.vecmath.Point3f;
-
-import javafx.geometry.Point3D;
 import sim.display3d.Display3D;
 import sim.engine.*;
 import sim.util.*;

@@ -14,17 +14,17 @@ public class Options
 	
 	public static int WIDTH = 102;
 	public static int HEIGHT = 102;
-	public static int DEPTH = 102;
+	public static int DEPTH = 12;
 	public static double MAX_DISTANCE = 5;
 	public static double GRID_SIZE = 0.00001;
 	public static double DIFFUSION_COEFFICIENT = 1.519 * Math.pow(10, -10);
 	// from http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352/Notes_Diffusion.pdf
 	public static double DIFFUSION_TIMESTEP = Math.pow(GRID_SIZE, 2)/(3.7*DIFFUSION_COEFFICIENT);
-	public static int DIFFUSION_STEPS = (int)(1/DIFFUSION_TIMESTEP);
+	public static int DIFFUSION_STEPS = 0;//(int)(1/DIFFUSION_TIMESTEP);
 	
 	public static class BC
 	{
-		public static int COUNT = 1000;
+		public static int COUNT = 100;
 		public static double DISCRETISATION = 5;
 		public static int MIN_RECEPTORS() { return 1600; }
 		public static double TRAVEL_DISTANCE(){ return 1; }

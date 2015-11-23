@@ -4,7 +4,6 @@
 package sim3d.diffusion.algorithms;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 //import org.hamcrest.number.IsCloseTo;
 import org.junit.Before;

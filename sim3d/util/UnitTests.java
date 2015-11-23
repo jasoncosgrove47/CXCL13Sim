@@ -14,73 +14,13 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim.util.Double3D;
-import sim.util.Int3D;
 import sim3d.Options;
-import sim3d.cell.StromaEdge;
 import sim3d.diffusion.Particle;
 
 public class UnitTests extends AbstractAnalysis {
 
 	public static void main(String[] args) throws Exception {
 		AnalysisLauncher.open(new UnitTests());
-	}
-
-	public void testFRCStromaGenerator()
-	{
-		int size = Options.FDC.COUNT;
-
-        ArrayList<Double3D> d3lCellLocations = new ArrayList<Double3D>();
-        ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>(); 
-		/*boolean[][][] ba3Stroma = FRCStromaGenerator.generateStroma3D(Options.WIDTH-2,  Options.HEIGHT-2, Options.DEPTH-2, size, d3lCellLocations, sealEdges);
-		ArrayList<Coord3d> c3dalPoints = new ArrayList<Coord3d>();
-		ArrayList<Coord3d> c3dalLines = new ArrayList<Coord3d>();
-		
-        for ( int x = 0; x < Options.WIDTH-2; x++ )
-        {
-        	for ( int y = 0; y < Options.HEIGHT-2; y++ )
-            {
-        		for ( int z = 0; z < Options.DEPTH-2; z++ )
-                {
-                	if ( ba3Stroma[x][y][z] )
-                	{
-                		ArrayList<Int3D> cells = FRCStromaGenerator.getAdjacentCells(Options.WIDTH-2,  Options.HEIGHT-2, Options.DEPTH-2, ba3Stroma, new Int3D(x, y, z), Options.FRCGenerator.MAX_EDGE_LENGTH());
-                		c3dalPoints.add( new Coord3d(x, y, z) );
-                	}
-                }
-            }
-        }
-        
-        for ( StromaEdge seEdge : sealEdges )
-        {
-        	Double3D d3Point1 = seEdge.getPoint1();
-        	Double3D d3Point2 = seEdge.getPoint2();
-        	drawLine(c3dalLines, new Coord3d(d3Point1.x, d3Point1.y, d3Point1.z), new Coord3d(d3Point2.x, d3Point2.y, d3Point2.z));
-        }
-        
-        Coord3d[] points = new Coord3d[c3dalPoints.size()];
-        Color[]   colors = new Color[c3dalPoints.size()];
-        
-        for ( int i = 0; i < c3dalPoints.size(); i++ )
-        {
-        	points[i] = c3dalPoints.get(i);
-        	colors[i] = new Color(0,0,0,200);
-        }
-
-        Coord3d[] lines = new Coord3d[c3dalLines.size()];
-        Color[]   linecolors = new Color[c3dalLines.size()];
-        for ( int i = 0; i < c3dalLines.size(); i++ )
-        {
-        	lines[i] = c3dalLines.get(i);
-        	linecolors[i] = new Color(255,0,0,200);
-        }
-
-        Scatter scatter = new Scatter(points, colors);
-        scatter.width = 3;
-        Scatter scatter2 = new Scatter(lines, linecolors);
-        scatter2.width = 1;
-        chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
-        chart.getScene().add(scatter);
-        chart.getScene().add(scatter2);*/
 	}
 	
 	public void drawLine(ArrayList<Coord3d> points, Coord3d p1, Coord3d p2)
