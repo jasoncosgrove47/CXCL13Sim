@@ -4,9 +4,9 @@ This repository contains SimSim, a 3D simulation of a lymph node follicle with F
 Uses:
 
 * Mason v19 (required)
-* charts4j 1.3 (required)
 * jzy3d 0.9.1 (optional)
 
+Note: the MASON code needs to be modified and recompiled do to errors with the graphing code. See https://listserv.gmu.edu/cgi-bin/wa?A2=mason-interest-l;ebfb7935.1509
 
 (optional) dependencies are not required to run the simulation. (required) dependencies will cause the simulation to crash when missing, but some may be able to be disabled.
 

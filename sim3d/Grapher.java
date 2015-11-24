@@ -4,87 +4,131 @@ import sim.engine.Schedule;
 import sim.util.media.chart.BarChartGenerator;
 import sim.util.media.chart.TimeSeriesChartGenerator;
 
+/**
+ * Handles all graphing functionality, and allows simulation to post graphing
+ * information though static variables and methods
+ * 
+ * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
+ */
 public class Grapher
 {
-    public static org.jfree.data.xy.XYSeries series;    // the data series we'll add to
-    public static TimeSeriesChartGenerator chart;  // the charting facilit
-    
-
-    public static double[] bcFRCEdgeSizeSeries;
-    public static sim.util.media.chart.BarChartGenerator bcFRCEdgeSizeChart;
-    public static double[] bcFRCEdgeNumberSeries;
-    public static sim.util.media.chart.BarChartGenerator bcFRCEdgeNumberChart;
-	
-	public static Schedule schedule;
-	
-	public static void start()
+	/**
+	 * Charter generator for the FDC Edge Number chart
+	 */
+	public static sim.util.media.chart.BarChartGenerator	bcFRCEdgeNumberChart;
+															
+	/**
+	 * Data for the FDC edge numbers
+	 */
+	public static double[]									bcFRCEdgeNumberSeries;
+															
+	/**
+	 * Charter generator for the FDC Edge size chart
+	 */
+	public static sim.util.media.chart.BarChartGenerator	bcFRCEdgeSizeChart;
+															
+	/**
+	 * Data for the FDC edge sizes
+	 */
+	public static double[]									bcFRCEdgeSizeSeries;
+															
+	/**
+	 * Chart generator for the ODE chart
+	 */
+	public static TimeSeriesChartGenerator					chart;
+															
+	/**
+	 * The MASON scheduler
+	 */
+	public static Schedule									schedule;
+															
+	/**
+	 * Data series for the ODE chart
+	 */
+	public static org.jfree.data.xy.XYSeries				series;
+															
+	/**
+	 * Add a point to the ODE chart at the current schedule timestep
+	 * 
+	 * @param x
+	 *            The value to plot
+	 */
+	public static void addPoint( double x )
 	{
-		chart.removeAllSeries();
-        series = new org.jfree.data.xy.XYSeries(
-            "Put a unique name for this series here so JFreeChart can hash with it",
-            false);
-        chart.addSeries(series, null);
-        
-        bcFRCEdgeSizeChart.removeAllSeries();
-        String[] labels = new String[20];
-        
-        for (int i=0; i<20; i++)
-        {
-        	labels[i] = String.format("%d", 2*i);
-        }
-        
-        bcFRCEdgeSizeChart.addSeries( bcFRCEdgeSizeSeries, labels, "a", null );
-        
-        bcFRCEdgeNumberChart.removeAllSeries();
-        String[] labels2 = new String[12];
-        
-        for (int i=0; i<12; i++)
-        {
-        	labels2[i] = String.format("%d", i+1);
-        }
-        
-        bcFRCEdgeNumberChart.addSeries( bcFRCEdgeNumberSeries, labels2, "a", null );
+		series.add( schedule.getTime(), x, false );
+		
+		chart.updateChartWithin( schedule.getSteps(), 1000 );
 	}
 	
+	/**
+	 * Simulation run has ended so update everything and stop
+	 */
 	public static void finish()
 	{
-		chart.update(schedule.getSteps(), true);
-    	chart.repaint();
-    	chart.stopMovie();
-    	
-    	
-    	bcFRCEdgeNumberChart.update(schedule.getSteps(), true);
-    	bcFRCEdgeNumberChart.repaint();
-    	bcFRCEdgeNumberChart.stopMovie();
-    	
-    	
-    	bcFRCEdgeSizeChart.update(schedule.getSteps(), true);
-    	bcFRCEdgeSizeChart.repaint();
-    	bcFRCEdgeSizeChart.stopMovie();
+		chart.update( schedule.getSteps(), true );
+		chart.repaint();
+		chart.stopMovie();
+		
+		bcFRCEdgeNumberChart.update( schedule.getSteps(), true );
+		bcFRCEdgeNumberChart.repaint();
+		bcFRCEdgeNumberChart.stopMovie();
+		
+		bcFRCEdgeSizeChart.update( schedule.getSteps(), true );
+		bcFRCEdgeSizeChart.repaint();
+		bcFRCEdgeSizeChart.stopMovie();
 	}
 	
+	/**
+	 * Initialise the charts
+	 */
 	@SuppressWarnings( "deprecation" )
 	public static void init()
 	{
-        chart = new TimeSeriesChartGenerator();
-        chart.setTitle("B Cell Receptors");
-        chart.setRangeAxisLabel("qreate");
-        chart.setDomainAxisLabel("Time");
-        
-        bcFRCEdgeNumberChart = new BarChartGenerator();
-        bcFRCEdgeNumberChart.setTitle("FDC Edge Numbers");
-        
-        bcFRCEdgeSizeChart = new BarChartGenerator();
-        bcFRCEdgeSizeChart.setTitle("FDC Edge Sizes");
-
-        bcFRCEdgeSizeSeries = new double[20];
-        bcFRCEdgeNumberSeries = new double[12];
+		bcFRCEdgeSizeSeries = new double[20];
+		bcFRCEdgeNumberSeries = new double[12];
+		
+		chart = new TimeSeriesChartGenerator();
+		chart.setTitle( "B Cell Receptors" );
+		chart.setRangeAxisLabel( "qreate" );
+		chart.setDomainAxisLabel( "Time" );
+		
+		bcFRCEdgeNumberChart = new BarChartGenerator();
+		bcFRCEdgeNumberChart.setTitle( "FDC Edge Numbers" );
+		
+		bcFRCEdgeSizeChart = new BarChartGenerator();
+		bcFRCEdgeSizeChart.setTitle( "FDC Edge Sizes" );
 	}
 	
-	public static void addPoint(double x)
+	/**
+	 * Start a simulation run
+	 */
+	public static void start()
 	{
-		series.add(schedule.getTime(), x, false);
+		bcFRCEdgeSizeSeries = new double[20];
+		bcFRCEdgeNumberSeries = new double[12];
 		
-		chart.updateChartWithin(schedule.getSteps(), 1000);
+		chart.removeAllSeries();
+		series = new org.jfree.data.xy.XYSeries( "asfsadf", false );
+		chart.addSeries( series, null );
+		
+		bcFRCEdgeSizeChart.removeAllSeries();
+		String[] labels = new String[20];
+		
+		for ( int i = 0; i < 20; i++ )
+		{
+			labels[i] = String.format( "%d", 2 * i );
+		}
+		
+		bcFRCEdgeSizeChart.addSeries( bcFRCEdgeSizeSeries, labels, "a", null );
+		
+		bcFRCEdgeNumberChart.removeAllSeries();
+		String[] labels2 = new String[12];
+		
+		for ( int i = 0; i < 12; i++ )
+		{
+			labels2[i] = String.format( "%d", i + 1 );
+		}
+		
+		bcFRCEdgeNumberChart.addSeries( bcFRCEdgeNumberSeries, labels2, "a", null );
 	}
 }

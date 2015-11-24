@@ -10,13 +10,13 @@ import sim.field.grid.IntGrid3D;
 import sim3d.Options;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
-// TODO parametrise diffusion on a per solute basis
-
 /**
- * Class to keep track of chemokine in the simulation. Extends IntGrid3D which contains the amount of chemokine within
- * each discrete grid space. Handles decay and diffusion (via DiffusionAlgorithm) of chemokines.
+ * Class to keep track of chemokine in the simulation. Extends IntGrid3D which
+ * contains the amount of chemokine within each discrete grid space. Handles
+ * decay and diffusion (via DiffusionAlgorithm) of chemokines.
  * 
- * TODO Perhaps the static part of this class should've been put into another manager class or something
+ * TODO Perhaps the static part of this class should've been put into another
+ * manager class or something TODO parametrise diffusion on a per solute basis
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */

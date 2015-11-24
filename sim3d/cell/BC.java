@@ -29,12 +29,12 @@ import sim3d.diffusion.Particle;
 import sim3d.util.Vector3DHelper;
 
 /**
- * @author sjj509
- *
- */
-/**
- * @author sjj509
- * 		
+ * A B-cell agent. Performs chemotaxis/random movement based on the presence of
+ * surrounding chemokine and the amount of receptors the cell is expressing. The
+ * receptors are controlled by an ODE. The calculated movement is checked to see
+ * whether it collides with the edges or other elements before being realised.
+ * 
+ * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
 public class BC extends DrawableCell3D implements Steppable, Collidable
 {
@@ -54,8 +54,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * The squared distance between a BC and a stroma edge at the point of
 	 * collision; precomputed to speed up calculations
 	 */
-	private static final double	BC_SE_COLLIDE_DIST_SQ	= (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS) * (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS);
-														
+	private static final double	BC_SE_COLLIDE_DIST_SQ	= (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS)
+			* (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS);
+			
 	/**
 	 * Required to prevent a warning!
 	 */
@@ -126,28 +127,24 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		return CLASS.BC;
 	}
 	
-	/**
-	 * @return The drawing environment containing this cell
-	 */
 	@Override
 	public Continuous3D getDrawEnvironment()
 	{
 		return drawEnvironment;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see sim.portrayal3d.SimplePortrayal3D#getModel(java.lang.Object,
-	 * javax.media.j3d.TransformGroup)
-	 */
 	@Override
 	public TransformGroup getModel( Object obj, TransformGroup transf )
 	{
+		// We choose to always recalculate this model because the movement
+		// changes in each time step.
+		// Removing the movement indicators and removing this true will make the
+		// 3d display a lot faster
 		if ( transf == null || true )
 		{
 			transf = new TransformGroup();
 			
+			// Draw the BC itself
 			SpherePortrayal3D s = new SpherePortrayal3D( Options.BC.DRAW_COLOR(), Options.BC.COLLISION_RADIUS * 2, 6 );
 			s.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
 			TransformGroup localTG = s.getModel( obj, null );
@@ -155,6 +152,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			localTG.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
 			transf.addChild( localTG );
 			
+			// If we have had any collisions, draw them as red circles
 			if ( m_d3aCollisions.size() > 0 )
 			{
 				for ( Double3D d3Point : m_d3aCollisions )
@@ -164,41 +162,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 					TransformGroup localTG2 = s2.getModel( obj, null );
 					
 					Transform3D tTransform = new Transform3D();
-					tTransform.setTranslation( new Vector3f( (float) d3Point.x, (float) d3Point.y, (float) d3Point.z ) );
-					
+					tTransform
+							.setTranslation( new Vector3f( (float) d3Point.x, (float) d3Point.y, (float) d3Point.z ) );
+							
 					localTG2.setTransform( tTransform );
 					
 					localTG2.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
 					transf.addChild( localTG2 );
 				}
 			}
-			if ( true )
-			{
-				LineArray lineArr = new LineArray( 6, GeometryArray.COORDINATES );
-				
-				double val = (Options.BC.COLLISION_RADIUS);
-				
-				lineArr.setCoordinate( 0, new Point3d( 0, 0, -val ) );
-				lineArr.setCoordinate( 1, new Point3d( 0, 0, val ) );
-				lineArr.setCoordinate( 2, new Point3d( 0, -val, 0 ) );
-				lineArr.setCoordinate( 3, new Point3d( 0, val, 0 ) );
-				lineArr.setCoordinate( 4, new Point3d( -val, 0, 0 ) );
-				lineArr.setCoordinate( 5, new Point3d( val, 0, 0 ) );
-				
-				Appearance aAppearance = new Appearance();
-				Color col = Options.BC.DRAW_COLOR();
-				aAppearance.setColoringAttributes( new ColoringAttributes( col.getRed() / 255f, col.getGreen() / 255f, col.getBlue() / 255f, ColoringAttributes.FASTEST ) );
-				
-				Shape3D s3Shape = new Shape3D( lineArr, aAppearance );
-				Shape3DPortrayal3D s2 = new Shape3DPortrayal3D( s3Shape, aAppearance );
-				s2.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
-				TransformGroup localTG2 = s2.getModel( obj, null );
-				
-				localTG2.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
-				transf.addChild( localTG2 );
-				
-			}
 			
+			// If we have any movement, then draw it
 			if ( m_d3aMovements.size() > 0 )
 			{
 				LineArray lineArr = new LineArray( m_d3aMovements.size() * 2, GeometryArray.COORDINATES );
@@ -224,8 +198,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				}
 				Appearance aAppearance = new Appearance();
 				Color col = Color.white;
-				aAppearance.setColoringAttributes( new ColoringAttributes( col.getRed() / 255f, col.getGreen() / 255f, col.getBlue() / 255f, ColoringAttributes.FASTEST ) );
-				
+				aAppearance.setColoringAttributes( new ColoringAttributes( col.getRed() / 255f, col.getGreen() / 255f,
+						col.getBlue() / 255f, ColoringAttributes.FASTEST ) );
+						
 				Shape3D s3Shape = new Shape3D( lineArr, aAppearance );
 				Shape3DPortrayal3D s2 = new Shape3DPortrayal3D( s3Shape, aAppearance );
 				s2.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
@@ -238,12 +213,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		return transf;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see sim3d.collisiondetection.Collidable#handleCollisions(sim3d.
-	 * collisiondetection.CollisionGrid)
-	 */
 	@Override
 	public void handleCollisions( CollisionGrid cgGrid )
 	{
@@ -255,6 +224,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// We're using a set because it stores values uniquely!
 		HashSet<Collidable> csCollidables = new HashSet<Collidable>();
 		
+		// Add all the cells to the set
 		for ( Int3D i3Point : m_i3lCollisionPoints )
 		{
 			for ( Collidable cCollidable : cgGrid.getPoints( i3Point ) )
@@ -265,13 +235,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		boolean bCollision = false;
 		
+		// To keep a track of where we collided - we are only interested in the
+		// first collision so we can ignore
+		// anything after this
 		int iCollisionMovement = m_d3aMovements.size();
 		
 		for ( Collidable cCell : csCollidables )
 		{
 			switch ( cCell.getCollisionClass() )
 			{
-				// These first two are probable hits as they won't be moving
+				// These first two are the more likely hits as they won't be
+				// moving
 				case STROMA_EDGE:
 					if ( collideStromaEdge( (StromaEdge) cCell, iCollisionMovement ) )
 					{
@@ -289,12 +263,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		m_i3lCollisionPoints.clear();
 		if ( bCollision )
 		{
+			// Add the collision point for visualisation
 			double xPos = 0;
 			double yPos = 0;
 			double zPos = 0;
 			
-			int iEnd = m_d3aMovements.size() - 1;
-			for ( int i = 0; i < iEnd; i++ )
+			for ( int i = 0; i < iCollisionMovement; i++ )
 			{
 				Double3D d3Movement = m_d3aMovements.get( i );
 				xPos += d3Movement.x;
@@ -304,28 +278,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			
 			m_d3aCollisions.add( new Double3D( xPos, yPos, zPos ) );
 			
+			// Recheck for bounces and reregister with the grid
 			handleBounce();
 			registerCollisions( cgGrid );
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see sim3d.collisiondetection.Collidable#isStatic()
-	 */
 	@Override
 	public boolean isStatic()
 	{
 		return false;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see sim3d.collisiondetection.Collidable#registerCollisions(sim3d.
-	 * collisiondetection.CollisionGrid)
-	 */
 	@Override
 	public void registerCollisions( CollisionGrid cgGrid )
 	{
@@ -335,22 +299,20 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		for ( Double3D d3Movement : m_d3aMovements )
 		{
-			cgGrid.addLineToGrid( this, new Double3D( dPosX, dPosY, dPosZ ), new Double3D( dPosX + d3Movement.x, dPosY + d3Movement.y, dPosZ + d3Movement.z ), Options.BC.COLLISION_RADIUS );
-			
+			cgGrid.addLineToGrid( this, new Double3D( dPosX, dPosY, dPosZ ),
+					new Double3D( dPosX + d3Movement.x, dPosY + d3Movement.y, dPosZ + d3Movement.z ),
+					Options.BC.COLLISION_RADIUS );
+					
 			dPosX += d3Movement.x;
 			dPosY += d3Movement.y;
 			dPosZ += d3Movement.z;
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see sim.engine.Steppable#step(sim.engine.SimState)
-	 */
 	@Override
 	public void step( final SimState state )
 	{
+		// If we have a stored movement, execute it
 		if ( m_d3aMovements != null && m_d3aMovements.size() > 0 )
 		{
 			for ( Double3D d3Movement : m_d3aMovements )
@@ -366,20 +328,27 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			setObjectLocation( new Double3D( x, y, z ) );
 		}
 		
-		// Have to be careful it actually gets set!
-		// needs to be null because there's no else for the next if statement
-		Double3D vMovement = null;
+		// Calculate chemotaxis direction if we're above the receptor threshold
+		Double3D vMovement;
 		if ( m_iR_free > Options.BC.MIN_RECEPTORS() )
 		{
 			vMovement = getMoveDirection();
-			if ( vMovement.length() > 0 )
+			
+			if ( vMovement.lengthSq() > 0 )
 			{
-				vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(), Options.BC.DIRECTION_ERROR() ) );
-				if ( vMovement.length() > 0 )
+				// Add some noise to the direction and take the average of our
+				// current direction and the new direction
+				vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),
+						Options.BC.DIRECTION_ERROR() ) );
+				if ( vMovement.lengthSq() > 0 )
 				{
 					vMovement = vMovement.normalize();
 				}
 			}
+		}
+		else
+		{
+			vMovement = null;
 		}
 		
 		if ( vMovement == null || vMovement.lengthSq() == 0 )
@@ -388,14 +357,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			vMovement = Vector3DHelper.getBiasedRandomDirectionInCone( m_d3Face, Options.BC.RANDOM_TURN_ANGLE() );
 		}
 		
+		// Reset all the movement/collision data
 		m_d3aCollisions.clear();
 		m_d3aMovements = new ArrayList<Double3D>();
 		m_d3aMovements.add( vMovement.multiply( Options.BC.TRAVEL_DISTANCE() ) );
 		
+		// Check for bounces
 		handleBounce();
 		
+		// Step forward the receptor ODE
 		receptorStep();
 		
+		// Register the new movement with the grid
 		registerCollisions( m_cgGrid );
 	}
 	
@@ -499,8 +472,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 					// length we're missing
 					// So we just add that on. TODO If lines are basically
 					// parallel, this might take a while
-					sNew = Math.max( 0, s - (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - Math.sqrt( length )) / d1.length() );
-					
+					sNew = Math.max( 0,
+							s - (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - Math.sqrt( length ))
+									/ d1.length() );
+									
 					t = b * sNew + f;
 					
 					if ( t < 0 )
@@ -541,11 +516,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				{
 					// Calculate the direction from the stroma collision point
 					// to the BC collision point
-					Double3D d3BounceNormal = p1.add( d1.multiply( s ) ).subtract( p2.add( d2.multiply( t ) ) ).normalize();
-					
+					Double3D d3BounceNormal = p1.add( d1.multiply( s ) ).subtract( p2.add( d2.multiply( t ) ) )
+							.normalize();
+							
 					// reflect the movement normal about this point (rotate to
 					// it, and apply the same rotation again)
-					d3NewDir = Vector3DHelper.rotateVectorToVector( d3MovementNormal, d3MovementNormal, d3BounceNormal );
+					d3NewDir = Vector3DHelper.rotateVectorToVector( d3MovementNormal, d3MovementNormal,
+							d3BounceNormal );
 					d3NewDir = Vector3DHelper.rotateVectorToVector( d3NewDir, d3MovementNormal, d3BounceNormal );
 				}
 				
@@ -600,13 +577,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// Get the surrounding concentrations
 		int[][][] ia3Concs = Particle.get( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z );
 		
-		// {x+, x-, y+, y-, z+, z-}
+		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
 		
 		// {x+, x-, y+, y-, z+, z-}
-		int[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2], ia3Concs[1][1][0] };
-		
+		int[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
+				ia3Concs[1][1][0] };
+				
 		int[] iaBoundReceptors = new int[6];
+		// TODO this is just 1s!!
 		for ( int i = 0; i < 6; i++ )
 		{
 			iaBoundReceptors[i] = (int) (Options.BC.ODE.K_a() * Math.sqrt( iReceptors * iaConcs[i] ));
@@ -614,6 +593,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			m_iL_r += iaBoundReceptors[i];
 		}
 		
+		// Remove chemokine from the grid
 		Particle.add( Particle.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -iaBoundReceptors[0] );
 		Particle.add( Particle.TYPE.CXCL13, (int) x - 1, (int) y, (int) z, -iaBoundReceptors[1] );
 		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y + 1, (int) z, -iaBoundReceptors[2] );
@@ -635,7 +615,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 	/**
 	 * Bounces the cell back inside the boundaries Very long method! There's a
-	 * lot of repeated code, but it's hard to efficiently abstract that out into
+	 * lot of repeated code, but it's hard to efficiently abstract it out into
 	 * more methods.
 	 */
 	private void handleBounce()
@@ -657,6 +637,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			dPosZ += m_d3aMovements.get( i ).z;
 		}
 		
+		// multiple bounces may occur, especially with long travel distances
 		while (bBounce)
 		{
 			bBounce = false;
@@ -677,7 +658,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			// If we go out of bounds on either side
 			if ( dNewPosX > Options.WIDTH - 1 || dNewPosX < 1 )
 			{
-				// There might be multiple vectors now, so we need to keep track
+				// There might be multiple vectors, so we need to keep track
 				// of position, and whether we've hit the wall yet or not
 				double dTempPosX = dPosX;
 				boolean bFlipped = false;
@@ -686,7 +667,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				{
 					Double3D d3Movement = m_d3aMovements.get( i );
 					
-					// if we have already hit the wall, we just flip the y axis
+					// if we have already hit the wall, we just flip the x axis
 					// of all the remaining movements
 					if ( bFlipped )
 					{
@@ -711,8 +692,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 						// Create 2 new vectors split at the cutoff point, the
 						// latter mirrored along the y axis
 						Double3D d3TruncMovement = d3Movement.multiply( dCutOff );
-						Double3D d3Remainder = new Double3D( -d3Movement.x + d3TruncMovement.x, d3Movement.y - d3TruncMovement.y, d3Movement.z - d3TruncMovement.z );
-						
+						Double3D d3Remainder = new Double3D( -d3Movement.x + d3TruncMovement.x,
+								d3Movement.y - d3TruncMovement.y, d3Movement.z - d3TruncMovement.z );
+								
 						// Replace the current one, then add the new one after
 						// it
 						if ( d3TruncMovement.lengthSq() > 0 )
@@ -720,14 +702,14 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 							m_d3aMovements.set( i, d3TruncMovement );
 							m_d3aMovements.add( i + 1, d3Remainder );
 							
-							// if we don't increment i, it will get flipped again!
+							// if we don't increment i, it will get flipped
+							// again!
 							i++;
 						}
 						else
 						{
 							m_d3aMovements.set( i, d3Remainder );
 						}
-						
 						
 						bFlipped = true;
 						bBounce = true;
@@ -775,8 +757,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 						// Create 2 new vectors split at the cutoff point, the
 						// latter mirrored along the y axis
 						Double3D d3TruncMovement = d3Movement.multiply( dCutOff );
-						Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x, -d3Movement.y + d3TruncMovement.y, d3Movement.z - d3TruncMovement.z );
-						
+						Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x,
+								-d3Movement.y + d3TruncMovement.y, d3Movement.z - d3TruncMovement.z );
+								
 						// Replace the current one, then add the new one after
 						// it
 						if ( d3TruncMovement.lengthSq() > 0 )
@@ -784,7 +767,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 							m_d3aMovements.set( i, d3TruncMovement );
 							m_d3aMovements.add( i + 1, d3Remainder );
 							
-							// if we don't increment i, it will get flipped again!
+							// if we don't increment i, it will get flipped
+							// again!
 							i++;
 						}
 						else
@@ -838,8 +822,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 						// Create 2 new vectors split at the cutoff point, the
 						// latter mirrored along the y axis
 						Double3D d3TruncMovement = d3Movement.multiply( dCutOff );
-						Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x, d3Movement.y - d3TruncMovement.y, -d3Movement.z + d3TruncMovement.z );
-						
+						Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x,
+								d3Movement.y - d3TruncMovement.y, -d3Movement.z + d3TruncMovement.z );
+								
 						// Replace the current one, then add the new one after
 						// it
 						if ( d3TruncMovement.lengthSq() > 0 )
@@ -847,7 +832,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 							m_d3aMovements.set( i, d3TruncMovement );
 							m_d3aMovements.add( i + 1, d3Remainder );
 							
-							// if we don't increment i, it will get flipped again!
+							// if we don't increment i, it will get flipped
+							// again!
 							i++;
 						}
 						else
@@ -866,10 +852,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	}
 	
 	/**
-	 * Perform a step for the receptor TODO: this assumes a timestep of 1 second!
+	 * Perform a step for the receptor TODO: this assumes a timestep of 1
+	 * second!
 	 */
 	private void receptorStep()
 	{
+		// Euler method with step size 0.1
+		// TODO better methods exist, but this was quick to implement
 		int iTimesteps = 10;
 		int iR_i, iR_d, iL_r;
 		for ( int i = 0; i < iTimesteps; i++ )
@@ -878,19 +867,19 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			iR_d = m_iR_d;
 			iL_r = m_iL_r;
 			
-			m_iR_d += (int) ((1.0 / iTimesteps) * iL_r * iL_r / (Options.BC.ODE.gamma() * (1 + Math.pow( iL_r / Options.BC.ODE.delta(), 2 ) + iL_r))) - (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i()
-					* iR_d);
-			m_iR_i += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iR_d) - (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
+			m_iR_d += (int) ((1.0 / iTimesteps) * iL_r * iL_r
+					/ (Options.BC.ODE.gamma() * (1 + Math.pow( iL_r / Options.BC.ODE.delta(), 2 ) + iL_r)))
+					- (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iR_d);
+			m_iR_i += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iR_d)
+					- (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
 			m_iR_free += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
-			m_iL_r -= (int) ((1.0 / iTimesteps) * iL_r * iL_r / (Options.BC.ODE.gamma() * (1 + Math.pow( iL_r / Options.BC.ODE.delta(), 2 ) + iL_r)));
+			m_iL_r -= (int) ((1.0 / iTimesteps) * iL_r * iL_r
+					/ (Options.BC.ODE.gamma() * (1 + Math.pow( iL_r / Options.BC.ODE.delta(), 2 ) + iL_r)));
 		}
 		
 		if ( displayGraph )
 		{
 			Grapher.addPoint( m_iR_free );
-			// Grapher.dataSets.get(1).add(m_iR_i);
-			// Grapher.dataSets.get(2).add(m_iR_d);
-			// Grapher.dataSets.get(3).add(m_iL_r);
 		}
 	}
 }

@@ -10,7 +10,7 @@ import org.junit.Test;
 
 /**
  * @author sjj509
- *
+ *		
  */
 public class BCTest
 {

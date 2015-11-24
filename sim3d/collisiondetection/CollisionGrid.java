@@ -10,65 +10,72 @@ import sim.util.Int3D;
 import sim3d.util.Vector3DHelper;
 
 /**
- * Class to handle collisions in the system. Has a discretised grid, and for each time step, agents register the grid
- * spaces they will be interacting with. The class keeps track of each grid space, and any cells in a grid spaces with two
- * or more interactions are prompted to handleCollisions(). This process is repeated until no collisions occur.
+ * Class to handle collisions in the system. Has a discretised grid, and for
+ * each time step, agents register the grid spaces they will be interacting
+ * with. The class keeps track of each grid space, and any cells in a grid
+ * spaces with two or more interactions are prompted to handleCollisions(). This
+ * process is repeated until no collisions occur.
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
 public class CollisionGrid implements Steppable
 {
-
-	private static final long serialVersionUID = 1L;
 	
+	private static final long		serialVersionUID		= 1L;
+															
 	// Private Members
 	
 	/**
-	 * A 3D array of lists of Collidable objects containing the objects that will interact with that grid space for that 
-	 * time step
+	 * A 3D array of lists of Collidable objects containing the objects that
+	 * will interact with that grid space for that time step
 	 */
-	private List<Collidable>[][][] m_clGridSpaces;
-	
+	private List<Collidable>[][][]	m_clGridSpaces;
+									
 	/**
-	 * Keeps track of when each grid space last was updated. Allows us to only update the grid spaces that have cells in
-	 * them at each time step.
+	 * Keeps track of when each grid space last was updated. Allows us to only
+	 * update the grid spaces that have cells in them at each time step.
 	 */
-	private int[][][] m_ia3GridUpdateStep;
-	
+	private int[][][]				m_ia3GridUpdateStep;
+									
 	/**
-	 * List of coordinates for grid spaces which have had collisions in this time step. Allows us to avoid having to loop
-	 * though the whole grid each time step.
+	 * List of coordinates for grid spaces which have had collisions in this
+	 * time step. Allows us to avoid having to loop though the whole grid each
+	 * time step.
 	 */
-	private List<Int3D> m_i3lCollisionPoints = new ArrayList<Int3D>();
-	
+	private List<Int3D>				m_i3lCollisionPoints	= new ArrayList<Int3D>();
+															
 	/**
-	 * The size of the collision grid. Larger means less memory, but more calculations.
+	 * The size of the collision grid. Larger means less memory, but more
+	 * calculations.
 	 */
-	private double m_dDiscretisation;
-	
+	private double					m_dDiscretisation;
+									
 	/**
 	 * Width, Height and Depth of the collision grid
 	 */
-	private int m_iWidth, m_iHeight, m_iDepth;
-	
+	private int						m_iWidth, m_iHeight, m_iDepth;
+									
 	/**
-	 * Keeps track of the current step (used in conjunction with m_ia3GridUpdateStep)
+	 * Keeps track of the current step (used in conjunction with
+	 * m_ia3GridUpdateStep)
 	 */
-	private int m_iCurrentStep = 0;
-	
+	private int						m_iCurrentStep			= 0;
+															
 	// Private Methods
-
+	
 	/**
-	 * Adds a Collidable object to a grid location. Performs checks as to whether potential collisions exist, and notifies
-	 * the relevant agents if so.
-	 * Note: we are using a ArrayList without type because it is of the Collidable abstract type
+	 * Adds a Collidable object to a grid location. Performs checks as to
+	 * whether potential collisions exist, and notifies the relevant agents if
+	 * so. Note: we are using a ArrayList without type because it is of the
+	 * Collidable abstract type
+	 * 
 	 * @param x
 	 * @param y
 	 * @param z
 	 * @param cObject
 	 */
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
-	private void addCollisionPotential(int x, int y, int z, Collidable cObject)
+	private void addCollisionPotential( int x, int y, int z, Collidable cObject )
 	{
 		// Check if we need to initialise the grid space
 		if ( m_clGridSpaces[x][y][z] == null )
@@ -83,12 +90,13 @@ public class CollisionGrid implements Steppable
 			
 			int i = 0;
 			
-			// Loop through each element in the grid space and remove non-static elements
-			while ( i < m_clGridSpaces[x][y][z].size() )
+			// Loop through each element in the grid space and remove non-static
+			// elements
+			while (i < m_clGridSpaces[x][y][z].size())
 			{
-				if ( !m_clGridSpaces[x][y][z].get(i).isStatic() )
+				if ( !m_clGridSpaces[x][y][z].get( i ).isStatic() )
 				{
-					m_clGridSpaces[x][y][z].remove(i);
+					m_clGridSpaces[x][y][z].remove( i );
 				}
 				else
 				{
@@ -98,58 +106,65 @@ public class CollisionGrid implements Steppable
 		}
 		
 		// Add the new object to the grid space
-		m_clGridSpaces[x][y][z].add(cObject);
+		m_clGridSpaces[x][y][z].add( cObject );
 		
 		// If there is now exactly two Collidables in this grid space
 		if ( m_clGridSpaces[x][y][z].size() == 2 )
 		{
 			// Add to the list of colliding coordinates
-			m_i3lCollisionPoints.add(new Int3D(x, y, z));
+			m_i3lCollisionPoints.add( new Int3D( x, y, z ) );
 			
 			// There's a potential collision so tell the other cell, too
-			m_clGridSpaces[x][y][z].get(0).addCollisionPoint(new Int3D(x, y, z));
-			cObject.addCollisionPoint(new Int3D(x, y, z));
+			m_clGridSpaces[x][y][z].get( 0 ).addCollisionPoint( new Int3D( x, y, z ) );
+			cObject.addCollisionPoint( new Int3D( x, y, z ) );
 		}
 		else if ( m_clGridSpaces[x][y][z].size() > 2 )
 		{
-			if ( !m_i3lCollisionPoints.contains(new Int3D(x, y, z)) )
+			if ( !m_i3lCollisionPoints.contains( new Int3D( x, y, z ) ) )
 			{
-				m_i3lCollisionPoints.add(new Int3D(x, y, z));
+				m_i3lCollisionPoints.add( new Int3D( x, y, z ) );
 			}
 			// There's a potential collision so tell the cells, too
 			for ( Collidable cCollidable : m_clGridSpaces[x][y][z] )
 			{
-				cCollidable.addCollisionPoint(new Int3D(x, y, z));
+				cCollidable.addCollisionPoint( new Int3D( x, y, z ) );
 			}
 		}
 	}
 	
 	// Public Methods
 	/**
-	 * @param iWidth Width of the grid
-	 * @param iHeight Height of the grid
-	 * @param iDepth Depth of the grid
-	 * @param dDiscretisation Size of each grid space
+	 * @param iWidth
+	 *            Width of the grid
+	 * @param iHeight
+	 *            Height of the grid
+	 * @param iDepth
+	 *            Depth of the grid
+	 * @param dDiscretisation
+	 *            Size of each grid space
 	 */
-	@SuppressWarnings("unchecked")
-	public CollisionGrid(int iWidth, int iHeight, int iDepth, double dDiscretisation)
+	@SuppressWarnings( "unchecked" )
+	public CollisionGrid( int iWidth, int iHeight, int iDepth, double dDiscretisation )
 	{
 		m_dDiscretisation = dDiscretisation;
-
-		m_iWidth = (int)Math.ceil(iWidth / dDiscretisation);
-		m_iHeight = (int)Math.ceil(iHeight / dDiscretisation);
-		m_iDepth = (int)Math.ceil(iDepth / dDiscretisation);
-
+		
+		m_iWidth = (int) Math.ceil( iWidth / dDiscretisation );
+		m_iHeight = (int) Math.ceil( iHeight / dDiscretisation );
+		m_iDepth = (int) Math.ceil( iDepth / dDiscretisation );
+		
 		// TODO LinkedList? since we are mostly adding and removing
 		m_clGridSpaces = new ArrayList[m_iWidth][m_iHeight][m_iDepth];
 		m_ia3GridUpdateStep = new int[m_iWidth][m_iHeight][m_iDepth];
 	}
 	
 	/**
-	 * Accessor for the collidables at a specified point
-	 * Note: we do not need to check whether this point has been updated in the last time step as this should only be called
-	 * by Collidables that are registered in the location given.
-	 * @param i3Loc Point in grid to query
+	 * Accessor for the collidables at a specified point Note: we do not need to
+	 * check whether this point has been updated in the last time step as this
+	 * should only be called by Collidables that are registered in the location
+	 * given.
+	 * 
+	 * @param i3Loc
+	 *            Point in grid to query
 	 * @return The Collidables registered at that point
 	 */
 	public List<Collidable> getPoints( Int3D i3Loc )
@@ -159,78 +174,90 @@ public class CollisionGrid implements Steppable
 	
 	/**
 	 * Performs a collision detection test between a grid space and a sphere
-	 * @param dSphereX X coordinate of the sphere's origin
-	 * @param dSphereY Y coordinate of the sphere's origin
-	 * @param dSphereZ Z coordinate of the sphere's origin
-	 * @param dRadiusSquare Squared radius of the sphere
-	 * @param iBoxX X Coordinate of the grid space
-	 * @param iBoxY Y Coordinate of the grid space
-	 * @param iBoxZ Z  Coordinate of the grid space
+	 * 
+	 * @param dSphereX
+	 *            X coordinate of the sphere's origin
+	 * @param dSphereY
+	 *            Y coordinate of the sphere's origin
+	 * @param dSphereZ
+	 *            Z coordinate of the sphere's origin
+	 * @param dRadiusSquare
+	 *            Squared radius of the sphere
+	 * @param iBoxX
+	 *            X Coordinate of the grid space
+	 * @param iBoxY
+	 *            Y Coordinate of the grid space
+	 * @param iBoxZ
+	 *            Z Coordinate of the grid space
 	 * @return True if the sphere intersects with the grid space
 	 */
-	public boolean BoxSphereIntersect(double dSphereX, double dSphereY, double dSphereZ, double dRadiusSquare,
-									  int iBoxX, int iBoxY, int iBoxZ)
+	public boolean BoxSphereIntersect( double dSphereX, double dSphereY, double dSphereZ, double dRadiusSquare,
+			int iBoxX, int iBoxY, int iBoxZ )
 	{
 		double dSum = 0;
 		
-		// Basically, we do Pythagorag in 3D, but only if for each dimension, we're outside the box (otherwise distance will be 0)
+		// Basically, we do Pythagorag in 3D, but only if for each dimension,
+		// we're outside the box (otherwise distance will be 0)
 		if ( dSphereX < iBoxX )
 		{
-			dSum += (dSphereX - iBoxX)*(dSphereX - iBoxX);
+			dSum += (dSphereX - iBoxX) * (dSphereX - iBoxX);
 		}
 		else if ( dSphereX > iBoxX + 1 )
 		{
-			dSum += (dSphereX - iBoxX + 1)*(dSphereX - iBoxX + 1);
+			dSum += (dSphereX - iBoxX + 1) * (dSphereX - iBoxX + 1);
 		}
 		
 		if ( dSphereY < iBoxY )
 		{
-			dSum += (dSphereY - iBoxY)*(dSphereY - iBoxY);
+			dSum += (dSphereY - iBoxY) * (dSphereY - iBoxY);
 		}
 		else if ( dSphereY > iBoxY + 1 )
 		{
-			dSum += (dSphereY - iBoxY + 1)*(dSphereY - iBoxY + 1);
+			dSum += (dSphereY - iBoxY + 1) * (dSphereY - iBoxY + 1);
 		}
 		
 		if ( dSphereZ < iBoxZ )
 		{
-			dSum += (dSphereZ - iBoxZ)*(dSphereZ - iBoxZ);
+			dSum += (dSphereZ - iBoxZ) * (dSphereZ - iBoxZ);
 		}
 		else if ( dSphereZ > iBoxZ + 1 )
 		{
-			dSum += (dSphereZ - iBoxZ + 1)*(dSphereZ - iBoxZ + 1);
+			dSum += (dSphereZ - iBoxZ + 1) * (dSphereZ - iBoxZ + 1);
 		}
 		
-		return dSum*dSum < dRadiusSquare;
+		return dSum * dSum < dRadiusSquare;
 	}
 	
 	/**
 	 * Adds a sphere to the collision grid
-	 * @param cObject The Collidable to add to the grid
-	 * @param d3Centre The centre of the sphere
-	 * @param dRadius The radius of the sphere
+	 * 
+	 * @param cObject
+	 *            The Collidable to add to the grid
+	 * @param d3Centre
+	 *            The centre of the sphere
+	 * @param dRadius
+	 *            The radius of the sphere
 	 */
-	public void addSphereToGrid(Collidable cObject, Double3D d3Centre, double dRadius)
+	public void addSphereToGrid( Collidable cObject, Double3D d3Centre, double dRadius )
 	{
 		// Convert the coordinates to our discretised coordinates
-		Double3D d3DiscretisedCentre = new Double3D(d3Centre.x/m_dDiscretisation,
-													d3Centre.y/m_dDiscretisation,
-													d3Centre.z/m_dDiscretisation);
-		
+		Double3D d3DiscretisedCentre = new Double3D( d3Centre.x / m_dDiscretisation, d3Centre.y / m_dDiscretisation,
+				d3Centre.z / m_dDiscretisation );
+				
 		double dDiscretisedRadius = dRadius / m_dDiscretisation;
 		
 		// this will be used a lot - pre compute for speed
 		double dRadiusSquare = dDiscretisedRadius * dDiscretisedRadius;
-
+		
 		// Calculate the grid space coordinate bounds for each dimension
-		int iXLow = (int)Math.max(0,(d3DiscretisedCentre.x-dDiscretisedRadius));
-		int iXHigh = (int)Math.min(m_iWidth-1,(d3DiscretisedCentre.x+dDiscretisedRadius));
-
-		int iYLow = (int)Math.max(0,(d3DiscretisedCentre.y-dDiscretisedRadius));
-		int iYHigh = (int)Math.min(m_iHeight-1,(d3DiscretisedCentre.y+dDiscretisedRadius));
-
-		int iZLow = (int)Math.max(0,(d3DiscretisedCentre.z-dDiscretisedRadius));
-		int iZHigh = (int)Math.min(m_iDepth-1,(d3DiscretisedCentre.z+dDiscretisedRadius));
+		int iXLow = (int) Math.max( 0, (d3DiscretisedCentre.x - dDiscretisedRadius) );
+		int iXHigh = (int) Math.min( m_iWidth - 1, (d3DiscretisedCentre.x + dDiscretisedRadius) );
+		
+		int iYLow = (int) Math.max( 0, (d3DiscretisedCentre.y - dDiscretisedRadius) );
+		int iYHigh = (int) Math.min( m_iHeight - 1, (d3DiscretisedCentre.y + dDiscretisedRadius) );
+		
+		int iZLow = (int) Math.max( 0, (d3DiscretisedCentre.z - dDiscretisedRadius) );
+		int iZHigh = (int) Math.min( m_iDepth - 1, (d3DiscretisedCentre.z + dDiscretisedRadius) );
 		
 		for ( int x = iXLow; x <= iXHigh; x++ )
 		{
@@ -238,9 +265,10 @@ public class CollisionGrid implements Steppable
 			{
 				for ( int z = iZLow; z <= iZHigh; z++ )
 				{
-					if ( BoxSphereIntersect(d3DiscretisedCentre.x, d3DiscretisedCentre.y, d3DiscretisedCentre.z, dRadiusSquare, x, y, z) )
+					if ( BoxSphereIntersect( d3DiscretisedCentre.x, d3DiscretisedCentre.y, d3DiscretisedCentre.z,
+							dRadiusSquare, x, y, z ) )
 					{
-						addCollisionPotential(x, y, z, cObject);
+						addCollisionPotential( x, y, z, cObject );
 					}
 				}
 			}
@@ -249,63 +277,66 @@ public class CollisionGrid implements Steppable
 	
 	/**
 	 * Add a line (cylinder) to the collision grid
-	 * @param cObject The Collidable to add to the grid
-	 * @param d3Point1 The start point of the line
-	 * @param d3Point2 The end point of the line
-	 * @param dRadius The thickness of the line
+	 * 
+	 * @param cObject
+	 *            The Collidable to add to the grid
+	 * @param d3Point1
+	 *            The start point of the line
+	 * @param d3Point2
+	 *            The end point of the line
+	 * @param dRadius
+	 *            The thickness of the line
 	 */
-	public void addLineToGrid(Collidable cObject, Double3D d3Point1, Double3D d3Point2, double dRadius)
+	public void addLineToGrid( Collidable cObject, Double3D d3Point1, Double3D d3Point2, double dRadius )
 	{
 		// Convert the coordinates to our discretised coordinates
-		Double3D d3DiscretisedPoint1 = new Double3D(d3Point1.x/m_dDiscretisation,
-													d3Point1.y/m_dDiscretisation,
-													d3Point1.z/m_dDiscretisation);
-		Double3D d3DiscretisedPoint2 = new Double3D(d3Point2.x/m_dDiscretisation,
-													d3Point2.y/m_dDiscretisation,
-													d3Point2.z/m_dDiscretisation);
-		
+		Double3D d3DiscretisedPoint1 = new Double3D( d3Point1.x / m_dDiscretisation, d3Point1.y / m_dDiscretisation,
+				d3Point1.z / m_dDiscretisation );
+		Double3D d3DiscretisedPoint2 = new Double3D( d3Point2.x / m_dDiscretisation, d3Point2.y / m_dDiscretisation,
+				d3Point2.z / m_dDiscretisation );
+				
 		double dDiscretisedRadius = dRadius / m_dDiscretisation;
 		
 		// this will be used a lot - pre compute for speed
 		// Add 0.5 as this is approximately the radius of a cube
-		// TODO this won't detect collisions in the corners of the grid spaces, but it's much more efficient!
-		double dRadiusSquare = (0.5+dDiscretisedRadius) * (0.5+dDiscretisedRadius);
-
-
+		// TODO this won't detect collisions in the corners of the grid spaces,
+		// but it's much more efficient!
+		double dRadiusSquare = (0.5 + dDiscretisedRadius) * (0.5 + dDiscretisedRadius);
+		
 		// Calculate the grid space coordinate bounds for each dimension
 		int iXLow, iXHigh, iYLow, iYHigh, iZLow, iZHigh;
 		
-		if (d3DiscretisedPoint1.x < d3DiscretisedPoint2.x)
+		if ( d3DiscretisedPoint1.x < d3DiscretisedPoint2.x )
 		{
-			iXLow = (int)Math.max(0,(d3DiscretisedPoint1.x-dDiscretisedRadius));
-			iXHigh = (int)Math.min(m_iWidth-1,(d3DiscretisedPoint2.x+dDiscretisedRadius));
+			iXLow = (int) Math.max( 0, (d3DiscretisedPoint1.x - dDiscretisedRadius) );
+			iXHigh = (int) Math.min( m_iWidth - 1, (d3DiscretisedPoint2.x + dDiscretisedRadius) );
 		}
 		else
 		{
-			iXLow = (int)Math.max(0,(d3DiscretisedPoint2.x-dDiscretisedRadius));
-			iXHigh = (int)Math.min(m_iWidth-1,(d3DiscretisedPoint1.x+dDiscretisedRadius));
-		}
-
-		if (d3DiscretisedPoint1.y < d3DiscretisedPoint2.y)
-		{
-			iYLow = (int)Math.max(0,(d3DiscretisedPoint1.y-dDiscretisedRadius));
-			iYHigh = (int)Math.min(m_iHeight-1,(d3DiscretisedPoint2.y+dDiscretisedRadius));
-		}
-		else
-		{
-			iYLow = (int)Math.max(0,(d3DiscretisedPoint2.y-dDiscretisedRadius));
-			iYHigh = (int)Math.min(m_iHeight-1,(d3DiscretisedPoint1.y+dDiscretisedRadius));
+			iXLow = (int) Math.max( 0, (d3DiscretisedPoint2.x - dDiscretisedRadius) );
+			iXHigh = (int) Math.min( m_iWidth - 1, (d3DiscretisedPoint1.x + dDiscretisedRadius) );
 		}
 		
-		if (d3DiscretisedPoint1.z < d3DiscretisedPoint2.z)
+		if ( d3DiscretisedPoint1.y < d3DiscretisedPoint2.y )
 		{
-			iZLow = (int)Math.max(0,(d3DiscretisedPoint1.z-dDiscretisedRadius));
-			iZHigh = (int)Math.min(m_iDepth-1,(d3DiscretisedPoint2.z+dDiscretisedRadius));
+			iYLow = (int) Math.max( 0, (d3DiscretisedPoint1.y - dDiscretisedRadius) );
+			iYHigh = (int) Math.min( m_iHeight - 1, (d3DiscretisedPoint2.y + dDiscretisedRadius) );
 		}
 		else
 		{
-			iZLow = (int)Math.max(0,(d3DiscretisedPoint2.z-dDiscretisedRadius));
-			iZHigh = (int)Math.min(m_iDepth-1,(d3DiscretisedPoint1.z+dDiscretisedRadius));
+			iYLow = (int) Math.max( 0, (d3DiscretisedPoint2.y - dDiscretisedRadius) );
+			iYHigh = (int) Math.min( m_iHeight - 1, (d3DiscretisedPoint1.y + dDiscretisedRadius) );
+		}
+		
+		if ( d3DiscretisedPoint1.z < d3DiscretisedPoint2.z )
+		{
+			iZLow = (int) Math.max( 0, (d3DiscretisedPoint1.z - dDiscretisedRadius) );
+			iZHigh = (int) Math.min( m_iDepth - 1, (d3DiscretisedPoint2.z + dDiscretisedRadius) );
+		}
+		else
+		{
+			iZLow = (int) Math.max( 0, (d3DiscretisedPoint2.z - dDiscretisedRadius) );
+			iZHigh = (int) Math.min( m_iDepth - 1, (d3DiscretisedPoint1.z + dDiscretisedRadius) );
 		}
 		
 		for ( int x = iXLow; x <= iXHigh; x++ )
@@ -315,77 +346,79 @@ public class CollisionGrid implements Steppable
 				for ( int z = iZLow; z <= iZHigh; z++ )
 				{
 					// Real-Time Collision Detection, Christer Ericson
-					// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf p130
+					// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
+					// p130
 					
 					// A (point1) to B (point2)
-					Double3D ab = d3DiscretisedPoint2.subtract(d3DiscretisedPoint1);
+					Double3D ab = d3DiscretisedPoint2.subtract( d3DiscretisedPoint1 );
 					
 					// add 0.5 so we're using the centre of the square
 					// A to C (GridSpace)
-					Double3D ac = new Double3D(x + 0.5 - d3DiscretisedPoint1.x,
-											   y + 0.5 - d3DiscretisedPoint1.y,
-											   z + 0.5 - d3DiscretisedPoint1.z);
-
+					Double3D ac = new Double3D( x + 0.5 - d3DiscretisedPoint1.x, y + 0.5 - d3DiscretisedPoint1.y,
+							z + 0.5 - d3DiscretisedPoint1.z );
+							
 					double length = 0;
-					double e = Vector3DHelper.dotProduct(ac,  ab);
+					double e = Vector3DHelper.dotProduct( ac, ab );
 					
-					// If the grid space is the opposite direction of the line we just use the distance of AC
+					// If the grid space is the opposite direction of the line
+					// we just use the distance of AC
 					if ( e <= 0 )
 					{
-						length = Vector3DHelper.dotProduct(ac,  ac);
+						length = Vector3DHelper.dotProduct( ac, ac );
 					}
 					else
 					{
-						double f = Vector3DHelper.dotProduct(ab,  ab);
+						double f = Vector3DHelper.dotProduct( ab, ab );
 						
-						// the opposite of the previous check - if the grid space is past the line we just use the distance of BC
+						// the opposite of the previous check - if the grid
+						// space is past the line we just use the distance of BC
 						if ( e >= f )
 						{
-							Double3D bc = new Double3D(x + 0.5 - d3DiscretisedPoint2.x,
-													   y + 0.5 - d3DiscretisedPoint2.y,
-													   z + 0.5 - d3DiscretisedPoint2.z);
-							
-							length = Vector3DHelper.dotProduct(bc,  bc);
+							Double3D bc = new Double3D( x + 0.5 - d3DiscretisedPoint2.x,
+									y + 0.5 - d3DiscretisedPoint2.y, z + 0.5 - d3DiscretisedPoint2.z );
+									
+							length = Vector3DHelper.dotProduct( bc, bc );
 						}
 						else
 						{
 							// explained in the linked book!
-							length = Vector3DHelper.dotProduct(ac,  ac) - e * e / f;
+							length = Vector3DHelper.dotProduct( ac, ac ) - e * e / f;
 						}
 					}
 					
 					// If the length is within the radius then add to the grid
 					if ( length <= dRadiusSquare )
 					{
-						addCollisionPotential(x, y, z, cObject);
+						addCollisionPotential( x, y, z, cObject );
 					}
 				}
 			}
 		}
 	}
-
+	
 	/**
-	 * Prompts the cells to handle the collisions. Repeats until no more collisions have been registered.
+	 * Prompts the cells to handle the collisions. Repeats until no more
+	 * collisions have been registered.
 	 */
 	@Override
-	public void step(SimState state)
+	public void step( SimState state )
 	{
 		// while we still have points to check
-		while ( m_i3lCollisionPoints.size() > 0 )
+		while (m_i3lCollisionPoints.size() > 0)
 		{
-			Int3D i3CollisionPoint = m_i3lCollisionPoints.get(0);
-			m_i3lCollisionPoints.remove(0);
-			
+			Int3D i3CollisionPoint = m_i3lCollisionPoints.get( 0 );
+			m_i3lCollisionPoints.remove( 0 );
 			
 			// List through all the points at this location
 			// Hopefully most will just immediately return!
-			List<Collidable> cPoints = getPoints(i3CollisionPoint);
+			List<Collidable> cPoints = getPoints( i3CollisionPoint );
 			
 			int iMax = cPoints.size();
 			for ( int i = 0; i < iMax; i++ )
 			{
-				// Note: this command can get this location reregistered! (in fact it's likely if a collision occurs)
-				cPoints.get(i).handleCollisions(this);
+				// Note: this command can get this location reregistered! (in
+				// fact it's likely if a collision occurs)
+				cPoints.get( i ).handleCollisions( this );
 			}
 		}
 		

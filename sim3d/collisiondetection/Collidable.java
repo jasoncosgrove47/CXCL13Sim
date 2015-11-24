@@ -1,6 +1,7 @@
 package sim3d.collisiondetection;
 
 import sim.util.Int3D;
+
 /**
  * Interface implemented by objects that want to register on the CollisionGrid
  * 
@@ -15,33 +16,40 @@ public interface Collidable
 	
 	/**
 	 * Notify the Collidable of a potential collision point
-	 * @param i3Point Coordinates of the collision point
+	 * 
+	 * @param i3Point
+	 *            Coordinates of the collision point
 	 */
-	public abstract void addCollisionPoint(Int3D i3Point);
+	public abstract void addCollisionPoint( Int3D i3Point );
 	
 	/**
-	 * Prompt the Collidable to register its potential collisions with the CollisionGrid
-	 * @param cgGrid The CollisionGrid to register with
+	 * Prompt the Collidable to register its potential collisions with the
+	 * CollisionGrid
+	 * 
+	 * @param cgGrid
+	 *            The CollisionGrid to register with
 	 */
-	public abstract void registerCollisions(CollisionGrid cgGrid);
+	public abstract void registerCollisions( CollisionGrid cgGrid );
 	
 	/**
 	 * Prompt the Collidable to check for and handle any collisions
-	 * @param cgGrid The CollisionGrid containing the potential collidables
+	 * 
+	 * @param cgGrid
+	 *            The CollisionGrid containing the potential collidables
 	 */
-	public abstract void handleCollisions(CollisionGrid cgGrid);
+	public abstract void handleCollisions( CollisionGrid cgGrid );
 	
 	/**
 	 * ENUM for the types of collidable objects
 	 */
 	public static enum CLASS
 	{
-		BC,
-		STROMA,
-		STROMA_EDGE
+		BC, STROMA, STROMA_EDGE
 	}
+	
 	/**
 	 * Accessor for the CLASS ENUM
+	 * 
 	 * @return The type of Collidable for this object
 	 */
 	public abstract CLASS getCollisionClass();
