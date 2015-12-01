@@ -42,7 +42,8 @@ public class DiffusionAlgorithmTest
 	 * Test method for {@link sim3d.diffusion.algorithms.DiffusionAlgorithm#diffuse(sim3d.diffusion.Particle)}.
 	 */
 	@Test
-	public void testConservation() {		
+	public void testConservation()
+	{		
 		m_pParticle.field[25][25][25] = 100;
 		m_pParticle.field[25][26][25] = 100;
 

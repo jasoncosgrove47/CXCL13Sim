@@ -62,7 +62,7 @@ public class Vector3DHelper
 	{
 		Double3D[] ad3Return = new Double3D[iNumPoints];
 		double phi = (Math.sqrt(5)+1)/2 -1;
-		double ga = phi * 2 * Math.PI;
+		double ga = phi;// * 2 * Math.PI;
 		for(int i = 0; i < iNumPoints; i++)
 		{
 			double dLongitude = ga*i;

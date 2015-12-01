@@ -189,7 +189,7 @@ public class UnitTests extends AbstractAnalysis {
 
 	public void testVector3DHelperEqDistPointsOnSphere()
 	{
-		int size = 5000;
+		int size = 100;
 		Coord3d[] points = new Coord3d[size];
         Color[]   colors = new Color[size];
 		
@@ -240,9 +240,9 @@ public class UnitTests extends AbstractAnalysis {
 
 		//testVector3DHelperRandomDirection();
 		//testVector3DHelperRandomDirectionInCone();
-		//testVector3DHelperEqDistPointsOnSphere();
+		testVector3DHelperEqDistPointsOnSphere();
 		//testFRCStromaGenerator();
 		//testParticleDiffusion();
-		testRotateVectorToVector();
+		//testRotateVectorToVector();
 	}
 }

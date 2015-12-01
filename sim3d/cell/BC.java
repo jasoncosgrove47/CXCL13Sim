@@ -260,7 +260,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			}
 		}
 		
-		m_i3lCollisionPoints.clear();
 		if ( bCollision )
 		{
 			// Add the collision point for visualisation
@@ -293,6 +292,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	@Override
 	public void registerCollisions( CollisionGrid cgGrid )
 	{
+		if ( cgGrid == null )
+		{
+			return;
+		}
+		
 		double dPosX = x;
 		double dPosY = y;
 		double dPosZ = z;
@@ -312,6 +316,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	@Override
 	public void step( final SimState state )
 	{
+		m_i3lCollisionPoints.clear();
 		// If we have a stored movement, execute it
 		if ( m_d3aMovements != null && m_d3aMovements.size() > 0 )
 		{
@@ -330,7 +335,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		// Calculate chemotaxis direction if we're above the receptor threshold
 		Double3D vMovement;
-		if ( m_iR_free > Options.BC.MIN_RECEPTORS() )
+		if ( m_iR_free > Options.BC.MIN_RECEPTORS )
 		{
 			vMovement = getMoveDirection();
 			
@@ -454,7 +459,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			
 			// If the length is within a range (note: we use length*1.05 to
 			// improve computation time. It is a good approximation
-			if ( BC_SE_COLLIDE_DIST_SQ > length * 1.05 )
+			if (  length < BC_SE_COLLIDE_DIST_SQ )
 			{
 				bCollide = true;
 				double sNew = s;
@@ -464,7 +469,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				// on forever. We don't get the exact point, but this does add a
 				// little elasticity
 				// Basically repeat the process until we go over
-				while (BC_SE_COLLIDE_DIST_SQ > length * 1.02 && s > 0 && s < 1)
+				while (length < BC_SE_COLLIDE_DIST_SQ && s > 0 && s < 1)
 				{
 					s = sNew;
 					// (Options.BC.COLLISION_RADIUS +
@@ -472,10 +477,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 					// length we're missing
 					// So we just add that on. TODO If lines are basically
 					// parallel, this might take a while
-					sNew = Math.max( 0,
-							s - (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - Math.sqrt( length ))
-									/ d1.length() );
-									
+					double dSinTheta = Math.sqrt( Vector3DHelper.crossProduct( d2, d1 ).lengthSq()/(d2.lengthSq()*d1.lengthSq()) ); // sin th
+					double dActualLength = Math.sqrt( length );
+					
+					sNew = Math.max( 0, s-(0.02+Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - dActualLength)/(dSinTheta*d1.length()) );/**/
+					
+					/*sNew = Math.max( 0,
+							s - (0.1 + Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - Math.sqrt( length ))
+									/ d1.length() );/**/
+
+					//TODO this section isn't very efficient which is unfortunate given how often it will be run...
+					// Firstly, if t==0 or t==1 then the above will be an awful approximation. I think the math was ok, but I'm not 100%...
+					
 					t = b * sNew + f;
 					
 					if ( t < 0 )
@@ -497,10 +510,25 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				}
 			}
 			
+			if ( s == 0 )
+			{
+				Double3D d3Vec = c1.subtract( c2 );
+				
+				// we're already moving away!
+				if ( Vector3DHelper.dotProduct( d3Vec, d1 ) > 0 )
+				{
+					bCollide = false;
+				}
+			}
+			else if ( s == 1 )
+			{
+				bCollide = false;
+			}
+			
 			// if we collide, check if the nearest point isn't at the end. If it
 			// is, then we've already collided with something in
 			// a previous step so don't bother
-			if ( bCollide && s > 0 && s < 1 )
+			if ( bCollide )
 			{
 				Double3D d3NewDir;
 				
@@ -546,6 +574,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				
 				// add the remaining length of the current movement
 				dNewLength += d1.length() * (1 - s);
+				
+				// slow down based on how fast we changed direction
+				dNewLength *= (2+Vector3DHelper.dotProduct( d3NewDir, d3MovementNormal ))/3;
 				
 				d3NewDir = d3NewDir.multiply( dNewLength );
 				

@@ -74,10 +74,7 @@ public class Options
 		/**
 		 * The number of receptors required for chemotaxis
 		 */
-		public static int MIN_RECEPTORS()
-		{
-			return 1600;
-		}
+		public static int MIN_RECEPTORS = 1600;
 		
 		/**
 		 * The distance a BC will travel

@@ -298,10 +298,10 @@ public class CollisionGrid implements Steppable
 		double dDiscretisedRadius = dRadius / m_dDiscretisation;
 		
 		// this will be used a lot - pre compute for speed
-		// Add 0.5 as this is approximately the radius of a cube
+		// Add 0.866 as this is approximately the radius of a cube
 		// TODO this won't detect collisions in the corners of the grid spaces,
 		// but it's much more efficient!
-		double dRadiusSquare = (0.5 + dDiscretisedRadius) * (0.5 + dDiscretisedRadius);
+		double dRadiusSquare = (0.866 + dDiscretisedRadius) * (0.5 + dDiscretisedRadius);
 		
 		// Calculate the grid space coordinate bounds for each dimension
 		int iXLow, iXHigh, iYLow, iYHigh, iZLow, iZHigh;
