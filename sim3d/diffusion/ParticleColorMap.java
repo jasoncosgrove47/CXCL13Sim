@@ -67,13 +67,13 @@ public class ParticleColorMap implements ColorMap
 	public int getRGB( double arg0 )
 	{
 		// arg0 = Math.log(arg0*2000)/Math.log(2);
-		if ( arg0 > 1024 )
+		if ( arg0 > 400 )
 		{
-			return (Color.HSBtoRGB( (float) ((arg0 - 1024) / 1024 + 0.66666), 1, 1 ) ^ 255 << 24) | 255 << 24;
+			return (Color.HSBtoRGB( (float) ((arg0 - 400) / 400 + 0.66666), 1, 1 ) ^ 255 << 24) | 255 << 24;
 		}
 		else
 		{
-			return 0 << 16 | 0 << 8 | 255 | (int) (arg0 / 1024.0 * 255.0) << 24;
+			return 0 << 16 | 0 << 8 | (int) (arg0 / 400 * 255.0) | 255 << 24;
 		}
 	}
 	

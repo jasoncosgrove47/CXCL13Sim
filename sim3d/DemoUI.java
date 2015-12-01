@@ -7,6 +7,11 @@ import sim.display.*;
 import sim.display3d.Display3D;
 import sim3d.cell.BC;
 import sim3d.cell.FDC;
+import sim3d.diffusion.Particle;
+import sim3d.diffusion.ParticleColorMap;
+
+import java.awt.Color;
+
 import javax.swing.*;
 
 /**
@@ -44,6 +49,16 @@ public class DemoUI extends GUIState
 	 * The main display
 	 */
 	public JFrame				d3DisplayFrame;
+								
+	/**
+	 * The chempkine display
+	 */
+	public JFrame				jfChemokine;
+								
+	/**
+	 * The 3D display object
+	 */
+	public Display2D			display2D;
 								
 	/**
 	 * The 3D display object
@@ -109,6 +124,7 @@ public class DemoUI extends GUIState
 		
 		// make the displayer
 		display3D = new Display3D( 600, 600, this );
+		display2D = new Display2D( 600, 600, this );
 		
 		// Move the camera to a sensible position
 		display3D.translate( -Options.WIDTH / 2.0, -Options.WIDTH / 2.0, 0 );
@@ -124,6 +140,16 @@ public class DemoUI extends GUIState
 		// Add the portrayals to the display
 		display3D.attach( fdcPortrayal, "FRC" );
 		display3D.attach( bcPortrayal, "BC" );
+		
+		jfChemokine = display2D.createFrame();
+		jfChemokine.setTitle( "Chemokine" );
+		// register the frame so it appears in the "Display" list
+		c.registerFrame( jfChemokine );
+		jfChemokine.setVisible( true );
+		jfChemokine.setLocation( 700, 0 );
+		jfChemokine.setBackground( Color.black );
+		particlePortrayal.setMap( new ParticleColorMap() );
+		display2D.attach( particlePortrayal, "CXCL13" );
 		
 		// Load the graphing functionality
 		Grapher.init();
@@ -188,6 +214,8 @@ public class DemoUI extends GUIState
 		// tell the portrayals what to portray and how to portray them
 		fdcPortrayal.setField( FDC.drawEnvironment );
 		bcPortrayal.setField( BC.drawEnvironment );
+		
+		particlePortrayal.setField( Particle.getInstance( Particle.TYPE.CXCL13 ).m_ig2Display );
 		
 		// p3dParticles.setField( Particle.getInstance( Particle.TYPE.CXCL13 )
 		// );

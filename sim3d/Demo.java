@@ -9,6 +9,7 @@ import sim3d.cell.*;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 import sim3d.util.FRCStromaGenerator;
+import sim3d.util.Vector3DHelper;
 import sim3d.util.FRCStromaGenerator.FRCCell;
 
 /**
@@ -92,6 +93,7 @@ public class Demo extends SimState
 	public void setDisplayLevel( int m_iDisplayLevel )
 	{
 		Particle.setDisplayLevel( m_iDisplayLevel - 1 );
+		Particle.getInstance( Particle.TYPE.CXCL13 ).updateDisplay();
 	}
 	
 	/**
@@ -120,7 +122,8 @@ public class Demo extends SimState
 		ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
 		FRCStromaGenerator.generateStroma3D( Options.WIDTH - 2, Options.HEIGHT - 2, Options.DEPTH - 2,
 				Options.FDC.COUNT, frclCellLocations, sealEdges );
-				
+
+		
 		// Create the FDC objects, display them, schedule them, and then put
 		// them on the collision grid
 		for ( FRCCell frcCell : frclCellLocations )
@@ -182,6 +185,7 @@ public class Demo extends SimState
 			// Randomly locate the cells
 			Double3D loc = new Double3D( random.nextInt( Options.WIDTH - 2 ) + 1,
 					random.nextInt( Options.HEIGHT - 2 ) + 1, random.nextInt( Options.DEPTH - 2 ) + 1 );
+
 			BC bc = new BC();
 			
 			// Register with display
