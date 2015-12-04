@@ -910,7 +910,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( displayGraph )
 		{
-			Grapher.addPoint( m_iR_free );
+			//Grapher.addPoint( m_iR_free );
 		}
 	}
 }

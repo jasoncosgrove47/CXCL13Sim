@@ -23,8 +23,8 @@ public class Options
 	 * 
 	 * Note: the simulation has a 1 unit border around the edge hence the + 2
 	 */
-	public static int					WIDTH					= 100 + 2,
-												HEIGHT = 100 + 2, DEPTH = 10 + 2;
+	public static int					WIDTH					= 10 + 2,
+												HEIGHT = 10 + 2, DEPTH = 10 + 2;
 												
 	/**
 	 * Size of one edge of a grid space in meters
@@ -62,7 +62,7 @@ public class Options
 		/**
 		 * Number of BCs to generate
 		 */
-		public static int		COUNT			= 100;
+		public static int		COUNT			= 10;
 												
 		/**
 		 * used by Continuous3D - related to getting neighbours; the size of the

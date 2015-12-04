@@ -70,8 +70,8 @@ public class Demo extends SimState
 	 */
 	public void finish()
 	{
-		Grapher.bcFRCEdgeNumberSeries = new double[Grapher.bcFRCEdgeNumberSeries.length];
-		Grapher.bcFRCEdgeSizeSeries = new double[Grapher.bcFRCEdgeSizeSeries.length];
+		//Grapher.bcFRCEdgeNumberSeries = new double[Grapher.bcFRCEdgeNumberSeries.length];
+		//Grapher.bcFRCEdgeSizeSeries = new double[Grapher.bcFRCEdgeSizeSeries.length];
 		Particle.reset();
 	}
 	
@@ -129,7 +129,7 @@ public class Demo extends SimState
 		for ( FRCCell frcCell : frclCellLocations )
 		{
 			// keep track of the data for the graphs
-			Grapher.bcFRCEdgeNumberSeries[Math.min( frcCell.iEdges - 1, 11 )]++;
+			//Grapher.bcFRCEdgeNumberSeries[Math.min( frcCell.iEdges - 1, 11 )]++;
 			
 			FDC fdc = new FDC();
 			
@@ -161,7 +161,7 @@ public class Demo extends SimState
 			{
 				int iCat = (int) (5 * (seEdge.getPoint2().subtract( seEdge.getPoint1() ).length() - 1.2));
 				
-				Grapher.bcFRCEdgeSizeSeries[Math.max( 0, Math.min( iCat, 19 ) )]++;
+				//Grapher.bcFRCEdgeSizeSeries[Math.max( 0, Math.min( iCat, 19 ) )]++;
 			}
 			
 			// Register with display and CG
@@ -169,8 +169,8 @@ public class Demo extends SimState
 			seEdge.registerCollisions( cgGrid );
 		}
 		
-		Grapher.bcFRCEdgeNumberChart.updateChartWithin( 11312, 1000 );
-		Grapher.bcFRCEdgeSizeChart.updateChartWithin( 11313, 1000 );
+		//Grapher.bcFRCEdgeNumberChart.updateChartWithin( 11312, 1000 );
+		//Grapher.bcFRCEdgeSizeChart.updateChartWithin( 11313, 1000 );
 		
 		// All the static cells are in, now reset the collision data
 		cgGrid.step( null );

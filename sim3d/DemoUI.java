@@ -152,12 +152,13 @@ public class DemoUI extends GUIState
 		display2D.attach( particlePortrayal, "CXCL13" );
 		
 		// Load the graphing functionality
-		Grapher.init();
-		Grapher.schedule = state.schedule;
+		//Grapher.init();
+		//Grapher.schedule = state.schedule;
 		
 		// Setup the graph displays...
 		
 		// The ODE line graph
+		/*
 		chartFrame = Grapher.chart.createFrame();
 		chartFrame.setVisible( true );
 		chartFrame.pack();
@@ -177,6 +178,7 @@ public class DemoUI extends GUIState
 		chartFrame3.pack();
 		chartFrame3.setLocation( 0, 700 );
 		c.registerFrame( chartFrame3 );
+		*/
 	}
 	
 	/**
@@ -200,10 +202,12 @@ public class DemoUI extends GUIState
 		d3DisplayFrame = null;
 		display3D = null;
 		
+		/*
 		Grapher.finish();
 		if ( chartFrame != null )
 			chartFrame.dispose();
 		chartFrame = null;
+		*/
 	}
 	
 	/**
@@ -235,7 +239,7 @@ public class DemoUI extends GUIState
 		super.start();
 		setupPortrayals();
 		
-		Grapher.start();
+		//Grapher.start();
 	}
 	
 }
