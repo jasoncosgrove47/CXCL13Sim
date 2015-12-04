@@ -1,4 +1,4 @@
-This repository contains SimSim, a 3D simulation of a lymph node follicle with FDCs and B-cells. Includes collisions, chemotaxis, random movement and diffusion.
+This repository contains LymphSim, a 3D simulation of a lymph node cortex. Includes collisions, chemotaxis, random movement and diffusion.
 
 
 Uses:
@@ -11,4 +11,4 @@ Note: the MASON code needs to be modified and recompiled do to errors with the g
 (optional) dependencies are not required to run the simulation. (required) dependencies will cause the simulation to crash when missing, but some may be able to be disabled.
 
 
-Created by Simon Jarrett (simonjjarrett@gmail.com)
+Created by Jason Cosgrove (jc1571@york.ac.uk) and Simon Jarrett (simonjjarrett@gmail.com)
