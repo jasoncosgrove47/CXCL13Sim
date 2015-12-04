@@ -25,14 +25,14 @@ public class Demo extends SimState
 	 * main function renamed so I don't accidentally run this one instead of the
 	 * DemoUI
 	 */
-	public static void main2( String[] args )
+	public static void main( String[] args )
 	{
 		doLoop( Demo.class, args );
 		System.exit( 0 );
 	}
 	
 	/**
-	 * Contains the BCs
+	 * 3D grid where B cells reside
 	 */
 	public Continuous3D	bcEnvironment;
 						
@@ -44,8 +44,7 @@ public class Demo extends SimState
 	/**
 	 * Constructor
 	 * 
-	 * @param seed
-	 *            Used by MASON for the random seed
+	 * @param seed  Used by MASON for the random seed
 	 */
 	public Demo( long seed )
 	{
@@ -70,8 +69,6 @@ public class Demo extends SimState
 	 */
 	public void finish()
 	{
-		//Grapher.bcFRCEdgeNumberSeries = new double[Grapher.bcFRCEdgeNumberSeries.length];
-		//Grapher.bcFRCEdgeSizeSeries = new double[Grapher.bcFRCEdgeSizeSeries.length];
 		Particle.reset();
 	}
 	
@@ -123,7 +120,7 @@ public class Demo extends SimState
 		FRCStromaGenerator.generateStroma3D( Options.WIDTH - 2, Options.HEIGHT - 2, Options.DEPTH - 2,
 				Options.FDC.COUNT, frclCellLocations, sealEdges );
 
-		
+		// TODO: Put this in a separate method
 		// Create the FDC objects, display them, schedule them, and then put
 		// them on the collision grid
 		for ( FRCCell frcCell : frclCellLocations )
@@ -179,6 +176,7 @@ public class Demo extends SimState
 		// them what CG to use
 		BC.m_cgGrid = cgGrid;
 		
+		// TODO: Encapsulate as addLymphocytes method
 		// Generate the BCs
 		for ( int x = 0; x < Options.BC.COUNT; x++ )
 		{
@@ -200,6 +198,7 @@ public class Demo extends SimState
 			}
 		}
 		
+		//TODO addChemokine method
 		// add particles
 		new Particle( schedule, Particle.TYPE.CXCL13, Options.WIDTH, Options.HEIGHT, Options.DEPTH );
 	}

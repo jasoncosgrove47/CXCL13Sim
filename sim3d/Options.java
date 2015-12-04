@@ -45,6 +45,8 @@ public class Options
 	 * 
 	 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/
 	 *      Winter08Phys352/Notes_Diffusion.pdf
+	 *      
+	 * TODO: Get Simon to explain this again to me     
 	 */
 	public static double				DIFFUSION_TIMESTEP		= Math.pow( GRID_SIZE, 2 )
 			/ (3.7 * DIFFUSION_COEFFICIENT);
@@ -67,7 +69,7 @@ public class Options
 		/**
 		 * used by Continuous3D - related to getting neighbours; the size of the
 		 * bags
-		 * 
+		 * TODO Not quite sure what this means?
 		 */
 		public static double	DISCRETISATION	= 5;
 												
@@ -81,7 +83,8 @@ public class Options
 		 */
 		public static double TRAVEL_DISTANCE()
 		{
-			return 1;
+			//return 1; //thus 10 microns per minute? should be 10 microns per hour
+			return 0.01666666; //this is 10 microns
 		}
 		
 		/**
@@ -95,6 +98,8 @@ public class Options
 		
 		/**
 		 * The max angle to turn when moving randomly
+		 * TODO why is this constraint necessary
+		 * and how was it derived
 		 */
 		public static double RANDOM_TURN_ANGLE()
 		{
@@ -115,15 +120,18 @@ public class Options
 		 * The radius of the sphere that will collide with things. Also
 		 * determines the display size.
 		 */
-		public static double COLLISION_RADIUS = 0.5;
+		public static double COLLISION_RADIUS = 0.5; // TODO why is this 5 microns its to match the diameter of the cell??
 		
 		/**
 		 * Parameterisation of the ODE for the receptors in the BCs
+		 * 
+		 * TODO use values from the Lin et al paper, but remember that these values were obtained for neutrophils!
+		 * TODO look at the paper from Kepler TB as they have some nice parameter values and constraints
 		 */
 		public static class ODE
 		{
 			/**
-			 * Rate of binding with ligand
+			 * Affinity constant for ligand and receptor
 			 */
 			public static double K_a()
 			{
@@ -131,7 +139,7 @@ public class Options
 			}
 			
 			/**
-			 * Rate of recycling receptions
+			 * Rate of receptor recycling from an internal pool
 			 */
 			public static double K_r()
 			{
@@ -180,6 +188,8 @@ public class Options
 		/**
 		 * used by Continuous3D - related to getting neighbours; the size of the
 		 * bags
+		 * 
+		 * TODO ask simon what this is and why is it 5
 		 */
 		public static double	DISCRETISATION	= 5;
 												
@@ -192,7 +202,13 @@ public class Options
 		}
 		
 		/**
-		 * THe amount of chemokine secreted at each time step
+		 * The amount of chemokine secreted at each time step
+		 * 
+		 * We need to do some research to see what a suitable value for this should be
+		 * need to look at how much chemokine youd get from a tissue sample
+		 * 
+		 * could do a tissue ELISA and titrate against fluorescently labelled chemokine as
+		 * we know roughly how many molecules there are in this???
 		 */
 		public static int CXCL13_EMITTED()
 		{
@@ -203,7 +219,7 @@ public class Options
 		 * The radius of the sphere nucleus that will collide with things. Also
 		 * determines the display size.
 		 */
-		public static double	STROMA_NODE_RADIUS	= 0.5;
+		public static double	STROMA_NODE_RADIUS	= 0.2;
 													
 		/**
 		 * The radius of the cylinder edge that will collide with things.
