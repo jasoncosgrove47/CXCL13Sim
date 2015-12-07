@@ -23,8 +23,8 @@ public class Options
 	 * 
 	 * Note: the simulation has a 1 unit border around the edge hence the + 2
 	 */
-	public static int					WIDTH					= 10 + 2,
-												HEIGHT = 10 + 2, DEPTH = 10 + 2;
+	public static int					WIDTH					= 40 + 2,
+												HEIGHT = 40 + 2, DEPTH = 20 + 2;
 												
 	/**
 	 * Size of one edge of a grid space in meters
@@ -64,7 +64,7 @@ public class Options
 		/**
 		 * Number of BCs to generate
 		 */
-		public static int		COUNT			= 10;
+		public static int		COUNT			= 500;
 												
 		/**
 		 * used by Continuous3D - related to getting neighbours; the size of the
@@ -83,8 +83,8 @@ public class Options
 		 */
 		public static double TRAVEL_DISTANCE()
 		{
-			//return 1; //thus 10 microns per minute? should be 10 microns per hour
-			return 0.01666666; //this is 10 microns
+			return 1; //thus 10 microns per minute? should be 10 microns per hour
+			//return 0.01666666; //this is 10 microns
 		}
 		
 		/**
@@ -212,14 +212,14 @@ public class Options
 		 */
 		public static int CXCL13_EMITTED()
 		{
-			return 500;
+			return 5;
 		}
 		
 		/**
 		 * The radius of the sphere nucleus that will collide with things. Also
 		 * determines the display size.
 		 */
-		public static double	STROMA_NODE_RADIUS	= 0.2;
+		public static double	STROMA_NODE_RADIUS	= 0.06;
 													
 		/**
 		 * The radius of the cylinder edge that will collide with things.

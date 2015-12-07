@@ -69,20 +69,20 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	public boolean				displayGraph			= false;
 														
 	/**
-	 * (ODE) Ligand receptor?
+	 * (ODE) Ligand-Receptor Complexes
 	 */
 	public int					m_iL_r					= 500;
 	/**
-	 * (ODE) Receptor bound?
+	 * (ODE) Desensitised Receptor
 	 */
 	public int					m_iR_d					= 500;
 	/**
-	 * (ODE) The number of free receptors on the cell surface
+	 * (ODE) Free Receptors on cell surface
 	 */
 	public int					m_iR_free				= 1000;
 														
 	/**
-	 * (ODE) Another receptor one
+	 * (ODE) Internalised Receptor
 	 */
 	public int					m_iR_i					= 1000;
 														
@@ -601,6 +601,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * Samples CXCL13 in the vicinity of the cell, and calculates a new movement
 	 * direction. Also removes some CXCL13 from the simulation.
 	 * 
+	 * Should just remove it at the gridpoint where you actually are
+	 * 
 	 * @return The new direction for the cell to move
 	 */
 	private Double3D getMoveDirection()
@@ -617,6 +619,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				
 		int[] iaBoundReceptors = new int[6];
 		// TODO this is just 1s!!
+		
+		
+		//TODO why is this here, we update the receptors elsewhere
 		for ( int i = 0; i < 6; i++ )
 		{
 			iaBoundReceptors[i] = (int) (Options.BC.ODE.K_a() * Math.sqrt( iReceptors * iaConcs[i] ));
