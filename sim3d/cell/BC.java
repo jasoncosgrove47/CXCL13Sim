@@ -314,7 +314,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	}
 	
 	@Override
-	public void step( final SimState state )
+	public void step( final SimState state )//why is this final here
 	{
 		m_i3lCollisionPoints.clear();
 		// If we have a stored movement, execute it
@@ -915,7 +915,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( displayGraph )
 		{
-			//Grapher.addPoint( m_iR_free );
+			//Grapher.addPoint( m_iR_free ); //this gives an error when run on console
 		}
 	}
 }

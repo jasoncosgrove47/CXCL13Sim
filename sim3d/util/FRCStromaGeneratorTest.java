@@ -45,8 +45,10 @@ public class FRCStromaGeneratorTest
 		double dTotal = 0;
 		for ( StromaEdge seEdge : selEdges )
 		{
-			Double3D d3Point = seEdge.getPoint2();
+			Double3D d3Point = seEdge.getPoint2();//get the second point of the edge
 			
+			
+			//if the point is within the boundaries
 			if ( d3Point.x <= 0 || d3Point.x >= 100 || d3Point.y <= 0 || d3Point.y >= 100 || d3Point.z <= 0 || d3Point.z >= 100)
 			{
 				continue;
@@ -57,7 +59,7 @@ public class FRCStromaGeneratorTest
 		dTotal /= selEdges.size();
 		
 		// Value taken from literature + radius of cell*2
-		assertEquals(2.163, dTotal, 0.2);
+		assertEquals(2.163, dTotal, 0.2); //assert that dTotal must equal 2.163 with 0.2 error for margin
 	}
 	
 	/**
@@ -82,7 +84,7 @@ public class FRCStromaGeneratorTest
 		double dEdgesPerFDC = (double)iEdgeCount / (double)iCellCount;
 		
 		// Value taken from literature
-		assertEquals(4, dEdgesPerFDC, 0.2);
+		assertEquals(4, dEdgesPerFDC, 0.2); //4 edges per FDC is determined from exptl data
 	}
 	
 	/**

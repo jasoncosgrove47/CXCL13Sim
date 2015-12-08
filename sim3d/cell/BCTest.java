@@ -57,6 +57,10 @@ public class BCTest
     	BC.drawEnvironment = null;
     }
 	
+    
+    /*
+     * Where are the comments for this
+     */
 	@Test
 	public void testShouldMigrateTowardsChemokine()
 	{
@@ -94,7 +98,7 @@ public class BCTest
 		{
 			for (int j = 0; j < 100; j++)
 			{
-				bcCells[j].step( null );
+				bcCells[j].step( null );//why are you passing in null
 			}
 			m_pParticle.field[15][15][15] = 10000;
 			m_pParticle.step( null );
@@ -102,19 +106,24 @@ public class BCTest
 		
 		double avDistance = 0;
 		double maxDist = 0;
+		
+		//not quite sure what this bit is doing
 		for (int i = 0; i < 100; i++)
 		{
-			Double3D bcLoc = new Double3D(bcCells[i].x-15, bcCells[i].y-15, bcCells[i].z-15);
+			Double3D bcLoc = new Double3D(bcCells[i].x-15, bcCells[i].y-15, bcCells[i].z-15);//why take 15 away
 			
-			avDistance += bcLoc.length();
+			avDistance += bcLoc.length();//add this vector? see how far they are from origin?
 			
+			
+			//why do we need maxDist, doesn't seem to be doing anything
+			// do we need a maxDist criteria?
 			if ( maxDist < bcLoc.length() )
 			{
 				maxDist = bcLoc.length();
 			}
 		}
 
-		assertThat(avDistance/100, lessThan(4.0));
+		assertThat(avDistance/100, lessThan(4.0));//why is this condition here?
 	}
 	
 	// TODO This doesn't pass given enough time...
@@ -130,9 +139,9 @@ public class BCTest
 		
 		Double3D d3Centre = new Double3D(15,15,15);
 		
-		points[0] = points[0].multiply( 3 ).add( d3Centre );
+		points[0] = points[0].multiply( 3 ).add( d3Centre ); //what is this line doing
 		
-		iEdges--;
+		iEdges--;  // what is this line doing
 		for ( int i = 0; i < iEdges; i++ )
 		{
 			points[i+1] = points[i+1].multiply( 3 ).add( d3Centre );
@@ -159,6 +168,8 @@ public class BCTest
 			cgGrid.step( null );
 		}
 		
+		
+		//again not fully sure what this bit is doing
 		double avDistance = 0;
 		double maxDist = 0;
 		for (int i = 0; i < 100; i++)
@@ -173,6 +184,8 @@ public class BCTest
 			}
 		}
 		
+		
+		//again not sure what these are doing
 		assertThat(avDistance/100, lessThan(3.0));
 		assertThat(maxDist, lessThan(3.1));
 		
@@ -234,6 +247,8 @@ public class BCTest
 			m_pParticle.step( null );
 		}
 		
+		
+		//not fully sure what this bit down does....
 		int[] iaResults = new int[5];
 
 		for (int i = 0; i < 250; i++)

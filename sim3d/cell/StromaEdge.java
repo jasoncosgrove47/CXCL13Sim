@@ -83,6 +83,11 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 		return drawEnvironment;
 	}
 	
+	/*
+	 * This method creates a 3d model of stromal edge for visualisation
+	 * (non-Javadoc)
+	 * @see sim.portrayal3d.SimplePortrayal3D#getModel(java.lang.Object, javax.media.j3d.TransformGroup)
+	 */
 	@Override
 	public TransformGroup getModel( Object obj, TransformGroup transf )
 	{

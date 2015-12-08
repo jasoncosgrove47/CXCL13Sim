@@ -39,7 +39,9 @@ public class DiffusionAlgorithmTest
 	}
 
 	/**
-	 * Test method for {@link sim3d.diffusion.algorithms.DiffusionAlgorithm#diffuse(sim3d.diffusion.Particle)}.
+	 * Test method for {@link sim3d.diffusion.algorithms.DiffusionAlgorithm#
+	 * diffuse(sim3d.diffusion.Particle)}.
+	 * Still not fully sure what this is testing
 	 */
 	@Test
 	public void testConservation()

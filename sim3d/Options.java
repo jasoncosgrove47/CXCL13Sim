@@ -23,8 +23,8 @@ public class Options
 	 * 
 	 * Note: the simulation has a 1 unit border around the edge hence the + 2
 	 */
-	public static int					WIDTH					= 40 + 2,
-												HEIGHT = 40 + 2, DEPTH = 20 + 2;
+	public static int					WIDTH					= 100 + 2,
+												HEIGHT = 100 + 2, DEPTH = 50 + 2;
 												
 	/**
 	 * Size of one edge of a grid space in meters
