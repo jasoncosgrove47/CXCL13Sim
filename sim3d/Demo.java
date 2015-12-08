@@ -18,6 +18,9 @@ import sim3d.util.FRCStromaGenerator.FRCCell;
 /**
  * Sets up and runs the simulation
  * 
+ * Need to ensure that Java has access to enough memory resources
+ * go to run configurations and pass in -Xmx3000m
+ * 
  * @author Jason Cosgrove  - {@link jc1571@york.ac.uk}
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
@@ -90,8 +93,8 @@ public class Demo extends SimState
 	 */
 	public void finish()
 	{
-		Grapher.bcFRCEdgeNumberSeries = new double[Grapher.bcFRCEdgeNumberSeries.length];
-		Grapher.bcFRCEdgeSizeSeries = new double[Grapher.bcFRCEdgeSizeSeries.length];
+		//Grapher.bcFRCEdgeNumberSeries = new double[Grapher.bcFRCEdgeNumberSeries.length];
+		//Grapher.bcFRCEdgeSizeSeries = new double[Grapher.bcFRCEdgeSizeSeries.length];
 		Particle.reset();
 	}
 	
@@ -123,7 +126,7 @@ public class Demo extends SimState
 	public void start()
 	{
 		super.start();
-		Grapher.init();
+		//Grapher.init();
 		// Initialise the environments, tell the various classes 
 		// what their draw environment is
 		fdcEnvironment = new Continuous3D( Options.FDC.DISCRETISATION, Options.WIDTH, Options.HEIGHT, Options.DEPTH );
@@ -223,7 +226,7 @@ public class Demo extends SimState
 					{
 						int iCat = (int) (5 * (seEdge.getPoint2().subtract( seEdge.getPoint1() ).length() - 1.2));
 						
-						Grapher.bcFRCEdgeSizeSeries[Math.max( 0, Math.min( iCat, 19 ) )]++;
+						//Grapher.bcFRCEdgeSizeSeries[Math.max( 0, Math.min( iCat, 19 ) )]++;
 					}
 					
 					// Register with display and CG
@@ -235,8 +238,8 @@ public class Demo extends SimState
 				// All the static cells are in, now reset the collision data
 				cgGrid.step( null );
 				
-				Grapher.bcFRCEdgeNumberChart.updateChartWithin( 11312, 1000 );
-				Grapher.bcFRCEdgeSizeChart.updateChartWithin( 11313, 1000 );
+				//Grapher.bcFRCEdgeNumberChart.updateChartWithin( 11312, 1000 );
+				//Grapher.bcFRCEdgeSizeChart.updateChartWithin( 11313, 1000 );
 		
 	}
 	

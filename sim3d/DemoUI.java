@@ -168,6 +168,7 @@ public class DemoUI extends GUIState
 		chartFrame.setLocation( 0, 700 );
 		c.registerFrame( chartFrame );
 		
+		/**
 		// FDC Edge size bar chart
 		chartFrame2 = Grapher.bcFRCEdgeSizeChart.createFrame();
 		chartFrame2.setVisible( true );
@@ -181,7 +182,7 @@ public class DemoUI extends GUIState
 		chartFrame3.pack();
 		chartFrame3.setLocation( 0, 700 );
 		c.registerFrame( chartFrame3 );
-		
+		*/
 	}
 	
 	/**

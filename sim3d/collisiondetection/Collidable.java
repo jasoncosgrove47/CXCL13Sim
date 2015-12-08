@@ -26,6 +26,12 @@ public interface Collidable
 	 * Prompt the Collidable to register its potential collisions with the
 	 * CollisionGrid
 	 * 
+	 * Each cell registers where it wants to move on the grid and then
+	 * the collision grid handles how the cell is to move using the handle collisions
+	 * method which breaks up the collision grid into small subsections.
+	 * Once the collisions have been handled the cell will then move
+	 * in the next step of the simulation.
+	 * 
 	 * @param cgGrid
 	 *            The CollisionGrid to register with
 	 */

@@ -262,4 +262,7 @@ public class BCTest
 		assertEquals("18-24", 50, iaResults[3], 15.0);
 		assertEquals("24-30", 50, iaResults[4], 15.0);
 	}
+	
+	
+	//TODO need a test case to make sure that receptor numbers change over time
 }

@@ -34,6 +34,7 @@ import sim3d.util.Vector3DHelper;
  * receptors are controlled by an ODE. The calculated movement is checked to see
  * whether it collides with the edges or other elements before being realised.
  * 
+ * @author Jason Cosgrove  - {@link jc1571@york.ac.uk}
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
 public class BC extends DrawableCell3D implements Steppable, Collidable
@@ -79,7 +80,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	/**
 	 * (ODE) Free Receptors on cell surface
 	 */
-	public int					m_iR_free				= 1000;
+	public int					m_iR_free				= 10000;
 														
 	/**
 	 * (ODE) Internalised Receptor
@@ -105,217 +106,19 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * Points on the collision grid we're intersecting with something
 	 */
 	List<Int3D>					m_i3lCollisionPoints	= new ArrayList<Int3D>();
-														
-	/**
-	 * Adds a collision point to the list
-	 * 
-	 * @param i3Point
-	 *            Coordinates for the collision
-	 */
-	@Override
-	public void addCollisionPoint( Int3D i3Point )
-	{
-		m_i3lCollisionPoints.add( i3Point );
-	}
+		
 	
-	/**
-	 * @return the ENUM representing the type of Collidable this cell is (BC)
-	 */
-	@Override
-	public CLASS getCollisionClass()
-	{
-		return CLASS.BC;
-	}
 	
-	@Override
-	public Continuous3D getDrawEnvironment()
-	{
-		return drawEnvironment;
-	}
 	
-	@Override
-	public TransformGroup getModel( Object obj, TransformGroup transf )
-	{
-		// We choose to always recalculate this model because the movement
-		// changes in each time step.
-		// Removing the movement indicators and removing this true will make the
-		// 3d display a lot faster
-		if ( transf == null || true )
-		{
-			transf = new TransformGroup();
-			
-			// Draw the BC itself
-			SpherePortrayal3D s = new SpherePortrayal3D( Options.BC.DRAW_COLOR(), Options.BC.COLLISION_RADIUS * 2, 6 );
-			s.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
-			TransformGroup localTG = s.getModel( obj, null );
-			
-			localTG.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
-			transf.addChild( localTG );
-			
-			// If we have had any collisions, draw them as red circles
-			if ( m_d3aCollisions.size() > 0 )
-			{
-				for ( Double3D d3Point : m_d3aCollisions )
-				{
-					SpherePortrayal3D s2 = new SpherePortrayal3D( Color.RED, 0.25, 6 );
-					s2.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
-					TransformGroup localTG2 = s2.getModel( obj, null );
-					
-					Transform3D tTransform = new Transform3D();
-					tTransform
-							.setTranslation( new Vector3f( (float) d3Point.x, (float) d3Point.y, (float) d3Point.z ) );
-							
-					localTG2.setTransform( tTransform );
-					
-					localTG2.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
-					transf.addChild( localTG2 );
-				}
-			}
-			
-			// If we have any movement, then draw it
-			if ( m_d3aMovements.size() > 0 )
-			{
-				LineArray lineArr = new LineArray( m_d3aMovements.size() * 2, GeometryArray.COORDINATES );
-				lineArr.setCoordinate( 0, new Point3d( 0, 0, 0 ) );
-				
-				int i = 1;
-				double xPos = 0, yPos = 0, zPos = 0;
-				
-				for ( int iIndex = 0; iIndex < m_d3aMovements.size(); iIndex++ )
-				{
-					Double3D d3Movement = m_d3aMovements.get( iIndex );
-					
-					if ( i > 1 )
-					{
-						lineArr.setCoordinate( i, new Point3d( xPos, yPos, zPos ) );
-						i++;
-					}
-					xPos += d3Movement.x;
-					yPos += d3Movement.y;
-					zPos += d3Movement.z;
-					lineArr.setCoordinate( i, new Point3d( xPos, yPos, zPos ) );
-					i++;
-				}
-				Appearance aAppearance = new Appearance();
-				Color col = Color.white;
-				aAppearance.setColoringAttributes( new ColoringAttributes( col.getRed() / 255f, col.getGreen() / 255f,
-						col.getBlue() / 255f, ColoringAttributes.FASTEST ) );
-						
-				Shape3D s3Shape = new Shape3D( lineArr, aAppearance );
-				Shape3DPortrayal3D s2 = new Shape3DPortrayal3D( s3Shape, aAppearance );
-				s2.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
-				TransformGroup localTG2 = s2.getModel( obj, null );
-				
-				localTG2.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
-				transf.addChild( localTG2 );
-			}
-		}
-		return transf;
-	}
 	
-	@Override
-	public void handleCollisions( CollisionGrid cgGrid )
-	{
-		if ( m_i3lCollisionPoints.size() == 0 )
-		{
-			return;
-		}
-		
-		// We're using a set because it stores values uniquely!
-		HashSet<Collidable> csCollidables = new HashSet<Collidable>();
-		
-		// Add all the cells to the set
-		for ( Int3D i3Point : m_i3lCollisionPoints )
-		{
-			for ( Collidable cCollidable : cgGrid.getPoints( i3Point ) )
-			{
-				csCollidables.add( cCollidable );
-			}
-		}
-		
-		boolean bCollision = false;
-		
-		// To keep a track of where we collided - we are only interested in the
-		// first collision so we can ignore
-		// anything after this
-		int iCollisionMovement = m_d3aMovements.size();
-		
-		for ( Collidable cCell : csCollidables )
-		{
-			switch ( cCell.getCollisionClass() )
-			{
-				// These first two are the more likely hits as they won't be
-				// moving
-				case STROMA_EDGE:
-					if ( collideStromaEdge( (StromaEdge) cCell, iCollisionMovement ) )
-					{
-						iCollisionMovement = m_d3aMovements.size() - 1;
-						bCollision = true;
-					}
-					break;
-				case STROMA:
-					break;
-				case BC:
-					break;
-			}
-		}
-		
-		if ( bCollision )
-		{
-			// Add the collision point for visualisation
-			double xPos = 0;
-			double yPos = 0;
-			double zPos = 0;
-			
-			for ( int i = 0; i < iCollisionMovement; i++ )
-			{
-				Double3D d3Movement = m_d3aMovements.get( i );
-				xPos += d3Movement.x;
-				yPos += d3Movement.y;
-				zPos += d3Movement.z;
-			}
-			
-			m_d3aCollisions.add( new Double3D( xPos, yPos, zPos ) );
-			
-			// Recheck for bounces and reregister with the grid
-			handleBounce();
-			registerCollisions( cgGrid );
-		}
-	}
-	
-	@Override
-	public boolean isStatic()
-	{
-		return false;
-	}
-	
-	@Override
-	public void registerCollisions( CollisionGrid cgGrid )
-	{
-		if ( cgGrid == null )
-		{
-			return;
-		}
-		
-		double dPosX = x;
-		double dPosY = y;
-		double dPosZ = z;
-		
-		for ( Double3D d3Movement : m_d3aMovements )
-		{
-			cgGrid.addLineToGrid( this, new Double3D( dPosX, dPosY, dPosZ ),
-					new Double3D( dPosX + d3Movement.x, dPosY + d3Movement.y, dPosZ + d3Movement.z ),
-					Options.BC.COLLISION_RADIUS );
-					
-			dPosX += d3Movement.x;
-			dPosY += d3Movement.y;
-			dPosZ += d3Movement.z;
-		}
-	}
 	
 	@Override
 	public void step( final SimState state )//why is this final here
 	{
+		//each Bcell registers its intended path on the collision grid, 
+		// once all B cells register the collision grid handles the movement
+		// at the next iteration the B cells are moved. B cells only collide 
+		// with stroma
 		m_i3lCollisionPoints.clear();
 		// If we have a stored movement, execute it
 		if ( m_d3aMovements != null && m_d3aMovements.size() > 0 )
@@ -377,6 +180,231 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		registerCollisions( m_cgGrid );
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Adds a collision point to the list
+	 * 
+	 * @param i3Point
+	 *            Coordinates for the collision
+	 */
+	@Override
+	public void addCollisionPoint( Int3D i3Point )
+	{
+		m_i3lCollisionPoints.add( i3Point );
+	}
+	
+	/**
+	 * @return the ENUM representing the type of Collidable this cell is (BC)
+	 */
+	@Override
+	public CLASS getCollisionClass()
+	{
+		return CLASS.BC;
+	}
+	
+	@Override
+	public Continuous3D getDrawEnvironment()
+	{
+		return drawEnvironment;
+	}
+	
+	@Override
+	public TransformGroup getModel( Object obj, TransformGroup transf )
+	{
+		// We choose to always recalculate this model because the movement
+		// changes in each time step.
+		// Removing the movement indicators and removing this true will make the
+		// 3d display a lot faster
+		if ( transf == null || true )
+		{
+			transf = new TransformGroup();//TODO what is a transform group
+			
+			// Draw the BC itself
+			SpherePortrayal3D s = new SpherePortrayal3D( Options.BC.DRAW_COLOR(), Options.BC.COLLISION_RADIUS * 2, 6 );
+			s.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
+			TransformGroup localTG = s.getModel( obj, null );
+			
+			localTG.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
+			transf.addChild( localTG );
+			
+			// If we have had any collisions, draw them as red circles
+			// TODO encapsulate as visualise collisions
+			if ( m_d3aCollisions.size() > 0 )
+			{
+				for ( Double3D d3Point : m_d3aCollisions )
+				{
+					SpherePortrayal3D s2 = new SpherePortrayal3D( Color.RED, 0.25, 6 );
+					s2.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
+					TransformGroup localTG2 = s2.getModel( obj, null );
+					
+					Transform3D tTransform = new Transform3D();
+					tTransform
+							.setTranslation( new Vector3f( (float) d3Point.x, (float) d3Point.y, (float) d3Point.z ) );
+							
+					localTG2.setTransform( tTransform );
+					
+					localTG2.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
+					transf.addChild( localTG2 );
+				}
+			}
+			
+			// If we have any movement, then draw it
+			// TODO are these the white lines that we see?
+			if ( m_d3aMovements.size() > 0 )
+			{
+				LineArray lineArr = new LineArray( m_d3aMovements.size() * 2, GeometryArray.COORDINATES );
+				lineArr.setCoordinate( 0, new Point3d( 0, 0, 0 ) );
+				
+				int i = 1;
+				double xPos = 0, yPos = 0, zPos = 0;
+				
+				for ( int iIndex = 0; iIndex < m_d3aMovements.size(); iIndex++ )
+				{
+					Double3D d3Movement = m_d3aMovements.get( iIndex );
+					
+					if ( i > 1 )
+					{
+						lineArr.setCoordinate( i, new Point3d( xPos, yPos, zPos ) );
+						i++;
+					}
+					xPos += d3Movement.x;
+					yPos += d3Movement.y;
+					zPos += d3Movement.z;
+					lineArr.setCoordinate( i, new Point3d( xPos, yPos, zPos ) );
+					i++;
+				}
+				Appearance aAppearance = new Appearance();
+				Color col = Color.white;
+				aAppearance.setColoringAttributes( new ColoringAttributes( col.getRed() / 255f, col.getGreen() / 255f,
+						col.getBlue() / 255f, ColoringAttributes.FASTEST ) );
+						
+				Shape3D s3Shape = new Shape3D( lineArr, aAppearance );
+				Shape3DPortrayal3D s2 = new Shape3DPortrayal3D( s3Shape, aAppearance );
+				s2.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
+				TransformGroup localTG2 = s2.getModel( obj, null );
+				
+				localTG2.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
+				transf.addChild( localTG2 );
+			}
+		}
+		return transf;
+	}
+	
+	@Override
+	public void registerCollisions( CollisionGrid cgGrid )
+
+	{
+		if ( cgGrid == null )
+		{
+			return;
+		}
+		
+		double dPosX = x;
+		double dPosY = y;
+		double dPosZ = z;
+		
+		//TODO need to get this bit of code explained
+		for ( Double3D d3Movement : m_d3aMovements )
+		{
+			cgGrid.addLineToGrid( this, new Double3D( dPosX, dPosY, dPosZ ),
+					new Double3D( dPosX + d3Movement.x, dPosY + d3Movement.y, dPosZ + d3Movement.z ),
+					Options.BC.COLLISION_RADIUS );
+					
+			dPosX += d3Movement.x;
+			dPosY += d3Movement.y;
+			dPosZ += d3Movement.z;
+		}
+	}
+	
+	
+	
+	
+	@Override
+	public void handleCollisions( CollisionGrid cgGrid )
+	{
+		if ( m_i3lCollisionPoints.size() == 0 )
+		{
+			return;
+		}
+		
+		// We're using a set because it stores values uniquely!
+		HashSet<Collidable> csCollidables = new HashSet<Collidable>();
+		
+		// Add all the cells to the set
+		for ( Int3D i3Point : m_i3lCollisionPoints )
+		{
+			for ( Collidable cCollidable : cgGrid.getPoints( i3Point ) )
+			{
+				csCollidables.add( cCollidable );
+			}
+		}
+		
+		boolean bCollision = false;
+		
+		// To keep a track of where we collided - we are only interested in the
+		// first collision so we can ignore
+		// anything after this
+		int iCollisionMovement = m_d3aMovements.size(); // TODO what is this line doing
+		
+		for ( Collidable cCell : csCollidables )
+		{
+			switch ( cCell.getCollisionClass() )
+			{
+				// These first two are the more likely hits as they won't be
+				// moving
+				case STROMA_EDGE:
+					if ( collideStromaEdge( (StromaEdge) cCell, iCollisionMovement ) )
+					{
+						iCollisionMovement = m_d3aMovements.size() - 1;
+						bCollision = true;
+					}
+					break;
+				case STROMA:
+					break;
+				case BC:
+					break;
+			}
+		}
+		
+		if ( bCollision )
+		{
+			// Add the collision point for visualisation
+			double xPos = 0;
+			double yPos = 0;
+			double zPos = 0;
+			
+			for ( int i = 0; i < iCollisionMovement; i++ )
+			{
+				Double3D d3Movement = m_d3aMovements.get( i );
+				xPos += d3Movement.x;
+				yPos += d3Movement.y;
+				zPos += d3Movement.z;
+			}
+			
+			m_d3aCollisions.add( new Double3D( xPos, yPos, zPos ) );
+			
+			// Recheck for bounces and reregister with the grid
+			handleBounce();
+			registerCollisions( cgGrid );
+		}
+	}
+	
+	@Override
+	public boolean isStatic()
+	{
+		return false;
+	}
+	
+
+
 	/**
 	 * Performs collision detection and handling with Stroma Edges (cylinders)
 	 * 
@@ -410,6 +438,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			// essentially solving a system of linear
 			// equations, and all the details are there.
 			// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
+			// section 5.1.8
 			// p146
 			
 			Double3D r = p1.subtract( p2 );
@@ -915,7 +944,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( displayGraph )
 		{
-			//Grapher.addPoint( m_iR_free ); //this gives an error when run on console
+			Grapher.addPoint( m_iR_free ); //this gives an error when run on console
 		}
 	}
 }

@@ -183,7 +183,7 @@ public class Options
 		 * NOTE: this is just a maximum. If there's no room to fit them all, it
 		 * won't keep trying
 		 */
-		public static int		COUNT			= 6000;
+		public static int		COUNT			= 3000;
 												
 		/**
 		 * used by Continuous3D - related to getting neighbours; the size of the
@@ -212,7 +212,7 @@ public class Options
 		 */
 		public static int CXCL13_EMITTED()
 		{
-			return 5;
+			return 500;
 		}
 		
 		/**
