@@ -414,6 +414,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 *            The movement to check collisions up to (this is to prevent
 	 *            colliding before bounces are handled)
 	 * @return true if a collision occurs
+	 * 
+	 * 
+	 * collideStomaEdge()
+	 * 	
+	 * 	check
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	private boolean collideStromaEdge( StromaEdge seEdge, int iCollisionMovement )
 	{
@@ -423,7 +432,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		for ( int i = 0; i < iCollisionMovement; i++ )
 		{
-			Double3D d1 = m_d3aMovements.get( i );
+			Double3D d1 = m_d3aMovements.get( i );//what is this variable
 			
 			// The two lines are p1 + s*d1 and p2 + t*d2
 			// We are essentially trying to find the closest point between the
@@ -438,30 +447,47 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			// essentially solving a system of linear
 			// equations, and all the details are there.
 			// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
-			// section 5.1.8
-			// p146
+			// section 5.1.8, 5.1.9 psuedocode p146
+			// see betterexplained trig and also dot product for intuitive understanding of how formulae are derived
+			// 
+			//Given a point S2(t) = P2 +td2 on a line segment, the closest point on another line is given by
+			// closest point = S2(t) - P1.d1/d1.d1
+			//
+			//take a point on the segment and then draw a vector from the point to the start point P1 of the line
+			// the dot product is just the projection of that vector onto the line (remember cos gives you the x-axis 
+			// we are just making the line the x-axis). 
+			//
 			
-			Double3D r = p1.subtract( p2 );
+			Double3D r = p1.subtract( p2 ); // p1 - p2
 			
-			double a = Vector3DHelper.dotProduct( d1, d1 );
-			double b = Vector3DHelper.dotProduct( d1, d2 );
+			double a = Vector3DHelper.dotProduct( d1, d1 ); //squared length of segment s1, always positive
+			double b = Vector3DHelper.dotProduct( d1, d2 ); 
 			double c = Vector3DHelper.dotProduct( d1, r );
-			double e = Vector3DHelper.dotProduct( d2, d2 );
+			double e = Vector3DHelper.dotProduct( d2, d2 ); // squared length of segment s2, always positive
 			double f = Vector3DHelper.dotProduct( d2, r );
 			
-			// differing from the link, we assume that neither are points (zero
-			// length)
+			// differing from the link, dealing with lines so dont need to account for points
+			//we therefore assume that neither are points (zero length)
 			
+			
+			//(d1.d1)(d2.d2) - (d1.d2)(d1.d2)
 			double denom = a * e - b * b; // >= 0
 			
-			// not parallel, so compute closest point and clamp to segment 1
+			// if segments not parallel, compute closest point on L1 to L2
+			// and clamp to segment S1. Else pick arbritrary closest point S
+			// so compute closest point and clamp to segment 1
 			if ( denom != 0 )
 			{
 				s = Math.min( 1.0, Math.max( 0.0, (b * f - c * e) / denom ) );
 			}
 			
-			t = b * s + f;
+			//compute point on L2 closest to S1(s) using
+			// t = Dot((P1+D1*s)-P1,D1)/Dot(D2,D2) = (b*s + f/e)
 			
+			t = b * s + f;//divide by e at the end to optimise p.151
+			
+			// if t in [0,1] done. Else, clamp t, recompute s for the new value
+			// of t using s = Dot((P2 + D2*s) - P1,D1) / Dot(D1,D1) = (t*b - c) / a
 			if ( t < 0 )
 			{
 				t = 0;
@@ -479,28 +505,48 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			
 			// So c1 and c2 are the points on the two lines which are closest to
 			// one another
+			// c1 = P1 + s.d1
+			// c2 = P2 + s.d2
 			Double3D c1 = p1.add( d1.multiply( s ) );
 			Double3D c2 = p2.add( d2.multiply( t ) );
 			
+			
+			//remember that the dot product of a vector times a vector equals its length squared
 			double length = Vector3DHelper.dotProduct( c1.subtract( c2 ), c1.subtract( c2 ) );
 			
-			boolean bCollide = false;
+			// TODO all the code in this method up to this point should be encapsulated
 			
+			
+			
+			
+			
+			
+			
+			
+			//Now we have found the shortest point betweeen b cell and stroma, they may have interacted long before this
+			// need to find the exact point sNew at which they interact
+			// TODO this bit of code could definitely be optimised but just need to figure out a way to do so
+			// TODO encapsulate as find intialInteractionPoint
+			
+			
+			//and some guards for if not colliding but need to seperate out as this are different tasks
+			
+			boolean bCollide = false; //what is this variable doing
 			// If the length is within a range (note: we use length*1.05 to
 			// improve computation time. It is a good approximation
-			if (  length < BC_SE_COLLIDE_DIST_SQ )
+			if (  length < BC_SE_COLLIDE_DIST_SQ ) //if the distance between the B cell and the stroma is lower than a threshold
 			{
-				bCollide = true;
-				double sNew = s;
+				bCollide = true;  // set the collision flag for the B cell to true
+				double sNew = s; // TODO what is this variable doing
+				
 				
 				// We want to find the actual point we collide so let's
-				// backtrack a bit. We use 1.02 so this process doesn't go
-				// on forever. We don't get the exact point, but this does add a
+				// backtrack a bit. . We don't get the exact point, but this does add a
 				// little elasticity
 				// Basically repeat the process until we go over
 				while (length < BC_SE_COLLIDE_DIST_SQ && s > 0 && s < 1)
 				{
-					s = sNew;
+					s = sNew; 
 					// (Options.BC.COLLISION_RADIUS +
 					// Options.FDC.STROMA_EDGE_RADIUS-Math.sqrt(length)) is the
 					// length we're missing
@@ -511,6 +557,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 					
 					sNew = Math.max( 0, s-(0.02+Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - dActualLength)/(dSinTheta*d1.length()) );/**/
 					
+					
+					//TODO what is this code for
 					/*sNew = Math.max( 0,
 							s - (0.1 + Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - Math.sqrt( length ))
 									/ d1.length() );/**/
@@ -539,6 +587,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				}
 			}
 			
+		
 			if ( s == 0 )
 			{
 				Double3D d3Vec = c1.subtract( c2 );
@@ -554,9 +603,14 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				bCollide = false;
 			}
 			
-			// if we collide, check if the nearest point isn't at the end. If it
-			// is, then we've already collided with something in
-			// a previous step so don't bother
+			
+			
+			
+			
+			
+			// handles the actual collision, as in performs bounces!!
+			// TODO encapsulate
+			
 			if ( bCollide )
 			{
 				Double3D d3NewDir;
@@ -682,6 +736,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * Bounces the cell back inside the boundaries Very long method! There's a
 	 * lot of repeated code, but it's hard to efficiently abstract it out into
 	 * more methods.
+	 * if the B cell gets to the border of the simulation it has to bounce back
+	 * as space is non-toroidal, much trickier in 3D than 2D
 	 */
 	private void handleBounce()
 	{
