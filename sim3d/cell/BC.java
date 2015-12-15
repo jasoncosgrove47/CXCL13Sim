@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
 import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.GeometryArray;
@@ -68,24 +69,28 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * used to make sure we only have one reporting!
 	 */
 	public boolean				displayGraph			= false;
-														
+					
+	
+	//TODO add these to options
+	
+	
 	/**
 	 * (ODE) Ligand-Receptor Complexes
 	 */
-	public int					m_iL_r					= 500;
+	public int					m_iL_r					= Options.BC.ODE.LR();
 	/**
 	 * (ODE) Desensitised Receptor
 	 */
-	public int					m_iR_d					= 500;
+	public int					m_iR_d					= Options.BC.ODE.Rd();
 	/**
 	 * (ODE) Free Receptors on cell surface
 	 */
-	public int					m_iR_free				= 10000;
+	public int					m_iR_free				= Options.BC.ODE.Rf();
 														
 	/**
 	 * (ODE) Internalised Receptor
 	 */
-	public int					m_iR_i					= 1000;
+	public int					m_iR_i					= Options.BC.ODE.Ri();
 														
 	/**
 	 * The direction the cell is facing; used for movement
@@ -110,15 +115,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 	
 	
-	
-	
+	/**
+	 * each Bcell registers its intended path on the collision grid, once all B cells register 
+	 * the collision grid handles the movement at the next iteration the B cells are moved. 
+	 * B cells only collide with stroma
+	 */
 	@Override
 	public void step( final SimState state )//why is this final here
 	{
-		//each Bcell registers its intended path on the collision grid, 
-		// once all B cells register the collision grid handles the movement
-		// at the next iteration the B cells are moved. B cells only collide 
-		// with stroma
+		
 		m_i3lCollisionPoints.clear();
 		// If we have a stored movement, execute it
 		if ( m_d3aMovements != null && m_d3aMovements.size() > 0 )
@@ -181,19 +186,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * Adds a collision point to the list
-	 * 
-	 * @param i3Point
-	 *            Coordinates for the collision
+	 * @param i3Point Coordinates for the collision
 	 */
 	@Override
 	public void addCollisionPoint( Int3D i3Point )
@@ -216,87 +211,130 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		return drawEnvironment;
 	}
 	
-	@Override
-	public TransformGroup getModel( Object obj, TransformGroup transf )
+	
+	
+
+
+	
+	////////////////////////////////////////////  Migration ////////////////////////////////////////////////////////
+	
+	
+	///////////////////// ODE ////////////////////////////
+	/**
+	 * Perform a step for the receptor TODO: this assumes a timestep of 1
+	 * second!
+	 * 
+	 * TODO go back to the way that we did it.
+	 */
+	private void receptorStep()
 	{
-		// We choose to always recalculate this model because the movement
-		// changes in each time step.
-		// Removing the movement indicators and removing this true will make the
-		// 3d display a lot faster
-		if ( transf == null || true )
+		// Euler method with step size 0.1
+		// TODO better methods exist, but this was quick to implement
+		int iTimesteps = 10;
+		int iR_i, iR_d, iL_r;
+		for ( int i = 0; i < iTimesteps; i++ )
 		{
-			transf = new TransformGroup();//TODO what is a transform group
+			iR_i = m_iR_i;
+			iR_d = m_iR_d;
+			iL_r = m_iL_r;
 			
-			// Draw the BC itself
-			SpherePortrayal3D s = new SpherePortrayal3D( Options.BC.DRAW_COLOR(), Options.BC.COLLISION_RADIUS * 2, 6 );
-			s.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
-			TransformGroup localTG = s.getModel( obj, null );
-			
-			localTG.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
-			transf.addChild( localTG );
-			
-			// If we have had any collisions, draw them as red circles
-			// TODO encapsulate as visualise collisions
-			if ( m_d3aCollisions.size() > 0 )
-			{
-				for ( Double3D d3Point : m_d3aCollisions )
-				{
-					SpherePortrayal3D s2 = new SpherePortrayal3D( Color.RED, 0.25, 6 );
-					s2.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
-					TransformGroup localTG2 = s2.getModel( obj, null );
-					
-					Transform3D tTransform = new Transform3D();
-					tTransform
-							.setTranslation( new Vector3f( (float) d3Point.x, (float) d3Point.y, (float) d3Point.z ) );
-							
-					localTG2.setTransform( tTransform );
-					
-					localTG2.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
-					transf.addChild( localTG2 );
-				}
-			}
-			
-			// If we have any movement, then draw it
-			// TODO are these the white lines that we see?
-			if ( m_d3aMovements.size() > 0 )
-			{
-				LineArray lineArr = new LineArray( m_d3aMovements.size() * 2, GeometryArray.COORDINATES );
-				lineArr.setCoordinate( 0, new Point3d( 0, 0, 0 ) );
-				
-				int i = 1;
-				double xPos = 0, yPos = 0, zPos = 0;
-				
-				for ( int iIndex = 0; iIndex < m_d3aMovements.size(); iIndex++ )
-				{
-					Double3D d3Movement = m_d3aMovements.get( iIndex );
-					
-					if ( i > 1 )
-					{
-						lineArr.setCoordinate( i, new Point3d( xPos, yPos, zPos ) );
-						i++;
-					}
-					xPos += d3Movement.x;
-					yPos += d3Movement.y;
-					zPos += d3Movement.z;
-					lineArr.setCoordinate( i, new Point3d( xPos, yPos, zPos ) );
-					i++;
-				}
-				Appearance aAppearance = new Appearance();
-				Color col = Color.white;
-				aAppearance.setColoringAttributes( new ColoringAttributes( col.getRed() / 255f, col.getGreen() / 255f,
-						col.getBlue() / 255f, ColoringAttributes.FASTEST ) );
-						
-				Shape3D s3Shape = new Shape3D( lineArr, aAppearance );
-				Shape3DPortrayal3D s2 = new Shape3DPortrayal3D( s3Shape, aAppearance );
-				s2.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
-				TransformGroup localTG2 = s2.getModel( obj, null );
-				
-				localTG2.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
-				transf.addChild( localTG2 );
-			}
+			m_iR_d += (int) ((1.0 / iTimesteps) * iL_r * iL_r
+					/ (Options.BC.ODE.gamma() * (1 + Math.pow( iL_r / Options.BC.ODE.delta(), 2 ) + iL_r)))
+					- (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iR_d);
+			m_iR_i += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iR_d)
+					- (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
+			m_iR_free += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
+			m_iL_r -= (int) ((1.0 / iTimesteps) * iL_r * iL_r
+					/ (Options.BC.ODE.gamma() * (1 + Math.pow( iL_r / Options.BC.ODE.delta(), 2 ) + iL_r)));
 		}
-		return transf;
+		
+		if ( displayGraph )
+		{
+			Grapher.addPoint( m_iR_free ); //this gives an error when run on console
+		}
 	}
+	
+	
+	/////////////////////////// Vector Model //////////////////////////////////
+	
+	
+	/**
+	 * 
+	 * TODO: This method is overly complicated, just need to assume receptors are spread throughout the cell
+	 *       
+	 *       
+	 * Definitely, need some unit tests for this method
+	 * 
+	 *       
+	 * Samples CXCL13 in the vicinity of the cell, and calculates a new movement
+	 * direction. Also removes some CXCL13 from the simulation.
+	 * 
+	 * Should just remove it at the gridpoint where you actually are
+	 * 
+	 * @return The new direction for the cell to move
+	 */
+	private Double3D getMoveDirection()
+	{
+		
+		// TODO encapsulate as getReceptorsBound
+		
+		// Get the surrounding concentrations
+		int[][][] ia3Concs = Particle.get( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z );
+		
+		// Assume the receptors are spread evenly around the cell
+		int iReceptors = m_iR_free / 6;
+		
+		// get CXCL13 concentrations at each psuedopod
+		// {x+, x-, y+, y-, z+, z-}
+		int[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
+				ia3Concs[1][1][0] };
+				
+		int[] iaBoundReceptors = new int[6]; //stores how many receptors are bound at each psuedopod
+		// TODO this is just 1s!!
+		
+		
+		//TODO why is this here, we update the receptors elsewhere
+		for ( int i = 0; i < 6; i++ )
+		{
+			iaBoundReceptors[i] = (int) (Options.BC.ODE.K_a() * Math.sqrt( iReceptors * iaConcs[i] ));
+			m_iR_free -= iaBoundReceptors[i];
+			m_iL_r += iaBoundReceptors[i];
+		}
+		
+		
+		
+		//encapsulate as removeReceptorsFrom Grid
+		
+		// Remove chemokine from the grid TODO: Just remove from where you are!!
+		Particle.add( Particle.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -iaBoundReceptors[0] );
+		Particle.add( Particle.TYPE.CXCL13, (int) x - 1, (int) y, (int) z, -iaBoundReceptors[1] );
+		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y + 1, (int) z, -iaBoundReceptors[2] );
+		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y - 1, (int) z, -iaBoundReceptors[3] );
+		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z + 1, -iaBoundReceptors[4] );
+		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z - 1, -iaBoundReceptors[5] );
+		
+		//calculateMovementVector
+		
+		Double3D vMovement = new Double3D(); //the new direction for the cell to move
+		
+		
+		// X
+		vMovement = vMovement.add( new Double3D( 1, 0, 0 ).multiply( iaBoundReceptors[0] - iaBoundReceptors[1] ) );
+		// Y
+		vMovement = vMovement.add( new Double3D( 0, 1, 0 ).multiply( iaBoundReceptors[2] - iaBoundReceptors[3] ) );
+		// Z
+		vMovement = vMovement.add( new Double3D( 0, 0, 1 ).multiply( iaBoundReceptors[4] - iaBoundReceptors[5] ) );
+		
+		return vMovement;
+	}
+	
+	
+	
+	
+	/////////////////////// Collisions and Bounces //////////////////////////
+	
+	
+	
 	
 	@Override
 	public void registerCollisions( CollisionGrid cgGrid )
@@ -311,7 +349,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		double dPosY = y;
 		double dPosZ = z;
 		
-		//TODO need to get this bit of code explained
+		
 		for ( Double3D d3Movement : m_d3aMovements )
 		{
 			cgGrid.addLineToGrid( this, new Double3D( dPosX, dPosY, dPosZ ),
@@ -350,9 +388,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		boolean bCollision = false;
 		
 		// To keep a track of where we collided - we are only interested in the
-		// first collision so we can ignore
-		// anything after this
-		int iCollisionMovement = m_d3aMovements.size(); // TODO what is this line doing
+		// first collision so we can ignore anything after this
+		int iCollisionMovement = m_d3aMovements.size(); 
 		
 		for ( Collidable cCell : csCollidables )
 		{
@@ -404,8 +441,292 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	}
 	
 
+	
+	
+	
+
+	
+	
+	private List<Double> findClosestPointsBetween(int i, Double3D p1, Double3D p2,Double3D d1, Double3D d2,double denom,double s, double t,double a
+			,double b, double c, double e, double f)
+	{
+			
+		
+			// if segments not parallel, compute closest point on L1 to L2
+			// and clamp to segment S1. Else pick arbritrary closest point S
+			// so compute closest point and clamp to segment 1
+			if ( denom != 0 )
+				{
+					s = Math.min( 1.0, Math.max( 0.0, (b * f - c * e) / denom ) );
+				}
+					
+			//compute point on L2 closest to S1(s) using
+			// t = Dot((P1+D1*s)-P1,D1)/Dot(D2,D2) = (b*s + f/e)
+					
+			t = b * s + f;//divide by e at the end to optimise p.151
+					
+			// if t in [0,1] done. Else, clamp t, recompute s for the new value
+			// of t using s = Dot((P2 + D2*s) - P1,D1) / Dot(D1,D1) = (t*b - c) / a
+			if ( t < 0 )
+			{
+				t = 0;
+				s = Math.max( 0, Math.min( 1, -c / a ) );
+			}
+			else if ( t > e )
+			{
+				t = 1;
+					s = Math.max( 0, Math.min( 1, (b - c) / a ) );
+			}
+			else
+			{
+				t /= e;
+			}
+					
+		
+			List<Double>	closestPoints= new ArrayList<Double>();
+			closestPoints.add(s);
+			closestPoints.add(t);
+	
+			return closestPoints;
+	}
+	
+	
+	
+	
+	private Double findInitialCollisionPoint(StromaEdge seEdge, double s, double length, double e, double f, Double3D d1, Double3D d2, Double3D p1, Double3D p2)
+	{
+		//TODO once figure out which collideStromaEdge to use
+		// definite scope for some recursion here
+		return length;
+	}
+	
+	/**
+	 * Updated version of the algorithm - does not pass test cases
+	 * @param seEdge
+	 * @param iCollisionMovement
+	 * @return
+	 */
+	//new version
+	private boolean collideStromaEdgeNew( StromaEdge seEdge, int iCollisionMovement )
+	{
+		Double3D p1 = new Double3D( x, y, z );
+		Double3D p2 = seEdge.getPoint1();
+		Double3D d2 = seEdge.getPoint2().subtract( p2 );
+		
+		for ( int i = 0; i < iCollisionMovement; i++ )
+		{
+			Double3D d1 = m_d3aMovements.get( i );
+			
+			// The two lines are p1 + s*d1 and p2 + t*d2
+			// We are essentially trying to find the closest point between the
+			// lines because that's an easy problem
+			// using the fact that the line between them would be orthogonal to
+			// both lines
+			
+			double s = 0;
+			double t = 0;
+			
+			// This is all vector math explained in the following link. We are
+			// essentially solving a system of linear
+			// equations, and all the details are there.
+			// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
+			// p146
+			
+			Double3D r = p1.subtract( p2 );
+			
+			double a = Vector3DHelper.dotProduct( d1, d1 );
+			double b = Vector3DHelper.dotProduct( d1, d2 );
+			double c = Vector3DHelper.dotProduct( d1, r );
+			double e = Vector3DHelper.dotProduct( d2, d2 );
+			double f = Vector3DHelper.dotProduct( d2, r );
+			
+			// differing from the link, we assume that neither are points (zero
+			// length)
+			
+			double denom = a * e - b * b; // >= 0
+			
+			// not parallel, so compute closest point and clamp to segment 1
+			if ( denom != 0 )
+			{
+				s = Math.min( 1.0, Math.max( 0.0, (b * f - c * e) / denom ) );
+			}
+			
+			t = b * s + f;
+			
+			if ( t < 0 )
+			{
+				t = 0;
+				s = Math.max( 0, Math.min( 1, -c / a ) );
+			}
+			else if ( t > e )
+			{
+				t = 1;
+				s = Math.max( 0, Math.min( 1, (b - c) / a ) );
+			}
+			else
+			{
+				t /= e;
+			}
+			
+			// So c1 and c2 are the points on the two lines which are closest to
+			// one another
+			Double3D c1 = p1.add( d1.multiply( s ) );
+			Double3D c2 = p2.add( d2.multiply( t ) );
+			
+			double length = Vector3DHelper.dotProduct( c1.subtract( c2 ), c1.subtract( c2 ) );
+			
+			boolean bCollide = false;
+			
+			// If the length is within a range (note: we use length*1.05 to
+			// improve computation time. It is a good approximation
+			if (  length < BC_SE_COLLIDE_DIST_SQ )
+			{
+				bCollide = true;
+				double sNew = s;
+				
+				// We want to find the actual point we collide so let's
+				// backtrack a bit. We use 1.02 so this process doesn't go
+				// on forever. We don't get the exact point, but this does add a
+				// little elasticity
+				// Basically repeat the process until we go over
+				while (length < BC_SE_COLLIDE_DIST_SQ && s > 0 && s < 1)
+				{
+					s = sNew;
+					// (Options.BC.COLLISION_RADIUS +
+					// Options.FDC.STROMA_EDGE_RADIUS-Math.sqrt(length)) is the
+					// length we're missing
+					// So we just add that on. TODO If lines are basically
+					// parallel, this might take a while
+					double dSinTheta = Math.sqrt( Vector3DHelper.crossProduct( d2, d1 ).lengthSq()/(d2.lengthSq()*d1.lengthSq()) ); // sin th
+					double dActualLength = Math.sqrt( length );
+					
+					sNew = Math.max( 0, s-(0.02+Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - dActualLength)/(dSinTheta*d1.length()) );/**/
+					
+					/*sNew = Math.max( 0,
+							s - (0.1 + Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - Math.sqrt( length ))
+									/ d1.length() );/**/
+
+					//TODO this section isn't very efficient which is unfortunate given how often it will be run...
+					// Firstly, if t==0 or t==1 then the above will be an awful approximation. I think the math was ok, but I'm not 100%...
+					
+					
+					// Collision Detection p. 130
+					// ab = d2, ac = point - p2, bc = point - seEdge.getPoint2()
+					Double3D ac = p1.add( d1.multiply( sNew ) ).subtract(p2);
+					Double3D bc = p1.add( d1.multiply( sNew ) ).subtract(seEdge.getPoint2());
+					e = Vector3DHelper.dotProduct( ac, d2 );
+					
+					if ( e <= 0 )
+					{
+						length = Vector3DHelper.dotProduct( ac, ac );
+					}
+					else
+					{
+						f = Vector3DHelper.dotProduct( d2, d2 );
+						
+						if ( e >= f )
+						{
+							length = Vector3DHelper.dotProduct( bc, bc );
+						}
+						else
+						{
+							length = Vector3DHelper.dotProduct( ac, ac ) - e*e/f;
+						}
+					}
+				}
+			}
+			
+			if ( s == 0 )
+			{
+				Double3D d3Vec = c1.subtract( c2 );
+				
+				// we're already moving away!
+				if ( Vector3DHelper.dotProduct( d3Vec, d1 ) > 0 )
+				{
+					bCollide = false;
+				}
+			}
+			else if ( s == 1 )
+			{
+				bCollide = false;
+			}
+			
+			// if we collide, check if the nearest point isn't at the end. If it
+			// is, then we've already collided with something in
+			// a previous step so don't bother
+			if ( bCollide )
+			{
+				Double3D d3NewDir;
+				
+				// Get the approach direction normalised, and in reverse
+				Double3D d3MovementNormal = d1.multiply( -1 ).normalize();
+				
+				// We hit bang in the middle so just bounce - unlikely!
+				if ( length == 0 )
+				{
+					d3NewDir = d3MovementNormal;
+				}
+				else
+				{
+					// Calculate the direction from the stroma collision point
+					// to the BC collision point
+					Double3D d3BounceNormal = p1.add( d1.multiply( s ) ).subtract( p2.add( d2.multiply( t ) ) )
+							.normalize();
+							
+					// reflect the movement normal about this point (rotate to
+					// it, and apply the same rotation again)
+					d3NewDir = Vector3DHelper.rotateVectorToVector( d3MovementNormal, d3MovementNormal,
+							d3BounceNormal );
+					d3NewDir = Vector3DHelper.rotateVectorToVector( d3NewDir, d3MovementNormal, d3BounceNormal );
+				}
+				
+				// Set the new movement
+				d1 = d1.multiply( s );
+				
+				if ( d1.lengthSq() > 0 )
+				{
+					m_d3aMovements.set( i, d1 );
+					i++;
+				}
+				
+				// We need to add up all vectors after this one so we can add a
+				// new vector of this length
+				double dNewLength = 0;
+				while (m_d3aMovements.size() > i)
+				{
+					dNewLength += m_d3aMovements.get( i ).length();
+					m_d3aMovements.remove( i );
+				}
+				
+				// add the remaining length of the current movement
+				dNewLength += d1.length() * (1 - s);
+				
+				// slow down based on how fast we changed direction
+				dNewLength *= (2+Vector3DHelper.dotProduct( d3NewDir, d3MovementNormal ))/3;
+				
+				d3NewDir = d3NewDir.multiply( dNewLength );
+				
+				if ( d3NewDir.lengthSq() > 0 )
+				{
+					m_d3aMovements.add( d3NewDir );
+				}
+				
+				return true;
+			}
+			else
+			{
+				// Move the BC location according to full the movement.
+				p1 = p1.add( d1 );
+			}
+		}
+		
+		return false;
+	}
+	
 
 	/**
+	 * Old Version
+	 * 
 	 * Performs collision detection and handling with Stroma Edges (cylinders)
 	 * 
 	 * @param seEdge
@@ -415,14 +736,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 *            colliding before bounces are handled)
 	 * @return true if a collision occurs
 	 * 
-	 * 
-	 * collideStomaEdge()
-	 * 	
-	 * 	check
-	 * 
-	 * 
-	 * 
-	 * 
 	 */
 	private boolean collideStromaEdge( StromaEdge seEdge, int iCollisionMovement )
 	{
@@ -430,8 +743,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		Double3D p2 = seEdge.getPoint1();
 		Double3D d2 = seEdge.getPoint2().subtract( p2 );
 		
+		
+		//TODO encapsulate as getShortestPoint, returns the shortest point between stromal edge and a B cell
 		for ( int i = 0; i < iCollisionMovement; i++ )
 		{
+			
+			
+		
 			Double3D d1 = m_d3aMovements.get( i );//what is this variable
 			
 			// The two lines are p1 + s*d1 and p2 + t*d2
@@ -469,64 +787,37 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			// differing from the link, dealing with lines so dont need to account for points
 			//we therefore assume that neither are points (zero length)
 			
-			
 			//(d1.d1)(d2.d2) - (d1.d2)(d1.d2)
 			double denom = a * e - b * b; // >= 0
 			
-			// if segments not parallel, compute closest point on L1 to L2
-			// and clamp to segment S1. Else pick arbritrary closest point S
-			// so compute closest point and clamp to segment 1
-			if ( denom != 0 )
-			{
-				s = Math.min( 1.0, Math.max( 0.0, (b * f - c * e) / denom ) );
-			}
+		
 			
-			//compute point on L2 closest to S1(s) using
-			// t = Dot((P1+D1*s)-P1,D1)/Dot(D2,D2) = (b*s + f/e)
+			//TODO chat with simon about this there may be an error as not definitely orthogonal
+			List<Double>closestPoints= findClosestPointsBetween(i,p1,p2,d1,d2,denom,s,t,a,b,c,e,f);
 			
-			t = b * s + f;//divide by e at the end to optimise p.151
-			
-			// if t in [0,1] done. Else, clamp t, recompute s for the new value
-			// of t using s = Dot((P2 + D2*s) - P1,D1) / Dot(D1,D1) = (t*b - c) / a
-			if ( t < 0 )
-			{
-				t = 0;
-				s = Math.max( 0, Math.min( 1, -c / a ) );
-			}
-			else if ( t > e )
-			{
-				t = 1;
-				s = Math.max( 0, Math.min( 1, (b - c) / a ) );
-			}
-			else
-			{
-				t /= e;
-			}
+			s = closestPoints.get(0);
+			t = closestPoints.get(1);
 			
 			// So c1 and c2 are the points on the two lines which are closest to
 			// one another
 			// c1 = P1 + s.d1
-			// c2 = P2 + s.d2
+			// c2 = P2 + t.d2
 			Double3D c1 = p1.add( d1.multiply( s ) );
 			Double3D c2 = p2.add( d2.multiply( t ) );
-			
 			
 			//remember that the dot product of a vector times a vector equals its length squared
 			double length = Vector3DHelper.dotProduct( c1.subtract( c2 ), c1.subtract( c2 ) );
 			
-			// TODO all the code in this method up to this point should be encapsulated
 			
+		
 			
-			
-			
-			
-			
+	
 			
 			
 			//Now we have found the shortest point betweeen b cell and stroma, they may have interacted long before this
 			// need to find the exact point sNew at which they interact
 			// TODO this bit of code could definitely be optimised but just need to figure out a way to do so
-			// TODO encapsulate as find intialInteractionPoint
+			// TODO encapsulate as find intialInteractionPoint TODO not until i see simons fix for this
 			
 			
 			//and some guards for if not colliding but need to seperate out as this are different tasks
@@ -680,62 +971,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		return false;
 	}
 	
-	/**
-	 * Samples CXCL13 in the vicinity of the cell, and calculates a new movement
-	 * direction. Also removes some CXCL13 from the simulation.
-	 * 
-	 * Should just remove it at the gridpoint where you actually are
-	 * 
-	 * @return The new direction for the cell to move
-	 */
-	private Double3D getMoveDirection()
-	{
-		// Get the surrounding concentrations
-		int[][][] ia3Concs = Particle.get( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z );
-		
-		// Assume the receptors are spread evenly around the cell
-		int iReceptors = m_iR_free / 6;
-		
-		// {x+, x-, y+, y-, z+, z-}
-		int[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
-				ia3Concs[1][1][0] };
-				
-		int[] iaBoundReceptors = new int[6];
-		// TODO this is just 1s!!
-		
-		
-		//TODO why is this here, we update the receptors elsewhere
-		for ( int i = 0; i < 6; i++ )
-		{
-			iaBoundReceptors[i] = (int) (Options.BC.ODE.K_a() * Math.sqrt( iReceptors * iaConcs[i] ));
-			m_iR_free -= iaBoundReceptors[i];
-			m_iL_r += iaBoundReceptors[i];
-		}
-		
-		// Remove chemokine from the grid
-		Particle.add( Particle.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -iaBoundReceptors[0] );
-		Particle.add( Particle.TYPE.CXCL13, (int) x - 1, (int) y, (int) z, -iaBoundReceptors[1] );
-		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y + 1, (int) z, -iaBoundReceptors[2] );
-		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y - 1, (int) z, -iaBoundReceptors[3] );
-		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z + 1, -iaBoundReceptors[4] );
-		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z - 1, -iaBoundReceptors[5] );
-		
-		Double3D vMovement = new Double3D();
-		
-		// X
-		vMovement = vMovement.add( new Double3D( 1, 0, 0 ).multiply( iaBoundReceptors[0] - iaBoundReceptors[1] ) );
-		// Y
-		vMovement = vMovement.add( new Double3D( 0, 1, 0 ).multiply( iaBoundReceptors[2] - iaBoundReceptors[3] ) );
-		// Z
-		vMovement = vMovement.add( new Double3D( 0, 0, 1 ).multiply( iaBoundReceptors[4] - iaBoundReceptors[5] ) );
-		
-		return vMovement;
-	}
+
 	
+	
+
 	/**
 	 * Bounces the cell back inside the boundaries Very long method! There's a
 	 * lot of repeated code, but it's hard to efficiently abstract it out into
 	 * more methods.
+	 * 
+	 * TODO a high level overview of algorithm in the description
+	 * 
 	 * if the B cell gets to the border of the simulation it has to bounce back
 	 * as space is non-toroidal, much trickier in 3D than 2D
 	 */
@@ -767,7 +1013,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			double dNewPosY = dPosY;
 			double dNewPosZ = dPosZ;
 			
-			// add all movement vectors after the index
+			// add all movement vectors after the index, 
+			// TODO why do we break up all of the movements like this, what do these variables represent
 			for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
 			{
 				Double3D d3Movement = m_d3aMovements.get( i );
@@ -776,231 +1023,338 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				dNewPosZ += d3Movement.z;
 			}
 			
-			// If we go out of bounds on either side
-			if ( dNewPosX > Options.WIDTH - 1 || dNewPosX < 1 )
+		
+			if ( dNewPosX > Options.WIDTH - 1 || dNewPosX < 1 ) // Out of bounds on X axis
 			{
-				// There might be multiple vectors, so we need to keep track
-				// of position, and whether we've hit the wall yet or not
-				double dTempPosX = dPosX;
-				boolean bFlipped = false;
-				
-				for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
-				{
-					Double3D d3Movement = m_d3aMovements.get( i );
-					
-					// if we have already hit the wall, we just flip the x axis
-					// of all the remaining movements
-					if ( bFlipped )
-					{
-						m_d3aMovements.set( i, new Double3D( -d3Movement.x, d3Movement.y, d3Movement.z ) );
-						continue;
-					}
-					
-					// does this sub movement go out of bounds
-					if ( dTempPosX + d3Movement.x < 1 || dTempPosX + d3Movement.x > Options.WIDTH - 1 )
-					{
-						// Figure out at which point it goes out
-						double dCutOff = 1;
-						if ( dTempPosX + d3Movement.x < 1 )
-						{
-							dCutOff = (1 - dTempPosX) / d3Movement.x;
-						}
-						else
-						{
-							dCutOff = ((Options.WIDTH - 1) - dTempPosX) / d3Movement.x;
-						}
-						
-						// Create 2 new vectors split at the cutoff point, the
-						// latter mirrored along the y axis
-						Double3D d3TruncMovement = d3Movement.multiply( dCutOff );
-						Double3D d3Remainder = new Double3D( -d3Movement.x + d3TruncMovement.x,
-								d3Movement.y - d3TruncMovement.y, d3Movement.z - d3TruncMovement.z );
-								
-						// Replace the current one, then add the new one after
-						// it
-						if ( d3TruncMovement.lengthSq() > 0 )
-						{
-							m_d3aMovements.set( i, d3TruncMovement );
-							m_d3aMovements.add( i + 1, d3Remainder );
-							
-							// if we don't increment i, it will get flipped
-							// again!
-							i++;
-						}
-						else
-						{
-							m_d3aMovements.set( i, d3Remainder );
-						}
-						
-						bFlipped = true;
-						bBounce = true;
-					}
-					
-					dTempPosX += d3Movement.x;
-				}
+				bBounce = handleBounceXaxis(dPosX, iMovementIndex);
 			}
 			
-			// If we go out of bounds at the top or bottom in the overall
-			// movement
-			if ( dNewPosY > Options.HEIGHT - 1 || dNewPosY < 1 )
-			{
-				// There might be multiple vectors now, so we need to keep track
-				// of position, and whether we've hit the wall yet or not
-				double dTempPosY = dPosY;
-				boolean bFlipped = false;
-				
-				for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
-				{
-					Double3D d3Movement = m_d3aMovements.get( i );
-					
-					// if we have already hit the wall, we just flip the y axis
-					// of all the remaining movements
-					if ( bFlipped )
-					{
-						m_d3aMovements.set( i, new Double3D( d3Movement.x, -d3Movement.y, d3Movement.z ) );
-						continue;
-					}
-					
-					// does this sub movement go out of bounds
-					if ( dTempPosY + d3Movement.y < 1 || dTempPosY + d3Movement.y > Options.HEIGHT - 1 )
-					{
-						// Figure out at which point it goes out
-						double dCutOff = 1;
-						if ( dTempPosY + d3Movement.y < 1 )
-						{
-							dCutOff = (1 - dTempPosY) / d3Movement.y;
-						}
-						else
-						{
-							dCutOff = ((Options.HEIGHT - 1) - dTempPosY) / d3Movement.y;
-						}
-						
-						// Create 2 new vectors split at the cutoff point, the
-						// latter mirrored along the y axis
-						Double3D d3TruncMovement = d3Movement.multiply( dCutOff );
-						Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x,
-								-d3Movement.y + d3TruncMovement.y, d3Movement.z - d3TruncMovement.z );
-								
-						// Replace the current one, then add the new one after
-						// it
-						if ( d3TruncMovement.lengthSq() > 0 )
-						{
-							m_d3aMovements.set( i, d3TruncMovement );
-							m_d3aMovements.add( i + 1, d3Remainder );
-							
-							// if we don't increment i, it will get flipped
-							// again!
-							i++;
-						}
-						else
-						{
-							m_d3aMovements.set( i, d3Remainder );
-						}
-						
-						bFlipped = true;
-						bBounce = true;
-					}
-					
-					dTempPosY += d3Movement.y;
-				}
+			if ( dNewPosY > Options.HEIGHT - 1 || dNewPosY < 1 ) // out of bounds on Y axis
+			{	
+				bBounce = handleBounceYaxis(dPosY, iMovementIndex);
 			}
 			
-			// If we go out of bounds at the front or back in the overall
-			// movement
-			if ( dNewPosZ > Options.DEPTH - 1 || dNewPosZ < 1 )
+			if ( dNewPosZ > Options.DEPTH - 1 || dNewPosZ < 1 ) // out of bounds on Z axis
 			{
-				// There might be multiple vectors now, so we need to keep track
-				// of position, and whether we've hit the wall yet or not
-				double dTempPosZ = dPosZ;
-				boolean bFlipped = false;
+				bBounce = handleBounceZaxis(dPosZ, iMovementIndex);
 				
-				for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
-				{
-					Double3D d3Movement = m_d3aMovements.get( i );
-					
-					// if we have already hit the wall, we just flip the y axis
-					// of all the movements
-					if ( bFlipped )
-					{
-						m_d3aMovements.set( i, new Double3D( d3Movement.x, d3Movement.y, -d3Movement.z ) );
-						continue;
-					}
-					
-					// does this sub movement go out of bounds
-					if ( dTempPosZ + d3Movement.z < 1 || dTempPosZ + d3Movement.z > Options.DEPTH - 1 )
-					{
-						// Figure out at which point it goes out
-						double dCutOff = 1;
-						if ( dTempPosZ + d3Movement.z < 1 )
-						{
-							dCutOff = (1 - dTempPosZ) / d3Movement.z;
-						}
-						else
-						{
-							dCutOff = ((Options.DEPTH - 1) - dTempPosZ) / d3Movement.z;
-						}
-						
-						// Create 2 new vectors split at the cutoff point, the
-						// latter mirrored along the y axis
-						Double3D d3TruncMovement = d3Movement.multiply( dCutOff );
-						Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x,
-								d3Movement.y - d3TruncMovement.y, -d3Movement.z + d3TruncMovement.z );
-								
-						// Replace the current one, then add the new one after
-						// it
-						if ( d3TruncMovement.lengthSq() > 0 )
-						{
-							m_d3aMovements.set( i, d3TruncMovement );
-							m_d3aMovements.add( i + 1, d3Remainder );
-							
-							// if we don't increment i, it will get flipped
-							// again!
-							i++;
-						}
-						else
-						{
-							m_d3aMovements.set( i, d3Remainder );
-						}
-						
-						bFlipped = true;
-						bBounce = true;
-					}
-					
-					dTempPosZ += d3Movement.z;
-				}
 			}
 		}
 	}
 	
-	/**
-	 * Perform a step for the receptor TODO: this assumes a timestep of 1
-	 * second!
-	 */
-	private void receptorStep()
-	{
-		// Euler method with step size 0.1
-		// TODO better methods exist, but this was quick to implement
-		int iTimesteps = 10;
-		int iR_i, iR_d, iL_r;
-		for ( int i = 0; i < iTimesteps; i++ )
+	
+	
+	private boolean handleBounceXaxis(double dPosX, int iMovementIndex){
+		// There might be multiple vectors, so we need to keep track
+		// of position, and whether we've hit the wall yet or not
+		boolean bBounce = false;
+		
+		
+		double dTempPosX = dPosX; //what are these variables keeping track of...
+		boolean bFlipped = false;
+		
+		for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
 		{
-			iR_i = m_iR_i;
-			iR_d = m_iR_d;
-			iL_r = m_iL_r;
+			Double3D d3Movement = m_d3aMovements.get( i );
 			
-			m_iR_d += (int) ((1.0 / iTimesteps) * iL_r * iL_r
-					/ (Options.BC.ODE.gamma() * (1 + Math.pow( iL_r / Options.BC.ODE.delta(), 2 ) + iL_r)))
-					- (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iR_d);
-			m_iR_i += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iR_d)
-					- (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
-			m_iR_free += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
-			m_iL_r -= (int) ((1.0 / iTimesteps) * iL_r * iL_r
-					/ (Options.BC.ODE.gamma() * (1 + Math.pow( iL_r / Options.BC.ODE.delta(), 2 ) + iL_r)));
+			// if we have already hit the wall, we just flip the x axis
+			// of all the remaining movements 
+			if ( bFlipped )
+			{
+				m_d3aMovements.set( i, new Double3D( -d3Movement.x, d3Movement.y, d3Movement.z ) );
+				continue;
+			}
+			
+			// does this sub movement go out of bounds
+			if ( dTempPosX + d3Movement.x < 1 || dTempPosX + d3Movement.x > Options.WIDTH - 1 )
+			{
+				// Figure out at which point it goes out
+				double dCutOff = 1;
+				if ( dTempPosX + d3Movement.x < 1 )
+				{
+					dCutOff = (1 - dTempPosX) / d3Movement.x;
+				}
+				else
+				{
+					dCutOff = ((Options.WIDTH - 1) - dTempPosX) / d3Movement.x;
+				}
+				
+				// Create 2 new vectors split at the cutoff point, the
+				// latter mirrored along the y axis
+				Double3D d3TruncMovement = d3Movement.multiply( dCutOff );
+				Double3D d3Remainder = new Double3D( -d3Movement.x + d3TruncMovement.x,
+						d3Movement.y - d3TruncMovement.y, d3Movement.z - d3TruncMovement.z );
+						
+				// Replace the current one, then add the new one after
+				// it
+				if ( d3TruncMovement.lengthSq() > 0 )
+				{
+					m_d3aMovements.set( i, d3TruncMovement );
+					m_d3aMovements.add( i + 1, d3Remainder );
+					
+					// if we don't increment i, it will get flipped
+					// again!
+					i++;
+				}
+				else
+				{
+					m_d3aMovements.set( i, d3Remainder );
+				}
+				
+				bFlipped = true;
+				bBounce = true;
+			}
+			
+			dTempPosX += d3Movement.x;
+		}
+		return bBounce;
+	}
+	
+	
+	
+	private boolean handleBounceYaxis(double dPosY, int iMovementIndex){
+		// There might be multiple vectors now, so we need to keep track
+		// of position, and whether we've hit the wall yet or not
+		boolean bBounce = false;
+		
+		double dTempPosY = dPosY;
+		boolean bFlipped = false;
+		
+		for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
+		{
+			Double3D d3Movement = m_d3aMovements.get( i );
+			
+			// if we have already hit the wall, we just flip the y axis
+			// of all the remaining movements
+			if ( bFlipped )
+			{
+				m_d3aMovements.set( i, new Double3D( d3Movement.x, -d3Movement.y, d3Movement.z ) );
+				continue;
+			}
+			
+			// does this sub movement go out of bounds
+			if ( dTempPosY + d3Movement.y < 1 || dTempPosY + d3Movement.y > Options.HEIGHT - 1 )
+			{
+				// Figure out at which point it goes out
+				double dCutOff = 1;
+				if ( dTempPosY + d3Movement.y < 1 )
+				{
+					dCutOff = (1 - dTempPosY) / d3Movement.y;
+				}
+				else
+				{
+					dCutOff = ((Options.HEIGHT - 1) - dTempPosY) / d3Movement.y;
+				}
+				
+				// Create 2 new vectors split at the cutoff point, the
+				// latter mirrored along the y axis
+				Double3D d3TruncMovement = d3Movement.multiply( dCutOff );
+				Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x,
+						-d3Movement.y + d3TruncMovement.y, d3Movement.z - d3TruncMovement.z );
+						
+				// Replace the current one, then add the new one after
+				// it
+				if ( d3TruncMovement.lengthSq() > 0 )
+				{
+					m_d3aMovements.set( i, d3TruncMovement );
+					m_d3aMovements.add( i + 1, d3Remainder );
+					
+					// if we don't increment i, it will get flipped
+					// again!
+					i++;
+				}
+				else
+				{
+					m_d3aMovements.set( i, d3Remainder );
+				}
+				
+				bFlipped = true;
+				bBounce = true;
+			}
+			
+			dTempPosY += d3Movement.y;
+		}
+		return bBounce;
+	}
+	
+	private boolean handleBounceZaxis(double dPosZ, int iMovementIndex){
+		// There might be multiple vectors now, so we need to keep track
+		// of position, and whether we've hit the wall yet or not
+		boolean bBounce = false;
+		
+		double dTempPosZ = dPosZ;
+		boolean bFlipped = false;
+		
+		for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
+		{
+			Double3D d3Movement = m_d3aMovements.get( i );
+			
+			// if we have already hit the wall, we just flip the y axis
+			// of all the movements
+			if ( bFlipped )
+			{
+				m_d3aMovements.set( i, new Double3D( d3Movement.x, d3Movement.y, -d3Movement.z ) );
+				continue;
+			}
+			
+			// does this sub movement go out of bounds
+			if ( dTempPosZ + d3Movement.z < 1 || dTempPosZ + d3Movement.z > Options.DEPTH - 1 )
+			{
+				// Figure out at which point it goes out
+				double dCutOff = 1;
+				if ( dTempPosZ + d3Movement.z < 1 )
+				{
+					dCutOff = (1 - dTempPosZ) / d3Movement.z;
+				}
+				else
+				{
+					dCutOff = ((Options.DEPTH - 1) - dTempPosZ) / d3Movement.z;
+				}
+				
+				// Create 2 new vectors split at the cutoff point, the
+				// latter mirrored along the y axis
+				Double3D d3TruncMovement = d3Movement.multiply( dCutOff );
+				Double3D d3Remainder = new Double3D( d3Movement.x - d3TruncMovement.x,
+						d3Movement.y - d3TruncMovement.y, -d3Movement.z + d3TruncMovement.z );
+						
+				// Replace the current one, then add the new one after
+				// it
+				if ( d3TruncMovement.lengthSq() > 0 )
+				{
+					m_d3aMovements.set( i, d3TruncMovement );
+					m_d3aMovements.add( i + 1, d3Remainder );
+					
+					// if we don't increment i, it will get flipped
+					// again!
+					i++;
+				}
+				else
+				{
+					m_d3aMovements.set( i, d3Remainder );
+				}
+				
+				bFlipped = true;
+				bBounce = true;
+			}
+			
+			dTempPosZ += d3Movement.z;
 		}
 		
-		if ( displayGraph )
+		return bBounce;
+	}
+	
+	////////////////////////////////////////////  3D Model for GUI  //////////////////////////////
+	
+	/*
+	 * This is the 3D model of the B cell. Overrides JAVA 3D so we never actually 
+	 * call it anywhere in the simulation ourselves
+	 * (non-Javadoc)
+	 * @see sim.portrayal3d.SimplePortrayal3D#getModel(java.lang.Object, javax.media.j3d.TransformGroup)
+	 */
+	@Override
+	public TransformGroup getModel( Object obj, TransformGroup transf )
+	{
+		// We choose to always recalculate this model because the movement
+		// changes in each time step.
+		// Removing the movement indicators and removing this true will make the
+		// 3d display a lot faster
+		if ( transf == null || true )
 		{
-			Grapher.addPoint( m_iR_free ); //this gives an error when run on console
+			transf = new TransformGroup();
+			
+			// Draw the BC itself
+			SpherePortrayal3D s = new SpherePortrayal3D( Options.BC.DRAW_COLOR(), Options.BC.COLLISION_RADIUS * 2, 6 );
+			s.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
+			TransformGroup localTG = s.getModel( obj, null );
+			
+			localTG.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
+			transf.addChild( localTG );
+			
+			
+			//if we have had any collisions, draw them as red circles
+			modelCollisions(m_d3aCollisions,obj, transf);
+			
+			// If we have any movement, then draw it as white lines telling us where the cell is orientated
+			modelMovements(m_d3aMovements,obj, transf);
+
+		}
+		return transf;
+	}
+	
+	
+	/*
+	 * Model movement of movement and add a white line indicating the orientation of the B cell 
+	 */
+	private void modelMovements(List<Double3D> m_d3aMovements2,Object obj, TransformGroup transf)
+	{
+		// If we have any movement, then draw it
+		// TODO are these the white lines that we see?
+		if ( m_d3aMovements2.size() > 0 )
+		{
+			LineArray lineArr = new LineArray( m_d3aMovements2.size() * 2, GeometryArray.COORDINATES );
+			lineArr.setCoordinate( 0, new Point3d( 0, 0, 0 ) );
+			
+			int i = 1;
+			double xPos = 0, yPos = 0, zPos = 0;
+			
+			for ( int iIndex = 0; iIndex < m_d3aMovements2.size(); iIndex++ )
+			{
+				Double3D d3Movement = m_d3aMovements2.get( iIndex );
+				
+				if ( i > 1 )
+				{
+					lineArr.setCoordinate( i, new Point3d( xPos, yPos, zPos ) );
+					i++;
+				}
+				xPos += d3Movement.x;
+				yPos += d3Movement.y;
+				zPos += d3Movement.z;
+				lineArr.setCoordinate( i, new Point3d( xPos, yPos, zPos ) );
+				i++;
+			}
+			Appearance aAppearance = new Appearance();
+			Color col = Color.white;
+			aAppearance.setColoringAttributes( new ColoringAttributes( col.getRed() / 255f, col.getGreen() / 255f,
+					col.getBlue() / 255f, ColoringAttributes.FASTEST ) );
+					
+			Shape3D s3Shape = new Shape3D( lineArr, aAppearance );
+			Shape3DPortrayal3D s2 = new Shape3DPortrayal3D( s3Shape, aAppearance );
+			s2.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
+			TransformGroup localTG2 = s2.getModel( obj, null );
+			
+			localTG2.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
+			transf.addChild( localTG2 );
+		}
+		
+	}
+	
+	
+	/*
+	 * Modelling collisions as red dots, called by getModel()
+	 */
+	private void modelCollisions(ArrayList<Double3D> m_d3aCollisions,Object obj, TransformGroup transf)
+	{	
+		if ( m_d3aCollisions.size() > 0 ) //is this a global variable? should pass it into the method!!
+		{
+			for ( Double3D d3Point : m_d3aCollisions )
+			{
+				SpherePortrayal3D s2 = new SpherePortrayal3D( Color.RED, 0.25, 6 );
+				s2.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
+				TransformGroup localTG2 = s2.getModel( obj, null );
+				
+				Transform3D tTransform = new Transform3D();
+				tTransform
+						.setTranslation( new Vector3f( (float) d3Point.x, (float) d3Point.y, (float) d3Point.z ) );
+						
+				localTG2.setTransform( tTransform );
+				
+				localTG2.setCapability( TransformGroup.ALLOW_TRANSFORM_WRITE );
+				transf.addChild( localTG2 );
+			}
 		}
 	}
+	
+	
+	
+	
 }

@@ -130,6 +130,27 @@ public class Options
 		 */
 		public static class ODE
 		{
+			
+			/**
+			 * (ODE) Ligand-Receptor Complexes
+			 */
+			public static int LR(){ return 500; }
+			
+			/**
+			 * (ODE) Desensitised Receptor
+			 */
+			public static int Rd() {return 500;}
+		
+			/**
+			 * (ODE) Free Receptors on cell surface
+			 */
+			public static int Rf(){ return 10000; }
+																
+			/**
+			 * (ODE) Internalised Receptor
+			 */
+			public static int Ri() { return 10000;}
+		
 			/**
 			 * Affinity constant for ligand and receptor
 			 */

@@ -95,6 +95,8 @@ public class DiffusionAlgorithmTest
 	
 	/**
 	 * Test method for {@link sim3d.diffusion.algorithms.DiffusionAlgorithm#diffuse(sim3d.diffusion.Particle)}.
+	 * 
+	 * Test that the mean squared displacement of the chemokine matches what we expect
 	 */
 	@Test
 	public void testMeanSquare()

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package sim3d.cell;
+package sim3d;
 
 import static org.junit.Assert.*;
 
@@ -15,7 +15,8 @@ import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim.util.MutableDouble3D;
-import sim3d.Options;
+import sim3d.cell.BC;
+import sim3d.cell.StromaEdge;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 import sim3d.util.Vector3DHelper;
@@ -25,7 +26,7 @@ import static org.hamcrest.Matchers.*;
  * @author sjj509
  * 		
  */
-public class BCTest
+public class IntegrationTests
 {
 	private Schedule schedule = new Schedule();
 	private Particle m_pParticle;
@@ -61,8 +62,7 @@ public class BCTest
     
     
     
-    // Test - should put the Lymphocytes in all of their states and make sure that the state transitions occur as expected
-    // Test - see if receptor levels change in response to different ligand inputs
+    
     
     
     
@@ -138,10 +138,6 @@ public class BCTest
 
 		assertThat(avDistance/100, lessThan(4.0));//why is this condition here?
 	}
-	
-	
-	
-
 	
 	// TODO This doesn't pass given enough time...
 	/*

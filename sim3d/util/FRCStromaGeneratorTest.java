@@ -34,6 +34,9 @@ public class FRCStromaGeneratorTest
 	
 	/**
 	 * Test method for {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}.
+	 * 
+	 * 
+	 * what specifically is this testing - testing to make sure that the edge length is as we expect
 	 */
 	@Test
 	public void testEdgeLength()
@@ -64,6 +67,8 @@ public class FRCStromaGeneratorTest
 	
 	/**
 	 * Test method for {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}.
+	 * 
+	 * Test that the number of edges is as we expect
 	 */
 	@Test
 	public void testEdgeCount()
@@ -89,6 +94,8 @@ public class FRCStromaGeneratorTest
 	
 	/**
 	 * Test method for {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}.
+	 * 
+	 * Test that the cell count is as we expect
 	 */
 	@Test
 	public void testCellCount()
