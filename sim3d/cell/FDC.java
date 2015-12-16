@@ -55,6 +55,9 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable
 		return drawEnvironment;
 	}
 	
+	
+	
+	//Create a model to visualising the stroma node in 3D
 	public TransformGroup getModel( Object obj, TransformGroup transf )
 	{
 		if ( transf == null )

@@ -6,9 +6,14 @@ package sim3d.diffusion.algorithms;
 import static org.junit.Assert.assertEquals;
 
 
+
+
+
+
 //import org.hamcrest.number.IsCloseTo;
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.Document;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -17,6 +22,7 @@ import sim.engine.Schedule;
 import sim3d.Options;
 import sim3d.SimulationEnvironment;
 import sim3d.diffusion.Particle;
+import sim3d.util.IO;
 
 /**
  * @author simonjarrett
@@ -26,6 +32,18 @@ public class DiffusionAlgorithmTest
 {
 	private Schedule schedule = new Schedule();
 	private Particle m_pParticle = new Particle(schedule, Particle.TYPE.CXCL13, 81, 81, 81);
+	public static Document parameters;	
+	
+	private static void loadParameters()
+	{
+		
+		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";		// set the seed for the simulation, be careful for when running on cluster																	
+		parameters = IO.openXMLFile(paramFile);
+		Options.loadParameters(parameters);
+		Options.BC.loadParameters(parameters);
+		Options.BC.ODE.loadParameters(parameters);
+		Options.FDC.loadParameters(parameters);
+	}
 	
 	/**
 	 * @throws java.lang.Exception
@@ -33,7 +51,13 @@ public class DiffusionAlgorithmTest
 	@Before
 	public void setUp() throws Exception
 	{
+		
+		//loadParameters();
 		Options.RNG = new MersenneTwisterFast();
+		Options.DIFFUSION_COEFFICIENT = 1.519 * Math.pow( 10, -10 );
+		Options.GRID_SIZE = 0.00001;
+		Options.DIFFUSION_TIMESTEP = Math.pow( Options.GRID_SIZE, 2 ) / (3.7 * Options.DIFFUSION_COEFFICIENT);
+		Options.DIFFUSION_STEPS	= (int) (1 / Options.DIFFUSION_TIMESTEP);
 	}
 
 	/**

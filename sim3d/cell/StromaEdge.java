@@ -41,12 +41,14 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	 * Constructor
 	 * 
 	 * @param d3Point1
-	 *            Absollute value of the start point
+	 *            Absolute value of the start point
 	 * @param d3Point2
 	 *            Absolute value of the end point
 	 */
 	public StromaEdge( Double3D d3Point1, Double3D d3Point2 )
 	{
+		
+		// makes sure that first point is always lower on the z axis
 		// Make sure it's ordered on the z index
 		// TODO I can't remember why I did this... I think it might be a relic
 		// from 2D projection
@@ -57,12 +59,17 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 			d3Point2 = temp;
 		}
 		
+		//location of stroma is static so easiest to specify it's location in the constructor
+
 		x = d3Point1.x;
 		y = d3Point1.y;
 		z = d3Point1.z;
 		
 		m_d3Edge = d3Point2.subtract( d3Point1 );
 	}
+	
+	
+	
 	
 	@Override
 	public void addCollisionPoint( Int3D i3Point )

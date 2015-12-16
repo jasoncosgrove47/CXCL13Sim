@@ -91,7 +91,8 @@ public class CollisionGrid implements Steppable
 			int i = 0;
 			
 			// Loop through each element in the grid space and remove non-static
-			// elements
+			// elements; Stroma is static and therefore the only thing we can collide with
+			// therefore don't need to worry about non-static objects...
 			while (i < m_clGridSpaces[x][y][z].size())
 			{
 				if ( !m_clGridSpaces[x][y][z].get( i ).isStatic() )
@@ -118,8 +119,11 @@ public class CollisionGrid implements Steppable
 			m_clGridSpaces[x][y][z].get( 0 ).addCollisionPoint( new Int3D( x, y, z ) );
 			cObject.addCollisionPoint( new Int3D( x, y, z ) );
 		}
+		
+		
 		else if ( m_clGridSpaces[x][y][z].size() > 2 )
 		{
+			//add to the list of colliding coordinates
 			if ( !m_i3lCollisionPoints.contains( new Int3D( x, y, z ) ) )
 			{
 				m_i3lCollisionPoints.add( new Int3D( x, y, z ) );
@@ -146,7 +150,7 @@ public class CollisionGrid implements Steppable
 	@SuppressWarnings( "unchecked" )
 	public CollisionGrid( int iWidth, int iHeight, int iDepth, double dDiscretisation )
 	{
-		m_dDiscretisation = dDiscretisation;
+		m_dDiscretisation = dDiscretisation;// if set to 4 then the collision grid for a cell would be 4*4*4
 		
 		m_iWidth = (int) Math.ceil( iWidth / dDiscretisation );
 		m_iHeight = (int) Math.ceil( iHeight / dDiscretisation );
@@ -163,8 +167,7 @@ public class CollisionGrid implements Steppable
 	 * should only be called by Collidables that are registered in the location
 	 * given.
 	 * 
-	 * @param i3Loc
-	 *            Point in grid to query
+	 * @param i3Loc Point in grid to query
 	 * @return The Collidables registered at that point
 	 */
 	public List<Collidable> getPoints( Int3D i3Loc )
@@ -174,6 +177,10 @@ public class CollisionGrid implements Steppable
 	
 	/**
 	 * Performs a collision detection test between a grid space and a sphere
+	 * 
+	 * calculate the euclidean distance between the center of the box and the sphere squared in each axis
+	 * The sphere intersects the gridspace if the summed distance is less than the radius of the square
+	 * 
 	 * 
 	 * @param dSphereX
 	 *            X coordinate of the sphere's origin
@@ -196,12 +203,14 @@ public class CollisionGrid implements Steppable
 	{
 		double dSum = 0;
 		
-		// Basically, we do Pythagorag in 3D, but only if for each dimension,
+		// Basically, we do Pythagoras in 3D, but only if for each dimension,
 		// we're outside the box (otherwise distance will be 0)
-		if ( dSphereX < iBoxX )
+		if ( dSphereX < iBoxX )// if box further along the x-axis than sphere
 		{
-			dSum += (dSphereX - iBoxX) * (dSphereX - iBoxX);
+			dSum += (dSphereX - iBoxX) * (dSphereX - iBoxX); //add squared distance to dSum
 		}
+		
+		 // if sphere further along the x-axis than the width of box (add 1 because the width of the box is 1
 		else if ( dSphereX > iBoxX + 1 )
 		{
 			dSum += (dSphereX - iBoxX + 1) * (dSphereX - iBoxX + 1);
@@ -230,6 +239,8 @@ public class CollisionGrid implements Steppable
 	
 	/**
 	 * Adds a sphere to the collision grid
+	 * get the discretised collision area around the object
+	 * 
 	 * 
 	 * @param cObject
 	 *            The Collidable to add to the grid
@@ -242,7 +253,7 @@ public class CollisionGrid implements Steppable
 	{
 		// Convert the coordinates to our discretised coordinates
 		Double3D d3DiscretisedCentre = new Double3D( d3Centre.x / m_dDiscretisation, d3Centre.y / m_dDiscretisation,
-				d3Centre.z / m_dDiscretisation );
+				d3Centre.z / m_dDiscretisation );//TODO don't fully understand what this bit of code is doing?
 				
 		double dDiscretisedRadius = dRadius / m_dDiscretisation;
 		
@@ -259,6 +270,8 @@ public class CollisionGrid implements Steppable
 		int iZLow = (int) Math.max( 0, (d3DiscretisedCentre.z - dDiscretisedRadius) );
 		int iZHigh = (int) Math.min( m_iDepth - 1, (d3DiscretisedCentre.z + dDiscretisedRadius) );
 		
+		
+		//might be room for optimisation here
 		for ( int x = iXLow; x <= iXHigh; x++ )
 		{
 			for ( int y = iYLow; y <= iYHigh; y++ )
@@ -290,6 +303,9 @@ public class CollisionGrid implements Steppable
 	public void addLineToGrid( Collidable cObject, Double3D d3Point1, Double3D d3Point2, double dRadius )
 	{
 		// Convert the coordinates to our discretised coordinates
+		// eg if point was (10,10,5) and discretisation was 3
+		// then new values would be (2,2,1) cos we divide and floor
+		// so we shrink the grid by a factor of 3
 		Double3D d3DiscretisedPoint1 = new Double3D( d3Point1.x / m_dDiscretisation, d3Point1.y / m_dDiscretisation,
 				d3Point1.z / m_dDiscretisation );
 		Double3D d3DiscretisedPoint2 = new Double3D( d3Point2.x / m_dDiscretisation, d3Point2.y / m_dDiscretisation,
@@ -301,11 +317,15 @@ public class CollisionGrid implements Steppable
 		// Add 0.866 as this is approximately the radius of a cube
 		// TODO this won't detect collisions in the corners of the grid spaces,
 		// but it's much more efficient!
-		double dRadiusSquare = (0.866 + dDiscretisedRadius) * (0.5 + dDiscretisedRadius);
+		double dRadiusSquare = (0.866 + dDiscretisedRadius) * (0.5 + dDiscretisedRadius);// TODO what is this line doing?
 		
 		// Calculate the grid space coordinate bounds for each dimension
 		int iXLow, iXHigh, iYLow, iYHigh, iZLow, iZHigh;
 		
+		
+		//take the smallest x as lower bound, highest x as upper bound in each axis
+		// this is the space in which we will iterate to see in which points the cylinder is
+		// interacting
 		if ( d3DiscretisedPoint1.x < d3DiscretisedPoint2.x )
 		{
 			iXLow = (int) Math.max( 0, (d3DiscretisedPoint1.x - dDiscretisedRadius) );
@@ -399,6 +419,11 @@ public class CollisionGrid implements Steppable
 	/**
 	 * Prompts the cells to handle the collisions. Repeats until no more
 	 * collisions have been registered.
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	@Override
 	public void step( SimState state )
