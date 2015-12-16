@@ -8,6 +8,7 @@ import sim.engine.Steppable;
 import sim.field.grid.IntGrid2D;
 import sim.field.grid.IntGrid3D;
 import sim3d.Options;
+import sim3d.SimulationEnvironment;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
 /**

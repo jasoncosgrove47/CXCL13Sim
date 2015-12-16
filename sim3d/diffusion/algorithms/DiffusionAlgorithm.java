@@ -1,6 +1,7 @@
 package sim3d.diffusion.algorithms;
 
 import sim3d.Options;
+import sim3d.SimulationEnvironment;
 import sim3d.diffusion.Particle;
 
 /**

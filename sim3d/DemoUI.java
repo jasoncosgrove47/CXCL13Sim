@@ -9,6 +9,7 @@ import sim3d.cell.BC;
 import sim3d.cell.FDC;
 import sim3d.diffusion.Particle;
 import sim3d.diffusion.ParticleColorMap;
+import sim3d.util.IO;
 
 import java.awt.Color;
 
@@ -25,6 +26,8 @@ import javax.swing.*;
 public class DemoUI extends GUIState
 {
 	
+	
+	public static String paramFile;
 	/**
 	 * Returns the name of the simulation - a MASON thing
 	 */
@@ -38,6 +41,7 @@ public class DemoUI extends GUIState
 	 */
 	public static void main( String[] args )
 	{
+		paramFile = args[0]; 
 		new DemoUI().createController();
 	}
 	
@@ -88,7 +92,7 @@ public class DemoUI extends GUIState
 	 */
 	public DemoUI()
 	{
-		super( new Demo( System.currentTimeMillis() ) );
+		super( new SimulationEnvironment( System.currentTimeMillis(),IO.openXMLFile(paramFile) ) );
 	}
 	
 	/**

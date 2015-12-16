@@ -15,6 +15,7 @@ import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim.util.Double3D;
 import sim3d.Options;
+import sim3d.SimulationEnvironment;
 import sim3d.diffusion.Particle;
 
 public class UnitTests extends AbstractAnalysis {

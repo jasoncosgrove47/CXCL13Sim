@@ -5,19 +5,17 @@ package sim3d.diffusion.algorithms;
 
 import static org.junit.Assert.assertEquals;
 
+
 //import org.hamcrest.number.IsCloseTo;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-//import static org.hamcrest.core.
-
-//import static org.hamcrest.number.IsCloseTo.*;
-
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim3d.Options;
+import sim3d.SimulationEnvironment;
 import sim3d.diffusion.Particle;
 
 /**

@@ -24,6 +24,7 @@ import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Grapher;
 import sim3d.Options;
+import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
@@ -71,8 +72,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	public boolean				displayGraph			= false;
 					
 	
-	//TODO add these to options
-	
+
 	
 	/**
 	 * (ODE) Ligand-Receptor Complexes

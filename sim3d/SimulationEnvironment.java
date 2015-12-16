@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import ec.util.MersenneTwisterFast;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -24,65 +30,56 @@ import sim3d.util.FRCStromaGenerator.FRCCell;
  * @author Jason Cosgrove  - {@link jc1571@york.ac.uk}
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
-public class Demo extends SimState
+public class SimulationEnvironment extends SimState
 {
 	
 	private static final long serialVersionUID = 1;
 	
-	/**
-	 * main method
-	 */
-	public static void main( String[] args )
-	{
-		int seed= (int) (System.currentTimeMillis());					// set the seed for the simulation, be careful for when running on cluster																	
-		Demo simulation = new Demo(seed);								// instantiate the simulation
-
-		long steps = 0;
-		simulation.start();
-		
-		System.out.println("GSim v1.0 - Console Version (No Visualisation)");
-		System.out.println("\nAuthor: Jason Cosgrove, York Computational Immunology Lab");
-		
-		do
-		{
-			steps = simulation.schedule.getSteps();		
-			System.out.println("Steps: " + steps);
-			if (!simulation.schedule.step(simulation))
-			break;
-			
-		}while(steps < 500);	
-		
-		simulation.finish();												// finish the simulation
-		System.out.println("\nSimulation completed successfully!\n\n");
-		System.exit(0);														// exit the simulation
-		
-		//doLoop( Demo.class, args );//change this to run for a fixed amount of timesteps
-		//System.exit( 0 );
-	}
-	
 	
 	public Continuous3D	bcEnvironment;  // 3D grid where B cells reside
 	public Continuous3D	fdcEnvironment; // contains stroma and their edges
-			
+	public static Document parameters;		
 	
 	/**
 	 * Constructor
 	 * 
 	 * @param seed  Used by MASON for the random seed
 	 */
-	public Demo( long seed )
+	public SimulationEnvironment( long seed, Document params )
 	{
 		super( seed );
 		
+		parameters = params;
+		setupSimulationParameters();
 		// We set the MASON random object to the static Options class so we can
 		// access it everywhere
 		// Also allows us to easily change it, and test easier!
 		Options.RNG = random;
 	}
 	
+	
+	
+
+	
+
+	
+	
+	 public void setupSimulationParameters()
+	 {
+		 
+		 Options.loadParameters(parameters);
+		 Options.BC.loadParameters(parameters);
+		 Options.FDC.loadParameters(parameters);
+		 Options.BC.ODE.loadParameters(parameters);
+	 }
+	
+	 
+	 
 	/**
 	 * Adds a slider for the display level in the MASON console
 	 */
+	
+	
 	public Object domDisplayLevel()
 	{
 		return new sim.util.Interval( 1, Options.DEPTH );
@@ -125,10 +122,15 @@ public class Demo extends SimState
 	 */
 	public void start()
 	{
+		
 		super.start();
+		
+		//setupSimulationParameters();
 		//Grapher.init();
 		// Initialise the environments, tell the various classes 
 		// what their draw environment is
+		
+	
 		fdcEnvironment = new Continuous3D( Options.FDC.DISCRETISATION, Options.WIDTH, Options.HEIGHT, Options.DEPTH );
 		FDC.drawEnvironment = fdcEnvironment;
 		StromaEdge.drawEnvironment = fdcEnvironment;
@@ -184,7 +186,7 @@ public class Demo extends SimState
 		// Generate some stroma
 				ArrayList<FRCCell> frclCellLocations = new ArrayList<FRCCell>();
 				ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
-				FRCStromaGenerator.generateStroma3D( Options.WIDTH - 2, Options.HEIGHT - 2, Options.DEPTH - 2,
+				FRCStromaGenerator.generateStroma3D(Options.WIDTH - 2, Options.HEIGHT - 2, Options.DEPTH - 2,
 						Options.FDC.COUNT, frclCellLocations, sealEdges );
 
 				// Create the FDC objects, display them, schedule them, and then put

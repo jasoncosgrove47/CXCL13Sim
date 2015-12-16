@@ -2,6 +2,7 @@ package sim3d.util;
 
 import sim.util.Double3D;
 import sim3d.Options;
+import sim3d.SimulationEnvironment;
 
 /**
  * A singleton with helper functions for dealing with vectors (Double3Ds)

@@ -5,6 +5,7 @@ import java.util.List;
 
 import sim.util.Double3D;
 import sim3d.Options;
+import sim3d.SimulationEnvironment;
 import sim3d.cell.StromaEdge;
 
 /**
@@ -423,7 +424,7 @@ public class FRCStromaGenerator
 			
 			// add some noise
 			d3aReturn[0] = d3aReturn[0]
-					.add( Vector3DHelper.getRandomDirection().multiply( Options.RNG.nextDouble() * 0.04 ) );
+					.add( Vector3DHelper.getRandomDirection().multiply(Options.RNG.nextDouble() * 0.04 ) );
 			
 			// If there are any cells too close to the final edge, try it all again!
 			if ( getAdjacentCells( iWidth, iHeight, iDepth, frcla3CellLocations,

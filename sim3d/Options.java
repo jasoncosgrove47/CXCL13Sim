@@ -2,88 +2,188 @@ package sim3d;
 
 import java.awt.Color;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import ec.util.MersenneTwisterFast;
 
 /**
  * All the parameters for the simulation.
  * 
+ * 
+ * VERY IMPORTANT!!!!!!!!!
  * Note: parameters in functions can be changed while the simulation is running!
  * 
+ * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
+ * 
+ * 
  */
 public class Options
 {
-	/**
-	 * Allows MASON's random variable to be accessed globally
-	 */
-	public static MersenneTwisterFast	RNG;
-										
-	/**
-	 * Dimensions of the simulation
-	 * 
-	 * Note: the simulation has a 1 unit border around the edge hence the + 2
-	 */
-	public static int					WIDTH					= 100 + 2,
-												HEIGHT = 100 + 2, DEPTH = 50 + 2;
-												
-	/**
-	 * Size of one edge of a grid space in meters
-	 */
-	public static double				GRID_SIZE				= 0.00001;							// 1E-05
-																									// =
-																									// 10
-																									// microns
-																
-	/**
-	 * Speed of diffusion, used by DiffusionAlgorithm
-	 */
-	public static double				DIFFUSION_COEFFICIENT	= 1.519 * Math.pow( 10, -10 );
-																
-	/**
-	 * How much time a single iteration of the diffusion process will take us
-	 * forward
-	 * 
-	 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/
-	 *      Winter08Phys352/Notes_Diffusion.pdf
-	 *      
-	 * TODO: Get Simon to explain this again to me     
-	 */
-	public static double				DIFFUSION_TIMESTEP		= Math.pow( GRID_SIZE, 2 )
-			/ (3.7 * DIFFUSION_COEFFICIENT);
-			
-	/**
-	 * What the DIFFUSION_TIMESTEP translates to in number of iterations
-	 */
-	public static int					DIFFUSION_STEPS			= (int) (1 / DIFFUSION_TIMESTEP);
-																
+	
+	
+	
+		
+		 public static void loadParameters(Document params)
+		 {
+			 	// Simulation Tag
+
+			 Element paramOElement = (Element) params.getElementsByTagName("O").item(0);	
+			 
+				NodeList widthNL = paramOElement.getElementsByTagName("WIDTH");
+				Node widthN = widthNL.item(0);
+				WIDTH = Integer.parseInt(widthN.getTextContent());
+				
+				NodeList heightNL = paramOElement.getElementsByTagName("HEIGHT");
+				Node heightN = heightNL.item(0);
+				HEIGHT = Integer.parseInt(heightN.getTextContent());
+				
+				NodeList depthNL = paramOElement.getElementsByTagName("DEPTH");
+				Node depthN = depthNL.item(0);
+				DEPTH = Integer.parseInt(depthN.getTextContent());
+				
+				NodeList gridNL = paramOElement.getElementsByTagName("GRID_SIZE");
+				Node gridN = gridNL.item(0);
+				GRID_SIZE= Double.parseDouble(gridN.getTextContent());
+				
+				NodeList diffusionNL = paramOElement.getElementsByTagName("DIFFUSION_COEFFICIENT");
+				Node diffusionN = diffusionNL.item(0);
+				DIFFUSION_COEFFICIENT_PREFIX = Double.parseDouble(diffusionN.getTextContent());
+		
+				
+		   }
+	
+		///////////////////////////  CORE SIMULATION PARAMETERS  /////////////////////////////////
+		/**
+		 * Allows MASON's random variable to be accessed globally
+		 */
+		public static MersenneTwisterFast	RNG;
+											
+		/**
+		 * Dimensions of the simulation
+		 * 
+		 * Note: the simulation has a 1 unit border around the edge hence the + 2
+		 */
+		
+		//TODO why is this not working
+		 //why does it no
+		 public static int		WIDTH;
+		 public static int      HEIGHT;
+		 public static int      DEPTH;
+		
+		
+		/**
+		 * Size of one edge of a grid space in meters
+		 */
+		public static double				GRID_SIZE;							// 1E-05
+																				// =
+																				// 10
+																				// micron														
+		/**
+		 * Speed of diffusion, used by DiffusionAlgorithm
+		 */
+		static double DIFFUSION_COEFFICIENT_PREFIX;
+		public static double				DIFFUSION_COEFFICIENT	= DIFFUSION_COEFFICIENT_PREFIX * Math.pow( 10, -10 );
+																	
+		/**
+		 * How much time a single iteration of the diffusion process will take us
+		 * forward
+		 * 
+		 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/
+		 *      Winter08Phys352/Notes_Diffusion.pdf
+		 *      
+		 * TODO: Get Simon to explain this again to me     
+		 */
+		public static double				DIFFUSION_TIMESTEP		= Math.pow( GRID_SIZE, 2 )
+				/ (3.7 * DIFFUSION_COEFFICIENT);
+				
+		/**
+		 * What the DIFFUSION_TIMESTEP translates to in number of iterations
+		 */
+		public static int					DIFFUSION_STEPS			= (int) (1 / DIFFUSION_TIMESTEP);
+				
+		
+
+		
+	
+	
+	
+
+	
+	
+	
+	
+	
+	////////////////////////// BC PARAMETERS  ////////////////////////////////
+	
+	
 	/**
 	 * Subclass containing all the BC parameters
 	 */
 	public static class BC
 	{
+		
+		
+		/**
+		 * This loads the parameters from an XML file for high throughput analyses
+		 * @param params
+		 */
+		 public static void loadParameters(Document params)
+		 {
+			 	// Simulation Tag
+
+			    Element paramBCElement = (Element) params.getElementsByTagName("BC").item(0);			      
+		        
+			
+			    
+				NodeList countNL = paramBCElement.getElementsByTagName("COUNT");
+				Node countN = countNL.item(0);
+				COUNT = Integer.parseInt(countN.getTextContent());
+				
+				NodeList discretisationNL = paramBCElement.getElementsByTagName("DISCRETISATION");
+				Node discretisationN = discretisationNL.item(0);
+				DISCRETISATION = Integer.parseInt(discretisationN.getTextContent());
+				
+				NodeList minreceptorsNL = paramBCElement.getElementsByTagName("MIN_RECEPTORS");
+				Node minreceptorsN = minreceptorsNL.item(0);
+				MIN_RECEPTORS = Integer.parseInt(minreceptorsN.getTextContent());
+				
+				NodeList traveldistanceNL = paramBCElement.getElementsByTagName("TRAVEL_DISTANCE");
+				Node traveldistanceN = traveldistanceNL.item(0);
+				TRAVEL_DISTANCE = Double.parseDouble(traveldistanceN.getTextContent());
+	
+		   }
+		
+		 
+
+		 
 		/**
 		 * Number of BCs to generate
 		 */
-		public static int		COUNT			= 500;
+		public static int		COUNT;
 												
 		/**
 		 * used by Continuous3D - related to getting neighbours; the size of the
 		 * bags
 		 * TODO Not quite sure what this means?
 		 */
-		public static double	DISCRETISATION	= 5;
+		public static double	DISCRETISATION;
 												
 		/**
 		 * The number of receptors required for chemotaxis
 		 */
-		public static int MIN_RECEPTORS = 1600;
+		public static int MIN_RECEPTORS;
 		
 		/**
 		 * The distance a BC will travel
 		 */
+		static double TRAVEL_DISTANCE;
 		public static double TRAVEL_DISTANCE()
 		{
-			return 1; //thus 10 microns per minute? should be 10 microns per hour
+			return TRAVEL_DISTANCE; //thus 10 microns per minute? should be 10 microns per hour
 			//return 0.01666666; //this is 10 microns
 		}
 		
@@ -91,6 +191,7 @@ public class Options
 		 * Used to add noise to the system. The maximum angle away from
 		 * "perfect" chemotaxis
 		 */
+		static double DIRECTION_ERROR;
 		public static double DIRECTION_ERROR()
 		{
 			return Math.PI / 2;
@@ -128,83 +229,133 @@ public class Options
 		 * TODO use values from the Lin et al paper, but remember that these values were obtained for neutrophils!
 		 * TODO look at the paper from Kepler TB as they have some nice parameter values and constraints
 		 */
+		
+		
+		
 		public static class ODE
 		{
 			
 			/**
-			 * (ODE) Ligand-Receptor Complexes
+			 * This loads the parameters from an XML file for high throughput analyses
+			 * @param params
 			 */
-			public static int LR(){ return 500; }
+			 public static void loadParameters(Document params)
+			 {
+				 	// Simulation Tag
+
+				    Element paramODEElement = (Element) params.getElementsByTagName("ODE").item(0);			      
+			        
+					NodeList LRNL = paramODEElement.getElementsByTagName("LR");
+					Node LRN = LRNL.item(0);
+					LR = Integer.parseInt(LRN.getTextContent());
+					
+					NodeList RdNL = paramODEElement.getElementsByTagName("Rd");
+					Node RdN = RdNL.item(0);
+					Rd = Integer.parseInt(RdN.getTextContent());
+					
+					NodeList RfNL = paramODEElement.getElementsByTagName("Rf");
+					Node RfN = RfNL.item(0);
+					Rf = Integer.parseInt(RfN.getTextContent());
+					
+					NodeList RiNL = paramODEElement.getElementsByTagName("Ri");
+					Node RiN = RiNL.item(0);
+					Ri = Integer.parseInt(RiN.getTextContent());
+					
+					NodeList KaNL = paramODEElement.getElementsByTagName("Ka");
+					Node KaN = KaNL.item(0);
+					Ka = Double.parseDouble(KaN.getTextContent());
+					
+					NodeList KrNL = paramODEElement.getElementsByTagName("Kr");
+					Node KrN = KrNL.item(0);
+					Kr = Double.parseDouble(KrN.getTextContent());
+					
+					NodeList KiNL = paramODEElement.getElementsByTagName("Ki");
+					Node KiN = KiNL.item(0);
+					Ki = Double.parseDouble(KiN.getTextContent());
+					
+					NodeList gammaNL = paramODEElement.getElementsByTagName("gamma");
+					Node gammaN = gammaNL.item(0);
+					gamma = Double.parseDouble(gammaN.getTextContent());
+					
+					NodeList deltaNL = paramODEElement.getElementsByTagName("delta");
+					Node deltaN = deltaNL.item(0);
+					delta = Double.parseDouble(deltaN.getTextContent());
+			   }
 			
-			/**
-			 * (ODE) Desensitised Receptor
-			 */
-			public static int Rd() {return 500;}
+			
+			static int LR;
+			public static int LR(){ return LR; }
+			
+			static int Rd;
+			public static int Rd() {return Rd;}
 		
-			/**
-			 * (ODE) Free Receptors on cell surface
-			 */
-			public static int Rf(){ return 10000; }
+			static int Rf;
+			public static int Rf(){ return Rf; }
 																
-			/**
-			 * (ODE) Internalised Receptor
-			 */
-			public static int Ri() { return 10000;}
+			static int Ri;
+			public static int Ri() { return Ri;}
 		
-			/**
-			 * Affinity constant for ligand and receptor
-			 */
-			public static double K_a()
-			{
-				return 0.03;
-			}
+			static double Ka;
+			public static double K_a(){return Ka;}
 			
-			/**
-			 * Rate of receptor recycling from an internal pool
-			 */
-			public static double K_r()
-			{
-				return 0.1;
-			}
+			static double Kr;
+			public static double K_r(){return Kr;}
 			
-			/**
-			 * Rate of internalisation
-			 */
-			public static double K_i()
-			{
-				return 0.1;
-			}
+			static double Ki;
+			public static double K_i(){return Ki;}
 			
-			/**
-			 * yes
-			 */
-			public static double gamma()
-			{
-				return 0.1;
-			}
+			static double gamma;
+			public static double gamma(){return gamma;}
 			
-			/**
-			 * true
-			 */
-			public static double delta()
-			{
-				return 2;
-			}
+			static double delta;
+			public static double delta(){return delta;}
 		}
 	}
+	
+	
+	////////////////////////////////////////// FDC  /////////////////////////////////////////
 	
 	/**
 	 * Subclass containing all the FDC parameters
 	 */
 	public static class FDC
 	{
+		
+	
+		 public static void loadParameters(Document params)
+		 {
+			 	// Simulation Tag
+
+			    Element paramFDCElement = (Element) params.getElementsByTagName("FDC").item(0);			      
+		        
+				NodeList countNL = paramFDCElement.getElementsByTagName("COUNT");
+				Node countN = countNL.item(0);
+				COUNT = Integer.parseInt(countN.getTextContent());
+				
+				NodeList discretisationNL = paramFDCElement.getElementsByTagName("DISCRETISATION");
+				Node discretisationN = discretisationNL.item(0);
+				DISCRETISATION = Integer.parseInt(discretisationN.getTextContent());
+				
+				NodeList cxcl13NL = paramFDCElement.getElementsByTagName("CXCL13_EMITTED");
+				Node cxcl13N = cxcl13NL.item(0);
+				CXCL13_EMITTED = Integer.parseInt(cxcl13N.getTextContent());
+				
+				NodeList stromanodeNL = paramFDCElement.getElementsByTagName("STROMA_NODE_RADIUS");
+				Node stromanodeN = stromanodeNL.item(0);
+				STROMA_NODE_RADIUS = Double.parseDouble(stromanodeN.getTextContent());
+				
+				NodeList stromaedgeNL = paramFDCElement.getElementsByTagName("STROMA_EDGE_RADIUS");
+				Node stromaedgeN = stromaedgeNL.item(0);
+				STROMA_EDGE_RADIUS = Double.parseDouble(stromaedgeN.getTextContent());
+			
+		   }
 		/**
 		 * Number of FDCs to generate
 		 * 
 		 * NOTE: this is just a maximum. If there's no room to fit them all, it
 		 * won't keep trying
 		 */
-		public static int		COUNT			= 3000;
+		public static int		COUNT = 50;
 												
 		/**
 		 * used by Continuous3D - related to getting neighbours; the size of the
@@ -212,7 +363,7 @@ public class Options
 		 * 
 		 * TODO ask simon what this is and why is it 5
 		 */
-		public static double	DISCRETISATION	= 5;
+		public static double	DISCRETISATION;
 												
 		/**
 		 * The colour of the FDCs
@@ -224,27 +375,27 @@ public class Options
 		
 		/**
 		 * The amount of chemokine secreted at each time step
-		 * 
-		 * We need to do some research to see what a suitable value for this should be
-		 * need to look at how much chemokine youd get from a tissue sample
-		 * 
 		 * could do a tissue ELISA and titrate against fluorescently labelled chemokine as
 		 * we know roughly how many molecules there are in this???
 		 */
-		public static int CXCL13_EMITTED()
-		{
-			return 500;
-		}
+		static int CXCL13_EMITTED;
+		public static int CXCL13_EMITTED(){return CXCL13_EMITTED;}
 		
 		/**
 		 * The radius of the sphere nucleus that will collide with things. Also
 		 * determines the display size.
 		 */
-		public static double	STROMA_NODE_RADIUS	= 0.06;
+		public static double	STROMA_NODE_RADIUS;
 													
 		/**
 		 * The radius of the cylinder edge that will collide with things.
 		 */
-		public static double	STROMA_EDGE_RADIUS	= 0.1;
+		public static double	STROMA_EDGE_RADIUS;
 	}
+	
+	
+	
+	
+	
+	
 }

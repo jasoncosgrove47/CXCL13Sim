@@ -9,6 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Document;
 
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
@@ -16,27 +17,50 @@ import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim.util.MutableDouble3D;
 import sim3d.Options;
+import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
+import sim3d.util.IO;
 import sim3d.util.Vector3DHelper;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 /**
  * @author sjj509
- * 		
+ * 		need to fix these so they work with XML inputs
  */
 public class BCTest
 {
 	private Schedule schedule = new Schedule();
 	private Particle m_pParticle;
+	public static Document parameters;	
+	
+	
+	private static void loadParameters(){
+		
+		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";		// set the seed for the simulation, be careful for when running on cluster																	
+		parameters = IO.openXMLFile(paramFile);
+		
+		Options.BC.loadParameters(parameters);
+		Options.BC.ODE.loadParameters(parameters);
+		Options.FDC.loadParameters(parameters);
+	}
+	
 	
 	@BeforeClass
     public static void oneTimeSetUp()
 	{
+		
+		//load in all of the BC and FDC parameters but overwrite some of the options parameters to make the tests faster
+		
+		loadParameters();
 		Options.RNG = new MersenneTwisterFast();
 		Options.WIDTH = 31;
 		Options.HEIGHT = 31;
 		Options.DEPTH = 31;
+		Options.DIFFUSION_COEFFICIENT = 1.519 * Math.pow( 10, -10 );
+		Options.GRID_SIZE = 0.0001;
+		Options.DIFFUSION_TIMESTEP = Math.pow( Options.GRID_SIZE, 2 ) / (3.7 * Options.DIFFUSION_COEFFICIENT);
+		Options.DIFFUSION_STEPS	= (int) (1 / Options.DIFFUSION_TIMESTEP);
     }
 
 
