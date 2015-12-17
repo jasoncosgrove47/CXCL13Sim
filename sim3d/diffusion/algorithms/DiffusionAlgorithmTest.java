@@ -58,6 +58,10 @@ public class DiffusionAlgorithmTest
 		Options.GRID_SIZE = 0.00001;
 		Options.DIFFUSION_TIMESTEP = Math.pow( Options.GRID_SIZE, 2 ) / (3.7 * Options.DIFFUSION_COEFFICIENT);
 		Options.DIFFUSION_STEPS	= (int) (1 / Options.DIFFUSION_TIMESTEP);
+		
+		
+		System.out.println("coefficient: " + Options.DIFFUSION_COEFFICIENT  +"timestep: " +  Options.DIFFUSION_STEPS +"steps: " + Options.DIFFUSION_TIMESTEP);
+		
 	}
 
 	/**

@@ -40,10 +40,8 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	/**
 	 * Constructor
 	 * 
-	 * @param d3Point1
-	 *            Absolute value of the start point
-	 * @param d3Point2
-	 *            Absolute value of the end point
+	 * @param d3Point1 Absolute value of the start point
+	 * @param d3Point2 Absolute value of the end point
 	 */
 	public StromaEdge( Double3D d3Point1, Double3D d3Point2 )
 	{

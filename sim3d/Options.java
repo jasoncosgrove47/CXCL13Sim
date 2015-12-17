@@ -24,9 +24,6 @@ import ec.util.MersenneTwisterFast;
 public class Options
 {
 	
-	
-	
-		
 		 public static void loadParameters(Document params)
 		 {
 			 	// Simulation Tag
@@ -49,11 +46,13 @@ public class Options
 				Node gridN = gridNL.item(0);
 				GRID_SIZE= Double.parseDouble(gridN.getTextContent());
 				
-				NodeList diffusionNL = paramOElement.getElementsByTagName("DIFFUSION_COEFFICIENT");
+				NodeList diffusionNL = paramOElement.getElementsByTagName("DIFFUSION_COEFFICIENT_PREFIX");
 				Node diffusionN = diffusionNL.item(0);
-				DIFFUSION_COEFFICIENT_PREFIX = Double.parseDouble(diffusionN.getTextContent());
+				DIFFUSION_COEFFICIENT = Double.parseDouble(diffusionN.getTextContent());
 		
-				
+				//this must be computed here otherwise these values get set to zero
+				DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
+				DIFFUSION_STEPS = calculateDIFFUSION_STEPS();
 		   }
 	
 		///////////////////////////  CORE SIMULATION PARAMETERS  /////////////////////////////////
@@ -85,9 +84,11 @@ public class Options
 		/**
 		 * Speed of diffusion, used by DiffusionAlgorithm
 		 */
-		static double DIFFUSION_COEFFICIENT_PREFIX;
-		public static double				DIFFUSION_COEFFICIENT	= DIFFUSION_COEFFICIENT_PREFIX * Math.pow( 10, -10 );
-																	
+		public static double DIFFUSION_COEFFICIENT;
+		public static double DIFFUSION_TIMESTEP;
+		public static int DIFFUSION_STEPS;
+		
+		
 		/**
 		 * How much time a single iteration of the diffusion process will take us
 		 * forward
@@ -96,20 +97,23 @@ public class Options
 		 *      Winter08Phys352/Notes_Diffusion.pdf
 		 *      
 		 * TODO: Get Simon to explain this again to me     
+		 * 
+		 * 
 		 */
-		public static double				DIFFUSION_TIMESTEP		= Math.pow( GRID_SIZE, 2 )
-				/ (3.7 * DIFFUSION_COEFFICIENT);
-				
-		/**
-		 * What the DIFFUSION_TIMESTEP translates to in number of iterations
-		 */
-		public static int					DIFFUSION_STEPS			= (int) (1 / DIFFUSION_TIMESTEP);
-				
 		
+	
+		
+		static double calculateDIFFUSION_TIMESTEP()
+		{
+			return Math.pow( GRID_SIZE, 2 )	/ (3.7 * DIFFUSION_COEFFICIENT);
+		}
 
+				
+		static int calculateDIFFUSION_STEPS()
+		{
+			return (int) (1 / DIFFUSION_TIMESTEP);
+		}
 		
-	
-	
 	
 
 	
@@ -209,12 +213,12 @@ public class Options
 		
 		/**
 		 * The colour of BCs
-		 * 
+		 * we use green as that is the convention for MP experiments
 		 * @return
 		 */
 		public static Color DRAW_COLOR()
 		{
-			return new Color( 90, 90, 255 );
+			return new Color(0, 248, 0, 150);
 		}
 		
 		/**

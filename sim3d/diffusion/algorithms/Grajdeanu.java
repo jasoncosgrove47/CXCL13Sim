@@ -57,11 +57,9 @@ public class Grajdeanu extends DiffusionAlgorithm
 				{
 					// if ( x*x + y*y + z*z <= 1)
 					// Grajdeanu's algorithm has coefficients exp(-d^2/µ) where
-					// d is the distance to the
-					// neighbouring square, and µ is the diffusion coefficient
-					// d^2 is calculated by squaring each of the fundamental
-					// vector distances
-					// (i.e. pythagoras in 3D!)
+					// d is the distance to the neighbouring square, and µ is 
+					// the diffusion coefficient d^2 is calculated by squaring 
+					// each of the fundamental vector distances (i.e. pythagoras in 3D!)
 					m_adDiffusionCoefficients[x + 1][y + 1][z + 1] = Math
 							.exp( -(Math.pow( Options.GRID_SIZE, 2 ) * (x * x + y * y + z * z))
 									/ (4 * dDiffuseCoeff * Options.DIFFUSION_TIMESTEP) );

@@ -61,7 +61,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			* (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS);
 			
 	/**
-	 * Required to prevent a warning!
+	 * Required to prevent a warning
 	 */
 	private static final long	serialVersionUID		= 1;
 														
@@ -71,11 +71,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 */
 	public boolean				displayGraph			= false;
 					
-	
-
-	
 	/**
 	 * (ODE) Ligand-Receptor Complexes
+	 * m_ signifies it's a member variable
 	 */
 	public int					m_iL_r					= Options.BC.ODE.LR();
 	/**
@@ -112,18 +110,33 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 */
 	List<Int3D>					m_i3lCollisionPoints	= new ArrayList<Int3D>();
 		
-	
-	
+	@Override
+	public boolean isStatic(){ return false; }
 	
 	/**
-	 * each Bcell registers its intended path on the collision grid, once all B cells register 
+	 * Adds a collision point to the list
+	 * @param i3Point Coordinates for the collision
+	 */
+	@Override
+	public void addCollisionPoint( Int3D i3Point ){ m_i3lCollisionPoints.add( i3Point ); }
+	
+	/**
+	 * @return the ENUM representing the type of Collidable this cell is (BC)
+	 */
+	@Override
+	public CLASS getCollisionClass(){ return CLASS.BC; }
+	
+	@Override
+	public Continuous3D getDrawEnvironment(){ return drawEnvironment; }
+	
+	/**
+	 * Each Bcell registers its intended path on the collision grid, once all B cells register 
 	 * the collision grid handles the movement at the next iteration the B cells are moved. 
 	 * B cells only collide with stroma
 	 */
 	@Override
 	public void step( final SimState state )//why is this final here
 	{
-		
 		m_i3lCollisionPoints.clear();
 		// If we have a stored movement, execute it
 		if ( m_d3aMovements != null && m_d3aMovements.size() > 0 )
@@ -137,7 +150,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			
 			// Remember which way we're now facing
 			m_d3Face = m_d3aMovements.get( m_d3aMovements.size() - 1 ).normalize();
-			
 			setObjectLocation( new Double3D( x, y, z ) );
 		}
 		
@@ -159,10 +171,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				}
 			}
 		}
-		else
-		{
-			vMovement = null;
-		}
+		else{ vMovement = null; }
 		
 		if ( vMovement == null || vMovement.lengthSq() == 0 )
 		{
@@ -175,61 +184,32 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		m_d3aMovements = new ArrayList<Double3D>();
 		m_d3aMovements.add( vMovement.multiply( Options.BC.TRAVEL_DISTANCE() ) );
 		
-		// Check for bounces
-		handleBounce();
+		handleBounce();                 // Check for bounces
 		
-		// Step forward the receptor ODE
-		receptorStep();
-		
-		// Register the new movement with the grid
-		registerCollisions( m_cgGrid );
+		//TODO i have updated the ODE and update receptors in the getMoveDirection method
+		// still not sure what the square root thing is about
+		//receptorStep2();
+		receptorStep();	                // Step forward the receptor ODE
+		registerCollisions( m_cgGrid ); // Register the new movement with the grid
 	}
-	
-	
-	/**
-	 * Adds a collision point to the list
-	 * @param i3Point Coordinates for the collision
-	 */
-	@Override
-	public void addCollisionPoint( Int3D i3Point )
-	{
-		m_i3lCollisionPoints.add( i3Point );
-	}
-	
-	/**
-	 * @return the ENUM representing the type of Collidable this cell is (BC)
-	 */
-	@Override
-	public CLASS getCollisionClass()
-	{
-		return CLASS.BC;
-	}
-	
-	@Override
-	public Continuous3D getDrawEnvironment()
-	{
-		return drawEnvironment;
-	}
-	
 	
 	
 
-
-	
-	////////////////////////////////////////////  Migration ////////////////////////////////////////////////////////
-	
-	
-	///////////////////// ODE ////////////////////////////
 	/**
-	 * Perform a step for the receptor TODO: this assumes a timestep of 1
-	 * second!
+	 * Perform a step for the receptor 
+	 * Euler method with step size 0.1
 	 * 
-	 * TODO go back to the way that we did it.
+	 * TODO IS THIS INTRODUCING BIAS FAVOURING ONE PROCESS OVER ANOTHER, SHOULD
+	 * ALL BE PERFORMED SIMULTANEOUSLY
+	 * 
+	 * TODO better methods exist, but this was quick to implement
+	 * TODO: This assumes a timestep of 1 second!
+	 * TODO: Unit tests for this method
+	 * TODO  Go back to the way that we did it.
 	 */
 	private void receptorStep()
 	{
-		// Euler method with step size 0.1
-		// TODO better methods exist, but this was quick to implement
+	
 		int iTimesteps = 10;
 		int iR_i, iR_d, iL_r;
 		for ( int i = 0; i < iTimesteps; i++ )
@@ -250,34 +230,56 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( displayGraph )
 		{
-			Grapher.addPoint( m_iR_free ); //this gives an error when run on console
+			//Grapher.addPoint( m_iR_free ); //this gives an error when run on console
 		}
 	}
 	
-	
-	/////////////////////////// Vector Model //////////////////////////////////
-	
-	
 	/**
+	 * Perform a step for the receptor 
+	 * Euler method with step size 0.1
 	 * 
-	 * TODO: This method is overly complicated, just need to assume receptors are spread throughout the cell
-	 *       
-	 *       
+	 * updated the ODE
+	 * 
+	 * TODO better methods exist, but this was quick to implement
+	 * TODO: This assumes a timestep of 1 second!
+	 * TODO: Unit tests for this method
+	 * TODO  Go back to the way that we did it.
+	 */
+	private void receptorStep2()
+	{
+	
+		int iTimesteps = 10;
+		int iR_i, iL_r;
+		for ( int i = 0; i < iTimesteps; i++ )
+		{
+			iR_i = m_iR_i;
+			iL_r = m_iL_r;
+			
+			m_iR_free += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
+			m_iR_i += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iL_r) - (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
+			m_iL_r -= (int) ((1.0 / iTimesteps)  * Options.BC.ODE.K_r() * iR_i);
+				
+		}
+		
+		if ( displayGraph )
+		{
+			//Grapher.addPoint( m_iR_free ); //this gives an error when run on console
+		}
+	}
+
+	
+	/**  
 	 * Definitely, need some unit tests for this method
 	 * 
-	 *       
 	 * Samples CXCL13 in the vicinity of the cell, and calculates a new movement
 	 * direction. Also removes some CXCL13 from the simulation.
-	 * 
-	 * Should just remove it at the gridpoint where you actually are
 	 * 
 	 * @return The new direction for the cell to move
 	 */
 	private Double3D getMoveDirection()
 	{
-		
-		// TODO encapsulate as getReceptorsBound
-		
+				
+		/*
 		// Get the surrounding concentrations
 		int[][][] ia3Concs = Particle.get( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z );
 		
@@ -293,7 +295,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// TODO this is just 1s!!
 		
 		
-		//TODO why is this here, we update the receptors elsewhere
+
 		for ( int i = 0; i < 6; i++ )
 		{
 			iaBoundReceptors[i] = (int) (Options.BC.ODE.K_a() * Math.sqrt( iReceptors * iaConcs[i] ));
@@ -301,9 +303,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			m_iL_r += iaBoundReceptors[i];
 		}
 		
+		*/
 		
-		
-		//encapsulate as removeReceptorsFrom Grid
+		int[] iaBoundReceptors = calculateLigandBinding();
 		
 		// Remove chemokine from the grid TODO: Just remove from where you are!!
 		Particle.add( Particle.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -iaBoundReceptors[0] );
@@ -317,7 +319,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		Double3D vMovement = new Double3D(); //the new direction for the cell to move
 		
-		
 		// X
 		vMovement = vMovement.add( new Double3D( 1, 0, 0 ).multiply( iaBoundReceptors[0] - iaBoundReceptors[1] ) );
 		// Y
@@ -327,28 +328,51 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		return vMovement;
 	}
+		
 	
-	
-	
-	
-	/////////////////////// Collisions and Bounces //////////////////////////
-	
-	
+	/*
+	 * Helper method to calculate the amount of ligand bound to receptor
+	 * returns an int array with the number of bound receptors at each psuedopod
+	 */
+	private int[] calculateLigandBinding()
+	{
+		// Get the surrounding concentrations
+		int[][][] ia3Concs = Particle.get( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z );
+		
+		// Assume the receptors are spread evenly around the cell
+		int iReceptors = m_iR_free / 6;
+		
+		// get CXCL13 concentrations at each psuedopod
+		// {x+, x-, y+, y-, z+, z-}
+		int[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
+				ia3Concs[1][1][0] };
+				
+		int[] iaBoundReceptors = new int[6]; //stores how many receptors are bound at each psuedopod
+		// TODO this is just 1s!!
+		
+		for ( int i = 0; i < 6; i++ )
+		{
+			iaBoundReceptors[i] = (int) (Options.BC.ODE.K_a() * Math.sqrt( iReceptors * iaConcs[i] ));//TODO WHY IS THERE A SQUARE ROOT HERE
+			m_iR_free -= iaBoundReceptors[i];
+			m_iL_r += iaBoundReceptors[i];
+		}
+		
+		
+		//receptorStep2(); //let's update this here and not in the step method and that way we can keep everything together
+		return iaBoundReceptors;
+		
+	}
 	
 	
 	@Override
 	public void registerCollisions( CollisionGrid cgGrid )
 
 	{
-		if ( cgGrid == null )
-		{
-			return;
-		}
+		if ( cgGrid == null ){ return; }
 		
 		double dPosX = x;
 		double dPosY = y;
 		double dPosZ = z;
-		
 		
 		for ( Double3D d3Movement : m_d3aMovements )
 		{
@@ -362,9 +386,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 	}
 	
-	
-	
-	
+
 	@Override
 	public void handleCollisions( CollisionGrid cgGrid )
 	{
@@ -434,24 +456,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 	}
 	
-	@Override
-	public boolean isStatic()
-	{
-		return false;
-	}
 	
-
-	
-	
-	
-
-	
-	
+	/*
+	 * Helper function which calculates the closest point between two lines
+	 * called by collideStromaEdge, returns the closest points between two lines
+	 * 
+	 * Has lots of parameter inputs but this was the only way to encapsulate collision methods
+	 */
 	private List<Double> findClosestPointsBetween(int i, Double3D p1, Double3D p2,Double3D d1, Double3D d2,double denom,double s, double t,double a
 			,double b, double c, double e, double f)
 	{
 			
-		
 			// if segments not parallel, compute closest point on L1 to L2
 			// and clamp to segment S1. Else pick arbritrary closest point S
 			// so compute closest point and clamp to segment 1
@@ -461,98 +476,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				}
 					
 			//compute point on L2 closest to S1(s) using
-			// t = Dot((P1+D1*s)-P1,D1)/Dot(D2,D2) = (b*s + f/e)
-					
+			// t = Dot((P1+D1*s)-P1,D1)/Dot(D2,D2) = (b*s + f/e)	
 			t = b * s + f;//divide by e at the end to optimise p.151
 					
 			// if t in [0,1] done. Else, clamp t, recompute s for the new value
 			// of t using s = Dot((P2 + D2*s) - P1,D1) / Dot(D1,D1) = (t*b - c) / a
-			if ( t < 0 )
-			{
-				t = 0;
-				s = Math.max( 0, Math.min( 1, -c / a ) );
-			}
-			else if ( t > e )
-			{
-				t = 1;
-					s = Math.max( 0, Math.min( 1, (b - c) / a ) );
-			}
-			else
-			{
-				t /= e;
-			}
-					
-		
-			List<Double>	closestPoints= new ArrayList<Double>();
-			closestPoints.add(s);
-			closestPoints.add(t);
-	
-			return closestPoints;
-	}
-	
-	
-	
-	
-	private Double findInitialCollisionPoint(StromaEdge seEdge, double s, double length, double e, double f, Double3D d1, Double3D d2, Double3D p1, Double3D p2)
-	{
-		//TODO once figure out which collideStromaEdge to use
-		// definite scope for some recursion here
-		return length;
-	}
-	
-	/**
-	 * Updated version of the algorithm - does not pass test cases
-	 * @param seEdge
-	 * @param iCollisionMovement
-	 * @return
-	 */
-	//new version
-	private boolean collideStromaEdgeNew( StromaEdge seEdge, int iCollisionMovement )
-	{
-		Double3D p1 = new Double3D( x, y, z );
-		Double3D p2 = seEdge.getPoint1();
-		Double3D d2 = seEdge.getPoint2().subtract( p2 );
-		
-		for ( int i = 0; i < iCollisionMovement; i++ )
-		{
-			Double3D d1 = m_d3aMovements.get( i );
-			
-			// The two lines are p1 + s*d1 and p2 + t*d2
-			// We are essentially trying to find the closest point between the
-			// lines because that's an easy problem
-			// using the fact that the line between them would be orthogonal to
-			// both lines
-			
-			double s = 0;
-			double t = 0;
-			
-			// This is all vector math explained in the following link. We are
-			// essentially solving a system of linear
-			// equations, and all the details are there.
-			// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
-			// p146
-			
-			Double3D r = p1.subtract( p2 );
-			
-			double a = Vector3DHelper.dotProduct( d1, d1 );
-			double b = Vector3DHelper.dotProduct( d1, d2 );
-			double c = Vector3DHelper.dotProduct( d1, r );
-			double e = Vector3DHelper.dotProduct( d2, d2 );
-			double f = Vector3DHelper.dotProduct( d2, r );
-			
-			// differing from the link, we assume that neither are points (zero
-			// length)
-			
-			double denom = a * e - b * b; // >= 0
-			
-			// not parallel, so compute closest point and clamp to segment 1
-			if ( denom != 0 )
-			{
-				s = Math.min( 1.0, Math.max( 0.0, (b * f - c * e) / denom ) );
-			}
-			
-			t = b * s + f;
-			
 			if ( t < 0 )
 			{
 				t = 0;
@@ -567,165 +495,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			{
 				t /= e;
 			}
-			
-			// So c1 and c2 are the points on the two lines which are closest to
-			// one another
-			Double3D c1 = p1.add( d1.multiply( s ) );
-			Double3D c2 = p2.add( d2.multiply( t ) );
-			
-			double length = Vector3DHelper.dotProduct( c1.subtract( c2 ), c1.subtract( c2 ) );
-			
-			boolean bCollide = false;
-			
-			// If the length is within a range (note: we use length*1.05 to
-			// improve computation time. It is a good approximation
-			if (  length < BC_SE_COLLIDE_DIST_SQ )
-			{
-				bCollide = true;
-				double sNew = s;
 				
-				// We want to find the actual point we collide so let's
-				// backtrack a bit. We use 1.02 so this process doesn't go
-				// on forever. We don't get the exact point, but this does add a
-				// little elasticity
-				// Basically repeat the process until we go over
-				while (length < BC_SE_COLLIDE_DIST_SQ && s > 0 && s < 1)
-				{
-					s = sNew;
-					// (Options.BC.COLLISION_RADIUS +
-					// Options.FDC.STROMA_EDGE_RADIUS-Math.sqrt(length)) is the
-					// length we're missing
-					// So we just add that on. TODO If lines are basically
-					// parallel, this might take a while
-					double dSinTheta = Math.sqrt( Vector3DHelper.crossProduct( d2, d1 ).lengthSq()/(d2.lengthSq()*d1.lengthSq()) ); // sin th
-					double dActualLength = Math.sqrt( length );
-					
-					sNew = Math.max( 0, s-(0.02+Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - dActualLength)/(dSinTheta*d1.length()) );/**/
-					
-					/*sNew = Math.max( 0,
-							s - (0.1 + Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - Math.sqrt( length ))
-									/ d1.length() );/**/
-
-					//TODO this section isn't very efficient which is unfortunate given how often it will be run...
-					// Firstly, if t==0 or t==1 then the above will be an awful approximation. I think the math was ok, but I'm not 100%...
-					
-					
-					// Collision Detection p. 130
-					// ab = d2, ac = point - p2, bc = point - seEdge.getPoint2()
-					Double3D ac = p1.add( d1.multiply( sNew ) ).subtract(p2);
-					Double3D bc = p1.add( d1.multiply( sNew ) ).subtract(seEdge.getPoint2());
-					e = Vector3DHelper.dotProduct( ac, d2 );
-					
-					if ( e <= 0 )
-					{
-						length = Vector3DHelper.dotProduct( ac, ac );
-					}
-					else
-					{
-						f = Vector3DHelper.dotProduct( d2, d2 );
-						
-						if ( e >= f )
-						{
-							length = Vector3DHelper.dotProduct( bc, bc );
-						}
-						else
-						{
-							length = Vector3DHelper.dotProduct( ac, ac ) - e*e/f;
-						}
-					}
-				}
-			}
-			
-			if ( s == 0 )
-			{
-				Double3D d3Vec = c1.subtract( c2 );
-				
-				// we're already moving away!
-				if ( Vector3DHelper.dotProduct( d3Vec, d1 ) > 0 )
-				{
-					bCollide = false;
-				}
-			}
-			else if ( s == 1 )
-			{
-				bCollide = false;
-			}
-			
-			// if we collide, check if the nearest point isn't at the end. If it
-			// is, then we've already collided with something in
-			// a previous step so don't bother
-			if ( bCollide )
-			{
-				Double3D d3NewDir;
-				
-				// Get the approach direction normalised, and in reverse
-				Double3D d3MovementNormal = d1.multiply( -1 ).normalize();
-				
-				// We hit bang in the middle so just bounce - unlikely!
-				if ( length == 0 )
-				{
-					d3NewDir = d3MovementNormal;
-				}
-				else
-				{
-					// Calculate the direction from the stroma collision point
-					// to the BC collision point
-					Double3D d3BounceNormal = p1.add( d1.multiply( s ) ).subtract( p2.add( d2.multiply( t ) ) )
-							.normalize();
-							
-					// reflect the movement normal about this point (rotate to
-					// it, and apply the same rotation again)
-					d3NewDir = Vector3DHelper.rotateVectorToVector( d3MovementNormal, d3MovementNormal,
-							d3BounceNormal );
-					d3NewDir = Vector3DHelper.rotateVectorToVector( d3NewDir, d3MovementNormal, d3BounceNormal );
-				}
-				
-				// Set the new movement
-				d1 = d1.multiply( s );
-				
-				if ( d1.lengthSq() > 0 )
-				{
-					m_d3aMovements.set( i, d1 );
-					i++;
-				}
-				
-				// We need to add up all vectors after this one so we can add a
-				// new vector of this length
-				double dNewLength = 0;
-				while (m_d3aMovements.size() > i)
-				{
-					dNewLength += m_d3aMovements.get( i ).length();
-					m_d3aMovements.remove( i );
-				}
-				
-				// add the remaining length of the current movement
-				dNewLength += d1.length() * (1 - s);
-				
-				// slow down based on how fast we changed direction
-				dNewLength *= (2+Vector3DHelper.dotProduct( d3NewDir, d3MovementNormal ))/3;
-				
-				d3NewDir = d3NewDir.multiply( dNewLength );
-				
-				if ( d3NewDir.lengthSq() > 0 )
-				{
-					m_d3aMovements.add( d3NewDir );
-				}
-				
-				return true;
-			}
-			else
-			{
-				// Move the BC location according to full the movement.
-				p1 = p1.add( d1 );
-			}
-		}
-		
-		return false;
+			List<Double> closestPoints= new ArrayList<Double>();
+			closestPoints.add(s);
+			closestPoints.add(t);
+	
+			return closestPoints;
 	}
+	
 	
 
 	/**
-	 * Old Version
+	 * Old Version - TODO needs to be updated once Simon fixes bugs
 	 * 
 	 * Performs collision detection and handling with Stroma Edges (cylinders)
 	 * 
@@ -743,14 +524,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		Double3D p2 = seEdge.getPoint1();
 		Double3D d2 = seEdge.getPoint2().subtract( p2 );
 		
-		
-		//TODO encapsulate as getShortestPoint, returns the shortest point between stromal edge and a B cell
+	
 		for ( int i = 0; i < iCollisionMovement; i++ )
 		{
 			
-			
-		
-			Double3D d1 = m_d3aMovements.get( i );//what is this variable
+			Double3D d1 = m_d3aMovements.get( i );
 			
 			// The two lines are p1 + s*d1 and p2 + t*d2
 			// We are essentially trying to find the closest point between the
@@ -777,7 +555,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			//
 			
 			Double3D r = p1.subtract( p2 ); // p1 - p2
-			
 			double a = Vector3DHelper.dotProduct( d1, d1 ); //squared length of segment s1, always positive
 			double b = Vector3DHelper.dotProduct( d1, d2 ); 
 			double c = Vector3DHelper.dotProduct( d1, r );
@@ -790,9 +567,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			//(d1.d1)(d2.d2) - (d1.d2)(d1.d2)
 			double denom = a * e - b * b; // >= 0
 			
-		
-			
-			//TODO chat with simon about this there may be an error as not definitely orthogonal
 			List<Double>closestPoints= findClosestPointsBetween(i,p1,p2,d1,d2,denom,s,t,a,b,c,e,f);
 			
 			s = closestPoints.get(0);
@@ -808,18 +582,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			//remember that the dot product of a vector times a vector equals its length squared
 			double length = Vector3DHelper.dotProduct( c1.subtract( c2 ), c1.subtract( c2 ) );
 			
-			
-		
-			
-	
-			
-			
 			//Now we have found the shortest point betweeen b cell and stroma, they may have interacted long before this
 			// need to find the exact point sNew at which they interact
 			// TODO this bit of code could definitely be optimised but just need to figure out a way to do so
 			// TODO encapsulate as find intialInteractionPoint TODO not until i see simons fix for this
-			
-			
 			//and some guards for if not colliding but need to seperate out as this are different tasks
 			
 			boolean bCollide = false; //what is this variable doing
@@ -829,7 +595,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			{
 				bCollide = true;  // set the collision flag for the B cell to true
 				double sNew = s; // TODO what is this variable doing
-				
 				
 				// We want to find the actual point we collide so let's
 				// backtrack a bit. . We don't get the exact point, but this does add a
@@ -893,11 +658,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			{
 				bCollide = false;
 			}
-			
-			
-			
-			
-			
 			
 			// handles the actual collision, as in performs bounces!!
 			// TODO encapsulate
@@ -972,9 +732,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	}
 	
 
-	
-	
-
 	/**
 	 * Bounces the cell back inside the boundaries Very long method! There's a
 	 * lot of repeated code, but it's hard to efficiently abstract it out into
@@ -1043,12 +800,14 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	}
 	
 	
-	
+	/*
+	 * Helper method which handles collisions between a B cell and 
+	 * the simulation borders along the X-axis
+	 */
 	private boolean handleBounceXaxis(double dPosX, int iMovementIndex){
 		// There might be multiple vectors, so we need to keep track
 		// of position, and whether we've hit the wall yet or not
 		boolean bBounce = false;
-		
 		
 		double dTempPosX = dPosX; //what are these variables keeping track of...
 		boolean bFlipped = false;
@@ -1111,7 +870,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	}
 	
 	
-	
+	/*
+	 * Helper method which handles collisions between a B cell and the 
+	 * simulation borders along the Y-axis
+	 */
 	private boolean handleBounceYaxis(double dPosY, int iMovementIndex){
 		// There might be multiple vectors now, so we need to keep track
 		// of position, and whether we've hit the wall yet or not
@@ -1177,6 +939,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		return bBounce;
 	}
 	
+	
+    /*
+     *  Helper method which handles collisions between a B cell and 
+     *  the simulation borders along the Z-axis
+     */
 	private boolean handleBounceZaxis(double dPosZ, int iMovementIndex){
 		// There might be multiple vectors now, so we need to keep track
 		// of position, and whether we've hit the wall yet or not
@@ -1283,6 +1050,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 	
 	/*
+	 * Helper method
 	 * Model movement of movement and add a white line indicating the orientation of the B cell 
 	 */
 	private void modelMovements(List<Double3D> m_d3aMovements2,Object obj, TransformGroup transf)
@@ -1330,6 +1098,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 	
 	/*
+	 * Helper method
 	 * Modelling collisions as red dots, called by getModel()
 	 */
 	private void modelCollisions(ArrayList<Double3D> m_d3aCollisions,Object obj, TransformGroup transf)

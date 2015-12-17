@@ -301,8 +301,9 @@ public class Particle extends IntGrid3D implements Steppable
 	 */
 	public void step( final SimState state )
 	{
-		decay();
 		
+	
+		decay();
 		for ( int i = 0; i < Options.DIFFUSION_STEPS; i++ )
 		{
 			m_daDiffusionAlgorithm.diffuse( this );
@@ -322,6 +323,7 @@ public class Particle extends IntGrid3D implements Steppable
 			for ( int y = 0; y < m_iHeight; y++ )
 			{
 				m_ig2Display.set( x, y, field[x][y][m_iDisplayLevel] );
+			
 			}
 		}
 	}

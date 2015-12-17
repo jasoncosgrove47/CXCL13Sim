@@ -9,10 +9,8 @@ import sim3d.SimulationEnvironment;
 import sim3d.cell.StromaEdge;
 
 /**
- * A Singleton class implementing the method of generating stroma proposed by
- * Kislitsyn et al. in
- * "Computational Approach to 3D Modeling of the Lymph Node Geometry",
- * Computation, 2015.
+ * A Singleton class implementing the method of generating stroma proposed by Kislitsyn et al. 
+ * in "Computational Approach to 3D Modeling of the Lymph Node Geometry", Computation, 2015.
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
@@ -36,8 +34,8 @@ public class FRCStromaGenerator
 		/**
 		 * A list containing all the edges
 		 * 
-		 * NB: this will only be accurate for cells that haven't been generated. We're only interested in these
-		 * because they are needed to generate the directions
+		 * NB: this will only be accurate for cells that haven't been generated. 
+		 * We're only interested in these because they are needed to generate the directions
 		 */
 		ArrayList<Double3D>	d3lEdges	= new ArrayList<Double3D>();
 		
@@ -65,22 +63,18 @@ public class FRCStromaGenerator
 	/**
 	 * Generates a stromal network and returns the nodes in a 3D boolean array.
 	 * 
-	 * @param iWidth
-	 *            Width of grid
-	 * @param iHeight
-	 *            Height of grid
-	 * @param iDepth
-	 *            Depth of grid
-	 * @param iCellCount
-	 *            Max number of stromal cells (note: this is a upper bound only)
-	 * @return
+	 * @param iWidth Width of grid
+	 * @param iHeight Height of grid
+	 * @param iDepth Depth of grid
+	 * @param iCellCount  Max number of stromal cells (note: this is a upper bound only)
+	 * @return TODO 
 	 */
 	public static int generateStroma3D( int iWidth, int iHeight, int iDepth, int iCellCount,
 			ArrayList<FRCCell> frclCellLocations, List<StromaEdge> selEdges )
 	{
 		// It will be efficient to keep track of cells and locations separately
-		@SuppressWarnings( "unchecked" ) // because it is of an abstract
-											// interface
+		@SuppressWarnings( "unchecked" ) // because it is of an abstract interface
+		
 		ArrayList<FRCCell>[][][] frcla3CellLocations = new ArrayList[iWidth][iHeight][iDepth];
 		ArrayList<FRCCell> frclUnbranchedCells = new ArrayList<FRCCell>();
 		
@@ -108,10 +102,7 @@ public class FRCStromaGenerator
 			// FRCCell frcNextCell = frclUnbranchedCells.get(
 			// Options.RNG.nextInt(frclUnbranchedCells.size()) );
 			
-			if ( frcNextCell == null )
-			{
-				break;
-			}
+			if ( frcNextCell == null ){ break;}
 			
 			// Calculate the number of edges to make
 			// TODO Magic numbers! These seem to work, though...
@@ -121,10 +112,7 @@ public class FRCStromaGenerator
 
 			// This is the first time so we want at few edges otherwise
 			// generation will break sometimes
-			if ( iRemainingCells == iCellCount - 1 )
-			{
-				iEdges++;
-			}
+			if ( iRemainingCells == iCellCount - 1 ){ iEdges++; }
 			
 			// if we have edges to add
 			if ( iEdges > 0 )
