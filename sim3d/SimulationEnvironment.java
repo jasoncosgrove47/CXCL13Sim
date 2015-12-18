@@ -134,10 +134,70 @@ public class SimulationEnvironment extends SimState
 		// BCs will need to update their collision profile each 
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
-		addLymphocytes(); //add lymphocytes to the grid
-		
+		//addLymphocytes(); //add lymphocytes to the grid
+		seedCells();
 		new Particle( schedule, Particle.TYPE.CXCL13, Options.WIDTH, Options.HEIGHT, Options.DEPTH );// add particles
 	}
+	
+	
+
+	/**
+	 * Tests whether co-ordinates x,y are not in the circle centered at circleCentreX, circleCentreY with a specified radius
+	 * @return boolean determining whether inside (false) or outside (true) the circle
+	 */
+	public boolean isWithinCircle(int x,int y,int circleCentreX, int circleCentreY, int radius)
+		{
+		double termOne = Math.pow((x - circleCentreX),2);	//calculate the distance from test.x to centre.x and square it
+		double termTwo = Math.pow((y - circleCentreY),2); 	//calculate the distance from test.y to centre.y and square it
+		
+		if( (termOne + termTwo) < Math.pow(radius, 2)) 		//test whether the point is in the circle using pythagoras theorem
+		{
+			return true;
+		}	
+		else return false;
+	}
+	
+   public void seedCells(){
+	   int x;
+	   int y;
+	   int z;
+	   for ( int i = 0; i < Options.BC.COUNT; i++ )
+	   {
+		   
+		   System.out.println(i);
+		   do
+		   {
+			   x = random.nextInt( Options.WIDTH - 2) + 1 ;
+			   y = random.nextInt( Options.HEIGHT - 2 ) + 1;
+			   z = random.nextInt( Options.DEPTH - 2 ) + 1;
+			   
+		   } while (isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20) == false);
+		   System.out.println(isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
+		   
+		   //while (isNotWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
+		   
+		   
+		   Double3D loc = new Double3D(x,y,z);
+		  
+		   //Double3D loc = new Double3D( random.nextInt( Options.WIDTH - 2 ) + 1,
+			//		random.nextInt( Options.HEIGHT - 2 ) + 1, random.nextInt( Options.DEPTH - 2 ) + 1 );			
+			
+			BC bc = new BC();
+			
+			// Register with display
+			bc.setObjectLocation( loc );
+			
+			schedule.scheduleRepeating( bc, 0, 1 );
+			
+			// so we only have 1 BC updating the ODE graph
+			// TODO a boolean guard added as an input to the 
+			// simulation would be better for this
+			if ( i == 0 )
+			{
+				bc.displayGraph = true;
+			}
+	   }
+   }
 	
 	
 	/**
@@ -149,8 +209,8 @@ public class SimulationEnvironment extends SimState
 		{
 			// Randomly locate the cells
 			Double3D loc = new Double3D( random.nextInt( Options.WIDTH - 2 ) + 1,
-					random.nextInt( Options.HEIGHT - 2 ) + 1, random.nextInt( Options.DEPTH - 2 ) + 1 );
-
+					random.nextInt( Options.HEIGHT - 2 ) + 1, random.nextInt( Options.DEPTH - 2 ) + 1 );			
+			
 			BC bc = new BC();
 			
 			// Register with display

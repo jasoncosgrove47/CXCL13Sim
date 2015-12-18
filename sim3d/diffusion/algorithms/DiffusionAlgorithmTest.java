@@ -149,8 +149,7 @@ public class DiffusionAlgorithmTest
 			}
 		}
 		iMeanSquare /= 1000;
-		System.out.println((i+1) * Options.DIFFUSION_STEPS * Options.DIFFUSION_TIMESTEP);
-		System.out.println(iMeanSquare/(6 * (i+1) * Options.DIFFUSION_STEPS * Options.DIFFUSION_TIMESTEP));
+
 		}
 
 		assertThat(iMeanSquare/(6 * iNumSteps * Options.DIFFUSION_STEPS * Options.DIFFUSION_TIMESTEP), is(closeTo(Options.DIFFUSION_COEFFICIENT, Options.DIFFUSION_COEFFICIENT/2)));

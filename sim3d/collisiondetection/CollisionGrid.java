@@ -106,14 +106,24 @@ public class CollisionGrid implements Steppable
 			}
 		}
 		
+		//add to the list of colliding coordinates
+		if ( !m_i3lCollisionPoints.contains( new Int3D( x, y, z ) ) )
+		{
+			m_i3lCollisionPoints.add( new Int3D( x, y, z ) );
+		}
+		
+		//check if it's already collided
+		if(m_clGridSpaces[x][y][z].contains( cObject )){
+			return;
+		}
+		
 		// Add the new object to the grid space
 		m_clGridSpaces[x][y][z].add( cObject );
 		
 		// If there is now exactly two Collidables in this grid space
 		if ( m_clGridSpaces[x][y][z].size() == 2 )
 		{
-			// Add to the list of colliding coordinates
-			m_i3lCollisionPoints.add( new Int3D( x, y, z ) );
+			
 			
 			// There's a potential collision so tell the other cell, too
 			m_clGridSpaces[x][y][z].get( 0 ).addCollisionPoint( new Int3D( x, y, z ) );
@@ -123,11 +133,7 @@ public class CollisionGrid implements Steppable
 		
 		else if ( m_clGridSpaces[x][y][z].size() > 2 )
 		{
-			//add to the list of colliding coordinates
-			if ( !m_i3lCollisionPoints.contains( new Int3D( x, y, z ) ) )
-			{
-				m_i3lCollisionPoints.add( new Int3D( x, y, z ) );
-			}
+		   
 			// There's a potential collision so tell the cells, too
 			for ( Collidable cCollidable : m_clGridSpaces[x][y][z] )
 			{

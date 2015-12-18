@@ -54,4 +54,5 @@ public interface Collidable
 	 * @return The type of Collidable for this object
 	 */
 	public abstract CLASS getCollisionClass();
+
 }

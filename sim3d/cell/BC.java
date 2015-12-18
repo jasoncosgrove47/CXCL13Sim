@@ -108,10 +108,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	/**
 	 * Points on the collision grid we're intersecting with something
 	 */
-	List<Int3D>					m_i3lCollisionPoints	= new ArrayList<Int3D>();
+	HashSet <Int3D>					m_i3lCollisionPoints	= new HashSet<Int3D>();
 		
 	@Override
 	public boolean isStatic(){ return false; }
+	
+	
+	
+	
+	
 	
 	/**
 	 * Adds a collision point to the list
@@ -188,8 +193,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		//TODO i have updated the ODE and update receptors in the getMoveDirection method
 		// still not sure what the square root thing is about
-		//receptorStep2();
-		receptorStep();	                // Step forward the receptor ODE
+		receptorStep2();
+		//receptorStep();	                // Step forward the receptor ODE
 		registerCollisions( m_cgGrid ); // Register the new movement with the grid
 	}
 	
@@ -230,7 +235,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( displayGraph )
 		{
-			//Grapher.addPoint( m_iR_free ); //this gives an error when run on console
+			Grapher.addPoint( m_iR_free ); //this gives an error when run on console
 		}
 	}
 	
@@ -263,7 +268,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( displayGraph )
 		{
-			//Grapher.addPoint( m_iR_free ); //this gives an error when run on console
+		  Grapher.addPoint( m_iR_free ); //this gives an error when run on console
 		}
 	}
 
@@ -390,7 +395,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	@Override
 	public void handleCollisions( CollisionGrid cgGrid )
 	{
-		if ( m_i3lCollisionPoints.size() == 0 )
+		if ( m_i3lCollisionPoints.size() == 0 )//TODO OR collisions ALREADYHAD > 10
 		{
 			return;
 		}
@@ -420,6 +425,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				// These first two are the more likely hits as they won't be
 				// moving
 				case STROMA_EDGE:
+					// if collisionAlreadyHad > 10: break
+					
 					if ( collideStromaEdge( (StromaEdge) cCell, iCollisionMovement ) )
 					{
 						iCollisionMovement = m_d3aMovements.size() - 1;
@@ -1122,6 +1129,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			}
 		}
 	}
+
+
+
+
+
 	
 	
 	
