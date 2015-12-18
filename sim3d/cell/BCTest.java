@@ -222,6 +222,8 @@ public class BCTest
 			
 			avDistance += bcLoc.length();
 			
+			System.out.println(bcLoc.length());
+			
 			if ( maxDist < bcLoc.length() )
 			{
 				maxDist = bcLoc.length();
@@ -231,6 +233,11 @@ public class BCTest
 		
 		//again not sure what these are doing
 		assertThat(avDistance/100, lessThan(3.0));
+		
+		//maybe we should assume that 90% should be a better test
+		
+	
+			
 		assertThat(maxDist, lessThan(3.1));
 		
 		// so we don't break other tests!

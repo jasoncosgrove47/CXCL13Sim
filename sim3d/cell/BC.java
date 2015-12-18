@@ -425,11 +425,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				// These first two are the more likely hits as they won't be
 				// moving
 				case STROMA_EDGE:
-					// if collisionAlreadyHad > 10: break
 					
-					if ( collideStromaEdge( (StromaEdge) cCell, iCollisionMovement ) )
+					
+					if ( collideStromaEdge( (StromaEdge) cCell, iCollisionMovement ) )//TODO we can get T from this method
 					{
 						iCollisionMovement = m_d3aMovements.size() - 1;
+						//TODO take antigen in this case
+						//get s and t from find closest points and (t is the percentage you are along the stroma)
+						// then call FDC and based on which half you are in take away some antigne
+						
 						bCollision = true;
 					}
 					break;
@@ -509,6 +513,236 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 			return closestPoints;
 	}
+	
+	
+	
+	/**
+	 * Performs collision detection and handling with Stroma Edges (cylinders)
+	 * 
+	 * @param seEdge
+	 *            The edge to check collision with
+	 * @param iCollisionMovement
+	 *            The movement to check collisions up to (this is to prevent
+	 *            colliding before bounces are handled)
+	 * @return true if a collision occurs
+	 */
+	private boolean collideStromaEdgeNEW( StromaEdge seEdge, int iCollisionMovement )
+	{
+		Double3D p1 = new Double3D( x, y, z );
+		Double3D p2 = seEdge.getPoint1();
+		Double3D d2 = seEdge.getPoint2().subtract( p2 );
+		
+		for ( int i = 0; i < iCollisionMovement; i++ )
+		{
+			Double3D d1 = m_d3aMovements.get( i );
+			
+			// The two lines are p1 + s*d1 and p2 + t*d2
+			// We are essentially trying to find the closest point between the
+			// lines because that's an easy problem
+			// using the fact that the line between them would be orthogonal to
+			// both lines
+			
+			double s = 0;
+			double t = 0;
+			
+			// This is all vector math explained in the following link. We are
+			// essentially solving a system of linear
+			// equations, and all the details are there.
+			// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
+			// p146
+			
+			Double3D r = p1.subtract( p2 );
+			
+			double a = Vector3DHelper.dotProduct( d1, d1 );
+			double b = Vector3DHelper.dotProduct( d1, d2 );
+			double c = Vector3DHelper.dotProduct( d1, r );
+			double e = Vector3DHelper.dotProduct( d2, d2 );
+			double f = Vector3DHelper.dotProduct( d2, r );
+			
+			// differing from the link, we assume that neither are points (zero
+			// length)
+			
+			double denom = a * e - b * b; // >= 0
+			
+			// not parallel, so compute closest point and clamp to segment 1
+			if ( denom != 0 )
+			{
+				s = Math.min( 1.0, Math.max( 0.0, (b * f - c * e) / denom ) );
+			}
+			
+			t = b * s + f;
+			
+			if ( t < 0 )
+			{
+				t = 0;
+				s = Math.max( 0, Math.min( 1, -c / a ) );
+			}
+			else if ( t > e )
+			{
+				t = 1;
+				s = Math.max( 0, Math.min( 1, (b - c) / a ) );
+			}
+			else
+			{
+				t /= e;
+			}
+			
+			// So c1 and c2 are the points on the two lines which are closest to
+			// one another
+			Double3D c1 = p1.add( d1.multiply( s ) );
+			Double3D c2 = p2.add( d2.multiply( t ) );
+			
+			double length = Vector3DHelper.dotProduct( c1.subtract( c2 ), c1.subtract( c2 ) );
+			
+			boolean bCollide = false;
+			
+			// If the length is within a range (note: we use length*1.05 to
+			// improve computation time. It is a good approximation
+			if (  length < BC_SE_COLLIDE_DIST_SQ )
+			{
+				bCollide = true;
+				double sNew = s;
+				
+				// We want to find the actual point we collide so let's
+				// backtrack a bit. We use 1.02 so this process doesn't go
+				// on forever. We don't get the exact point, but this does add a
+				// little elasticity
+				// Basically repeat the process until we go over
+				while (length < BC_SE_COLLIDE_DIST_SQ && s > 0 && s < 1)
+				{
+					s = sNew;
+					// (Options.BC.COLLISION_RADIUS +
+					// Options.FDC.STROMA_EDGE_RADIUS-Math.sqrt(length)) is the
+					// length we're missing
+					// So we just add that on. TODO If lines are basically
+					// parallel, this might take a while
+					double dSinTheta = Math.sqrt( Vector3DHelper.crossProduct( d2, d1 ).lengthSq()/(d2.lengthSq()*d1.lengthSq()) ); // sin th
+					double dActualLength = Math.sqrt( length );
+					
+					sNew = Math.max( 0, s-(0.02+Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - dActualLength)/(dSinTheta*d1.length()) );/**/
+					
+					/*sNew = Math.max( 0,
+							s - (0.1 + Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - Math.sqrt( length ))
+									/ d1.length() );/**/
+
+					//TODO this section isn't very efficient which is unfortunate given how often it will be run...
+					// Firstly, if t==0 or t==1 then the above will be an awful approximation. I think the math was ok, but I'm not 100%...
+					
+					
+					// Collision Detection p. 130
+					// ab = d2, ac = point - p2, bc = point - seEdge.getPoint2()
+					Double3D ac = p1.add( d1.multiply( sNew ) ).subtract(p2);
+					Double3D bc = p1.add( d1.multiply( sNew ) ).subtract(seEdge.getPoint2());
+					e = Vector3DHelper.dotProduct( ac, d2 );
+					
+					if ( e <= 0 )
+					{
+						length = Vector3DHelper.dotProduct( ac, ac );
+					}
+					else
+					{
+						f = Vector3DHelper.dotProduct( d2, d2 );
+						
+						if ( e >= f )
+						{
+							length = Vector3DHelper.dotProduct( bc, bc );
+						}
+						else
+						{
+							length = Vector3DHelper.dotProduct( ac, ac ) - e*e/f;
+						}
+					}
+				}
+			}
+			
+			if ( s == 0 )
+			{
+				Double3D d3Vec = c1.subtract( c2 );
+				
+				// we're already moving away!
+				if ( Vector3DHelper.dotProduct( d3Vec, d1 ) > 0 )
+				{
+					bCollide = false;
+				}
+			}
+			else if ( s == 1 )
+			{
+				bCollide = false;
+			}
+			
+			// if we collide, check if the nearest point isn't at the end. If it
+			// is, then we've already collided with something in
+			// a previous step so don't bother
+			if ( bCollide )
+			{
+				Double3D d3NewDir;
+				
+				// Get the approach direction normalised, and in reverse
+				Double3D d3MovementNormal = d1.multiply( -1 ).normalize();
+				
+				// We hit bang in the middle so just bounce - unlikely!
+				if ( length == 0 )
+				{
+					d3NewDir = d3MovementNormal;
+				}
+				else
+				{
+					// Calculate the direction from the stroma collision point
+					// to the BC collision point
+					Double3D d3BounceNormal = p1.add( d1.multiply( s ) ).subtract( p2.add( d2.multiply( t ) ) )
+							.normalize();
+							
+					// reflect the movement normal about this point (rotate to
+					// it, and apply the same rotation again)
+					d3NewDir = Vector3DHelper.rotateVectorToVector( d3MovementNormal, d3MovementNormal,
+							d3BounceNormal );
+					d3NewDir = Vector3DHelper.rotateVectorToVector( d3NewDir, d3MovementNormal, d3BounceNormal );
+				}
+				
+				// Set the new movement
+				d1 = d1.multiply( s );
+				
+				if ( d1.lengthSq() > 0 )
+				{
+					m_d3aMovements.set( i, d1 );
+					i++;
+				}
+				
+				// We need to add up all vectors after this one so we can add a
+				// new vector of this length
+				double dNewLength = 0;
+				while (m_d3aMovements.size() > i)
+				{
+					dNewLength += m_d3aMovements.get( i ).length();
+					m_d3aMovements.remove( i );
+				}
+				
+				// add the remaining length of the current movement
+				dNewLength += d1.length() * (1 - s);
+				
+				// slow down based on how fast we changed direction
+				dNewLength *= (2+Vector3DHelper.dotProduct( d3NewDir, d3MovementNormal ))/3;
+				
+				d3NewDir = d3NewDir.multiply( dNewLength );
+				
+				if ( d3NewDir.lengthSq() > 0 )
+				{
+					m_d3aMovements.add( d3NewDir );
+				}
+				
+				return true;
+			}
+			else
+			{
+				// Move the BC location according to full the movement.
+				p1 = p1.add( d1 );
+			}
+		}
+		
+		return false;
+	}
+	
+	
 	
 	
 
@@ -607,9 +841,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				// backtrack a bit. . We don't get the exact point, but this does add a
 				// little elasticity
 				// Basically repeat the process until we go over
-				while (length < BC_SE_COLLIDE_DIST_SQ && s > 0 && s < 1)
+				while (length < BC_SE_COLLIDE_DIST_SQ+ 0.05 && s > 0 && s < 1)
 				{
-					s = sNew; 
+					
 					// (Options.BC.COLLISION_RADIUS +
 					// Options.FDC.STROMA_EDGE_RADIUS-Math.sqrt(length)) is the
 					// length we're missing
@@ -618,7 +852,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 					double dSinTheta = Math.sqrt( Vector3DHelper.crossProduct( d2, d1 ).lengthSq()/(d2.lengthSq()*d1.lengthSq()) ); // sin th
 					double dActualLength = Math.sqrt( length );
 					
-					sNew = Math.max( 0, s-(0.02+Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - dActualLength)/(dSinTheta*d1.length()) );/**/
+					sNew = Math.max( 0, s-(0.04+Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - dActualLength)/(dSinTheta*d1.length()) );/**/
 					
 					
 					//TODO what is this code for
@@ -628,7 +862,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 
 					//TODO this section isn't very efficient which is unfortunate given how often it will be run...
 					// Firstly, if t==0 or t==1 then the above will be an awful approximation. I think the math was ok, but I'm not 100%...
-					
+					/*
 					t = b * sNew + f;
 					
 					if ( t < 0 )
@@ -647,8 +881,38 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 					c1 = p1.add( d1.multiply( sNew ) );
 					c2 = p2.add( d2.multiply( t ) );
 					length = Vector3DHelper.dotProduct( c1.subtract( c2 ), c1.subtract( c2 ) );
+					*/
+					
+
+					// Collision Detection p. 130
+					// ab = d2, ac = point - p2, bc = point - seEdge.getPoint2()
+					Double3D ac = p1.add( d1.multiply( sNew ) ).subtract(p2);
+					Double3D bc = p1.add( d1.multiply( sNew ) ).subtract(seEdge.getPoint2());
+					e = Vector3DHelper.dotProduct( ac, d2 );
+					
+					if ( e <= 0 )
+					{
+						length = Vector3DHelper.dotProduct( ac, ac );
+					}
+					else
+					{
+						f = Vector3DHelper.dotProduct( d2, d2 );
+						
+						if ( e >= f )
+						{
+							length = Vector3DHelper.dotProduct( bc, bc );
+						}
+						else
+						{
+							length = Vector3DHelper.dotProduct( ac, ac ) - e*e/f;
+						}
+					}
+					s = sNew; 
 				}
+				
+				
 			}
+			
 			
 		
 			if ( s == 0 )
