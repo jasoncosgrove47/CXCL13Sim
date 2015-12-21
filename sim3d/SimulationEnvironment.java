@@ -136,6 +136,7 @@ public class SimulationEnvironment extends SimState
 		BC.m_cgGrid = cgGrid;
 		//addLymphocytes(); //add lymphocytes to the grid
 		seedCells();
+		seedCognateCells();
 		new Particle( schedule, Particle.TYPE.CXCL13, Options.WIDTH, Options.HEIGHT, Options.DEPTH );// add particles
 	}
 	
@@ -199,18 +200,31 @@ public class SimulationEnvironment extends SimState
    }
 	
 	
-	/**
-	 * Adds Lymphocytes to their respective gridspaces 
-	 * TODO update so it only adds them to the follicle
-	 */
-	private void addLymphocytes(){
-		for ( int x = 0; x < Options.BC.COUNT; x++ )
-		{
-			// Randomly locate the cells
-			Double3D loc = new Double3D( random.nextInt( Options.WIDTH - 2 ) + 1,
-					random.nextInt( Options.HEIGHT - 2 ) + 1, random.nextInt( Options.DEPTH - 2 ) + 1 );			
+   public void seedCognateCells(){
+	   int x;
+	   int y;
+	   int z;
+	   for ( int i = 0; i < 300; i++ )
+	   {
+		   
+		   do
+		   {
+			   x = random.nextInt( Options.WIDTH - 2) + 1 ;
+			   y = random.nextInt( Options.HEIGHT - 2 ) + 1;
+			   z = random.nextInt( Options.DEPTH - 2 ) + 1;
+			   
+		   } while (isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20) == false);
+		  // System.out.println(isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
+		   
+		   //while (isNotWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
+		   
+		   
+		   Double3D loc = new Double3D(x,y,z);
+		  
+		   //Double3D loc = new Double3D( random.nextInt( Options.WIDTH - 2 ) + 1,
+			//		random.nextInt( Options.HEIGHT - 2 ) + 1, random.nextInt( Options.DEPTH - 2 ) + 1 );			
 			
-			BC bc = new BC();
+			cognateBC bc = new cognateBC();
 			
 			// Register with display
 			bc.setObjectLocation( loc );
@@ -220,13 +234,12 @@ public class SimulationEnvironment extends SimState
 			// so we only have 1 BC updating the ODE graph
 			// TODO a boolean guard added as an input to the 
 			// simulation would be better for this
-			if ( x == 0 )
+			if ( i == 0 )
 			{
 				bc.displayGraph = true;
 			}
-		}
-		
-	}
+	   }
+   }
 	
 	
 	/*

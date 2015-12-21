@@ -42,8 +42,8 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 			
 	
 	
-	private int antigenLevel;
-	
+	private int antigenLevelUpperEdge;
+	private int antigenLevelLowerHalf;
 	
 	/**
 	 * Constructor
@@ -74,7 +74,8 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 		m_d3Edge = d3Point2.subtract( d3Point1 );
 		
 	
-		setAntigenLevel(Options.FDC.STARTINGANTIGENLEVEL);
+		setAntigenLevelUpperEdge(Options.FDC.STARTINGANTIGENLEVEL/2);
+		setAntigenLevelLowerHalf(Options.FDC.STARTINGANTIGENLEVEL/2);
 	}
 	
 	
@@ -114,7 +115,7 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	@Override
 	public TransformGroup getModel( Object obj, TransformGroup transf )
 	{
-		if ( transf == null)// add || true to update the stroma visualisation 
+		if ( transf == null || true)// add || true to update the stroma visualisation 
 							// TODO figure out why adding this leads to oscillation of B cell colours
 		{
 			
@@ -134,19 +135,13 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 			Color col = Options.FDC.DRAW_COLOR();
 			
 			
-			if (fdc.getAntigenLevel()<90){
+			if (fdc.getAntigenLevelUpperEdge() + fdc.getAntigenLevelLowerHalf()<90){
 				col =  blue3;
 			}
-			if (fdc.getAntigenLevel()<70){
-				col =  blue2;
-			}
-			if (fdc.getAntigenLevel()<50){
-				col =  blue1;
-			}
-			
-			if (fdc.getAntigenLevel()<25){
+			if (fdc.getAntigenLevelUpperEdge()+ fdc.getAntigenLevelLowerHalf()<85){
 				col =  blueLow;
 			}
+	
 			
 			
 			
@@ -208,14 +203,28 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 
 
 
-	public int getAntigenLevel() {
-		return antigenLevel;
+	public int getAntigenLevelUpperEdge() {
+		return antigenLevelUpperEdge;
 	}
 
 
 
 
-	public void setAntigenLevel(int antigenLevel) {
-		this.antigenLevel = antigenLevel;
+	public void setAntigenLevelUpperEdge(int antigenLevel) {
+		this.antigenLevelUpperEdge = antigenLevel;
+	}
+
+
+
+
+	public int getAntigenLevelLowerHalf() {
+		return antigenLevelLowerHalf;
+	}
+
+
+
+
+	public void setAntigenLevelLowerHalf(int antigenLevelLowerHalf) {
+		this.antigenLevelLowerHalf = antigenLevelLowerHalf;
 	}
 }

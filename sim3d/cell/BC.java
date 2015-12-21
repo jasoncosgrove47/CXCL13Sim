@@ -354,31 +354,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			{
 				case STROMA_EDGE: // These first two are the more likely hits as they won't be moving
 					if ( collideStromaEdge( (StromaEdge) cCell, iCollisionMovement ) )//TODO we can get T from this method
-					{
-						
-						StromaEdge sEdge = (StromaEdge) cCell; 
-						
+					{		
 						iCollisionMovement = m_d3aMovements.size() - 1;
-
-						//get the position along the stromal edge as a percentage
-						// System.out.println(this.getPositionAlongStroma());
-						
-						//TODO an acquire antigen method
-						
-						if (sEdge.getAntigenLevel() > 0)
-						{
-							//reduce antigen level by 1	
-							sEdge.setAntigenLevel(sEdge.getAntigenLevel() - 1);
-							//System.out.println("antigen level is: " + sEdge.getAntigenLevel());
-							
-						}
-						
-						
-						
-						//TODO take antigen in this case
-						//get s and t from find closest points and (t is the percentage you are along the stroma)
-						// then call FDC and based on which half you are in take away some antigen
-						bCollision = true;
+						bCollision = true;							
+						//acquireAntigen(cCell);	
 					}
 					break;
 				case STROMA:
@@ -393,11 +372,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 	}
 	
+	
+
 
 	/*
 	 * helper method to perform the actual collision
 	 */
-	private void performCollision(CollisionGrid cgGrid , int iCollisionMovement)
+	protected void performCollision(CollisionGrid cgGrid , int iCollisionMovement)
 	{
 		//increment the number of times a B cell has collided this time step
 		collisionCounter++;
@@ -434,7 +415,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * @return true if a collision occurs
 	 * 
 	 */
-	private boolean collideStromaEdge( StromaEdge seEdge, int iCollisionMovement )
+	protected boolean collideStromaEdge( StromaEdge seEdge, int iCollisionMovement )
 	{
 		Double3D p1 = new Double3D( x, y, z );
 		Double3D p2 = seEdge.getPoint1();
@@ -1023,7 +1004,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * Helper method
 	 * Model movement of movement and add a white line indicating the orientation of the B cell 
 	 */
-	private void modelMovements(List<Double3D> m_d3aMovements2,Object obj, TransformGroup transf)
+	protected void modelMovements(List<Double3D> m_d3aMovements2,Object obj, TransformGroup transf)
 	{
 		// If we have any movement, then draw it
 		// TODO are these the white lines that we see?
@@ -1070,7 +1051,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * Helper method
 	 * Modelling collisions as red dots, called by getModel()
 	 */
-	private void modelCollisions(ArrayList<Double3D> m_d3aCollisions,Object obj, TransformGroup transf)
+	protected void modelCollisions(ArrayList<Double3D> m_d3aCollisions,Object obj, TransformGroup transf)
 	{	
 		
 	
