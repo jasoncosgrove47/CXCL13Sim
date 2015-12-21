@@ -362,6 +362,8 @@ public class FRCStromaGenerator
 			
 			for ( int i = 1; i < iCellCount; i++ )
 			{
+				
+				// TODO would mutating these numbers alter the distributions???
 				// This distribution... It approximately matches the paper, and was derived using the divided differences method
 				// http://www.wolframalpha.com/input/?i=0.392281+x-0.342923+x%5E2%2B0.151204+x%5E3-0.0270696+x%5E4%2B0.00180148+x%5E5+between+x+%3D+0+and+5
 				double length = Options.RNG.nextDouble() * 2.6;

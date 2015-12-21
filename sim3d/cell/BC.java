@@ -110,6 +110,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 */
 	HashSet <Int3D>					m_i3lCollisionPoints	= new HashSet<Int3D>();
 		
+	
+	int collisionCounter = 0;
+	
 	@Override
 	public boolean isStatic(){ return false; }
 	
@@ -142,6 +145,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	@Override
 	public void step( final SimState state )//why is this final here
 	{
+		
+		
+		//reset the collision counter for this timestep
+		collisionCounter = 0;
+		
+		
+		
 		m_i3lCollisionPoints.clear();
 		// If we have a stored movement, execute it
 		if ( m_d3aMovements != null && m_d3aMovements.size() > 0 )
@@ -193,51 +203,14 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		//TODO i have updated the ODE and update receptors in the getMoveDirection method
 		// still not sure what the square root thing is about
-		receptorStep2();
+		receptorStep();
 		//receptorStep();	                // Step forward the receptor ODE
 		registerCollisions( m_cgGrid ); // Register the new movement with the grid
 	}
 	
 	
 
-	/**
-	 * Perform a step for the receptor 
-	 * Euler method with step size 0.1
-	 * 
-	 * TODO IS THIS INTRODUCING BIAS FAVOURING ONE PROCESS OVER ANOTHER, SHOULD
-	 * ALL BE PERFORMED SIMULTANEOUSLY
-	 * 
-	 * TODO better methods exist, but this was quick to implement
-	 * TODO: This assumes a timestep of 1 second!
-	 * TODO: Unit tests for this method
-	 * TODO  Go back to the way that we did it.
-	 */
-	private void receptorStep()
-	{
-	
-		int iTimesteps = 10;
-		int iR_i, iR_d, iL_r;
-		for ( int i = 0; i < iTimesteps; i++ )
-		{
-			iR_i = m_iR_i;
-			iR_d = m_iR_d;
-			iL_r = m_iL_r;
-			
-			m_iR_d += (int) ((1.0 / iTimesteps) * iL_r * iL_r
-					/ (Options.BC.ODE.gamma() * (1 + Math.pow( iL_r / Options.BC.ODE.delta(), 2 ) + iL_r)))
-					- (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iR_d);
-			m_iR_i += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iR_d)
-					- (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
-			m_iR_free += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
-			m_iL_r -= (int) ((1.0 / iTimesteps) * iL_r * iL_r
-					/ (Options.BC.ODE.gamma() * (1 + Math.pow( iL_r / Options.BC.ODE.delta(), 2 ) + iL_r)));
-		}
-		
-		if ( displayGraph )
-		{
-			Grapher.addPoint( m_iR_free ); //this gives an error when run on console
-		}
-	}
+
 	
 	/**
 	 * Perform a step for the receptor 
@@ -250,7 +223,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * TODO: Unit tests for this method
 	 * TODO  Go back to the way that we did it.
 	 */
-	private void receptorStep2()
+	private void receptorStep()
 	{
 	
 		int iTimesteps = 10;
@@ -284,31 +257,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	private Double3D getMoveDirection()
 	{
 				
-		/*
-		// Get the surrounding concentrations
-		int[][][] ia3Concs = Particle.get( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z );
-		
-		// Assume the receptors are spread evenly around the cell
-		int iReceptors = m_iR_free / 6;
-		
-		// get CXCL13 concentrations at each psuedopod
-		// {x+, x-, y+, y-, z+, z-}
-		int[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
-				ia3Concs[1][1][0] };
-				
-		int[] iaBoundReceptors = new int[6]; //stores how many receptors are bound at each psuedopod
-		// TODO this is just 1s!!
-		
-		
-
-		for ( int i = 0; i < 6; i++ )
-		{
-			iaBoundReceptors[i] = (int) (Options.BC.ODE.K_a() * Math.sqrt( iReceptors * iaConcs[i] ));
-			m_iR_free -= iaBoundReceptors[i];
-			m_iL_r += iaBoundReceptors[i];
-		}
-		
-		*/
 		
 		int[] iaBoundReceptors = calculateLigandBinding();
 		
@@ -391,17 +339,28 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 	}
 	
-
+	/**
+	 * Need more comments
+	 */
 	@Override
 	public void handleCollisions( CollisionGrid cgGrid )
 	{
-		if ( m_i3lCollisionPoints.size() == 0 )//TODO OR collisions ALREADYHAD > 10
+	
+	    
+		
+		//TODO probably need to reset collisionCounter at the start of each timestep
+		if ( m_i3lCollisionPoints.size() == 0 || collisionCounter > 10000)//TODO OR collisions ALREADYHAD > 10
 		{
+			
+			//collisionCounter = 0;
 			return;
 		}
 		
 		// We're using a set because it stores values uniquely!
 		HashSet<Collidable> csCollidables = new HashSet<Collidable>();
+		
+		
+		//System.out.println("collision points: " + m_i3lCollisionPoints.size());
 		
 		// Add all the cells to the set
 		for ( Int3D i3Point : m_i3lCollisionPoints )
@@ -412,11 +371,90 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			}
 		}
 		
+		
+		int iCollisionMovement = m_d3aMovements.size(); 
+		
+		
+		//determine 
+		//boolean bCollision = determineHasCollided(csCollidables, iCollisionMovement);
+		
 		boolean bCollision = false;
 		
 		// To keep a track of where we collided - we are only interested in the
 		// first collision so we can ignore anything after this
-		int iCollisionMovement = m_d3aMovements.size(); 
+		
+		//System.out.println("csCollidables size" + csCollidables.size());
+		
+		
+		for ( Collidable cCell : csCollidables )
+		{
+			
+			switch ( cCell.getCollisionClass() )
+			{
+				// These first two are the more likely hits as they won't be
+				// moving
+				case STROMA_EDGE:
+					
+					
+					if ( collideStromaEdge( (StromaEdge) cCell, iCollisionMovement ) )//TODO we can get T from this method
+					{
+						iCollisionMovement = m_d3aMovements.size() - 1;
+						//TODO take antigen in this case
+						//get s and t from find closest points and (t is the percentage you are along the stroma)
+						// then call FDC and based on which half you are in take away some antigne
+						
+						bCollision = true;
+					}
+					break;
+				case STROMA:
+					break;
+				case BC:
+					break;
+			}
+		}
+		
+
+		
+		//if the cell has collided
+		if ( bCollision )
+		{
+			collisionCounter++;
+			// Add the collision point for visualisation
+			double xPos = 0;
+			double yPos = 0;
+			double zPos = 0;
+			for ( int i = 0; i < iCollisionMovement; i++ )
+			{
+				
+				//System.out.println("iCollisionMovement" + iCollisionMovement);
+				Double3D d3Movement = m_d3aMovements.get( i );
+				xPos += d3Movement.x;
+				yPos += d3Movement.y;
+				zPos += d3Movement.z;
+			}
+			
+			m_d3aCollisions.add( new Double3D( xPos, yPos, zPos ) );
+			
+			// Recheck for bounces and reregister with the grid
+			handleBounce();
+			registerCollisions( cgGrid );
+		}
+	}
+	
+	
+	
+	/**
+	 * Helper method which determines if the cell has collided. 
+	 * TODO needs to return both iCollisionMovement and
+	 * @param csCollidables
+	 * @return true if the cell has collided else false
+	 */
+	private boolean determineHasCollided(HashSet<Collidable> csCollidables, int iCollisionMovement)
+	{
+		
+		boolean bCollision = false;
+		
+
 		
 		for ( Collidable cCell : csCollidables )
 		{
@@ -444,28 +482,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			}
 		}
 		
-		if ( bCollision )
-		{
-			// Add the collision point for visualisation
-			double xPos = 0;
-			double yPos = 0;
-			double zPos = 0;
-			
-			for ( int i = 0; i < iCollisionMovement; i++ )
-			{
-				Double3D d3Movement = m_d3aMovements.get( i );
-				xPos += d3Movement.x;
-				yPos += d3Movement.y;
-				zPos += d3Movement.z;
-			}
-			
-			m_d3aCollisions.add( new Double3D( xPos, yPos, zPos ) );
-			
-			// Recheck for bounces and reregister with the grid
-			handleBounce();
-			registerCollisions( cgGrid );
-		}
+		return bCollision;
 	}
+	
+	
+	
 	
 	
 	/*
@@ -747,7 +768,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 
 	/**
-	 * Old Version - TODO needs to be updated once Simon fixes bugs
 	 * 
 	 * Performs collision detection and handling with Stroma Edges (cylinders)
 	 * 
