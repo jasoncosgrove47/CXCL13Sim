@@ -363,11 +363,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 						//get the position along the stromal edge as a percentage
 						// System.out.println(this.getPositionAlongStroma());
 						
+						//TODO an acquire antigen method
+						
 						if (sEdge.getAntigenLevel() > 0)
 						{
 							//reduce antigen level by 1	
 							sEdge.setAntigenLevel(sEdge.getAntigenLevel() - 1);
-							System.out.println("antigen level is: " + sEdge.getAntigenLevel());
+							//System.out.println("antigen level is: " + sEdge.getAntigenLevel());
 							
 						}
 						
@@ -1070,6 +1072,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 */
 	private void modelCollisions(ArrayList<Double3D> m_d3aCollisions,Object obj, TransformGroup transf)
 	{	
+		
+	
 		if ( m_d3aCollisions.size() > 0 ) //is this a global variable? should pass it into the method!!
 		{
 			for ( Double3D d3Point : m_d3aCollisions )

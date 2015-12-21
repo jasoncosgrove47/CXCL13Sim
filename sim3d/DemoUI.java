@@ -145,7 +145,7 @@ public class DemoUI extends GUIState
 		d3DisplayFrame.setVisible( true );
 		
 		// Add the portrayals to the display
-		display3D.attach( fdcPortrayal, "FRC" );
+		display3D.attach( fdcPortrayal, "FDC" );
 		display3D.attach( bcPortrayal, "BC" );
 		
 		jfChemokine = display2D.createFrame();

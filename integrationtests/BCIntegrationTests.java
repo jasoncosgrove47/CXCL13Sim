@@ -1,7 +1,7 @@
 /**
  * 
  */
-package sim3d.cell;
+package integrationtests;
 
 import static org.junit.Assert.*;
 
@@ -18,6 +18,8 @@ import sim.util.Double3D;
 import sim.util.MutableDouble3D;
 import sim3d.Options;
 import sim3d.SimulationEnvironment;
+import sim3d.cell.BC;
+import sim3d.cell.StromaEdge;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 import sim3d.util.IO;
@@ -28,7 +30,7 @@ import static org.hamcrest.Matchers.*;
  * @author sjj509
  * 		need to fix these so they work with XML inputs
  */
-public class BCTest
+public class BCIntegrationTests
 {
 	private Schedule schedule = new Schedule();
 	private Particle m_pParticle;

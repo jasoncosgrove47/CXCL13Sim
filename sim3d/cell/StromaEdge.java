@@ -1,6 +1,7 @@
 package sim3d.cell;
 
 import java.awt.Color;
+
 import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.LineArray;
@@ -31,7 +32,9 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	 * DrawableCell3D.setObjectLocation
 	 */
 	public static Continuous3D	drawEnvironment;
-								
+					
+	
+	
 	/**
 	 * A vector representing the movement from point 1 to point 2
 	 */
@@ -101,11 +104,23 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	 * (non-Javadoc)
 	 * @see sim.portrayal3d.SimplePortrayal3D#getModel(java.lang.Object, javax.media.j3d.TransformGroup)
 	 */
+	
+ 	public java.awt.Color blue0		= new Color(30,40,190,180);
+ 	public java.awt.Color blueLow 	= new Color(30,40,190,0);
+ 	public java.awt.Color blue1 	= new Color(30,40,210,200);
+ 	public java.awt.Color blue2 	= new Color(200,40,230,220);
+ 	public java.awt.Color blue3 	= new Color(30,200,255,255);
+	
 	@Override
 	public TransformGroup getModel( Object obj, TransformGroup transf )
 	{
-		if ( transf == null )
+		if ( transf == null)// add || true to update the stroma visualisation 
+							// TODO figure out why adding this leads to oscillation of B cell colours
 		{
+			
+			StromaEdge fdc = (StromaEdge) obj;
+			
+			
 			transf = new TransformGroup();
 			
 			LineArray lineArr = new LineArray( 2, LineArray.COORDINATES );
@@ -113,7 +128,28 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 			lineArr.setCoordinate( 1, new Point3d( m_d3Edge.x, m_d3Edge.y, m_d3Edge.z ) );
 			
 			Appearance aAppearance = new Appearance();
+			
+			
+			
 			Color col = Options.FDC.DRAW_COLOR();
+			
+			
+			if (fdc.getAntigenLevel()<90){
+				col =  blue3;
+			}
+			if (fdc.getAntigenLevel()<70){
+				col =  blue2;
+			}
+			if (fdc.getAntigenLevel()<50){
+				col =  blue1;
+			}
+			
+			if (fdc.getAntigenLevel()<25){
+				col =  blueLow;
+			}
+			
+			
+			
 			aAppearance.setColoringAttributes( new ColoringAttributes( col.getRed() / 255f, col.getGreen() / 255f,
 					col.getBlue() / 255f, ColoringAttributes.FASTEST ) );
 			aAppearance.setTransparencyAttributes( new TransparencyAttributes( TransparencyAttributes.FASTEST, 0.4f ) );

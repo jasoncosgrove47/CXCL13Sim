@@ -64,8 +64,9 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable
 		{
 			transf = new TransformGroup();
 			
-			SpherePortrayal3D s = new SpherePortrayal3D( Options.FDC.DRAW_COLOR(), Options.FDC.STROMA_NODE_RADIUS * 2,
-					6 );
+			
+			
+			SpherePortrayal3D s = new SpherePortrayal3D( Options.FDC.DRAW_COLOR(), Options.FDC.STROMA_NODE_RADIUS * 2,6 );
 			s.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
 			TransformGroup localTG = s.getModel( obj, null );
 			

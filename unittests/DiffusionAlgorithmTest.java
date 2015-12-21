@@ -1,9 +1,10 @@
 /**
  * 
  */
-package sim3d.diffusion.algorithms;
+package unittests;
 
 import static org.junit.Assert.assertEquals;
+
 
 
 
@@ -22,6 +23,8 @@ import sim.engine.Schedule;
 import sim3d.Options;
 import sim3d.SimulationEnvironment;
 import sim3d.diffusion.Particle;
+import sim3d.diffusion.algorithms.DiffusionAlgorithm;
+import sim3d.diffusion.algorithms.Grajdeanu;
 import sim3d.util.IO;
 
 /**
