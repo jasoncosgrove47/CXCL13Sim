@@ -332,6 +332,11 @@ public class Options
 
 			    Element paramFDCElement = (Element) params.getElementsByTagName("FDC").item(0);			      
 		        
+			    NodeList alNL = paramFDCElement.getElementsByTagName("STARTINGANTIGENLEVEL");
+				Node alN = alNL.item(0);
+				STARTINGANTIGENLEVEL = Integer.parseInt(alN.getTextContent());
+			    
+			    
 				NodeList countNL = paramFDCElement.getElementsByTagName("COUNT");
 				Node countN = countNL.item(0);
 				COUNT = Integer.parseInt(countN.getTextContent());
@@ -353,6 +358,9 @@ public class Options
 				STROMA_EDGE_RADIUS = Double.parseDouble(stromaedgeN.getTextContent());
 			
 		   }
+		 
+		 
+		 public static int		STARTINGANTIGENLEVEL;
 		/**
 		 * Number of FDCs to generate
 		 * 

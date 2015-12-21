@@ -164,7 +164,6 @@ public class SimulationEnvironment extends SimState
 	   for ( int i = 0; i < Options.BC.COUNT; i++ )
 	   {
 		   
-		   System.out.println(i);
 		   do
 		   {
 			   x = random.nextInt( Options.WIDTH - 2) + 1 ;
@@ -172,7 +171,7 @@ public class SimulationEnvironment extends SimState
 			   z = random.nextInt( Options.DEPTH - 2 ) + 1;
 			   
 		   } while (isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20) == false);
-		   System.out.println(isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
+		  // System.out.println(isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
 		   
 		   //while (isNotWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
 		   

@@ -36,7 +36,12 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	 * A vector representing the movement from point 1 to point 2
 	 */
 	private Double3D			m_d3Edge;
-								
+			
+	
+	
+	private int antigenLevel;
+	
+	
 	/**
 	 * Constructor
 	 * 
@@ -64,6 +69,9 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 		z = d3Point1.z;
 		
 		m_d3Edge = d3Point2.subtract( d3Point1 );
+		
+	
+		setAntigenLevel(Options.FDC.STARTINGANTIGENLEVEL);
 	}
 	
 	
@@ -159,5 +167,19 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	{
 		cgGrid.addLineToGrid( this, new Double3D( x, y, z ),
 				new Double3D( x + m_d3Edge.x, y + m_d3Edge.y, z + m_d3Edge.z ), Options.FDC.STROMA_EDGE_RADIUS );
+	}
+
+
+
+
+	public int getAntigenLevel() {
+		return antigenLevel;
+	}
+
+
+
+
+	public void setAntigenLevel(int antigenLevel) {
+		this.antigenLevel = antigenLevel;
 	}
 }
