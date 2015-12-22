@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import dataLogger.outputToCSV;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
 import sim3d.cell.*;
+import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 import sim3d.util.FRCStromaGenerator;
@@ -28,8 +30,12 @@ import sim3d.util.FRCStromaGenerator.FRCCell;
  */
 public class consoleRun 
 {
+
 	
+	public static String outputPath =  "/Users/jc1571/Desktop/"; 									// path to where the output file should be sent
+	public static String outputFileName = "foo.csv";	
 	private static final long serialVersionUID = 1;
+	public static SimulationEnvironment simulation;
 	
 	/**
 	 * main method
@@ -45,7 +51,7 @@ public class consoleRun
 		//initialise the simulation
 		int seed= (int) (System.currentTimeMillis());	
 		String paramFile = args[0];		// set the seed for the simulation, be careful for when running on cluster																	
-		SimulationEnvironment simulation = new SimulationEnvironment(seed,IO.openXMLFile(paramFile));								// instantiate the simulation
+		simulation = new SimulationEnvironment(seed,IO.openXMLFile(paramFile));								// instantiate the simulation
 
 		//start the simulation
 		long steps = 0;
@@ -53,18 +59,33 @@ public class consoleRun
 		System.out.println("StromaSim v1.0 - Console Version");
 		System.out.println("\nAuthor: Jason Cosgrove, York Computational Immunology Lab");
 		
-
 		do
 		{	
 			steps = simulation.schedule.getSteps();		
 			System.out.println("Steps: " + steps);
+			
+			
+			if(steps != 0 && steps % 50 == 0)															// every 100 timesteps update the data for grpahs and .csv's					
+			{
+				//primedCells = trackAntigenAcquisition(simulation);
+				
+				
+				
+				outputToCSV.updateArrayList(simulation.datalogger.getPrimedCells());
+				System.out.println("number of primed cells: " + simulation.datalogger.getPrimedCells());
+			}
+			
+			
+			
 			if (!simulation.schedule.step(simulation))
 			break;	
-		}while(steps < 4320);	
+		}while(steps < 540);	
 		
 		// finish the simulation
 		simulation.finish();	
 		System.out.println("\nSimulation completed successfully!\n\n");
+		
+		outputToCSV.writeCSV(outputToCSV.DataOutput,outputToCSV.headers, outputPath, outputFileName);
 		
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
@@ -76,5 +97,33 @@ public class consoleRun
 		
 		System.exit(0);	
 	}
+	
+	
+	private static int trackAntigenAcquisition(SimulationEnvironment sim)
+	{
+		
+	    Bag cells =  sim.bcEnvironment.allObjects;
+		
+		int primedCount = 0;
+
+		
+	    for(int i = 0; i < cells.size(); i++)
+	    {
+	    	if(cells.get(i) instanceof cognateBC)
+			{
+				cognateBC cBC = (cognateBC) cells.get(i);
+				if(cBC.type == TYPE.PRIMED)
+				{
+					primedCount +=1;
+				}
+			}
+	    }
+	    
+	    return primedCount;
+	}
+	    
+	    
+	    
+
 	
 }

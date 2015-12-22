@@ -130,7 +130,7 @@ public class cognateBC extends BC
 		
 		if ( displayAntigenGraph )
 		{
-		  Grapher.updateAntigenGraph( this.getAntigenCaptured()); //this gives an error when run on console
+		 // Grapher.updateAntigenGraph( this.getAntigenCaptured()); //this gives an error when run on console
 		}
 		
 	}

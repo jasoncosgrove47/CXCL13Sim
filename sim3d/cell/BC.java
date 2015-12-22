@@ -228,7 +228,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( displayODEGraph )
 		{
-		  Grapher.updateODEGraph( m_iR_free ); //this gives an error when run on console
+		 // Grapher.updateODEGraph( m_iR_free ); //this gives an error when run on console
 		}
 	}
 

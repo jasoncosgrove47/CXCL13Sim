@@ -10,6 +10,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import dataLogger.dataLogger;
 import ec.util.MersenneTwisterFast;
 import sim.engine.*;
 import sim.util.*;
@@ -40,6 +41,7 @@ public class SimulationEnvironment extends SimState
 	public Continuous3D	bcEnvironment;  // 3D grid where B cells reside
 	public Continuous3D	fdcEnvironment; // contains stroma and their edges
 	public static Document parameters;	// the parameter file	
+	static dataLogger datalogger;
 	
 	/**
 	 * Constructor
@@ -116,6 +118,11 @@ public class SimulationEnvironment extends SimState
 	{
 		super.start();
 		//Grapher.init();
+		
+		
+		datalogger = new dataLogger();
+		schedule.scheduleRepeating(datalogger);
+		
 		
 		//Initialise the stromal grid
 		fdcEnvironment = new Continuous3D( Settings.FDC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );

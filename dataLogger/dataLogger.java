@@ -14,16 +14,10 @@ import sim.field.continuous.Continuous2D;
 import sim.field.grid.ObjectGrid2D;
 import sim.util.Bag;
 import sim.util.Int2D;
-import sim2d.SimulationEnvironment;
-import sim2d.cell.Cell;
-import sim2d.cell.impl.BCell;
-import sim2d.cell.impl.CRC;
-import sim2d.cell.impl.Centroblast;
-import sim2d.cell.impl.Centrocyte;
-import sim2d.cell.impl.FDC;
-import sim2d.cell.impl.FRC;
-import sim2d.cell.impl.TFh;
-import sim2d.util.DrawGraph;
+import sim3d.SimulationEnvironment;
+import sim3d.consoleRun;
+import sim3d.cell.cognateBC;
+import sim3d.cell.cognateBC.TYPE;
 
 
 @SuppressWarnings("serial")
@@ -37,8 +31,7 @@ public class dataLogger implements Steppable {
 	 */
 	
 	
-	public DrawGraph cellCounterGraph;	
-	private DrawGraph affinityGraph;
+
 	//boolean outputToGraph;
 	private static Map<String, Integer> cellCounter = new HashMap<String, Integer>();
 	
@@ -46,37 +39,57 @@ public class dataLogger implements Steppable {
 	
 	private static int[] meanAffinity;
 	
-	
+	private static int primedCells = 0;
 	public dataLogger(){}
 	
-	//if being called by GUI then use this constructor
-	public dataLogger(String title, Map<String, Color> cols){
-		
-		DrawGraph.SeriesAttributes[] attributes = new DrawGraph.SeriesAttributes[cols.size()];
-		int i = 0;
-		for(String key : cols.keySet())
-		{
-			attributes[i] = new DrawGraph.SeriesAttributes(key, cols.get(key), false);
-			i++;
-		}
-		
-		cellCounterGraph = new DrawGraph(title, "time", "cells", attributes);
-		affinityGraph = new DrawGraph(title, "distanceFromOptimal", "cells");
-	
-		
-		
-	}
+
 
 	public void step(SimState state) 
 	{
 		
-		cellCounter = countCells(state);	
-		meanAffinity = measureAffinity(state);
-
+		//cellCounter = countCells(state);	
+		//meanAffinity = measureAffinity(state);
+		setPrimedCells(trackAntigenAcquisition());
 	
 	}
 
+	private static int trackAntigenAcquisition()
+	{
+		
+	    Bag cells =  consoleRun.simulation.bcEnvironment.allObjects;;
+		
+		int primedCount = 0;
+
+		
+	    for(int i = 0; i < cells.size(); i++)
+	    {
+	    	if(cells.get(i) instanceof cognateBC)
+			{
+				cognateBC cBC = (cognateBC) cells.get(i);
+				if(cBC.type == TYPE.PRIMED)
+				{
+					primedCount +=1;
+				}
+			}
+	    }
+	    
+	    return primedCount;
+	}
+
+
+
+	public static int getPrimedCells() {
+		return primedCells;
+	}
+
+
+
+	public static void setPrimedCells(int primedCells) {
+		dataLogger.primedCells = primedCells;
+	}
 	
+	
+	/**
 	public int[] measureAffinity(SimState state){
 		
 		ArrayList<Cell> GCBcells = new ArrayList<Cell>(); //add all the cells to the thingamabobby
@@ -165,20 +178,21 @@ public class dataLogger implements Steppable {
 	return coordinates;
 		
 	}
+	*/
 	
-	
-	
-	
+
 	
 	/**
 	 * Also need to store the cells coordinates a
 	 * @param state
 	 * @return
 	 */
+	
+	/**
 	private Map<String, Integer> countCells(SimState state)
 	{
 
-		ArrayList<Cell> cells = new ArrayList<Cell>(); //add all the cells to the thingamabobby
+		ArrayList<Object> cells = new ArrayList<Object>(); //add all the cells to the thingamabobby
 		Map<String, Integer> cellCounter = new HashMap<String, Integer>();
 		
 		cells.addAll(getAllCells(SimulationEnvironment.getStromalGrid())); //add all cells from each grid
@@ -194,101 +208,38 @@ public class dataLogger implements Steppable {
 		//cellCounter.put("CRC", 0);
 		//cellCounter.put("FDC", 0);
 	
-		/* iterate over each cell in the simulation and calculate its type */
-		for(Cell cell : cells)
+
+		for(Object cell : cells)
 		{
 			int i;
 			
-			if(cell instanceof Centrocyte)
+			if(cell instanceof cognateBC)
 			{
 				i = cellCounter.get("centrocyte");
 				cellCounter.put("centrocyte", i+1);	
 			}
-			else if(cell instanceof Centroblast)
-			{
-				i = cellCounter.get("centroblast");
-				cellCounter.put("centroblast", i+1);	
-			}
-			else if(cell instanceof TFh)
-			{
-				i = cellCounter.get("TFh");
-				cellCounter.put("TFh", i+1);
-			}
-			else if(cell instanceof FRC)
-			{
-				//i =cellCounter.get("FRC");
-				//cellCounter.put("FRC", i+1);
-			}
-			else if(cell instanceof FDC)
-			{
-				//i = cellCounter.get("FDC");
-				//cellCounter.put("FDC", i+1);
-			}
-			else if(cell instanceof CRC)
-			{
-				//i = cellCounter.get("CRC");
-				//cellCounter.put("CRC", i+1);
-			}
+		
 		}
 		
-		//have to do this here, otherwise it won't update properly...
-	  	//outputToGraph.getCellCounterGraph().logValue("centroblast", state.schedule.getTime(), cellCounter.get("centroblast"));
-	  	//outputToGraph.getCellCounterGraph().logValue("centrocyte", state.schedule.getTime(), cellCounter.get("centrocyte"));
-	  	//outputToGraph.getCellCounterGraph().logValue("TFh", state.schedule.getTime(), cellCounter.get("TFh"));
-	  	//outputToGraph.getCellCounterGraph().logValue("FDC", state.schedule.getTime(), cellCounter.get("FDC"));
-	  	//outputToGraph.getCellCounterGraph().logValue("FRC", state.schedule.getTime(), cellCounter.get("FRC"));
-	  //	outputToGraph.getCellCounterGraph().logValue("CRC", state.schedule.getTime(), cellCounter.get("CRC"));
 	
-		for(String key : cellCounter.keySet())
-		{	if (key != null && cellCounter.keySet() != null)
-			{
-				outputToGraph.getCellCounterGraph().logValue(key, state.schedule.getTime(), cellCounter.get(key));
-			}
-		}
 		
 		return cellCounter;
 		
 	}
-		
+		*/
 	
-	/**
-	 * Should only be called on one cell
-	 * @param cell
-	 */
-	private void trackCell(BCell cell)
-	{
-		singleCellTracker.put("ACKR3",cell.getACKR3expression() );
-		singleCellTracker.put("ACKR4", cell.getACKR4expression());
-		singleCellTracker.put("CXCR5", cell.getCXCR4expression());
-		singleCellTracker.put("CXCR4",cell.getCXCR5expression());
-		singleCellTracker.put("CCR7", cell.getCCR7expression());
-		singleCellTracker.put("S1PR2", cell.getS1PR2expression());
-		singleCellTracker.put("Affinity", cell.getAffinityScore());
-	
-	}
+
+
 	
 	
-	
-	/**
-	 * Returns an array of all cells in the compartment. Used for collecting data on cell populations
-	 * and drawing graphs.
-	 */
+/**
 	public Collection<Cell> getAllCells(Continuous2D cellGrid)
 	{
 		Bag b = cellGrid.allObjects;
 		return new ArrayList<Cell>(b);			// do not return the bag itself, because modifying it is dangerous. 
 	}
 	
-	/**
-	 * Returns an array of all cells in the compartment. Used for collecting data on cell populations
-	 * and drawing graphs.
-	 */
-	public Collection<Cell> getAllCells(ObjectGrid2D cellGrid)
-	{
-		Bag b = cellGrid.elements();
-		return new ArrayList<Cell>(b);			// do not return the bag itself, because modifying it is dangerous. 
-	}
-
+	
 	
 	
 	
@@ -307,14 +258,7 @@ public class dataLogger implements Steppable {
 		dataLogger.meanAffinity = meanAffinity;
 	}
 
-	public DrawGraph getAffinityGraph() {
-		return affinityGraph;
-	}
-
-	public void setAffinityGraph(DrawGraph affinityGraph) {
-		this.affinityGraph = affinityGraph;
-	}
-
+*/
 
 	
 	

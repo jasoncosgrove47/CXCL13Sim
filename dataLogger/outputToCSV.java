@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import sim.engine.SimState;
-import sim2d.filesystem.CSVFileOutput6;
+import sim3d.SimulationEnvironment;
+import sim3d.util.CSVFileOutput6;
+
 
 public class outputToCSV {
 	/**
@@ -17,15 +19,9 @@ public class outputToCSV {
 	 */
 
 	
-	public static ArrayList<Integer> DataOutput = new ArrayList<Integer>(Collections.nCopies(6, 0));
+	public static ArrayList<Integer> DataOutput = new ArrayList<Integer>(Collections.nCopies(1, 0));
 	public static ArrayList<String> headers = new ArrayList<String>() {{
-	    add("Centroblast");
-	    add("Centrocyte");
-	    add("TFh");
-	    add("FDC");
-	    add("FRC");
-	    add("CRC");
-	
+		add("Antigen Acquisition");	
 	}};
 	
 	
@@ -35,14 +31,10 @@ public class outputToCSV {
 	 * should rename to process for csv output
 	 * should just be appendint, ie put not set 
 	 */
-	public static void updateArrayList(dataLogger datalogger)
+	public static void updateArrayList( int primedCells)
 	{	
-		DataOutput.set(0,datalogger.getCellCounts().get("centroblast"));
-		DataOutput.set(1,datalogger.getCellCounts().get("centrocyte"));
-		DataOutput.set(2,datalogger.getCellCounts().get("TFh"));
-		DataOutput.set(3,datalogger.getCellCounts().get("FDC"));
-		DataOutput.set(4,datalogger.getCellCounts().get("FRC"));
-		DataOutput.set(5,datalogger.getCellCounts().get("CRC"));
+		DataOutput.set(0,primedCells);
+
 	}
 
 
