@@ -10,12 +10,16 @@ import org.w3c.dom.Document;
 import sim.engine.SimState;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Int3D;
+import sim3d.Grapher;
 import sim3d.Settings;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 
 public class cognateBC extends BC
 {
+	
+	
+	public boolean				displayAntigenGraph			= false;
 	
 	private int antigenCaptured = 0;
 	/**
@@ -123,6 +127,12 @@ public class cognateBC extends BC
 		}
 		this.setAntigenCaptured(this.getAntigenCaptured() + 1);
 		this.type = TYPE.PRIMED;
+		
+		if ( displayAntigenGraph )
+		{
+		  Grapher.updateAntigenGraph( this.getAntigenCaptured()); //this gives an error when run on console
+		}
+		
 	}
 	
 	

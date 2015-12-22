@@ -180,7 +180,7 @@ public class SimulationEnvironment extends SimState
 			// so we only have 1 BC updating the ODE graph
 			if ( i == 0 )
 			{
-				bc.displayGraph = true;
+				bc.displayODEGraph = true;
 			}
 	   }
    }
@@ -210,7 +210,7 @@ public class SimulationEnvironment extends SimState
 			// so we only have 1 BC updating the ODE graph
 			if ( i == 0 )
 			{
-				//bc.displayGraph = true;
+				bc.displayAntigenGraph = true;
 			}
 	   }
    }

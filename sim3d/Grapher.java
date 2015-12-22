@@ -36,7 +36,13 @@ public class Grapher
 	 * Chart generator for the ODE chart
 	 */
 	public static TimeSeriesChartGenerator					chart;
-															
+		
+	
+	/**
+	 * Chart generator for the ODE chart
+	 */
+	public static TimeSeriesChartGenerator					chartAntigen;
+	
 	/**
 	 * The MASON scheduler
 	 */
@@ -46,16 +52,30 @@ public class Grapher
 	 * Data series for the ODE chart
 	 */
 	public static org.jfree.data.xy.XYSeries				series;
+	
+	
+	/**
+	 * Data series for the ODE chart
+	 */
+	public static org.jfree.data.xy.XYSeries				seriesAntigen;
+		
 															
 	/**
 	 * Add a point to the ODE chart at the current schedule timestep
 	 * @param x The value to plot
 	 */
-	public static void addPoint( double x )
+	public static void updateODEGraph( double x )
 	{
 		series.add( schedule.getTime(), x, false );
 		chart.updateChartWithin( schedule.getSteps(), 1000 );
 	}
+	
+	public static void updateAntigenGraph( double x )
+	{
+		seriesAntigen.add( schedule.getTime(), x, false );
+		chartAntigen.updateChartWithin( schedule.getSteps(), 1000 );
+	}
+	
 	
 	/**
 	 * Simulation run has ended so update everything and stop
@@ -65,6 +85,10 @@ public class Grapher
 		chart.update( schedule.getSteps(), true );
 		chart.repaint();
 		chart.stopMovie();
+		
+		chartAntigen.update( schedule.getSteps(), true );
+		chartAntigen.repaint();
+		chartAntigen.stopMovie();
 		
 		bcFRCEdgeNumberChart.update( schedule.getSteps(), true );
 		bcFRCEdgeNumberChart.repaint();
@@ -86,8 +110,13 @@ public class Grapher
 		
 		chart = new TimeSeriesChartGenerator();
 		chart.setTitle( "B Cell Receptors" );
-		chart.setRangeAxisLabel( "qreate" );
+		chart.setRangeAxisLabel( "receptors" );
 		chart.setDomainAxisLabel( "Time" );
+		
+		chartAntigen = new TimeSeriesChartGenerator();
+		chartAntigen.setTitle( "Antigen Acquisition" );
+		chartAntigen.setRangeAxisLabel( "antigen" );
+		chartAntigen.setDomainAxisLabel( "Time" );
 		
 		bcFRCEdgeNumberChart = new BarChartGenerator();
 		bcFRCEdgeNumberChart.setTitle( "FDC Edge Numbers" );
@@ -105,8 +134,14 @@ public class Grapher
 		bcFRCEdgeNumberSeries = new double[12];
 		
 		chart.removeAllSeries();
-		series = new org.jfree.data.xy.XYSeries( "asfsadf", false );
+		series = new org.jfree.data.xy.XYSeries( "receptors", false );
 		chart.addSeries( series, null );
+		
+		
+		chartAntigen.removeAllSeries();
+		seriesAntigen = new org.jfree.data.xy.XYSeries( "antigen", false );
+		chartAntigen.addSeries( seriesAntigen, null );
+		
 		
 		bcFRCEdgeSizeChart.removeAllSeries();
 		String[] labels = new String[20];

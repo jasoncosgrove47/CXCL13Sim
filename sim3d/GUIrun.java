@@ -50,7 +50,7 @@ public class GUIrun extends GUIState
 	public JFrame				chartFrame;
 	public JFrame				chartFrame2;
 	public JFrame				chartFrame3;
-								
+	public JFrame				chartFrameAntigen;							
 	/**
 	 * The main display
 	 */
@@ -168,6 +168,14 @@ public class GUIrun extends GUIState
 		chartFrame.setLocation( 0, 700 );
 		c.registerFrame( chartFrame );
 		
+		// The ODE line graph
+		chartFrameAntigen = Grapher.chartAntigen.createFrame();
+		chartFrameAntigen.setVisible( true );
+		chartFrameAntigen.pack();
+		chartFrameAntigen.setLocation( 0, 700 );
+		c.registerFrame( chartFrameAntigen );
+				
+		
 		/**
 		// FDC Edge size bar chart
 		chartFrame2 = Grapher.bcFRCEdgeSizeChart.createFrame();
@@ -210,6 +218,11 @@ public class GUIrun extends GUIState
 		if ( chartFrame != null )
 			chartFrame.dispose();
 		chartFrame = null;
+		
+		if ( chartFrameAntigen != null )
+			chartFrameAntigen.dispose();
+		chartFrameAntigen = null;
+		
 	}
 	
 	/**

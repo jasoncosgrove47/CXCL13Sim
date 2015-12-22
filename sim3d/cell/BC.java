@@ -69,7 +69,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * Boolean to tell the cell whether or not it should be sending graph data;
 	 * used to make sure we only have one reporting!
 	 */
-	public boolean				displayGraph			= false;
+	public boolean				displayODEGraph			= false;
+
 					
 	/**
 	 * (ODE) Ligand-Receptor Complexes
@@ -225,9 +226,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			m_iL_r -= (int) ((1.0 / iTimesteps)  * Settings.BC.ODE.K_r() * iR_i);
 		}
 		
-		if ( displayGraph )
+		if ( displayODEGraph )
 		{
-		  Grapher.addPoint( m_iR_free ); //this gives an error when run on console
+		  Grapher.updateODEGraph( m_iR_free ); //this gives an error when run on console
 		}
 	}
 
