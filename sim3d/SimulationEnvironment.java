@@ -39,7 +39,7 @@ public class SimulationEnvironment extends SimState
 	private static final long serialVersionUID = 1;
 	public Continuous3D	bcEnvironment;  // 3D grid where B cells reside
 	public Continuous3D	fdcEnvironment; // contains stroma and their edges
-	public static Document parameters;		
+	public static Document parameters;	// the parameter file	
 	
 	/**
 	 * Constructor
@@ -50,7 +50,7 @@ public class SimulationEnvironment extends SimState
 		super( seed );
 		parameters = params;
 		setupSimulationParameters();
-		Options.RNG = random; // We set the MASON random object to the static Options class so we can access it everywhere
+		Settings.RNG = random; // We set the MASON random object to the static Options class so we can access it everywhere
 	}
 	
 	
@@ -60,10 +60,10 @@ public class SimulationEnvironment extends SimState
 	 */
 	 public void setupSimulationParameters()
 	 {
-		 Options.loadParameters(parameters);
-		 Options.BC.loadParameters(parameters);
-		 Options.FDC.loadParameters(parameters);
-		 Options.BC.ODE.loadParameters(parameters);
+		 Settings.loadParameters(parameters);
+		 Settings.BC.loadParameters(parameters);
+		 Settings.FDC.loadParameters(parameters);
+		 Settings.BC.ODE.loadParameters(parameters);
 	 }
 	
 	 
@@ -72,7 +72,7 @@ public class SimulationEnvironment extends SimState
 	 */
 	public Object domDisplayLevel()
 	{
-		return new sim.util.Interval( 1, Options.DEPTH );
+		return new sim.util.Interval( 1, Settings.DEPTH );
 	}
 	
 	
@@ -118,30 +118,29 @@ public class SimulationEnvironment extends SimState
 		//Grapher.init();
 		
 		//Initialise the stromal grid
-		fdcEnvironment = new Continuous3D( Options.FDC.DISCRETISATION, Options.WIDTH, Options.HEIGHT, Options.DEPTH );
+		fdcEnvironment = new Continuous3D( Settings.FDC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
 		FDC.drawEnvironment = fdcEnvironment;
 		StromaEdge.drawEnvironment = fdcEnvironment;
 		
 		//Initialise the B cell grid
-		bcEnvironment = new Continuous3D( Options.BC.DISCRETISATION, Options.WIDTH, Options.HEIGHT, Options.DEPTH );
+		bcEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
 		BC.drawEnvironment = bcEnvironment;
 		
 		// Initialise the CollisionGrid
-		CollisionGrid cgGrid = new CollisionGrid( Options.WIDTH, Options.HEIGHT, Options.DEPTH, 1 );
+		CollisionGrid cgGrid = new CollisionGrid( Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH, 1 );
 		schedule.scheduleRepeating( cgGrid, 3, 1 );
 		initialiseStroma(cgGrid); //initialise the stromal network
 
 		// BCs will need to update their collision profile each 
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
-		//addLymphocytes(); //add lymphocytes to the grid
+
 		seedCells();
-		seedCognateCells();
-		new Particle( schedule, Particle.TYPE.CXCL13, Options.WIDTH, Options.HEIGHT, Options.DEPTH );// add particles
+		seedCognateCells(Settings.BC.COGNATECOUNT);
+		new Particle( schedule, Particle.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );// add particles
 	}
 	
 	
-
 	/**
 	 * Tests whether co-ordinates x,y are not in the circle centered at circleCentreX, circleCentreY with a specified radius
 	 * @return boolean determining whether inside (false) or outside (true) the circle
@@ -159,39 +158,26 @@ public class SimulationEnvironment extends SimState
 	}
 	
    public void seedCells(){
-	   int x;
-	   int y;
-	   int z;
-	   for ( int i = 0; i < Options.BC.COUNT; i++ )
+	   int x,y,z;
+	   
+	   for ( int i = 0; i < Settings.BC.COUNT; i++ )
 	   {
-		   
 		   do
 		   {
-			   x = random.nextInt( Options.WIDTH - 2) + 1 ;
-			   y = random.nextInt( Options.HEIGHT - 2 ) + 1;
-			   z = random.nextInt( Options.DEPTH - 2 ) + 1;
-			   
-		   } while (isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20) == false);
-		  // System.out.println(isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
+			   x = random.nextInt( Settings.WIDTH - 2) + 1 ;
+			   y = random.nextInt( Settings.HEIGHT - 2 ) + 1;
+			   z = random.nextInt( Settings.DEPTH - 2 ) + 1;  
+		   } while (isWithinCircle(x,y ,( Settings.WIDTH /2 ) + 1, ( Settings.HEIGHT / 2 ) + 1, 20) == false);
 		   
-		   //while (isNotWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
-		   
-		   
-		   Double3D loc = new Double3D(x,y,z);
-		  
-		   //Double3D loc = new Double3D( random.nextInt( Options.WIDTH - 2 ) + 1,
-			//		random.nextInt( Options.HEIGHT - 2 ) + 1, random.nextInt( Options.DEPTH - 2 ) + 1 );			
+		   Double3D loc = new Double3D(x,y,z);		
 			
-			BC bc = new BC();
+		   BC bc = new BC();
 			
 			// Register with display
 			bc.setObjectLocation( loc );
-			
 			schedule.scheduleRepeating( bc, 0, 1 );
 			
 			// so we only have 1 BC updating the ODE graph
-			// TODO a boolean guard added as an input to the 
-			// simulation would be better for this
 			if ( i == 0 )
 			{
 				bc.displayGraph = true;
@@ -200,43 +186,31 @@ public class SimulationEnvironment extends SimState
    }
 	
 	
-   public void seedCognateCells(){
-	   int x;
-	   int y;
-	   int z;
-	   for ( int i = 0; i < 300; i++ )
+   public void seedCognateCells(int numberOfCells){
+	   int x,y,z;
+
+	   for ( int i = 0; i < numberOfCells; i++ )
 	   {
-		   
 		   do
 		   {
-			   x = random.nextInt( Options.WIDTH - 2) + 1 ;
-			   y = random.nextInt( Options.HEIGHT - 2 ) + 1;
-			   z = random.nextInt( Options.DEPTH - 2 ) + 1;
+			   x = random.nextInt( Settings.WIDTH - 2) + 1 ;
+			   y = random.nextInt( Settings.HEIGHT - 2 ) + 1;
+			   z = random.nextInt( Settings.DEPTH - 2 ) + 1;
 			   
-		   } while (isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20) == false);
-		  // System.out.println(isWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
-		   
-		   //while (isNotWithinCircle(x,y ,( Options.WIDTH /2 ) + 1, ( Options.HEIGHT / 2 ) + 1, 20));
-		   
+		   } while (isWithinCircle(x,y ,( Settings.WIDTH /2 ) + 1, ( Settings.HEIGHT / 2 ) + 1, 20) == false);
 		   
 		   Double3D loc = new Double3D(x,y,z);
 		  
-		   //Double3D loc = new Double3D( random.nextInt( Options.WIDTH - 2 ) + 1,
-			//		random.nextInt( Options.HEIGHT - 2 ) + 1, random.nextInt( Options.DEPTH - 2 ) + 1 );			
-			
-			cognateBC bc = new cognateBC();
+		   cognateBC bc = new cognateBC();
 			
 			// Register with display
 			bc.setObjectLocation( loc );
-			
 			schedule.scheduleRepeating( bc, 0, 1 );
 			
 			// so we only have 1 BC updating the ODE graph
-			// TODO a boolean guard added as an input to the 
-			// simulation would be better for this
 			if ( i == 0 )
 			{
-				bc.displayGraph = true;
+				//bc.displayGraph = true;
 			}
 	   }
    }
@@ -250,11 +224,10 @@ public class SimulationEnvironment extends SimState
 		// Generate some stroma
 		ArrayList<FRCCell> frclCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
-		FRCStromaGenerator.generateStroma3D(Options.WIDTH - 2, Options.HEIGHT - 2, Options.DEPTH - 2,
-				Options.FDC.COUNT, frclCellLocations, sealEdges );
+		FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2, Settings.HEIGHT - 2, Settings.DEPTH - 2,
+				Settings.FDC.COUNT, frclCellLocations, sealEdges );
 
-		// Create the FDC objects, display them, schedule them, and then put
-		// them on the collision grid
+		// Create the FDC objects, display them, schedule them, and then put them on the collision grid
 		for ( FRCCell frcCell : frclCellLocations ) //why does this say FRC but then it moves onto FDCs?
 		{
 			//Grapher.bcFRCEdgeNumberSeries[Math.min( frcCell.iEdges - 1, 11 )]++;
@@ -282,11 +255,11 @@ public class SimulationEnvironment extends SimState
 			// Check if it's out of bounds - if not then add the info to the graphs
 			// Don't need this code if the graphs aren't working
 				
-			if ( !(d3Point.x <= 0 || d3Point.x >= (Options.WIDTH - 2) || d3Point.y <= 0
-					|| d3Point.y >= (Options.HEIGHT - 2) || d3Point.z <= 0 || d3Point.z >= (Options.DEPTH - 2))
-					&& !(d3Point2.x <= 0 || d3Point2.x >= (Options.WIDTH - 2) || d3Point2.y <= 0
-							|| d3Point2.y >= (Options.HEIGHT - 2) || d3Point2.z <= 0
-							|| d3Point2.z >= (Options.DEPTH - 2)) )
+			if ( !(d3Point.x <= 0 || d3Point.x >= (Settings.WIDTH - 2) || d3Point.y <= 0
+					|| d3Point.y >= (Settings.HEIGHT - 2) || d3Point.z <= 0 || d3Point.z >= (Settings.DEPTH - 2))
+					&& !(d3Point2.x <= 0 || d3Point2.x >= (Settings.WIDTH - 2) || d3Point2.y <= 0
+							|| d3Point2.y >= (Settings.HEIGHT - 2) || d3Point2.z <= 0
+							|| d3Point2.z >= (Settings.DEPTH - 2)) )
 			{
 					int iCat = (int) (5 * (seEdge.getPoint2().subtract( seEdge.getPoint1() ).length() - 1.2));
 					//Grapher.bcFRCEdgeSizeSeries[Math.max( 0, Math.min( iCat, 19 ) )]++;

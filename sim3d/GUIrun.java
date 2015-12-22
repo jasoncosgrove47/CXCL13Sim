@@ -21,19 +21,18 @@ import javax.swing.*;
  * Need to ensure that Java has access to enough memory resources
  * go to run configurations and pass in -Xmx3000m
  * 
- * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
+ * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  */
-public class DemoUI extends GUIState
+public class GUIrun extends GUIState
 {
-	
-	
+
 	public static String paramFile;
 	/**
 	 * Returns the name of the simulation - a MASON thing
 	 */
 	public static String getName()
 	{
-		return "SimSim";
+		return "StromaSim";
 	}
 	
 	/**
@@ -42,7 +41,7 @@ public class DemoUI extends GUIState
 	public static void main( String[] args )
 	{
 		paramFile = args[0]; 
-		new DemoUI().createController();
+		new GUIrun().createController();
 	}
 	
 	/**
@@ -90,18 +89,16 @@ public class DemoUI extends GUIState
 	/**
 	 * Constructor - creates a Demo object
 	 */
-	public DemoUI()
+	public GUIrun()
 	{
 		super( new SimulationEnvironment( System.currentTimeMillis(),IO.openXMLFile(paramFile) ) );
 	}
 	
 	/**
 	 * Constructor
-	 * 
-	 * @param state
-	 *            a previously saved state to load
+	 * @param state a previously saved state to load
 	 */
-	public DemoUI( SimState state )
+	public GUIrun( SimState state )
 	{
 		super( state );
 	}
@@ -134,8 +131,8 @@ public class DemoUI extends GUIState
 		display2D = new Display2D( 600, 600, this );
 		
 		// Move the camera to a sensible position
-		display3D.translate( -Options.WIDTH / 2.0, -Options.WIDTH / 2.0, 0 );
-		display3D.scale( 2.0 / Options.WIDTH );
+		display3D.translate( -Settings.WIDTH / 2.0, -Settings.WIDTH / 2.0, 0 );
+		display3D.scale( 2.0 / Settings.WIDTH );
 		
 		// Setup the display frame
 		d3DisplayFrame = display3D.createFrame();
@@ -165,7 +162,6 @@ public class DemoUI extends GUIState
 		// Setup the graph displays...
 		
 		// The ODE line graph
-		
 		chartFrame = Grapher.chart.createFrame();
 		chartFrame.setVisible( true );
 		chartFrame.pack();
@@ -210,12 +206,10 @@ public class DemoUI extends GUIState
 		d3DisplayFrame = null;
 		display3D = null;
 		
-		
 		Grapher.finish();
 		if ( chartFrame != null )
 			chartFrame.dispose();
 		chartFrame = null;
-	
 	}
 	
 	/**
@@ -226,7 +220,6 @@ public class DemoUI extends GUIState
 		// tell the portrayals what to portray and how to portray them
 		fdcPortrayal.setField( FDC.drawEnvironment );
 		bcPortrayal.setField( BC.drawEnvironment );
-		
 		particlePortrayal.setField( Particle.getInstance( Particle.TYPE.CXCL13 ).m_ig2Display );
 		
 		// p3dParticles.setField( Particle.getInstance( Particle.TYPE.CXCL13 )
@@ -246,7 +239,6 @@ public class DemoUI extends GUIState
 	{
 		super.start();
 		setupPortrayals();
-		
 		Grapher.start();
 	}
 	

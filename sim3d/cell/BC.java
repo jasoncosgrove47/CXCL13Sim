@@ -23,7 +23,7 @@ import javax.vecmath.Vector3f;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Grapher;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
@@ -57,8 +57,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * The squared distance between a BC and a stroma edge at the point of
 	 * collision; precomputed to speed up calculations
 	 */
-	private static final double	BC_SE_COLLIDE_DIST_SQ	= (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS)
-			* (Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS);
+	private static final double	BC_SE_COLLIDE_DIST_SQ	= (Settings.BC.COLLISION_RADIUS + Settings.FDC.STROMA_EDGE_RADIUS)
+			* (Settings.BC.COLLISION_RADIUS + Settings.FDC.STROMA_EDGE_RADIUS);
 			
 	/**
 	 * Required to prevent a warning
@@ -75,20 +75,20 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * (ODE) Ligand-Receptor Complexes
 	 * m_ signifies it's a member variable
 	 */
-	public int					m_iL_r					= Options.BC.ODE.LR();
+	public int					m_iL_r					= Settings.BC.ODE.LR();
 	/**
 	 * (ODE) Desensitised Receptor
 	 */
-	public int					m_iR_d					= Options.BC.ODE.Rd();
+	public int					m_iR_d					= Settings.BC.ODE.Rd();
 	/**
 	 * (ODE) Free Receptors on cell surface
 	 */
-	public int					m_iR_free				= Options.BC.ODE.Rf();
+	public int					m_iR_free				= Settings.BC.ODE.Rf();
 														
 	/**
 	 * (ODE) Internalised Receptor
 	 */
-	public int					m_iR_i					= Options.BC.ODE.Ri();
+	public int					m_iR_i					= Settings.BC.ODE.Ri();
 														
 	/**
 	 * The direction the cell is facing; used for movement
@@ -165,7 +165,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		// Calculate chemotaxis direction if we're above the receptor threshold
 		Double3D vMovement;
-		if ( m_iR_free > Options.BC.MIN_RECEPTORS )
+		if ( m_iR_free > Settings.BC.MIN_RECEPTORS )
 		{
 			vMovement = getMoveDirection();
 			
@@ -174,7 +174,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				// Add some noise to the direction and take the average of our
 				// current direction and the new direction
 				vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),
-						Options.BC.DIRECTION_ERROR() ) );
+						Settings.BC.DIRECTION_ERROR() ) );
 				if ( vMovement.lengthSq() > 0 )
 				{
 					vMovement = vMovement.normalize();
@@ -186,13 +186,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		if ( vMovement == null || vMovement.lengthSq() == 0 )
 		{
 			// no data! so do a random turn
-			vMovement = Vector3DHelper.getBiasedRandomDirectionInCone( m_d3Face, Options.BC.RANDOM_TURN_ANGLE() );
+			vMovement = Vector3DHelper.getBiasedRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
 		}
 		
 		// Reset all the movement/collision data
 		m_d3aCollisions.clear();
 		m_d3aMovements = new ArrayList<Double3D>();
-		m_d3aMovements.add( vMovement.multiply( Options.BC.TRAVEL_DISTANCE() ) );
+		m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() ) );
 		
 		handleBounce();                 // Check for bounces
 		receptorStep();                 // Step forward the receptor ODE
@@ -220,9 +220,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			iR_i = m_iR_i;
 			iL_r = m_iL_r;
 			
-			m_iR_free += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
-			m_iR_i += (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_i() * iL_r) - (int) ((1.0 / iTimesteps) * Options.BC.ODE.K_r() * iR_i);
-			m_iL_r -= (int) ((1.0 / iTimesteps)  * Options.BC.ODE.K_r() * iR_i);
+			m_iR_free += (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_r() * iR_i);
+			m_iR_i += (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_i() * iL_r) - (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_r() * iR_i);
+			m_iL_r -= (int) ((1.0 / iTimesteps)  * Settings.BC.ODE.K_r() * iR_i);
 		}
 		
 		if ( displayGraph )
@@ -288,7 +288,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// TODO this is just 1s!!
 		for ( int i = 0; i < 6; i++ )
 		{
-			iaBoundReceptors[i] = (int) (Options.BC.ODE.K_a() * Math.sqrt( iReceptors * iaConcs[i] ));//TODO WHY IS THERE A SQUARE ROOT HERE
+			iaBoundReceptors[i] = (int) (Settings.BC.ODE.K_a() * Math.sqrt( iReceptors * iaConcs[i] ));//TODO WHY IS THERE A SQUARE ROOT HERE
 			m_iR_free -= iaBoundReceptors[i];
 			m_iL_r += iaBoundReceptors[i];
 		}
@@ -310,7 +310,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		{
 			cgGrid.addLineToGrid( this, new Double3D( dPosX, dPosY, dPosZ ),
 					new Double3D( dPosX + d3Movement.x, dPosY + d3Movement.y, dPosZ + d3Movement.z ),
-					Options.BC.COLLISION_RADIUS );
+					Settings.BC.COLLISION_RADIUS );
 					
 			dPosX += d3Movement.x;
 			dPosY += d3Movement.y;
@@ -641,7 +641,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			double dSinTheta = Math.sqrt( Vector3DHelper.crossProduct( d2, d1 ).lengthSq()/(d2.lengthSq()*d1.lengthSq()) ); // sin th
 			double dActualLength = Math.sqrt( length );
 			
-			sNew = Math.max( 0, s-(0.04+Options.BC.COLLISION_RADIUS + Options.FDC.STROMA_EDGE_RADIUS - dActualLength)/(dSinTheta*d1.length()) );			
+			sNew = Math.max( 0, s-(0.04+Settings.BC.COLLISION_RADIUS + Settings.FDC.STROMA_EDGE_RADIUS - dActualLength)/(dSinTheta*d1.length()) );			
 			return sNew;
 	}
 			
@@ -742,17 +742,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				dNewPosZ += d3Movement.z;
 			}
 			
-			if ( dNewPosX > Options.WIDTH - 1 || dNewPosX < 1 ) // Out of bounds on X axis
+			if ( dNewPosX > Settings.WIDTH - 1 || dNewPosX < 1 ) // Out of bounds on X axis
 			{
 				bBounce = handleBounceXaxis(dPosX, iMovementIndex);
 			}
 			
-			if ( dNewPosY > Options.HEIGHT - 1 || dNewPosY < 1 ) // out of bounds on Y axis
+			if ( dNewPosY > Settings.HEIGHT - 1 || dNewPosY < 1 ) // out of bounds on Y axis
 			{	
 				bBounce = handleBounceYaxis(dPosY, iMovementIndex);
 			}
 			
-			if ( dNewPosZ > Options.DEPTH - 1 || dNewPosZ < 1 ) // out of bounds on Z axis
+			if ( dNewPosZ > Settings.DEPTH - 1 || dNewPosZ < 1 ) // out of bounds on Z axis
 			{
 				bBounce = handleBounceZaxis(dPosZ, iMovementIndex);
 			}
@@ -785,7 +785,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			}
 			
 			// does this sub movement go out of bounds
-			if ( dTempPosX + d3Movement.x < 1 || dTempPosX + d3Movement.x > Options.WIDTH - 1 )
+			if ( dTempPosX + d3Movement.x < 1 || dTempPosX + d3Movement.x > Settings.WIDTH - 1 )
 			{
 				// Figure out at which point it goes out
 				double dCutOff = 1;
@@ -795,7 +795,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				}
 				else
 				{
-					dCutOff = ((Options.WIDTH - 1) - dTempPosX) / d3Movement.x;
+					dCutOff = ((Settings.WIDTH - 1) - dTempPosX) / d3Movement.x;
 				}
 				
 				// Create 2 new vectors split at the cutoff point, the
@@ -853,7 +853,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			}
 			
 			// does this sub movement go out of bounds
-			if ( dTempPosY + d3Movement.y < 1 || dTempPosY + d3Movement.y > Options.HEIGHT - 1 )
+			if ( dTempPosY + d3Movement.y < 1 || dTempPosY + d3Movement.y > Settings.HEIGHT - 1 )
 			{
 				// Figure out at which point it goes out
 				double dCutOff = 1;
@@ -863,7 +863,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				}
 				else
 				{
-					dCutOff = ((Options.HEIGHT - 1) - dTempPosY) / d3Movement.y;
+					dCutOff = ((Settings.HEIGHT - 1) - dTempPosY) / d3Movement.y;
 				}
 				
 				// Create 2 new vectors split at the cutoff point, the
@@ -921,7 +921,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			}
 			
 			// does this sub movement go out of bounds
-			if ( dTempPosZ + d3Movement.z < 1 || dTempPosZ + d3Movement.z > Options.DEPTH - 1 )
+			if ( dTempPosZ + d3Movement.z < 1 || dTempPosZ + d3Movement.z > Settings.DEPTH - 1 )
 			{
 				// Figure out at which point it goes out
 				double dCutOff = 1;
@@ -931,7 +931,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				}
 				else
 				{
-					dCutOff = ((Options.DEPTH - 1) - dTempPosZ) / d3Movement.z;
+					dCutOff = ((Settings.DEPTH - 1) - dTempPosZ) / d3Movement.z;
 				}
 				
 				// Create 2 new vectors split at the cutoff point, the latter mirrored along the y axis
@@ -983,7 +983,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			transf = new TransformGroup();
 			
 			// Draw the BC itself
-			SpherePortrayal3D s = new SpherePortrayal3D( Options.BC.DRAW_COLOR(), Options.BC.COLLISION_RADIUS * 2, 6 );
+			SpherePortrayal3D s = new SpherePortrayal3D( Settings.BC.DRAW_COLOR(), Settings.BC.COLLISION_RADIUS * 2, 6 );
 			s.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
 			TransformGroup localTG = s.getModel( obj, null );
 			

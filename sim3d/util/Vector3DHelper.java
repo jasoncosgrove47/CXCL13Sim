@@ -1,7 +1,7 @@
 package sim3d.util;
 
 import sim.util.Double3D;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 
 /**
@@ -22,8 +22,8 @@ public class Vector3DHelper
 		
 
 		// see getRandomDirectionInCone()
-		double z = Options.RNG.nextDouble()*2-1;
-		double phi = Options.RNG.nextDouble()*2*Math.PI;
+		double z = Settings.RNG.nextDouble()*2-1;
+		double phi = Settings.RNG.nextDouble()*2*Math.PI;
 		
 		return new Double3D(Math.sqrt(1-z*z)*Math.cos(phi), Math.sqrt(1-z*z)*Math.sin(phi), z);
 	}
@@ -44,10 +44,10 @@ public class Vector3DHelper
 		// cos dConeAngle and 1 and convert it to the spherical equivalent
 		
 		// Height on surface of cylinder
-		double z = (1-Math.cos(dConeAngle)) * Options.RNG.nextDouble() + Math.cos(dConeAngle);
+		double z = (1-Math.cos(dConeAngle)) * Settings.RNG.nextDouble() + Math.cos(dConeAngle);
 		
 		// Angle on surface of cylinder
-		double phi = Options.RNG.nextDouble()*2*Math.PI;
+		double phi = Settings.RNG.nextDouble()*2*Math.PI;
 		
 		// Change from cylindrical coordinates to spherical
 		return rotateUsingVector(new Double3D(Math.sqrt(1-z*z)*Math.cos(phi), Math.sqrt(1-z*z)*Math.sin(phi), z), d3Direction);
@@ -91,10 +91,10 @@ public class Vector3DHelper
 		// see getRandomDirectionInCone
 		
 		// Height on surface of cylinder
-		double z = (1-Math.cos(dConeAngle)) * Math.cbrt(Options.RNG.nextDouble()) + Math.cos(dConeAngle);
+		double z = (1-Math.cos(dConeAngle)) * Math.cbrt(Settings.RNG.nextDouble()) + Math.cos(dConeAngle);
 		
 		// Angle on surface of cylinder
-		double phi = Options.RNG.nextDouble()*2*Math.PI;
+		double phi = Settings.RNG.nextDouble()*2*Math.PI;
 		
 		// Change from cylindrical coordinates to spherical
 		return rotateUsingVector(new Double3D(Math.sqrt(1-z*z)*Math.cos(phi), Math.sqrt(1-z*z)*Math.sin(phi), z), d3Direction);

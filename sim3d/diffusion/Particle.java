@@ -7,7 +7,7 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.grid.IntGrid2D;
 import sim.field.grid.IntGrid3D;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
@@ -304,7 +304,7 @@ public class Particle extends IntGrid3D implements Steppable
 		
 	
 		decay();
-		for ( int i = 0; i < Options.DIFFUSION_STEPS; i++ )
+		for ( int i = 0; i < Settings.DIFFUSION_STEPS; i++ )
 		{
 			m_daDiffusionAlgorithm.diffuse( this );
 		}

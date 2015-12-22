@@ -20,7 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.diffusion.Particle;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
@@ -42,10 +42,10 @@ public class DiffusionAlgorithmTest
 		
 		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";		// set the seed for the simulation, be careful for when running on cluster																	
 		parameters = IO.openXMLFile(paramFile);
-		Options.loadParameters(parameters);
-		Options.BC.loadParameters(parameters);
-		Options.BC.ODE.loadParameters(parameters);
-		Options.FDC.loadParameters(parameters);
+		Settings.loadParameters(parameters);
+		Settings.BC.loadParameters(parameters);
+		Settings.BC.ODE.loadParameters(parameters);
+		Settings.FDC.loadParameters(parameters);
 	}
 	
 	/**
@@ -56,14 +56,14 @@ public class DiffusionAlgorithmTest
 	{
 		
 		//loadParameters();
-		Options.RNG = new MersenneTwisterFast();
-		Options.DIFFUSION_COEFFICIENT = 1.519 * Math.pow( 10, -10 );
-		Options.GRID_SIZE = 0.00001;
-		Options.DIFFUSION_TIMESTEP = Math.pow( Options.GRID_SIZE, 2 ) / (3.7 * Options.DIFFUSION_COEFFICIENT);
-		Options.DIFFUSION_STEPS	= (int) (1 / Options.DIFFUSION_TIMESTEP);
+		Settings.RNG = new MersenneTwisterFast();
+		Settings.DIFFUSION_COEFFICIENT = 1.519 * Math.pow( 10, -10 );
+		Settings.GRID_SIZE = 0.00001;
+		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (3.7 * Settings.DIFFUSION_COEFFICIENT);
+		Settings.DIFFUSION_STEPS	= (int) (1 / Settings.DIFFUSION_TIMESTEP);
 		
 		
-		System.out.println("coefficient: " + Options.DIFFUSION_COEFFICIENT  +"timestep: " +  Options.DIFFUSION_STEPS +"steps: " + Options.DIFFUSION_TIMESTEP);
+		System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT  +"timestep: " +  Settings.DIFFUSION_STEPS +"steps: " + Settings.DIFFUSION_TIMESTEP);
 		
 	}
 
@@ -112,7 +112,7 @@ public class DiffusionAlgorithmTest
 		// amount of chemokine, and the diffusion coefficient.
 		//fail("Test not yet implemented");
 		
-		double D = Options.DIFFUSION_COEFFICIENT;
+		double D = Settings.DIFFUSION_COEFFICIENT;
 		double t = 0.1; //timestep
 		
 		// double the mean displacement (from the mean square)
@@ -130,12 +130,12 @@ public class DiffusionAlgorithmTest
 	@Test
 	public void testMeanSquare()
 	{
-		m_pParticle.setDiffusionAlgorithm(new Grajdeanu(Options.DIFFUSION_COEFFICIENT, 81,81,81));
+		m_pParticle.setDiffusionAlgorithm(new Grajdeanu(Settings.DIFFUSION_COEFFICIENT, 81,81,81));
 		
 		m_pParticle.field[40][40][40] = 1000;
 		double iMeanSquare = 0;
 
-		int iNumSteps = (int)(80.0/Options.DIFFUSION_STEPS) * Options.DIFFUSION_STEPS;
+		int iNumSteps = (int)(80.0/Settings.DIFFUSION_STEPS) * Settings.DIFFUSION_STEPS;
 		
 		for ( int i = 0; i < iNumSteps; i++ )
 		{
@@ -147,7 +147,7 @@ public class DiffusionAlgorithmTest
 			{
 				for ( int z = 0; z < 81; z++ )
 				{
-					iMeanSquare += m_pParticle.field[x][y][z] * (Math.pow(Options.GRID_SIZE*(40-x), 2) + Math.pow(Options.GRID_SIZE*(40-y), 2) + Math.pow(Options.GRID_SIZE*(40-z), 2));
+					iMeanSquare += m_pParticle.field[x][y][z] * (Math.pow(Settings.GRID_SIZE*(40-x), 2) + Math.pow(Settings.GRID_SIZE*(40-y), 2) + Math.pow(Settings.GRID_SIZE*(40-z), 2));
 				}
 			}
 		}
@@ -155,6 +155,6 @@ public class DiffusionAlgorithmTest
 
 		}
 
-		assertThat(iMeanSquare/(6 * iNumSteps * Options.DIFFUSION_STEPS * Options.DIFFUSION_TIMESTEP), is(closeTo(Options.DIFFUSION_COEFFICIENT, Options.DIFFUSION_COEFFICIENT/2)));
+		assertThat(iMeanSquare/(6 * iNumSteps * Settings.DIFFUSION_STEPS * Settings.DIFFUSION_TIMESTEP), is(closeTo(Settings.DIFFUSION_COEFFICIENT, Settings.DIFFUSION_COEFFICIENT/2)));
 	}
 }

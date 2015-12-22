@@ -14,7 +14,7 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim.util.Double3D;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.diffusion.Particle;
 
@@ -237,7 +237,7 @@ public class UnitTests extends AbstractAnalysis {
 	@Override
 	public void init() throws Exception
 	{
-		Options.RNG = new MersenneTwisterFast();
+		Settings.RNG = new MersenneTwisterFast();
 
 		//testVector3DHelperRandomDirection();
 		//testVector3DHelperRandomDirectionInCone();

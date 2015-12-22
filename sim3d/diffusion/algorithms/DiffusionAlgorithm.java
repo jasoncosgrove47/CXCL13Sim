@@ -1,6 +1,6 @@
 package sim3d.diffusion.algorithms;
 
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.diffusion.Particle;
 
@@ -139,7 +139,7 @@ public class DiffusionAlgorithm
 					// to be made
 					for ( int iRemainder = ia3Concentrations[x][y][z] - iCount; iRemainder > 0; iRemainder-- )
 					{
-						int iRandom = Options.RNG.nextInt( 27 );
+						int iRandom = Settings.RNG.nextInt( 27 );
 						pSpace.field[x + (iRandom / 9 - 1)][y + ((iRandom % 9) / 3 - 1)][z + ((iRandom % 3) - 1)]++;
 						pSpace.field[x][y][z]--;
 					}

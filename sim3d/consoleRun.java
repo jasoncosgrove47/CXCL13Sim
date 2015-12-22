@@ -53,17 +53,13 @@ public class consoleRun
 		System.out.println("StromaSim v1.0 - Console Version");
 		System.out.println("\nAuthor: Jason Cosgrove, York Computational Immunology Lab");
 		
-		// run the simulation for a fixed amount of time
-		// TODO maybe input as an external parameter to see what happens
+
 		do
-		{
-	
+		{	
 			steps = simulation.schedule.getSteps();		
 			System.out.println("Steps: " + steps);
 			if (!simulation.schedule.step(simulation))
-			break;
-		
-			
+			break;	
 		}while(steps < 4320);	
 		
 		// finish the simulation
@@ -71,14 +67,10 @@ public class consoleRun
 		System.out.println("\nSimulation completed successfully!\n\n");
 		
 		// Output the time taken for simulation to run
-		// TODO amount of memory may also be useful
 		long endtime = System.currentTimeMillis();
 		Date formattedendtime = new Date(endtime); 
 		System.out.println("endtime: " + sdf.format(formattedendtime));
 
-		
-		
-		
 		long totaltime= endtime - starttime;
 		System.out.println("total time taken to run: " + totaltime/60000 + " minutes and " + (totaltime % 60000)/1000 +" seconds"); //convert milliseconds to minutes
 		

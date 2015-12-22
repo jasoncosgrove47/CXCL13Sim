@@ -1,6 +1,6 @@
 package sim3d.diffusion.algorithms;
 
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 
 /**
@@ -61,8 +61,8 @@ public class Grajdeanu extends DiffusionAlgorithm
 					// the diffusion coefficient d^2 is calculated by squaring 
 					// each of the fundamental vector distances (i.e. pythagoras in 3D!)
 					m_adDiffusionCoefficients[x + 1][y + 1][z + 1] = Math
-							.exp( -(Math.pow( Options.GRID_SIZE, 2 ) * (x * x + y * y + z * z))
-									/ (4 * dDiffuseCoeff * Options.DIFFUSION_TIMESTEP) );
+							.exp( -(Math.pow( Settings.GRID_SIZE, 2 ) * (x * x + y * y + z * z))
+									/ (4 * dDiffuseCoeff * Settings.DIFFUSION_TIMESTEP) );
 									
 					// Add the result to the total distance for normalising
 					dTotalDistance += m_adDiffusionCoefficients[x + 1][y + 1][z + 1];

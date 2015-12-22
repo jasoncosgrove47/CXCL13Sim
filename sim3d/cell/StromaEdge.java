@@ -15,7 +15,7 @@ import sim.field.continuous.Continuous3D;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 
@@ -74,8 +74,8 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 		m_d3Edge = d3Point2.subtract( d3Point1 );
 		
 	
-		setAntigenLevelUpperEdge(Options.FDC.STARTINGANTIGENLEVEL/2);
-		setAntigenLevelLowerHalf(Options.FDC.STARTINGANTIGENLEVEL/2);
+		setAntigenLevelUpperEdge(Settings.FDC.STARTINGANTIGENLEVEL/2);
+		setAntigenLevelLowerHalf(Settings.FDC.STARTINGANTIGENLEVEL/2);
 	}
 	
 	
@@ -115,7 +115,7 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	@Override
 	public TransformGroup getModel( Object obj, TransformGroup transf )
 	{
-		if ( transf == null || true)// add || true to update the stroma visualisation 
+		if ( transf == null)// add || true to update the stroma visualisation 
 							// TODO figure out why adding this leads to oscillation of B cell colours
 		{
 			
@@ -132,7 +132,7 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 			
 			
 			
-			Color col = Options.FDC.DRAW_COLOR();
+			Color col = Settings.FDC.DRAW_COLOR();
 			
 			
 			if (fdc.getAntigenLevelUpperEdge() + fdc.getAntigenLevelLowerHalf()<90){
@@ -140,6 +140,9 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 			}
 			if (fdc.getAntigenLevelUpperEdge()+ fdc.getAntigenLevelLowerHalf()<85){
 				col =  blueLow;
+			}
+			if (fdc.getAntigenLevelUpperEdge()+ fdc.getAntigenLevelLowerHalf()<75){
+				col =  blue0;
 			}
 	
 			
@@ -150,7 +153,7 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 			aAppearance.setTransparencyAttributes( new TransparencyAttributes( TransparencyAttributes.FASTEST, 0.4f ) );
 			
 			LineAttributes la = new LineAttributes();
-			la.setLineWidth( (float) Options.FDC.STROMA_EDGE_RADIUS * 20 );
+			la.setLineWidth( (float) Settings.FDC.STROMA_EDGE_RADIUS * 20 );
 			aAppearance.setLineAttributes( la );
 			
 			Shape3D s3Shape = new Shape3D( lineArr, aAppearance );
@@ -197,7 +200,7 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	public void registerCollisions( CollisionGrid cgGrid )
 	{
 		cgGrid.addLineToGrid( this, new Double3D( x, y, z ),
-				new Double3D( x + m_d3Edge.x, y + m_d3Edge.y, z + m_d3Edge.z ), Options.FDC.STROMA_EDGE_RADIUS );
+				new Double3D( x + m_d3Edge.x, y + m_d3Edge.y, z + m_d3Edge.z ), Settings.FDC.STROMA_EDGE_RADIUS );
 	}
 
 

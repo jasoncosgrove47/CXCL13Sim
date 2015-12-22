@@ -15,7 +15,7 @@ import javax.media.j3d.TransformGroup;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
@@ -66,7 +66,7 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable
 			
 			
 			
-			SpherePortrayal3D s = new SpherePortrayal3D( Options.FDC.DRAW_COLOR(), Options.FDC.STROMA_NODE_RADIUS * 2,6 );
+			SpherePortrayal3D s = new SpherePortrayal3D( Settings.FDC.DRAW_COLOR(), Settings.FDC.STROMA_NODE_RADIUS * 2,6 );
 			s.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
 			TransformGroup localTG = s.getModel( obj, null );
 			
@@ -91,12 +91,12 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable
 	@Override
 	public void registerCollisions( CollisionGrid cgGrid )
 	{
-		cgGrid.addSphereToGrid( this, new Double3D( x, y, z ), Options.FDC.STROMA_NODE_RADIUS );
+		cgGrid.addSphereToGrid( this, new Double3D( x, y, z ), Settings.FDC.STROMA_NODE_RADIUS );
 	}
 	
 	@Override
 	public void step( final SimState state )
 	{
-		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z, Options.FDC.CXCL13_EMITTED() );
+		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z, Settings.FDC.CXCL13_EMITTED() );
 	}
 }

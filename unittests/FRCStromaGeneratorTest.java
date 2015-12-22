@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import ec.util.MersenneTwisterFast;
 import sim.util.Double3D;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.cell.StromaEdge;
 import sim3d.util.FRCStromaGenerator;
@@ -31,7 +31,7 @@ public class FRCStromaGeneratorTest
 	@Before
 	public void setUp() throws Exception
 	{
-		Options.RNG = new MersenneTwisterFast();
+		Settings.RNG = new MersenneTwisterFast();
 	}
 	
 	/**

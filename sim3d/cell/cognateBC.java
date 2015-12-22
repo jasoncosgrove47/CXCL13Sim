@@ -5,23 +5,43 @@ import java.util.HashSet;
 
 import javax.media.j3d.TransformGroup;
 
+import org.w3c.dom.Document;
+
 import sim.engine.SimState;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Int3D;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 
 public class cognateBC extends BC
 {
 	
-	@Override
-	public void step( final SimState state ){
-		super.step(state);
-		//need to ensure only cognate B cells can acquire antigen
+	private int antigenCaptured = 0;
+	/**
+	 * Constructor
+	 * @param seed  Used by MASON for the random seed
+	 */
+	public cognateBC( )
+	{
+		this.type = TYPE.NAIVE;
 	}
 	
-
+	@Override
+	public void step( final SimState state )
+	{
+		super.step(state);
+	}
+	
+	/**
+	 * ENUM for the chemokine types
+	 */
+	public enum TYPE
+	{
+		NAIVE, PRIMED, ACTIVATED
+	}
+	
+	public TYPE type;
 	
 	
 	/**
@@ -31,7 +51,7 @@ public class cognateBC extends BC
 	public void handleCollisions( CollisionGrid cgGrid )
 	{
 		// don't let a b cell collide more than collisionThreshold times
-		int collisionThreshold = 10000;
+		int collisionThreshold = 10;
 		if ( m_i3lCollisionPoints.size() == 0 || collisionCounter > collisionThreshold)
 		{
 			return;
@@ -60,46 +80,8 @@ public class cognateBC extends BC
 				case STROMA_EDGE: // These first two are the more likely hits as they won't be moving
 					if ( collideStromaEdge( (StromaEdge) cCell, iCollisionMovement ) )//TODO we can get T from this method
 					{
-						
-						
-						
 						iCollisionMovement = m_d3aMovements.size() - 1;
-
 						acquireAntigen(cCell);
-						
-						
-						
-						//get the position along the stromal edge as a percentage
-						// System.out.println(this.getPositionAlongStroma());
-						
-						//TODO an acquire antigen method
-						
-						//we divide the stroma in two as make it more accurate
-						/**
-						StromaEdge sEdge = (StromaEdge) cCell; 
-						if(this.getPositionAlongStroma()> 0.5)
-						{
-							if (sEdge.getAntigenLevelUpperEdge() > 0)
-							{
-								//reduce antigen level by 1	
-								sEdge.setAntigenLevelUpperEdge(sEdge.getAntigenLevelUpperEdge() - 1);			
-							}
-						}
-						else
-						{
-							if (sEdge.getAntigenLevelLowerHalf() > 0)
-							{
-								//reduce antigen level by 1	
-								sEdge.setAntigenLevelLowerHalf(sEdge.getAntigenLevelLowerHalf() - 1);			
-							}
-						}
-						*/
-					
-						
-						
-						//TODO take antigen in this case
-						//get s and t from find closest points and (t is the percentage you are along the stroma)
-						// then call FDC and based on which half you are in take away some antigen
 						bCollision = true;
 					}
 					break;
@@ -114,8 +96,6 @@ public class cognateBC extends BC
 			performCollision(cgGrid, iCollisionMovement); //deal with the collision
 		}
 	}
-	
-	
 	
 	
 	/**
@@ -141,11 +121,9 @@ public class cognateBC extends BC
 				sEdge.setAntigenLevelLowerHalf(sEdge.getAntigenLevelLowerHalf() - 1);			
 			}
 		}
-		
-		System.out.println("fdcAntigen upper half: " + sEdge.getAntigenLevelUpperEdge());
-		System.out.println("fdcAntigen lower half: " + sEdge.getAntigenLevelLowerHalf());
+		this.setAntigenCaptured(this.getAntigenCaptured() + 1);
+		this.type = TYPE.PRIMED;
 	}
-	
 	
 	
 	@Override
@@ -160,10 +138,9 @@ public class cognateBC extends BC
 			transf = new TransformGroup();
 			
 			// Draw the BC itself
-			
 		 	java.awt.Color blue 	= new Color(30,200,255,255);
 			
-			SpherePortrayal3D s = new SpherePortrayal3D( blue, Options.BC.COLLISION_RADIUS * 2, 6 );
+			SpherePortrayal3D s = new SpherePortrayal3D( blue, Settings.BC.COLLISION_RADIUS * 2, 6 );
 			s.setCurrentFieldPortrayal( getCurrentFieldPortrayal() );
 			TransformGroup localTG = s.getModel( obj, null );
 			
@@ -178,8 +155,15 @@ public class cognateBC extends BC
 		}
 		return transf;
 	}
+
+	public int getAntigenCaptured() {
+		return antigenCaptured;
+	}
+
+	public void setAntigenCaptured(int antigenCaptured) {
+		this.antigenCaptured = antigenCaptured;
+	}
 	
 	
-	
-	
+
 }

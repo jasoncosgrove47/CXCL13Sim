@@ -11,7 +11,8 @@
 	</O>
 	
 	<BC>
-		<COUNT>250</COUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
+		<COUNT>1250</COUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
+		<COGNATECOUNT>250</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
 		<DISCRETISATION>5</DISCRETISATION>
 		<MIN_RECEPTORS>15000</MIN_RECEPTORS>
 		<TRAVEL_DISTANCE>1</TRAVEL_DISTANCE>

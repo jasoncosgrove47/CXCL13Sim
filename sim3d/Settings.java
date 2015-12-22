@@ -11,24 +11,19 @@ import ec.util.MersenneTwisterFast;
 
 /**
  * All the parameters for the simulation.
- * 
- * 
- * VERY IMPORTANT!!!!!!!!!
  * Note: parameters in functions can be changed while the simulation is running!
  * 
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  * 
- * 
  */
-public class Options
+public class Settings
 {
 	
 		 public static void loadParameters(Document params)
 		 {
 			 	// Simulation Tag
-
-			 Element paramOElement = (Element) params.getElementsByTagName("O").item(0);	
+			 	Element paramOElement = (Element) params.getElementsByTagName("O").item(0);	
 			 
 				NodeList widthNL = paramOElement.getElementsByTagName("WIDTH");
 				Node widthN = widthNL.item(0);
@@ -63,24 +58,17 @@ public class Options
 											
 		/**
 		 * Dimensions of the simulation
-		 * 
 		 * Note: the simulation has a 1 unit border around the edge hence the + 2
 		 */
-		
-		//TODO why is this not working
-		 //why does it no
 		 public static int		WIDTH;
 		 public static int      HEIGHT;
 		 public static int      DEPTH;
 		
-		
 		/**
 		 * Size of one edge of a grid space in meters
 		 */
-		public static double				GRID_SIZE;							// 1E-05
-																				// =
-																				// 10
-																				// micron														
+		public static double				GRID_SIZE;			//1E-05 = 10 micron
+																																	
 		/**
 		 * Speed of diffusion, used by DiffusionAlgorithm
 		 */
@@ -97,12 +85,7 @@ public class Options
 		 *      Winter08Phys352/Notes_Diffusion.pdf
 		 *      
 		 * TODO: Get Simon to explain this again to me     
-		 * 
-		 * 
 		 */
-		
-	
-		
 		static double calculateDIFFUSION_TIMESTEP()
 		{
 			return Math.pow( GRID_SIZE, 2 )	/ (3.7 * DIFFUSION_COEFFICIENT);
@@ -115,11 +98,6 @@ public class Options
 		}
 		
 	
-
-	
-	
-	
-	
 	
 	////////////////////////// BC PARAMETERS  ////////////////////////////////
 	
@@ -129,8 +107,6 @@ public class Options
 	 */
 	public static class BC
 	{
-		
-		
 		/**
 		 * This loads the parameters from an XML file for high throughput analyses
 		 * @param params
@@ -140,12 +116,14 @@ public class Options
 			 	// Simulation Tag
 
 			    Element paramBCElement = (Element) params.getElementsByTagName("BC").item(0);			      
-		        
-			
 			    
 				NodeList countNL = paramBCElement.getElementsByTagName("COUNT");
 				Node countN = countNL.item(0);
 				COUNT = Integer.parseInt(countN.getTextContent());
+				
+				NodeList ccountNL = paramBCElement.getElementsByTagName("COGNATECOUNT");
+				Node ccountN = ccountNL.item(0);
+				COGNATECOUNT = Integer.parseInt(ccountN.getTextContent());
 				
 				NodeList discretisationNL = paramBCElement.getElementsByTagName("DISCRETISATION");
 				Node discretisationN = discretisationNL.item(0);
@@ -161,18 +139,20 @@ public class Options
 	
 		   }
 		
-		 
-
-		 
+		
 		/**
 		 * Number of BCs to generate
 		 */
 		public static int		COUNT;
-												
+				
 		/**
-		 * used by Continuous3D - related to getting neighbours; the size of the
-		 * bags
-		 * TODO Not quite sure what this means?
+		 * Number of antigen specificBCs to generate
+		 */
+		public static int		COGNATECOUNT;
+		
+		/**
+		 * used by Continuous3D - related to getting neighbours; the size of the bags
+		 * A value of 5 means a collision grid neighbourhood of 5*5*5
 		 */
 		public static double	DISCRETISATION;
 												
@@ -229,13 +209,7 @@ public class Options
 		
 		/**
 		 * Parameterisation of the ODE for the receptors in the BCs
-		 * 
-		 * TODO use values from the Lin et al paper, but remember that these values were obtained for neutrophils!
-		 * TODO look at the paper from Kepler TB as they have some nice parameter values and constraints
 		 */
-		
-		
-		
 		public static class ODE
 		{
 			
@@ -293,7 +267,7 @@ public class Options
 			static int Rd;
 			public static int Rd() {return Rd;}
 		
-			static int Rf;
+			public static int Rf;
 			public static int Rf(){ return Rf; }
 																
 			static int Ri;
@@ -325,7 +299,6 @@ public class Options
 	public static class FDC
 	{
 		
-	
 		 public static void loadParameters(Document params)
 		 {
 			 	// Simulation Tag
@@ -367,13 +340,10 @@ public class Options
 		 * NOTE: this is just a maximum. If there's no room to fit them all, it
 		 * won't keep trying
 		 */
-		public static int		COUNT = 50;
+		public static int		COUNT;
 												
 		/**
-		 * used by Continuous3D - related to getting neighbours; the size of the
-		 * bags
-		 * 
-		 * TODO ask simon what this is and why is it 5
+		 * used by Continuous3D - related to getting neighbours; the size of the bags
 		 */
 		public static double	DISCRETISATION;
 												

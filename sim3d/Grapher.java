@@ -49,14 +49,11 @@ public class Grapher
 															
 	/**
 	 * Add a point to the ODE chart at the current schedule timestep
-	 * 
-	 * @param x
-	 *            The value to plot
+	 * @param x The value to plot
 	 */
 	public static void addPoint( double x )
 	{
 		series.add( schedule.getTime(), x, false );
-		
 		chart.updateChartWithin( schedule.getSteps(), 1000 );
 	}
 	

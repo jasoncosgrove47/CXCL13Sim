@@ -14,12 +14,15 @@ import org.w3c.dom.Document;
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
+import sim.util.Bag;
 import sim.util.Double3D;
 import sim.util.MutableDouble3D;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.cell.BC;
 import sim3d.cell.StromaEdge;
+import sim3d.cell.cognateBC;
+import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 import sim3d.util.IO;
@@ -42,9 +45,9 @@ public class BCTest
 		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";		// set the seed for the simulation, be careful for when running on cluster																	
 		parameters = IO.openXMLFile(paramFile);
 		
-		Options.BC.loadParameters(parameters);
-		Options.BC.ODE.loadParameters(parameters);
-		Options.FDC.loadParameters(parameters);
+		Settings.BC.loadParameters(parameters);
+		Settings.BC.ODE.loadParameters(parameters);
+		Settings.FDC.loadParameters(parameters);
 	}
 	
 	
@@ -55,14 +58,14 @@ public class BCTest
 		//load in all of the BC and FDC parameters but overwrite some of the options parameters to make the tests faster
 		
 		loadParameters();
-		Options.RNG = new MersenneTwisterFast();
-		Options.WIDTH = 31;
-		Options.HEIGHT = 31;
-		Options.DEPTH = 31;
-		Options.DIFFUSION_COEFFICIENT = 1.519 * Math.pow( 10, -10 );
-		Options.GRID_SIZE = 0.0001;
-		Options.DIFFUSION_TIMESTEP = Math.pow( Options.GRID_SIZE, 2 ) / (3.7 * Options.DIFFUSION_COEFFICIENT);
-		Options.DIFFUSION_STEPS	= (int) (1 / Options.DIFFUSION_TIMESTEP);
+		Settings.RNG = new MersenneTwisterFast();
+		Settings.WIDTH = 31;
+		Settings.HEIGHT = 31;
+		Settings.DEPTH = 31;
+		Settings.DIFFUSION_COEFFICIENT = 1.519 * Math.pow( 10, -10 );
+		Settings.GRID_SIZE = 0.0001;
+		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (3.7 * Settings.DIFFUSION_COEFFICIENT);
+		Settings.DIFFUSION_STEPS	= (int) (1 / Settings.DIFFUSION_TIMESTEP);
     }
 
 
@@ -71,7 +74,7 @@ public class BCTest
 	{
 		m_pParticle = new Particle(schedule, Particle.TYPE.CXCL13, 31, 31, 31);
 		
-		BC.drawEnvironment = new Continuous3D( Options.BC.DISCRETISATION, 31, 31, 31 );
+		BC.drawEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, 31, 31, 31 );
 	}
 
     @After
@@ -93,9 +96,50 @@ public class BCTest
     
     
     
+    //TODO do receptor levels change over time
+    //TODO check all of the states in which a B cell can exist and make sure that they are all reached
+    //TODO check vector calculations
+    //TODO check capable of acquiring antigen
+    
+    /**
+    @Test
+	public void testShouldAcquireAntigen()
+	{
+    	long steps = 0;
+    	long seed = System.currentTimeMillis();
+    	SimulationEnvironment sim = new SimulationEnvironment(seed,IO.openXMLFile("/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml"));
+    	Options.BC.COUNT=0;
+    	Options.BC.COGNATECOUNT=0;
+    	
+    
+    	
+    	sim.start();
+
+    	sim.seedCognateCells(5);
+		do
+		{	
+			steps = sim.schedule.getSteps();		
+			if (!sim.schedule.step(sim))
+			break;	
+		}while(steps < 300);	
+		
+		int antigenCaptured = 0;
+		Bag cells =  sim.bcEnvironment.allObjects;
+		for(int i = 0; i < cells.size(); i++){
+			cognateBC cBC = (cognateBC) cells.get(i);
+		}
+		
+		// finish the simulation
+		sim.finish();
+    	
+	}
+    */
+
+
     
     
-    ////////////////////////////////////////////  INTEGRATION TESTS - SHOULD BE IN ITS OWN SEPARATE CLASS
+
+	
     
     /*
      * This is an integration test ensuring chemokine and migration work together
@@ -107,10 +151,10 @@ public class BCTest
 		
 		m_pParticle.m_dDecayRateInv = 1;
 		
-		Options.BC.MIN_RECEPTORS = 0;
+		Settings.BC.MIN_RECEPTORS = 0;
 		
 		// Let's diffuse a little
-		Options.DIFFUSION_STEPS = 2;
+		Settings.DIFFUSION_STEPS = 2;
 		m_pParticle.step( null );
 		m_pParticle.step( null );
 		m_pParticle.step( null );
@@ -130,7 +174,7 @@ public class BCTest
 		{
 			bcCells[i] = new BC();
 			
-			bcCells[i].setObjectLocation( new Double3D(Options.RNG.nextInt(14)+8,Options.RNG.nextInt(14)+8,Options.RNG.nextInt(14)+8) );
+			bcCells[i].setObjectLocation( new Double3D(Settings.RNG.nextInt(14)+8,Settings.RNG.nextInt(14)+8,Settings.RNG.nextInt(14)+8) );
 		}
 		// Let them move a bit
 		for ( int i = 0; i < 600; i++ )
@@ -264,7 +308,7 @@ public class BCTest
 		m_pParticle.m_dDecayRateInv = 1;
 		
 		// Let's diffuse a little
-		Options.DIFFUSION_STEPS = 2;
+		Settings.DIFFUSION_STEPS = 2;
 		m_pParticle.step( null );
 		m_pParticle.step( null );
 		m_pParticle.step( null );

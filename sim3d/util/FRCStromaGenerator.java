@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sim.util.Double3D;
-import sim3d.Options;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.cell.StromaEdge;
 
@@ -107,7 +107,7 @@ public class FRCStromaGenerator
 			// Calculate the number of edges to make
 			// TODO Magic numbers! These seem to work, though...
 			int iEdges = Math.max( 0,
-					Math.min( iRemainingCells, (int) (Math.pow( Options.RNG.nextDouble(), 1.5 ) * (2.1) + 2.9) )
+					Math.min( iRemainingCells, (int) (Math.pow( Settings.RNG.nextDouble(), 1.5 ) * (2.1) + 2.9) )
 							- frcNextCell.iEdges );
 
 			// This is the first time so we want at few edges otherwise
@@ -298,11 +298,11 @@ public class FRCStromaGenerator
 			if ( d3lAdjacent.size() > 1 || (d3lAdjacent.size() == 1 && d3lAdjacent.get( 0 ) != frcOrigin) )
 			{
 				// Pick a random one (probably only one)
-				FRCCell newLoc = d3lAdjacent.get( Options.RNG.nextInt( d3lAdjacent.size() ) );
+				FRCCell newLoc = d3lAdjacent.get( Settings.RNG.nextInt( d3lAdjacent.size() ) );
 				
 				while (newLoc == frcOrigin)
 				{
-					newLoc = d3lAdjacent.get( Options.RNG.nextInt( d3lAdjacent.size() ) );
+					newLoc = d3lAdjacent.get( Settings.RNG.nextInt( d3lAdjacent.size() ) );
 				}
 				
 				// draw an edge to the existing cell
@@ -366,7 +366,7 @@ public class FRCStromaGenerator
 				// TODO would mutating these numbers alter the distributions???
 				// This distribution... It approximately matches the paper, and was derived using the divided differences method
 				// http://www.wolframalpha.com/input/?i=0.392281+x-0.342923+x%5E2%2B0.151204+x%5E3-0.0270696+x%5E4%2B0.00180148+x%5E5+between+x+%3D+0+and+5
-				double length = Options.RNG.nextDouble() * 2.6;
+				double length = Settings.RNG.nextDouble() * 2.6;
 				length = 0.00180148 * Math.pow( length, 5 ) - 0.0270696 * Math.pow( length, 4 )
 						+ 0.151204 * Math.pow( length, 3 ) - 0.342923 * Math.pow( length, 2 ) + 0.392281 * length;
 
@@ -414,7 +414,7 @@ public class FRCStromaGenerator
 			
 			// add some noise
 			d3aReturn[0] = d3aReturn[0]
-					.add( Vector3DHelper.getRandomDirection().multiply(Options.RNG.nextDouble() * 0.04 ) );
+					.add( Vector3DHelper.getRandomDirection().multiply(Settings.RNG.nextDouble() * 0.04 ) );
 			
 			// If there are any cells too close to the final edge, try it all again!
 			if ( getAdjacentCells( iWidth, iHeight, iDepth, frcla3CellLocations,
