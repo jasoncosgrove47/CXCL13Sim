@@ -13,6 +13,7 @@ import sim.engine.Steppable;
 import sim.field.continuous.Continuous2D;
 import sim.field.grid.ObjectGrid2D;
 import sim.util.Bag;
+import sim.util.Double3D;
 import sim.util.Int2D;
 import sim3d.SimulationEnvironment;
 import sim3d.consoleRun;
@@ -75,6 +76,29 @@ public class dataLogger implements Steppable {
 	    
 	    return primedCount;
 	}
+
+	
+	/*
+	private static void trackCell()
+	{
+		
+	    Bag cells =  consoleRun.simulation.bcEnvironment.allObjects;;
+	
+	    for(int i = 0; i < cells.size(); i++)
+	    {
+	    	if(cells.get(i) instanceof cognateBC)
+			{
+				cognateBC cBC = (cognateBC) cells.get(i);
+				Double3D positionVector = new Double3D(cBC.x,cBC.y,cBC.z);
+				//need to add the positionVector to some kind of datastructure
+				cBC.getPositionList().add(positionVector);
+		
+			}
+	    }
+	    }
+	   */
+	    
+
 
 
 

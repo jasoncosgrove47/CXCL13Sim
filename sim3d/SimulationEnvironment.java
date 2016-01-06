@@ -66,6 +66,7 @@ public class SimulationEnvironment extends SimState
 		 Settings.BC.loadParameters(parameters);
 		 Settings.FDC.loadParameters(parameters);
 		 Settings.BC.ODE.loadParameters(parameters);
+		 Settings.CXCL13.loadParameters(parameters);
 	 }
 	
 	 
@@ -120,7 +121,7 @@ public class SimulationEnvironment extends SimState
 		//Grapher.init();
 		
 		
-		datalogger = new dataLogger();
+		//datalogger = new dataLogger();
 		schedule.scheduleRepeating(datalogger);
 		
 		
@@ -208,7 +209,9 @@ public class SimulationEnvironment extends SimState
 		   
 		   Double3D loc = new Double3D(x,y,z);
 		  
-		   cognateBC bc = new cognateBC();
+		   
+		   //create the cell and give it it's own unique identifier.
+		   cognateBC bc = new cognateBC(i);
 			
 			// Register with display
 			bc.setObjectLocation( loc );

@@ -1,6 +1,7 @@
 package sim3d.cell;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import javax.media.j3d.TransformGroup;
@@ -9,6 +10,7 @@ import org.w3c.dom.Document;
 
 import sim.engine.SimState;
 import sim.portrayal3d.simple.SpherePortrayal3D;
+import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Grapher;
 import sim3d.Settings;
@@ -18,6 +20,12 @@ import sim3d.collisiondetection.CollisionGrid;
 public class cognateBC extends BC
 {
 	
+	ArrayList<Double> positionX  = new ArrayList<Double>();
+	ArrayList<Double> positionY  = new ArrayList<Double>();
+	ArrayList<Double> positionZ = new ArrayList<Double>();
+	
+	Integer index;
+	
 	
 	public boolean				displayAntigenGraph			= false;
 	
@@ -26,15 +34,19 @@ public class cognateBC extends BC
 	 * Constructor
 	 * @param seed  Used by MASON for the random seed
 	 */
-	public cognateBC( )
+	public cognateBC(int index)
 	{
 		this.type = TYPE.NAIVE;
+		this.index = index;
 	}
 	
 	@Override
 	public void step( final SimState state )
 	{
 		super.step(state);
+		positionX.add(this.x);
+		positionX.add(this.y);
+		positionX.add(this.z);
 	}
 	
 	/**
@@ -173,7 +185,9 @@ public class cognateBC extends BC
 	public void setAntigenCaptured(int antigenCaptured) {
 		this.antigenCaptured = antigenCaptured;
 	}
-	
+
+
+
 	
 
 }

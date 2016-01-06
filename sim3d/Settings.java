@@ -41,7 +41,7 @@ public class Settings
 				Node gridN = gridNL.item(0);
 				GRID_SIZE= Double.parseDouble(gridN.getTextContent());
 				
-				NodeList diffusionNL = paramOElement.getElementsByTagName("DIFFUSION_COEFFICIENT_PREFIX");
+				NodeList diffusionNL = paramOElement.getElementsByTagName("DIFFUSION_COEFFICIENT");
 				Node diffusionN = diffusionNL.item(0);
 				DIFFUSION_COEFFICIENT = Double.parseDouble(diffusionN.getTextContent());
 		
@@ -81,15 +81,21 @@ public class Settings
 		 * How much time a single iteration of the diffusion process will take us
 		 * forward
 		 * 
-		 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/
-		 *      Winter08Phys352/Notes_Diffusion.pdf
+		 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352/Notes_Diffusion.pdf
 		 *      
 		 * TODO: Get Simon to explain this again to me     
 		 */
 		static double calculateDIFFUSION_TIMESTEP()
 		{
-			return Math.pow( GRID_SIZE, 2 )	/ (3.7 * DIFFUSION_COEFFICIENT);
+			return Math.pow( GRID_SIZE, 2 )	/ (43.95 * DIFFUSION_COEFFICIENT);
 		}
+	
+		/*
+		static double calculateDIFFUSION_TIMESTEP()
+		{
+			return Math.pow( GRID_SIZE, 2 )	/ (73.95 * DIFFUSION_COEFFICIENT);
+		}
+		*/
 
 				
 		static int calculateDIFFUSION_STEPS()
@@ -377,7 +383,24 @@ public class Settings
 	
 	
 	
-	
-	
+	public static class CXCL13
+	{
+		 public static void loadParameters(Document params)
+		 {
+			 	// Simulation Tag
+			    Element paramCXCL13Element = (Element) params.getElementsByTagName("CXCL13").item(0);			      
+		        
+				NodeList stromaedgeNL = paramCXCL13Element.getElementsByTagName("DECAY_CONSTANT");
+				Node stromaedgeN = stromaedgeNL.item(0);
+				DECAY_CONSTANT = Double.parseDouble(stromaedgeN.getTextContent());
+		   }
+		 
+		   /**
+			 * the rate of protein decay per timestep (do we also need to account for each gridspace?)
+			 */
+			public static double	DECAY_CONSTANT;
+		 
+		
+	}
 	
 }

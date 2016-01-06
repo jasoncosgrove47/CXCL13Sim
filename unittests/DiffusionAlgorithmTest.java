@@ -57,13 +57,13 @@ public class DiffusionAlgorithmTest
 		
 		//loadParameters();
 		Settings.RNG = new MersenneTwisterFast();
-		Settings.DIFFUSION_COEFFICIENT = 1.519 * Math.pow( 10, -10 );
+		Settings.DIFFUSION_COEFFICIENT = 0.0000000000076;//0.0000000000076 , 0.0000000001519
 		Settings.GRID_SIZE = 0.00001;
-		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (3.7 * Settings.DIFFUSION_COEFFICIENT);
+		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (43.95 * Settings.DIFFUSION_COEFFICIENT);
 		Settings.DIFFUSION_STEPS	= (int) (1 / Settings.DIFFUSION_TIMESTEP);
 		
 		
-		System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT  +"timestep: " +  Settings.DIFFUSION_STEPS +"steps: " + Settings.DIFFUSION_TIMESTEP);
+	   System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT  +"timestep: " +  Settings.DIFFUSION_STEPS +"steps: " + Settings.DIFFUSION_TIMESTEP);
 		
 	}
 
@@ -78,8 +78,8 @@ public class DiffusionAlgorithmTest
 		m_pParticle.field[25][25][25] = 100;
 		m_pParticle.field[25][26][25] = 100;
 
-		
-		m_pParticle.m_dDecayRateInv = 1;
+		Settings.CXCL13.DECAY_CONSTANT = 1;
+		//m_pParticle.m_dDecayRateInv = 1;
 		for ( int i = 0; i < 10; i++ )
 		{
 			m_pParticle.step(null);
@@ -130,11 +130,16 @@ public class DiffusionAlgorithmTest
 	@Test
 	public void testMeanSquare()
 	{
+		
+	
 		m_pParticle.setDiffusionAlgorithm(new Grajdeanu(Settings.DIFFUSION_COEFFICIENT, 81,81,81));
+		
+	   
 		
 		m_pParticle.field[40][40][40] = 1000;
 		double iMeanSquare = 0;
 
+		//TODO why is this 80
 		int iNumSteps = (int)(80.0/Settings.DIFFUSION_STEPS) * Settings.DIFFUSION_STEPS;
 		
 		for ( int i = 0; i < iNumSteps; i++ )
@@ -147,11 +152,14 @@ public class DiffusionAlgorithmTest
 			{
 				for ( int z = 0; z < 81; z++ )
 				{
+					
+					//TODO what is this line doing
 					iMeanSquare += m_pParticle.field[x][y][z] * (Math.pow(Settings.GRID_SIZE*(40-x), 2) + Math.pow(Settings.GRID_SIZE*(40-y), 2) + Math.pow(Settings.GRID_SIZE*(40-z), 2));
 				}
 			}
 		}
 		iMeanSquare /= 1000;
+	
 
 		}
 

@@ -65,14 +65,9 @@ public class consoleRun
 			System.out.println("Steps: " + steps);
 			
 			
-			if(steps != 0 && steps % 50 == 0)															// every 100 timesteps update the data for grpahs and .csv's					
-			{
-				//primedCells = trackAntigenAcquisition(simulation);
-				
-				
-				
+			if(steps != 0 && steps % 50 == 0)	// every 100 timesteps update the data for grpahs and .csv's					
+			{	
 				outputToCSV.updateArrayList(simulation.datalogger.getPrimedCells());
-				System.out.println("number of primed cells: " + simulation.datalogger.getPrimedCells());
 			}
 			
 			

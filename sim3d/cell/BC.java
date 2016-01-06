@@ -228,7 +228,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( displayODEGraph )
 		{
-		 // Grapher.updateODEGraph( m_iR_free ); //this gives an error when run on console
+		 //Grapher.updateODEGraph( m_iR_free ); //this gives an error when run on console
 		}
 	}
 
@@ -992,10 +992,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			transf.addChild( localTG );
 			
 			//if we have had any collisions, draw them as red circles
-			modelCollisions(m_d3aCollisions,obj, transf);
+			//modelCollisions(m_d3aCollisions,obj, transf);
 			
 			// If we have any movement, then draw it as white lines telling us where the cell is orientated
-			modelMovements(m_d3aMovements,obj, transf);
+			//modelMovements(m_d3aMovements,obj, transf);
 		}
 		return transf;
 	}

@@ -139,6 +139,7 @@ public class Particle extends IntGrid3D implements Steppable
 	
 	/**
 	 * The coefficient used for particle decay
+	 * TODO: this needs to be an external input and should definitely not be this high
 	 */
 	public double m_dDecayRateInv = 0.9;
 	
@@ -226,7 +227,9 @@ public class Particle extends IntGrid3D implements Steppable
 				for ( int z = 0; z < m_iDepth; z++ )
 				{
 					// add 0.5 so it rounds (1.6 -> 2) instead of just flooring the value (1.6 -> 1)
-					field[x][y][z] = (int) (0.5 + field[x][y][z] * m_dDecayRateInv);
+					// TODO need this bit of code explained
+					field[x][y][z] = (int) (0.5 + field[x][y][z] * Settings.CXCL13.DECAY_CONSTANT);
+					//field[x][y][z] = (int) (0.5 + field[x][y][z] * m_dDecayRateInv);
 				}
 			}
 		}

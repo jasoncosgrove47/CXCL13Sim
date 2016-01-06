@@ -125,7 +125,7 @@ public class BCIntegrationTests
 		cognateBC[] bcCells = new cognateBC[100];
 		for (int i = 0; i < 100; i++)
 		{
-			bcCells[i] = new cognateBC();
+			bcCells[i] = new cognateBC(i);
 			
 			bcCells[i].setObjectLocation( d3Centre );
 		}
