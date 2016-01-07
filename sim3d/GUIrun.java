@@ -15,6 +15,8 @@ import java.awt.Color;
 
 import javax.swing.*;
 
+import dataLogger.Grapher;
+
 /**
  * Sets up and runs the simulation
  * 

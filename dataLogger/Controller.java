@@ -22,13 +22,21 @@ import sim3d.cell.cognateBC.TYPE;
 
 
 @SuppressWarnings("serial")
-public class dataLogger implements Steppable {
+public class Controller implements Steppable {
 
 	/**
 	 * All data collection is handled through this class, it has functionality to track 
 	 * populations of cell types and single cell tracking experiments.
 	 * 
-	 * TO BE INSTANTIATED ONCE STATICALLY IN THE SIMULATION ENVIRONMENT CLASS
+	 * Basis is the MVC design pattern: http://www.tutorialspoint.com/design_pattern/mvc_pattern.htm
+	 * 
+	 * Model: Each cell type is responsible for maintaining it's own data in the form of a MAP
+	 * 
+	 * View:OutputToCSV or grapher modules display the data
+	 * 
+	 * Controller: DataLogger handles all of the dataCollection in the system
+	 * 
+	 * need to update so all of the relevant B cell getters and setters are in this class
 	 */
 	
 	
@@ -41,7 +49,20 @@ public class dataLogger implements Steppable {
 	private static int[] meanAffinity;
 	
 	private static int primedCells = 0;
-	public dataLogger(){}
+	
+	
+	 //now we need a map where we store the index and systematically update the X,Y and Z coordinates
+    private Map<Integer,ArrayList<Double>> X_Coordinates = new HashMap<Integer,ArrayList<Double>>();
+    private Map<Integer,ArrayList<Double>> Y_Coordinates = new HashMap<Integer,ArrayList<Double>>();
+    private Map<Integer,ArrayList<Double>> Z_Coordinates = new HashMap<Integer,ArrayList<Double>>();
+	
+	
+	public Controller(){
+		//initalise the MAP
+		X_Coordinates.put(0, new ArrayList<Double>());
+		Y_Coordinates.put(0, new ArrayList<Double>());
+		Z_Coordinates.put(0, new ArrayList<Double>());
+	}
 	
 
 
@@ -77,26 +98,8 @@ public class dataLogger implements Steppable {
 	    return primedCount;
 	}
 
+
 	
-	/*
-	private static void trackCell()
-	{
-		
-	    Bag cells =  consoleRun.simulation.bcEnvironment.allObjects;;
-	
-	    for(int i = 0; i < cells.size(); i++)
-	    {
-	    	if(cells.get(i) instanceof cognateBC)
-			{
-				cognateBC cBC = (cognateBC) cells.get(i);
-				Double3D positionVector = new Double3D(cBC.x,cBC.y,cBC.z);
-				//need to add the positionVector to some kind of datastructure
-				cBC.getPositionList().add(positionVector);
-		
-			}
-	    }
-	    }
-	   */
 	    
 
 
@@ -109,9 +112,37 @@ public class dataLogger implements Steppable {
 
 
 	public static void setPrimedCells(int primedCells) {
-		dataLogger.primedCells = primedCells;
+		Controller.primedCells = primedCells;
 	}
-	
+
+
+
+	public Map<Integer,ArrayList<Double>> getX_Coordinates() {
+		return X_Coordinates;
+	}
+
+
+
+
+
+
+
+	public Map<Integer,ArrayList<Double>> getY_Coordinates() {
+		return Y_Coordinates;
+	}
+
+
+
+
+
+
+	public Map<Integer,ArrayList<Double>> getZ_Coordinates() {
+		return Z_Coordinates;
+	}
+
+
+
+
 	
 	/**
 	public int[] measureAffinity(SimState state){

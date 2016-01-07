@@ -2,29 +2,37 @@ package sim3d.cell;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import javax.media.j3d.TransformGroup;
 
 import org.w3c.dom.Document;
 
+import dataLogger.Grapher;
+import dataLogger.Controller;
 import sim.engine.SimState;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
-import sim3d.Grapher;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
+import sim3d.consoleRun;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 
 public class cognateBC extends BC
 {
 	
-	ArrayList<Double> positionX  = new ArrayList<Double>();
-	ArrayList<Double> positionY  = new ArrayList<Double>();
-	ArrayList<Double> positionZ = new ArrayList<Double>();
+	private ArrayList<Double> positionX  = new ArrayList<Double>();
+	private ArrayList<Double> positionY  = new ArrayList<Double>();
+	private ArrayList<Double> positionZ = new ArrayList<Double>();
 	
-	Integer index;
+	
+
+	
+	private Integer index = 0;
 	
 	
 	public boolean				displayAntigenGraph			= false;
@@ -37,17 +45,51 @@ public class cognateBC extends BC
 	public cognateBC(int index)
 	{
 		this.type = TYPE.NAIVE;
-		this.index = index;
+		this.setIndex(index);
 	}
 	
 	@Override
 	public void step( final SimState state )
 	{
 		super.step(state);
-		positionX.add(this.x);
-		positionX.add(this.y);
-		positionX.add(this.z);
+		
+		
+		//  TODO this works but is dreadful need to initialise the X_Coordinate arraylist value
+		
+		//TODO remove the IF component by initialising the arraylist properly
+		
+
+			
+			positionX.add(this.x);
+			positionY.add(this.y);
+			positionZ.add(this.z);
+			
+			//TODO dont need the arrayList getPositionX, sould just add to the arraylist value of the cells key
+			SimulationEnvironment.getController().getX_Coordinates().put(this.getIndex(), this.getPositionX());
+			SimulationEnvironment.getController().getY_Coordinates().put(this.getIndex(), this.getPositionY());
+			SimulationEnvironment.getController().getZ_Coordinates().put(this.getIndex(), this.getPositionZ());
+			
+			
+		
+			//add the X coordinate to the Xcoordinate Map
+			//SimulationEnvironment.getController().getX_Coordinates().get(this.getIndex()).add(this.x);
+			//SimulationEnvironment.getController().getY_Coordinates().get(this.getIndex()).add(this.y);
+			//SimulationEnvironment.getController().getZ_Coordinates().get(this.getIndex()).add(this.z);
+			
+			
+		
+		
+		
+		
+		
+
 	}
+	
+	
+	
+	
+
+	
 	
 	/**
 	 * ENUM for the chemokine types
@@ -178,12 +220,52 @@ public class cognateBC extends BC
 		return transf;
 	}
 
+	
+	
+	
+	
+	//TODO all of the following should be in the controller class
 	public int getAntigenCaptured() {
 		return antigenCaptured;
 	}
 
 	public void setAntigenCaptured(int antigenCaptured) {
 		this.antigenCaptured = antigenCaptured;
+	}
+
+	
+	
+	public ArrayList<Double> getPositionX() {
+		return positionX;
+	}
+
+	public void setPositionX(ArrayList<Double> positionX) {
+		this.positionX = positionX;
+	}
+	
+	
+	public ArrayList<Double> getPositionY() {
+		return positionY;
+	}
+
+	public void setPositionY(ArrayList<Double> positionY) {
+		this.positionY = positionY;
+	}
+
+	public ArrayList<Double> getPositionZ() {
+		return positionZ;
+	}
+
+	public void setPositionZ(ArrayList<Double> positionZ) {
+		this.positionZ = positionZ;
+	}
+
+	public Integer getIndex() {
+		return index;
+	}
+
+	public void setIndex(Integer index) {
+		this.index = index;
 	}
 
 

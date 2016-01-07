@@ -1,4 +1,4 @@
-package sim3d;
+package dataLogger;
 
 import sim.engine.Schedule;
 import sim.util.media.chart.BarChartGenerator;

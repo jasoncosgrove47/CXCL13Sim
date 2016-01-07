@@ -148,8 +148,9 @@ public class BCTest
 	public void testShouldMigrateTowardsChemokine()
 	{
 		m_pParticle.field[15][15][15] = 100000;
+
 		
-		m_pParticle.m_dDecayRateInv = 1;
+		Settings.CXCL13.DECAY_CONSTANT = 1;
 		
 		Settings.BC.MIN_RECEPTORS = 0;
 		

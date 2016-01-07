@@ -67,20 +67,23 @@ public class consoleRun
 			
 			if(steps != 0 && steps % 50 == 0)	// every 100 timesteps update the data for grpahs and .csv's					
 			{	
-				outputToCSV.updateArrayList(simulation.datalogger.getPrimedCells());
+				outputToCSV.updateArrayList(SimulationEnvironment.getController().getPrimedCells());
+			
 			}
 			
 			
 			
 			if (!simulation.schedule.step(simulation))
 			break;	
-		}while(steps < 540);	
+		}while(steps < 60);	
 		
 		// finish the simulation
 		simulation.finish();	
 		System.out.println("\nSimulation completed successfully!\n\n");
 		
 		outputToCSV.writeCSV(outputToCSV.DataOutput,outputToCSV.headers, outputPath, outputFileName);
+		outputToCSV.generateCSVFile("/Users/jc1571/Desktop/formattedData.csv");
+		
 		
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
