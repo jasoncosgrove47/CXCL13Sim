@@ -12,28 +12,19 @@ import sim3d.util.CSVFileOutput6;
 
 public class outputToCSV {
 	/**
-	 * Creates a datalogger, and outputs the data to .csv
-	 * might make more sense to instantiate datalogger and use these to provide methods such that 
-	 * they can just be called elsewhere as we need.
+	 * Forms the view component of the MVC (see controller)
+	 * responsible for exporting data in .csv format
 	 * 
-	 * 
-	 * also need to account for single cell tracking mechanisms. 
+	 * @author jason cosgrove
 	 */
 	
-	//private static ArrayList<Double> x = new ArrayList<Double>();
-	//private static ArrayList<Double> y;
-	//private static ArrayList<Double> z;
-	
-
-
 
 	
 	
 	/**
-	 * Given a pathname this method will write a csv file with
-	 * the cellID, Timepoint, X,Y and Z coordinates from a simulation
-	 * in a formatted way
-	 * @param fileName
+	 * Given a pathname this method will write a formatted .csv file with
+	 * the cellID, Timepoint, X,Y and Z coordinates (as strings)
+	 * @param input path and filename as one string
 	 */
 	public static void generateCSVFile(String fileName) 
 	{
@@ -43,7 +34,6 @@ public class outputToCSV {
 		try 
 		{
 			writer = new FileWriter(fileName);
-		
 			//set the data headings
 			writer.append("Cell");
 			writer.append(',');
@@ -86,7 +76,6 @@ public class outputToCSV {
 	                writer.append('\n'); 
 			    }  
 			}
-			
 			//close the file stream
 			writer.flush();
 	        writer.close();
@@ -98,7 +87,7 @@ public class outputToCSV {
 
 	
 
-		
+		/*
 		
 		
 		public static ArrayList<Integer> DataOutput = new ArrayList<Integer>(Collections.nCopies(6, 0));
@@ -112,11 +101,6 @@ public class outputToCSV {
 		}};
 		
 		
-		/*
-		 * Access the datalogger hashtable and store it in an array ready for csv output
-		 * should rename to process for csv output
-		 * should just be appendint, ie put not set 
-		 */
 		public static void updateArrayList( int primedCells)
 		{	
 			
@@ -132,8 +116,7 @@ public class outputToCSV {
     	fo.writeDataToFile(data);
     }
 
-
-
+*/
 
 
 }

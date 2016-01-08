@@ -31,14 +31,27 @@ import sim3d.util.FRCStromaGenerator.FRCCell;
 public class consoleRun 
 {
 
+	/*
+	 * Path where file should be sent to
+	 */
+	public static String outputPath =  "/Users/jc1571/Desktop/"; 
 	
-	public static String outputPath =  "/Users/jc1571/Desktop/"; 									// path to where the output file should be sent
-	public static String outputFileName = "foo.csv";	
-	private static final long serialVersionUID = 1;
+	/*
+	 * The class responsible for initialising the simulation
+	 * irrespective of a GUI or console run.
+	 */
 	public static SimulationEnvironment simulation;
 	
+	/*
+	 * name of output filename
+	 */
+	public static String outputFileName = "foo.csv";	
+	
+	private static final long serialVersionUID = 1;
+	
+
 	/**
-	 * main method
+	 * Runs the simulation
 	 */
 	public static void main( String[] args )
 	{
@@ -50,8 +63,8 @@ public class consoleRun
 		
 		//initialise the simulation
 		int seed= (int) (System.currentTimeMillis());	
-		String paramFile = args[0];		// set the seed for the simulation, be careful for when running on cluster																	
-		simulation = new SimulationEnvironment(seed,IO.openXMLFile(paramFile));								// instantiate the simulation
+		String paramFile = args[0];							
+		simulation = new SimulationEnvironment(seed,IO.openXMLFile(paramFile));							
 
 		//start the simulation
 		long steps = 0;
@@ -62,28 +75,16 @@ public class consoleRun
 		do
 		{	
 			steps = simulation.schedule.getSteps();		
-			System.out.println("Steps: " + steps);
-			
-			
-			if(steps != 0 && steps % 50 == 0)	// every 100 timesteps update the data for grpahs and .csv's					
-			{	
-				outputToCSV.updateArrayList(SimulationEnvironment.getController().getPrimedCells());
-			
-			}
-			
-			
-			
+			System.out.println("Steps: " + steps);		
 			if (!simulation.schedule.step(simulation))
 			break;	
-		}while(steps < 60);	
+		} while(steps < 60);	
 		
 		// finish the simulation
 		simulation.finish();	
 		System.out.println("\nSimulation completed successfully!\n\n");
 		
-		outputToCSV.writeCSV(outputToCSV.DataOutput,outputToCSV.headers, outputPath, outputFileName);
 		outputToCSV.generateCSVFile("/Users/jc1571/Desktop/formattedData.csv");
-		
 		
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
@@ -95,33 +96,6 @@ public class consoleRun
 		
 		System.exit(0);	
 	}
-	
-	
-	private static int trackAntigenAcquisition(SimulationEnvironment sim)
-	{
-		
-	    Bag cells =  sim.bcEnvironment.allObjects;
-		
-		int primedCount = 0;
-
-		
-	    for(int i = 0; i < cells.size(); i++)
-	    {
-	    	if(cells.get(i) instanceof cognateBC)
-			{
-				cognateBC cBC = (cognateBC) cells.get(i);
-				if(cBC.type == TYPE.PRIMED)
-				{
-					primedCount +=1;
-				}
-			}
-	    }
 	    
-	    return primedCount;
-	}
-	    
-	    
-	    
-
-	
+	 
 }

@@ -16,6 +16,7 @@ import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
 import sim3d.cell.*;
+import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 import sim3d.util.FRCStromaGenerator;
@@ -26,7 +27,7 @@ import sim3d.util.FRCStromaGenerator.FRCCell;
  * 
  *  This class sets up and runs the simulation absent of 
  *  any GUI related function as a MASON design pattern, 
- *  in line with the MASON (Model/ View/Controller).
+ *  in line with the MASON (Model/View/Controller).
  * 
  *  Need to ensure that Java has access to enough memory resources
  *  go to run configurations and pass in -Xmx3000m
@@ -38,10 +39,39 @@ public class SimulationEnvironment extends SimState
 {
 	
 	private static final long serialVersionUID = 1;
-	public Continuous3D	bcEnvironment;  // 3D grid where B cells reside
-	public Continuous3D	fdcEnvironment; // contains stroma and their edges
-	public static Document parameters;	// the parameter file	
+	
+	
+	/*
+	 * 3D grid where B cells and cBs exist
+	 */
+	public Continuous3D	bcEnvironment; 
+	
+	/*
+	 * 3D grid for Stroma
+	 */
+	public Continuous3D	fdcEnvironment; 
+	
+	/*
+	 * Parameter file: XML format
+	 */
+	public static Document parameters;	
+	
+	/*
+	 * Controller responsible for recording 
+	 * data from the simulation
+	 */
 	private static Controller controller;
+	
+
+	/**
+	 * ENUM for the cell types
+	 */
+	public enum CELLTYPE
+	{
+		B, cB, T
+	}
+	public TYPE celltype;
+	
 	
 	/**
 	 * Constructor
@@ -57,8 +87,8 @@ public class SimulationEnvironment extends SimState
 	
 	
 	/**
-	 * Load parameters from an external xml file to 
-	 * the static Options class
+	 * Load parameters from an external xml 
+	 * file to the static Options class
 	 */
 	 public void setupSimulationParameters()
 	 {
@@ -84,8 +114,6 @@ public class SimulationEnvironment extends SimState
 	 */
 	public void finish()
 	{
-		//Grapher.bcFRCEdgeNumberSeries = new double[Grapher.bcFRCEdgeNumberSeries.length];
-		//Grapher.bcFRCEdgeSizeSeries = new double[Grapher.bcFRCEdgeSizeSeries.length];
 		Particle.reset();
 	}
 	
@@ -117,13 +145,13 @@ public class SimulationEnvironment extends SimState
 	 */
 	public void start()
 	{
+		//start the simulation
 		super.start();
-		//Grapher.init();
-		
-		
+	
+		//initialise the controller and add to the schedule, 
+		//TODO: should be scheduled last
 		controller = new Controller();
 		schedule.scheduleRepeating(getController());
-		
 		
 		//Initialise the stromal grid
 		fdcEnvironment = new Continuous3D( Settings.FDC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
@@ -143,8 +171,9 @@ public class SimulationEnvironment extends SimState
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
 
-		seedCells();
-		seedCognateCells(Settings.BC.COGNATECOUNT);
+		seedCells(CELLTYPE.B);
+		seedCells(CELLTYPE.cB);
+		//seedCognateCells(Settings.BC.COGNATECOUNT);
 		new Particle( schedule, Particle.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );// add particles
 	}
 	
@@ -165,66 +194,71 @@ public class SimulationEnvironment extends SimState
 		else return false;
 	}
 	
-   public void seedCells(){
+	
+	/**
+	 * Seeds B cells
+	 */
+   public void seedCells(CELLTYPE celltype)
+   {
+	   
+	   int count = 0; //the number of cells to seed
+	   
+	   //set the number of cells to seed
+	   if(celltype==CELLTYPE.B){count = Settings.BC.COUNT;}
+	   else if(celltype==CELLTYPE.cB){count = Settings.BC.COGNATECOUNT;}
+			
+	   
+	   //seed the cells
+	   for ( int i = 0; i < count; i++ )
+	   {	
+		   switch(celltype)
+			{
+				case B: 	 //if it's a B cell
+					BC bc = new BC();
+					bc.setObjectLocation( generateCoordinateWithinFollicle());
+					schedule.scheduleRepeating( bc, 0, 1 );
+					if ( i == 0 ){bc.displayODEGraph = true;} // so we only have 1 BC updating the ODE graph
+					
+					break;
+					
+				case cB: // if it's a cognate B cell
+					 cognateBC cbc = new cognateBC(i);
+					 cbc.setObjectLocation( generateCoordinateWithinFollicle());
+					 schedule.scheduleRepeating( cbc, 0, 1 );
+					 if ( i == 0 ){cbc.displayAntigenGraph = true;}
+					
+					break;
+					
+				default:
+					break;
+			}
+		}
+	}
+		
+  
+	
+   
+   
+   /**
+    * Generates a random coordinate within the follicle
+    * could be optimised
+    * @return a random Double3D from within the follicle
+    */
+   public Double3D generateCoordinateWithinFollicle(){
+	   
 	   int x,y,z;
 	   
-	   for ( int i = 0; i < Settings.BC.COUNT; i++ )
+	   do
 	   {
-		   do
-		   {
-			   x = random.nextInt( Settings.WIDTH - 2) + 1 ;
-			   y = random.nextInt( Settings.HEIGHT - 2 ) + 1;
-			   z = random.nextInt( Settings.DEPTH - 2 ) + 1;  
-		   } while (isWithinCircle(x,y ,( Settings.WIDTH /2 ) + 1, ( Settings.HEIGHT / 2 ) + 1, 20) == false);
+		   x = random.nextInt( Settings.WIDTH - 2) + 1 ;
+		   y = random.nextInt( Settings.HEIGHT - 2 ) + 1;
+		   z = random.nextInt( Settings.DEPTH - 2 ) + 1;
 		   
-		   Double3D loc = new Double3D(x,y,z);		
-			
-		   BC bc = new BC();
-			
-			// Register with display
-			bc.setObjectLocation( loc );
-			schedule.scheduleRepeating( bc, 0, 1 );
-			
-			// so we only have 1 BC updating the ODE graph
-			if ( i == 0 )
-			{
-				bc.displayODEGraph = true;
-			}
-	   }
+	   } while (isWithinCircle(x,y ,( Settings.WIDTH /2 ) + 1, ( Settings.HEIGHT / 2 ) + 1, 20) == false);
+	   
+	   return new Double3D(x,y,z);
    }
-	
-	
-   public void seedCognateCells(int numberOfCells){
-	   int x,y,z;
 
-	   for ( int i = 0; i < numberOfCells; i++ )
-	   {
-		   do
-		   {
-			   x = random.nextInt( Settings.WIDTH - 2) + 1 ;
-			   y = random.nextInt( Settings.HEIGHT - 2 ) + 1;
-			   z = random.nextInt( Settings.DEPTH - 2 ) + 1;
-			   
-		   } while (isWithinCircle(x,y ,( Settings.WIDTH /2 ) + 1, ( Settings.HEIGHT / 2 ) + 1, 20) == false);
-		   
-		   Double3D loc = new Double3D(x,y,z);
-		  
-		   
-		   //create the cell and give it it's own unique identifier.
-		   cognateBC bc = new cognateBC(i);
-			
-			// Register with display
-			bc.setObjectLocation( loc );
-			schedule.scheduleRepeating( bc, 0, 1 );
-			
-			// so we only have 1 BC updating the ODE graph
-			if ( i == 0 )
-			{
-				bc.displayAntigenGraph = true;
-			}
-	   }
-   }
-	
 	
 	/*
 	 * Generate and initialise a stromal network
@@ -281,18 +315,13 @@ public class SimulationEnvironment extends SimState
 
 				// All the static cells are in, now reset the collision data
 				cgGrid.step( null );
-				//Grapher.bcFRCEdgeNumberChart.updateChartWithin( 11312, 1000 );
-				//Grapher.bcFRCEdgeSizeChart.updateChartWithin( 11313, 1000 );
 	}
 
-
-	public static Controller getController() {
-		return controller;
-	}
-
-
-	public static void setController(Controller datalogger) {
-		SimulationEnvironment.controller = datalogger;
+	//getters and setters
+	public static Controller getController() {return controller;}
+	public static void       setController(Controller controller) 
+	{
+		SimulationEnvironment.controller = controller;
 	}
 	
 }

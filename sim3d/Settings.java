@@ -89,24 +89,13 @@ public class Settings
 		{
 			return Math.pow( GRID_SIZE, 2 )	/ (43.95 * DIFFUSION_COEFFICIENT);
 		}
-	
-		/*
-		static double calculateDIFFUSION_TIMESTEP()
-		{
-			return Math.pow( GRID_SIZE, 2 )	/ (73.95 * DIFFUSION_COEFFICIENT);
-		}
-		*/
-
-				
+			
 		static int calculateDIFFUSION_STEPS()
 		{
 			return (int) (1 / DIFFUSION_TIMESTEP);
 		}
 		
-	
-	
 	////////////////////////// BC PARAMETERS  ////////////////////////////////
-	
 	
 	/**
 	 * Subclass containing all the BC parameters
@@ -174,7 +163,6 @@ public class Settings
 		public static double TRAVEL_DISTANCE()
 		{
 			return TRAVEL_DISTANCE; //thus 10 microns per minute? should be 10 microns per hour
-			//return 0.01666666; //this is 10 microns
 		}
 		
 		/**
@@ -338,6 +326,9 @@ public class Settings
 			
 		   }
 		 
+		 /**
+		  * Number of antigen per FDC at the start of the simulation
+		  */
 		 
 		 public static int		STARTINGANTIGENLEVEL;
 		/**

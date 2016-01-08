@@ -29,9 +29,7 @@ public class cognateBC extends BC
 	private ArrayList<Double> positionY  = new ArrayList<Double>();
 	private ArrayList<Double> positionZ = new ArrayList<Double>();
 	
-	
 
-	
 	private Integer index = 0;
 	
 	
@@ -54,41 +52,47 @@ public class cognateBC extends BC
 		super.step(state);
 		
 		
-		//  TODO this works but is dreadful need to initialise the X_Coordinate arraylist value
+		// record the cells coordinates in arraylists
+		positionX.add(this.x);
+		positionY.add(this.y);
+		positionZ.add(this.z);
 		
-		//TODO remove the IF component by initialising the arraylist properly
-		
-
-			
-			positionX.add(this.x);
-			positionY.add(this.y);
-			positionZ.add(this.z);
-			
-			//TODO dont need the arrayList getPositionX, sould just add to the arraylist value of the cells key
-			SimulationEnvironment.getController().getX_Coordinates().put(this.getIndex(), this.getPositionX());
-			SimulationEnvironment.getController().getY_Coordinates().put(this.getIndex(), this.getPositionY());
-			SimulationEnvironment.getController().getZ_Coordinates().put(this.getIndex(), this.getPositionZ());
-			
-			
-		
-			//add the X coordinate to the Xcoordinate Map
-			//SimulationEnvironment.getController().getX_Coordinates().get(this.getIndex()).add(this.x);
-			//SimulationEnvironment.getController().getY_Coordinates().get(this.getIndex()).add(this.y);
-			//SimulationEnvironment.getController().getZ_Coordinates().get(this.getIndex()).add(this.z);
-			
-			
-		
-		
-		
-		
-		
-
+		//get the cell to update it's position in the coordinate maps
+		updatePosition(state);
+	
 	}
 	
 	
 	
 	
 
+	/**
+	 * Updates the cells X,Y and Z coordinates in the XY and Z arraylists
+	 * and the controllers coordinate MAPs so they can be accessed by viewers
+	 */
+	private void updatePosition(SimState state)
+	{
+		
+		//initialise the coordinate maps at t(0)
+		if(state.schedule.getSteps() == 0)
+		{
+
+		
+			//TODO dont need the arrayList getPositionX, sould just add to the arraylist value of the cells key
+			SimulationEnvironment.getController().getX_Coordinates().put(this.getIndex(), this.getPositionX());
+			SimulationEnvironment.getController().getY_Coordinates().put(this.getIndex(), this.getPositionY());
+			SimulationEnvironment.getController().getZ_Coordinates().put(this.getIndex(), this.getPositionZ());
+		
+		}
+		else
+		{
+			//add the X coordinate to the Xcoordinate Map
+			SimulationEnvironment.getController().getX_Coordinates().get(this.getIndex()).add(this.x);
+			SimulationEnvironment.getController().getY_Coordinates().get(this.getIndex()).add(this.y);
+			SimulationEnvironment.getController().getZ_Coordinates().get(this.getIndex()).add(this.z);
+		}
+		
+	}
 	
 	
 	/**
@@ -180,7 +184,18 @@ public class cognateBC extends BC
 			}
 		}
 		this.setAntigenCaptured(this.getAntigenCaptured() + 1);
-		this.type = TYPE.PRIMED;
+		
+		
+		if(this.type==TYPE.NAIVE)
+		{
+			this.type = TYPE.PRIMED;
+			
+			//update the number of primed cells in the simulation
+			SimulationEnvironment.getController();
+			Controller.setPrimedCells(Controller.getPrimedCells() + 1);;
+			
+		}
+		
 		
 		if ( displayAntigenGraph )
 		{

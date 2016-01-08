@@ -59,7 +59,7 @@ public class DiffusionAlgorithmTest
 		Settings.RNG = new MersenneTwisterFast();
 		Settings.DIFFUSION_COEFFICIENT = 0.0000000000076;//0.0000000000076 , 0.0000000001519
 		Settings.GRID_SIZE = 0.00001;
-		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (43.95 * Settings.DIFFUSION_COEFFICIENT);
+		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (43.95 * Settings.DIFFUSION_COEFFICIENT);//need to recalibrate
 		Settings.DIFFUSION_STEPS	= (int) (1 / Settings.DIFFUSION_TIMESTEP);
 		
 		
@@ -79,7 +79,7 @@ public class DiffusionAlgorithmTest
 		m_pParticle.field[25][26][25] = 100;
 
 		Settings.CXCL13.DECAY_CONSTANT = 1;
-		//m_pParticle.m_dDecayRateInv = 1;
+
 		for ( int i = 0; i < 10; i++ )
 		{
 			m_pParticle.step(null);

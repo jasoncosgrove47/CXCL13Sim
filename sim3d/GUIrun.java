@@ -38,7 +38,7 @@ public class GUIrun extends GUIState
 	}
 	
 	/**
-	 * Main entry into SimSim. Expects no args.
+	 * Main entry into the sim
 	 */
 	public static void main( String[] args )
 	{
@@ -49,51 +49,55 @@ public class GUIrun extends GUIState
 	/**
 	 * Frames to display the various graphs
 	 */
-	public JFrame				chartFrame;
-	public JFrame				chartFrame2;
-	public JFrame				chartFrame3;
-	public JFrame				chartFrameAntigen;							
+	public JFrame	chartFrame;
+	public JFrame	chartFrame2;
+	public JFrame	chartFrame3;
+	public JFrame	chartFrameAntigen;			
+	
 	/**
 	 * The main display
 	 */
-	public JFrame				d3DisplayFrame;
+	public JFrame	d3DisplayFrame;
 								
 	/**
 	 * The chempkine display
 	 */
-	public JFrame				jfChemokine;
+	public JFrame	jfChemokine;
 								
 	/**
 	 * The 3D display object
 	 */
-	public Display2D			display2D;
+	public Display2D	display2D;
 								
 	/**
 	 * The 3D display object
 	 */
-	public Display3D			display3D;
+	public Display3D	display3D;
 								
 	/**
 	 * Portrayal for BCs
 	 */
-	ContinuousPortrayal3D		bcPortrayal			= new ContinuousPortrayal3D();
+	ContinuousPortrayal3D bcPortrayal = new ContinuousPortrayal3D();
 													
 	/**
 	 * Portrayal for FDCs
 	 */
-	ContinuousPortrayal3D		fdcPortrayal		= new ContinuousPortrayal3D();
+	ContinuousPortrayal3D fdcPortrayal = new ContinuousPortrayal3D();
 													
 	/**
 	 * a 2D portrayal that will show a plane of the particles
 	 */
-	FastValueGridPortrayal2D	particlePortrayal	= new FastValueGridPortrayal2D();
-													
+	FastValueGridPortrayal2D particlePortrayal = new FastValueGridPortrayal2D();
+			
+	
+	
+	
 	/**
-	 * Constructor - creates a Demo object
+	 * Constructor - creates a Simulation object
 	 */
 	public GUIrun()
 	{
-		super( new SimulationEnvironment( System.currentTimeMillis(),IO.openXMLFile(paramFile) ) );
+		super( new SimulationEnvironment(System.currentTimeMillis(),IO.openXMLFile(paramFile) ) );
 	}
 	
 	/**
@@ -161,16 +165,15 @@ public class GUIrun extends GUIState
 		Grapher.init();
 		Grapher.schedule = state.schedule;
 		
-		// Setup the graph displays...
-		
-		// The ODE line graph
+
+		// ODE graphing
 		chartFrame = Grapher.chart.createFrame();
 		chartFrame.setVisible( true );
 		chartFrame.pack();
 		chartFrame.setLocation( 0, 700 );
 		c.registerFrame( chartFrame );
 		
-		// The ODE line graph
+		// Antigen graphing
 		chartFrameAntigen = Grapher.chartAntigen.createFrame();
 		chartFrameAntigen.setVisible( true );
 		chartFrameAntigen.pack();
@@ -236,12 +239,6 @@ public class GUIrun extends GUIState
 		fdcPortrayal.setField( FDC.drawEnvironment );
 		bcPortrayal.setField( BC.drawEnvironment );
 		particlePortrayal.setField( Particle.getInstance( Particle.TYPE.CXCL13 ).m_ig2Display );
-		
-		// p3dParticles.setField( Particle.getInstance( Particle.TYPE.CXCL13 )
-		// );
-		// p3dParticles.setMap(new ParticleColorMap());
-		// p3dParticles.setMap( new sim.util.gui.SimpleColorMap( 0.0, 3000, new
-		// Color( 0, 0, 0, 0 ), Color.WHITE ) );
 		
 		display3D.createSceneGraph();
 		display3D.reset();
