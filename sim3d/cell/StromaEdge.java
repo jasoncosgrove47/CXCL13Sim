@@ -33,7 +33,16 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	 */
 	public static Continuous3D	drawEnvironment;
 					
-	
+
+	/**
+	 * Define colours so that we can add an antigen heatmap
+	 * later if required.
+	 */
+ 	public java.awt.Color blue0		= new Color(30,40,190,180);
+ 	public java.awt.Color blueLow 	= new Color(30,40,190,0);
+ 	public java.awt.Color blue1 	= new Color(30,40,210,200);
+ 	public java.awt.Color blue2 	= new Color(200,40,230,220);
+ 	public java.awt.Color blue3 	= new Color(30,200,255,255);
 	
 	/**
 	 * A vector representing the movement from point 1 to point 2
@@ -41,9 +50,13 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	private Double3D			m_d3Edge;
 			
 	
-	
+	/*
+	 * Divide each dendrite in two so that a B cell
+	 * must be at the correct part of the dendrite
+	 * to acquire antigen
+	 */
 	private int antigenLevelUpperEdge;
-	private int antigenLevelLowerHalf;
+	private int antigenLevelLowerEdge;
 	
 	/**
 	 * Constructor
@@ -66,14 +79,16 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 		}
 		
 		//location of stroma is static so easiest to specify it's location in the constructor
-
 		x = d3Point1.x;
 		y = d3Point1.y;
 		z = d3Point1.z;
 		
+		//vector representing the stromal edge
 		m_d3Edge = d3Point2.subtract( d3Point1 );
 		
-	
+		//divide antigen amount by 2 to make sure a BC has to interact with the correct
+		// portion of the edge to acquire antigen. Otherwise a BC could interact with one
+		// end of the edge but take antigen from the other end
 		setAntigenLevelUpperEdge(Settings.FDC.STARTINGANTIGENLEVEL/2);
 		setAntigenLevelLowerHalf(Settings.FDC.STARTINGANTIGENLEVEL/2);
 	}
@@ -84,8 +99,7 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 	@Override
 	public void addCollisionPoint( Int3D i3Point )
 	{
-		// We're not interested in collisions as we're static
-		return;
+		return; // We're not interested in collisions as we're static
 	}
 	
 	@Override
@@ -100,18 +114,15 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 		return drawEnvironment;
 	}
 	
-	/*
+	
+	
+	
+ 	
+ 	/*
 	 * This method creates a 3d model of stromal edge for visualisation
 	 * (non-Javadoc)
 	 * @see sim.portrayal3d.SimplePortrayal3D#getModel(java.lang.Object, javax.media.j3d.TransformGroup)
 	 */
-	
- 	public java.awt.Color blue0		= new Color(30,40,190,180);
- 	public java.awt.Color blueLow 	= new Color(30,40,190,0);
- 	public java.awt.Color blue1 	= new Color(30,40,210,200);
- 	public java.awt.Color blue2 	= new Color(200,40,230,220);
- 	public java.awt.Color blue3 	= new Color(30,200,255,255);
-	
 	@Override
 	public TransformGroup getModel( Object obj, TransformGroup transf )
 	{
@@ -121,7 +132,6 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 			
 			StromaEdge fdc = (StromaEdge) obj;
 			
-			
 			transf = new TransformGroup();
 			
 			LineArray lineArr = new LineArray( 2, LineArray.COORDINATES );
@@ -130,23 +140,21 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 			
 			Appearance aAppearance = new Appearance();
 			
-			
-			
+
 			Color col = Settings.FDC.DRAW_COLOR();
 			
-			
-			if (fdc.getAntigenLevelUpperEdge() + fdc.getAntigenLevelLowerHalf()<90){
+			//heatmap for antigen presentation
+			//TODO a getTotalAntigenMethod
+			if (fdc.getAntigen()<90){
 				col =  blue3;
 			}
-			if (fdc.getAntigenLevelUpperEdge()+ fdc.getAntigenLevelLowerHalf()<85){
+			if (fdc.getAntigen()<85){
 				col =  blueLow;
 			}
-			if (fdc.getAntigenLevelUpperEdge()+ fdc.getAntigenLevelLowerHalf()<75){
+			if (fdc.getAntigen()<75){
 				col =  blue0;
 			}
 	
-			
-			
 			
 			aAppearance.setColoringAttributes( new ColoringAttributes( col.getRed() / 255f, col.getGreen() / 255f,
 					col.getBlue() / 255f, ColoringAttributes.FASTEST ) );
@@ -205,29 +213,13 @@ public class StromaEdge extends DrawableCell3D implements Collidable
 
 
 
+	
+	//getters and setters
 
-	public int getAntigenLevelUpperEdge() {
-		return antigenLevelUpperEdge;
-	}
-
-
-
-
-	public void setAntigenLevelUpperEdge(int antigenLevel) {
-		this.antigenLevelUpperEdge = antigenLevel;
-	}
-
-
-
-
-	public int getAntigenLevelLowerHalf() {
-		return antigenLevelLowerHalf;
-	}
-
-
-
-
-	public void setAntigenLevelLowerHalf(int antigenLevelLowerHalf) {
-		this.antigenLevelLowerHalf = antigenLevelLowerHalf;
-	}
+	public int getAntigenLevelUpperEdge() {return antigenLevelUpperEdge;}
+	public int getAntigenLevelLowerEdge() {return antigenLevelLowerEdge;}
+	public int getAntigen()               {return antigenLevelLowerEdge + antigenLevelLowerEdge;}
+	
+	public void setAntigenLevelUpperEdge(int antigenLevel) 			{this.antigenLevelUpperEdge = antigenLevel;}
+	public void setAntigenLevelLowerHalf(int antigenLevelLowerEdge) {this.antigenLevelLowerEdge = antigenLevelLowerEdge;}
 }

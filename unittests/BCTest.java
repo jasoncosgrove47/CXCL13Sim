@@ -297,6 +297,10 @@ public class BCTest
 	 * We want to test that the cell doesn't perfect go towards the chemokine
 	 * gradient, but, for example, moves freely in a large area of medium-high
 	 * concentration of chemokine, i.e. the stromal network
+	 * 
+	 * TODO need to rename this test because it is confusing then need another 
+	 * test called testShouldMoveRandomly
+	 * 
 	 */
 	@Test
 	public void testShouldMoveRandomly()

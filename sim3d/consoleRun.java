@@ -78,7 +78,7 @@ public class consoleRun
 			System.out.println("Steps: " + steps);		
 			if (!simulation.schedule.step(simulation))
 			break;	
-		} while(steps < 60);	
+		} while(steps < 150);	
 		
 		// finish the simulation
 		simulation.finish();	

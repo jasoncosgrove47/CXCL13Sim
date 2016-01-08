@@ -425,11 +425,7 @@ public class CollisionGrid implements Steppable
 	/**
 	 * Prompts the cells to handle the collisions. Repeats until no more
 	 * collisions have been registered.
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
+ 
 	 */
 	@Override
 	public void step( SimState state )

@@ -165,8 +165,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 		
 		// Calculate chemotaxis direction if we're above the receptor threshold
+		//TODO this is wrong, it's the number of bound receptors that signal not the free receptors
+		
+		//TODO test case to make sure that random walk leads to a low displacement
+		
 		Double3D vMovement;
-		if ( m_iR_free > Settings.BC.MIN_RECEPTORS )
+		
+		
+		//m_iL_r	
+		if ( m_iL_r > Settings.BC.MIN_RECEPTORS )
 		{
 			vMovement = getMoveDirection();
 			
@@ -184,10 +191,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 		else{ vMovement = null; }
 		
-		if ( vMovement == null || vMovement.lengthSq() == 0 )
+		if ( vMovement == null || vMovement.lengthSq() == 0 )//TODO: 0don't understand this line, need to sort it out
 		{
 			// no data! so do a random turn
-			vMovement = Vector3DHelper.getBiasedRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
+			//vMovement = Vector3DHelper.getBiasedRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
+			vMovement = Vector3DHelper.getRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
+			
 		}
 		
 		// Reset all the movement/collision data
@@ -228,7 +237,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( displayODEGraph )
 		{
-		 //Grapher.updateODEGraph( m_iR_free ); //this gives an error when run on console
+			//Grapher.updateODEGraph( m_iL_r ); //this gives an error when run on console
 		}
 	}
 
@@ -327,6 +336,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	public void handleCollisions( CollisionGrid cgGrid )
 	{
 		// don't let a b cell collide more than collisionThreshold times
+		// otherwise you get in an infinite loop where a B cell continues bouncing
+		// indefinitely
 		int collisionThreshold = 10000;
 		if ( m_i3lCollisionPoints.size() == 0 || collisionCounter > collisionThreshold)
 		{
@@ -992,10 +1003,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			transf.addChild( localTG );
 			
 			//if we have had any collisions, draw them as red circles
-			//modelCollisions(m_d3aCollisions,obj, transf);
+			modelCollisions(m_d3aCollisions,obj, transf);
 			
 			// If we have any movement, then draw it as white lines telling us where the cell is orientated
-			//modelMovements(m_d3aMovements,obj, transf);
+			modelMovements(m_d3aMovements,obj, transf);
 		}
 		return transf;
 	}
@@ -1008,7 +1019,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	protected void modelMovements(List<Double3D> m_d3aMovements2,Object obj, TransformGroup transf)
 	{
 		// If we have any movement, then draw it
-		// TODO are these the white lines that we see?
 		if ( m_d3aMovements2.size() > 0 )
 		{
 			LineArray lineArr = new LineArray( m_d3aMovements2.size() * 2, GeometryArray.COORDINATES );

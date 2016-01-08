@@ -35,15 +35,15 @@ public class outputToCSV {
 		{
 			writer = new FileWriter(fileName);
 			//set the data headings
-			writer.append("Cell");
+			writer.append("TrackID");
 			writer.append(',');
 			writer.append("Timepoint");
 			writer.append(',');
-			writer.append("X-coordinate");
+			writer.append("CentroidX");
 			writer.append(',');
-			writer.append("Y-coordinate");
+			writer.append("CentroidY");
 			writer.append(',');
-			writer.append("Z-coordinate");
+			writer.append("CentroidZ");
 			writer.append('\n');
 		 
 			//for each indexed cell
@@ -59,9 +59,12 @@ public class outputToCSV {
 			    for(int i = 0; i < Xcoords.size();i++)
 			    {
 			    	int timepoint = i;
-			    	Double x = Xcoords.get(i);
-			    	Double y = Ycoords.get(i);
-			    	Double z = Zcoords.get(i);
+			    	
+			    	//need to multiply by 10 because each gridspace equals 10 microns
+			    	//therefore the output we get will be directly comparable with experimental
+			    	Double x = Xcoords.get(i)*10;
+			    	Double y = Ycoords.get(i)*10;
+			    	Double z = Zcoords.get(i)*10;
 				
 			    	//write the data out to the file
 	                writer.append(Integer.toString(key));

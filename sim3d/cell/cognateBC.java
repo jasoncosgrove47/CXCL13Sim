@@ -24,18 +24,16 @@ import sim3d.collisiondetection.CollisionGrid;
 
 public class cognateBC extends BC
 {
-	
+	// stores position of cBC in each dimension for each timestep
 	private ArrayList<Double> positionX  = new ArrayList<Double>();
 	private ArrayList<Double> positionY  = new ArrayList<Double>();
-	private ArrayList<Double> positionZ = new ArrayList<Double>();
+	private ArrayList<Double> positionZ  = new ArrayList<Double>();
 	
-
-	private Integer index = 0;
+	private Integer index = 0; 	//unique identifier of each cBC, used for data output 
+	public boolean displayAntigenGraph	= false;
+	private int antigenCaptured = 0; //number of antigen acquired by each antigen
 	
 	
-	public boolean				displayAntigenGraph			= false;
-	
-	private int antigenCaptured = 0;
 	/**
 	 * Constructor
 	 * @param seed  Used by MASON for the random seed
@@ -51,52 +49,39 @@ public class cognateBC extends BC
 	{
 		super.step(state);
 		
-		
 		// record the cells coordinates in arraylists
-		positionX.add(this.x);
-		positionY.add(this.y);
-		positionZ.add(this.z);
+
 		
-		//get the cell to update it's position in the coordinate maps
-		updatePosition(state);
-	
+		//set the time frame for data collection
+		//30 minutes is what was done in vivo
+		// we should do the same to keep it comparable
+		if(state.schedule.getSteps()> 89 & state.schedule.getSteps()<121){
+			updatePosition(state);
+		}
 	}
-	
-	
 	
 	
 
 	/**
 	 * Updates the cells X,Y and Z coordinates in the XY and Z arraylists
 	 * and the controllers coordinate MAPs so they can be accessed by viewers
+	 * TODO could be refactored
 	 */
 	private void updatePosition(SimState state)
 	{
+		positionX.add(this.x);
+		positionY.add(this.y);
+		positionZ.add(this.z);
 		
-		//initialise the coordinate maps at t(0)
-		if(state.schedule.getSteps() == 0)
-		{
-
-		
-			//TODO dont need the arrayList getPositionX, sould just add to the arraylist value of the cells key
-			SimulationEnvironment.getController().getX_Coordinates().put(this.getIndex(), this.getPositionX());
-			SimulationEnvironment.getController().getY_Coordinates().put(this.getIndex(), this.getPositionY());
-			SimulationEnvironment.getController().getZ_Coordinates().put(this.getIndex(), this.getPositionZ());
-		
-		}
-		else
-		{
-			//add the X coordinate to the Xcoordinate Map
-			SimulationEnvironment.getController().getX_Coordinates().get(this.getIndex()).add(this.x);
-			SimulationEnvironment.getController().getY_Coordinates().get(this.getIndex()).add(this.y);
-			SimulationEnvironment.getController().getZ_Coordinates().get(this.getIndex()).add(this.z);
-		}
+		SimulationEnvironment.getController().getX_Coordinates().put(this.getIndex(), this.getPositionX());
+		SimulationEnvironment.getController().getY_Coordinates().put(this.getIndex(), this.getPositionY());
+		SimulationEnvironment.getController().getZ_Coordinates().put(this.getIndex(), this.getPositionZ());
+	
 		
 	}
 	
-	
 	/**
-	 * ENUM for the chemokine types
+	 * ENUM for the activation status
 	 */
 	public enum TYPE
 	{
@@ -169,23 +154,24 @@ public class cognateBC extends BC
 		StromaEdge sEdge = (StromaEdge) cCell; 
 
 		//we divide the stroma in two as make it more accurate
-		if(this.getPositionAlongStroma()> 0.5)
+		if(this.getPositionAlongStroma()> 0.5)  //if on the upper half of the stromal edge
 		{
-			if (sEdge.getAntigenLevelUpperEdge() > 0)
+			if (sEdge.getAntigenLevelUpperEdge() > 0) // if the stroma has antigen to present
 			{
-				sEdge.setAntigenLevelUpperEdge(sEdge.getAntigenLevelUpperEdge() - 1);			
+				sEdge.setAntigenLevelUpperEdge(sEdge.getAntigenLevelUpperEdge() - 1);	// remove the antigen from the stromal edge		
 			}
 		}
 		else
 		{
-			if (sEdge.getAntigenLevelLowerHalf() > 0)
+			if (sEdge.getAntigenLevelLowerEdge() > 0) // if on the lower half of the stromal edge
 			{
-				sEdge.setAntigenLevelLowerHalf(sEdge.getAntigenLevelLowerHalf() - 1);			
+				sEdge.setAntigenLevelLowerHalf(sEdge.getAntigenLevelLowerEdge() - 1);	//remove the antigen from the stromal edge		
 			}
 		}
-		this.setAntigenCaptured(this.getAntigenCaptured() + 1);
 		
+		this.setAntigenCaptured(this.getAntigenCaptured() + 1); //increment the cBC antigen captured counter
 		
+		//if the cell is naive then we need to update its status to primed
 		if(this.type==TYPE.NAIVE)
 		{
 			this.type = TYPE.PRIMED;
@@ -193,9 +179,7 @@ public class cognateBC extends BC
 			//update the number of primed cells in the simulation
 			SimulationEnvironment.getController();
 			Controller.setPrimedCells(Controller.getPrimedCells() + 1);;
-			
 		}
-		
 		
 		if ( displayAntigenGraph )
 		{
@@ -239,52 +223,18 @@ public class cognateBC extends BC
 	
 	
 	
-	//TODO all of the following should be in the controller class
-	public int getAntigenCaptured() {
-		return antigenCaptured;
-	}
-
-	public void setAntigenCaptured(int antigenCaptured) {
-		this.antigenCaptured = antigenCaptured;
-	}
-
+	//getters and setters, more efficient to have cBC update the MAP than controller
+	public int 				 getAntigenCaptured()   {return antigenCaptured;}
+	public ArrayList<Double> getPositionX() 		{return positionX;}
+	public ArrayList<Double> getPositionY() 		{return positionY;}
+	public ArrayList<Double> getPositionZ() 		{return positionZ;}
+	public Integer 			 getIndex() 			{return index;}
 	
-	
-	public ArrayList<Double> getPositionX() {
-		return positionX;
-	}
+	public void setAntigenCaptured(int antigenCaptured)   {this.antigenCaptured = antigenCaptured;}
+	public void setPositionX(ArrayList<Double> positionX) {this.positionX = positionX;}
+	public void setPositionY(ArrayList<Double> positionY) {this.positionY = positionY;}
+	public void setPositionZ(ArrayList<Double> positionZ) {this.positionZ = positionZ;}
+	public void setIndex(Integer index) 				  {this.index = index;}
 
-	public void setPositionX(ArrayList<Double> positionX) {
-		this.positionX = positionX;
-	}
-	
-	
-	public ArrayList<Double> getPositionY() {
-		return positionY;
-	}
-
-	public void setPositionY(ArrayList<Double> positionY) {
-		this.positionY = positionY;
-	}
-
-	public ArrayList<Double> getPositionZ() {
-		return positionZ;
-	}
-
-	public void setPositionZ(ArrayList<Double> positionZ) {
-		this.positionZ = positionZ;
-	}
-
-	public Integer getIndex() {
-		return index;
-	}
-
-	public void setIndex(Integer index) {
-		this.index = index;
-	}
-
-
-
-	
 
 }

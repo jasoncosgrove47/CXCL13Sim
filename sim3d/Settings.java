@@ -182,7 +182,8 @@ public class Settings
 		 */
 		public static double RANDOM_TURN_ANGLE()
 		{
-			return Math.PI / 12;
+			//corresponds to 210 degrees
+			return ((7*Math.PI)/6);//used to be 12, lets change to something larger and see what happens
 		}
 		
 		/**
