@@ -50,7 +50,7 @@ public class SystemTests
     	Settings.BC.COGNATECOUNT=100;
     	
     	sim.start();
-    	//sim.seedCognateCells(100);
+
     	
 		do
 		{	

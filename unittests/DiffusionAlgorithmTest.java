@@ -59,7 +59,7 @@ public class DiffusionAlgorithmTest
 		Settings.RNG = new MersenneTwisterFast();
 		Settings.DIFFUSION_COEFFICIENT = 0.0000000000076;//0.0000000000076 , 0.0000000001519
 		Settings.GRID_SIZE = 0.00001;
-		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (43.95 * Settings.DIFFUSION_COEFFICIENT);//need to recalibrate
+		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (40.95 * Settings.DIFFUSION_COEFFICIENT);//need to recalibrate
 		Settings.DIFFUSION_STEPS	= (int) (1 / Settings.DIFFUSION_TIMESTEP);
 		
 		
