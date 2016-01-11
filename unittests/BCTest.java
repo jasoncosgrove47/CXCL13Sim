@@ -136,7 +136,68 @@ public class BCTest
     */
 
 
-    
+    /*
+     * This is an integration test ensuring chemokine and migration work together
+     */
+	@Test
+	public void testReceptorConservation()
+	{
+		m_pParticle.field[15][15][15] = 100000;
+
+		Settings.BC.ODE.Rf = 1000;
+		Settings.BC.ODE.Ri = 1000;
+		Settings.BC.ODE.LR = 1000;
+		
+		
+		Settings.CXCL13.DECAY_CONSTANT = 1;
+		
+		Settings.BC.MIN_RECEPTORS = 0;
+		
+		// Let's diffuse a little
+		Settings.DIFFUSION_STEPS = 2;
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		
+		// Randomly place a BCs
+		BC[] bcCells = new BC[1];
+		for (int i = 0; i < 1; i++)
+		{
+			bcCells[i] = new BC();
+			
+			bcCells[i].setObjectLocation( new Double3D(Settings.RNG.nextInt(14)+8,Settings.RNG.nextInt(14)+8,Settings.RNG.nextInt(14)+8) );
+		}
+		// Let it move a bit
+		for ( int i = 0; i < 100; i++ )
+		{
+			for (int j = 0; j < 1; j++)
+			{
+				bcCells[j].step( null );//why are you passing in null
+			}
+			m_pParticle.field[15][15][15] = 50000;
+			m_pParticle.step( null );
+		}
+		
+		
+		
+		
+		int totalReceptorParams = (Settings.BC.ODE.Rf +Settings.BC.ODE.Ri +Settings.BC.ODE.LR );
+		int totalReceptorSim = (bcCells[0].m_iL_r + bcCells[0].m_iR_i + bcCells[0].m_iR_free);
+		
+
+		assertEquals(totalReceptorSim, totalReceptorParams);//why is this condition here?
+	}
+	
+	
     
 
 	

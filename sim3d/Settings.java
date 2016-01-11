@@ -183,7 +183,7 @@ public class Settings
 		public static double RANDOM_TURN_ANGLE()
 		{
 			//corresponds to 210 degrees
-			return ((7*Math.PI)/6);//used to be 12, lets change to something larger and see what happens
+			return (Math.PI);//used to be 12, lets change to something larger and see what happens
 		}
 		
 		/**
@@ -222,9 +222,6 @@ public class Settings
 					Node LRN = LRNL.item(0);
 					LR = Integer.parseInt(LRN.getTextContent());
 					
-					NodeList RdNL = paramODEElement.getElementsByTagName("Rd");
-					Node RdN = RdNL.item(0);
-					Rd = Integer.parseInt(RdN.getTextContent());
 					
 					NodeList RfNL = paramODEElement.getElementsByTagName("Rf");
 					Node RfN = RfNL.item(0);
@@ -234,9 +231,9 @@ public class Settings
 					Node RiN = RiNL.item(0);
 					Ri = Integer.parseInt(RiN.getTextContent());
 					
-					NodeList KaNL = paramODEElement.getElementsByTagName("Ka");
-					Node KaN = KaNL.item(0);
-					Ka = Double.parseDouble(KaN.getTextContent());
+					//NodeList KaNL = paramODEElement.getElementsByTagName("Ka");
+					//Node KaN = KaNL.item(0);
+					//Ka = Double.parseDouble(KaN.getTextContent());
 					
 					NodeList KrNL = paramODEElement.getElementsByTagName("Kr");
 					Node KrN = KrNL.item(0);
@@ -256,19 +253,16 @@ public class Settings
 			   }
 			
 			
-			static int LR;
+			public static int LR;
 			public static int LR(){ return LR; }
 			
-			static int Rd;
-			public static int Rd() {return Rd;}
-		
 			public static int Rf;
 			public static int Rf(){ return Rf; }
 																
-			static int Ri;
+			public static int Ri;
 			public static int Ri() { return Ri;}
 		
-			static double Ka;
+			public static double Ka = (8.4 * Math.pow(10, 7));
 			public static double K_a(){return Ka;}
 			
 			static double Kr;

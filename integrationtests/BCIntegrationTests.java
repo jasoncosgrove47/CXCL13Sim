@@ -95,6 +95,8 @@ public class BCIntegrationTests
     
     
     
+    //TODO test = total receptor numbers should always be 25,000
+    
     
     
     ////////////////////////////////////////////  INTEGRATION TESTS - SHOULD BE IN ITS OWN SEPARATE CLASS
