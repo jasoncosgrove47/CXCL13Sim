@@ -19,6 +19,7 @@ import sim3d.Settings;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
+import sim3d.diffusion.ParticleMoles;
 
 /**
  * An FDC agent. Represents the nucleus of the FDC, and handles the secretion of
@@ -95,6 +96,10 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable
 	@Override
 	public void step( final SimState state )
 	{
-		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z, Settings.FDC.CXCL13_EMITTED() );
+		//Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z, Settings.FDC.CXCL13_EMITTED() );
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z, Settings.FDC.CXCL13_EMITTED());
+
+		
+	
 	}
 }

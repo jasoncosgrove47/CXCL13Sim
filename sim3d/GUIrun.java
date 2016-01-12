@@ -7,8 +7,8 @@ import sim.display.*;
 import sim.display3d.Display3D;
 import sim3d.cell.BC;
 import sim3d.cell.FDC;
-import sim3d.diffusion.Particle;
 import sim3d.diffusion.ParticleColorMap;
+import sim3d.diffusion.ParticleMoles;
 import sim3d.util.IO;
 
 import java.awt.Color;
@@ -238,7 +238,7 @@ public class GUIrun extends GUIState
 		// tell the portrayals what to portray and how to portray them
 		fdcPortrayal.setField( FDC.drawEnvironment );
 		bcPortrayal.setField( BC.drawEnvironment );
-		particlePortrayal.setField( Particle.getInstance( Particle.TYPE.CXCL13 ).m_ig2Display );
+		particlePortrayal.setField( ParticleMoles.getInstance( ParticleMoles.TYPE.CXCL13 ).m_ig2Display );
 		
 		display3D.createSceneGraph();
 		display3D.reset();

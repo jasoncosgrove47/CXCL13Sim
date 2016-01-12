@@ -19,6 +19,7 @@ import sim3d.cell.*;
 import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
+import sim3d.diffusion.ParticleMoles;
 import sim3d.util.FRCStromaGenerator;
 import sim3d.util.Vector3DHelper;
 import sim3d.util.FRCStromaGenerator.FRCCell;
@@ -174,7 +175,8 @@ public class SimulationEnvironment extends SimState
 		seedCells(CELLTYPE.B);
 		seedCells(CELLTYPE.cB);
 		//seedCognateCells(Settings.BC.COGNATECOUNT);
-		new Particle( schedule, Particle.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );// add particles
+		//new Particle( schedule, Particle.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );// add particles
+		new ParticleMoles( schedule, ParticleMoles.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
 	}
 	
 	

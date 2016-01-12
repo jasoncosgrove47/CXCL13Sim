@@ -27,7 +27,7 @@ import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
-import sim3d.diffusion.Particle;
+import sim3d.diffusion.ParticleMoles;
 import sim3d.util.Vector3DHelper;
 
 /**
@@ -240,15 +240,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		
 		//calculate the number of bound receptors
-		int[] iaBoundReceptors = calculateLigandBinding();
+		int[] iaBoundReceptors = calculateLigandBindingMoles();
 
 		// Remove chemokine from the grid TODO: Just remove from where you are!!
-		Particle.add( Particle.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -iaBoundReceptors[0] );
-		Particle.add( Particle.TYPE.CXCL13, (int) x - 1, (int) y, (int) z, -iaBoundReceptors[1] );
-		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y + 1, (int) z, -iaBoundReceptors[2] );
-		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y - 1, (int) z, -iaBoundReceptors[3] );
-		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z + 1, -iaBoundReceptors[4] );
-		Particle.add( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z - 1, -iaBoundReceptors[5] );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -iaBoundReceptors[0] );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y, (int) z, -iaBoundReceptors[1] );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y + 1, (int) z, -iaBoundReceptors[2] );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y - 1, (int) z, -iaBoundReceptors[3] );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z + 1, -iaBoundReceptors[4] );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z - 1, -iaBoundReceptors[5] );
 
 		
 		// update the amount of free and bound receptors
@@ -344,22 +344,26 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	private int[] calculateLigandBindingMoles()
 	{
 		
-		double test = 10598799200000.0;
-		
+	
 		
 		//need to figure out what is sensible to secrete per timestep, might as well do that in moles
 		// Get the surrounding concentrations
-		int[][][] ia3Concs = Particle.get( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z );
+		double[][][] ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z );
+		
+	
 		
 		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
 		
 		// get CXCL13 concentrations at each psuedopod
 		// {x+, x-, y+, y-, z+, z-}
-		int[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
+		double[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
 				ia3Concs[1][1][0] };
 		
-			
+		double totalConc = (ia3Concs[2][1][1]+ ia3Concs[0][1][1]+ ia3Concs[1][2][1]+ ia3Concs[1][0][1]+ ia3Concs[1][1][2]+ia3Concs[1][1][0]);
+
+		
+
 		int[] iaBoundReceptors = new int[6]; //stores how many receptors are bound at each psuedopod
 		
 
@@ -368,13 +372,24 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		{
 			
 			//convert from absoloute molecules to moles
-			double concMoles = iaConcs[i] /  (6.022045 * Math.pow(10, 23));
-			System.out.println("conc in moles is: "+ iaConcs[i] /  (6.022045 * Math.pow(10, 23)));
+			//double concMoles = iaConcs[i] /  (6.022045 * Math.pow(10, 23));
+	
+			
+
+		
+			
+			iaBoundReceptors[i] = (int) ( Settings.BC.ODE.Ka * iReceptors * iaConcs[i] );
 			
 			
-			iaBoundReceptors[i] = (int) ( Settings.BC.ODE.Ka * ( iReceptors * concMoles ));
 			
-			System.out.println("receptorBound is: " + ( Settings.BC.ODE.Ka * ( iReceptors * concMoles )));
+			//need to make sure it can't exceed the number of available receptors
+			if(iaBoundReceptors[i] > iReceptors){
+				iaBoundReceptors[i] = iReceptors;
+			}
+
+			System.out.println("number of receptors bound per pseudopod: " + iaBoundReceptors[i]);
+			
+			
 		}
 		
 		return iaBoundReceptors;

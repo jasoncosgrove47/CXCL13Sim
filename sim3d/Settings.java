@@ -262,6 +262,7 @@ public class Settings
 			public static int Ri;
 			public static int Ri() { return Ri;}
 		
+			//public static double Ka_in_nM;
 			public static double Ka = (8.4 * Math.pow(10, 7));
 			public static double K_a(){return Ka;}
 			
@@ -309,7 +310,7 @@ public class Settings
 				
 				NodeList cxcl13NL = paramFDCElement.getElementsByTagName("CXCL13_EMITTED");
 				Node cxcl13N = cxcl13NL.item(0);
-				CXCL13_EMITTED = Integer.parseInt(cxcl13N.getTextContent());
+				CXCL13_EMITTED_in_nM = Integer.parseInt(cxcl13N.getTextContent());
 				
 				NodeList stromanodeNL = paramFDCElement.getElementsByTagName("STROMA_NODE_RADIUS");
 				Node stromanodeN = stromanodeNL.item(0);
@@ -318,8 +319,17 @@ public class Settings
 				NodeList stromaedgeNL = paramFDCElement.getElementsByTagName("STROMA_EDGE_RADIUS");
 				Node stromaedgeN = stromaedgeNL.item(0);
 				STROMA_EDGE_RADIUS = Double.parseDouble(stromaedgeN.getTextContent());
+				
+				CXCL13_EMITTED = scaleEmissionRate();
 			
 		   }
+		 
+		 
+		 //scale CXCL13_EMITTED to nM
+		 private static double scaleEmissionRate()
+		 {
+			 return (CXCL13_EMITTED_in_nM * Math.pow(10, -9));
+		 }
 		 
 		 /**
 		  * Number of antigen per FDC at the start of the simulation
@@ -352,8 +362,9 @@ public class Settings
 		 * could do a tissue ELISA and titrate against fluorescently labelled chemokine as
 		 * we know roughly how many molecules there are in this???
 		 */
-		static int CXCL13_EMITTED;
-		public static int CXCL13_EMITTED(){return CXCL13_EMITTED;}
+		public static int CXCL13_EMITTED_in_nM;
+		public static double CXCL13_EMITTED;
+		public static double CXCL13_EMITTED(){return CXCL13_EMITTED;}
 		
 		/**
 		 * The radius of the sphere nucleus that will collide with things. Also

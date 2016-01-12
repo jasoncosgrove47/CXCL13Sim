@@ -24,7 +24,7 @@ import sim3d.cell.StromaEdge;
 import sim3d.cell.cognateBC;
 import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
-import sim3d.diffusion.Particle;
+import sim3d.diffusion.ParticleMoles;
 import sim3d.util.IO;
 import sim3d.util.Vector3DHelper;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,7 +36,7 @@ import static org.hamcrest.Matchers.*;
 public class BCTest
 {
 	private Schedule schedule = new Schedule();
-	private Particle m_pParticle;
+	private ParticleMoles m_pParticle;
 	public static Document parameters;	
 	
 	
@@ -72,7 +72,7 @@ public class BCTest
 	@Before
 	public void setUp() throws Exception
 	{
-		m_pParticle = new Particle(schedule, Particle.TYPE.CXCL13, 31, 31, 31);
+		m_pParticle = new ParticleMoles(schedule, ParticleMoles.TYPE.CXCL13, 31, 31, 31);
 		
 		BC.drawEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, 31, 31, 31 );
 	}
@@ -81,7 +81,7 @@ public class BCTest
     public void tearDown() {
     	m_pParticle.field = null;
     	m_pParticle = null;
-    	Particle.reset();
+    	ParticleMoles.reset();
     	BC.drawEnvironment = null;
     }
 	
