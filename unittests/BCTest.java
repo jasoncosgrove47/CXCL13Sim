@@ -149,7 +149,7 @@ public class BCTest
 		Settings.BC.ODE.LR = 1000;
 		
 		
-		Settings.CXCL13.DECAY_CONSTANT = 1;
+		Settings.CXCL13.DECAY_CONSTANT = 0.5;
 		
 		Settings.BC.MIN_RECEPTORS = 0;
 		
@@ -183,7 +183,7 @@ public class BCTest
 			{
 				bcCells[j].step( null );//why are you passing in null
 			}
-			m_pParticle.field[15][15][15] = 50000;
+			m_pParticle.field[15][15][15] = (1.7* Math.pow(10, -9));
 			m_pParticle.step( null );
 		}
 		
@@ -208,7 +208,7 @@ public class BCTest
 	@Test
 	public void testShouldMigrateTowardsChemokine()
 	{
-		m_pParticle.field[15][15][15] = 100000;
+		m_pParticle.field[15][15][15] = (900 * Math.pow(10, -9));
 
 		
 		Settings.CXCL13.DECAY_CONSTANT = 1;
@@ -245,7 +245,7 @@ public class BCTest
 			{
 				bcCells[j].step( null );//why are you passing in null
 			}
-			m_pParticle.field[15][15][15] = 50000;
+			m_pParticle.field[15][15][15] = (900.7* Math.pow(10, -9));
 			m_pParticle.step( null );
 		}
 		
@@ -407,7 +407,7 @@ public class BCTest
 			
 			for ( int k = 0; k < 31; k++ )
 			{
-				m_pParticle.field[15][15][k] = 4000;
+				m_pParticle.field[15][15][k] = (1.7* Math.pow(10, -9));
 			}
 			m_pParticle.step( null );
 		}
