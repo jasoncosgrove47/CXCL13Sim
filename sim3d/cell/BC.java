@@ -213,7 +213,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() ) );
 		
 		handleBounce();                 // Check for bounces
-		System.out.println("number of bound receptors: " + m_iL_r);
+
 		
 		receptorStep();                 // Step forward the receptor ODE
 		registerCollisions( m_cgGrid ); // Register the new movement with the grid
@@ -246,7 +246,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		double[][][] ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z );
 		
-	
+		double totalConc = (ia3Concs[2][1][1]+ ia3Concs[0][1][1]+ ia3Concs[1][2][1]+ ia3Concs[1][0][1]+ ia3Concs[1][1][2]+ia3Concs[1][1][0]);
+		
+		
+		
+		
 		
 		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
@@ -261,7 +265,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// TODO this is just 1s!!
 		for ( int i = 0; i < 6; i++ )
 		{
-			
+		
+		
 			double binding = (Settings.BC.ODE.K_a() * iReceptors * iaConcs[i]);
 			
 			if(binding < 0){iaBoundReceptors[i]= 0;}
@@ -270,21 +275,26 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			{
 				 iaBoundReceptors[i] = (int)(Settings.BC.ODE.K_a() *  iReceptors * iaConcs[i]);
 			}
+			
+			System.out.println("number of receptors bound this timestep: " + iaBoundReceptors[i]);
 						 
 		}
 		
 		// Remove chemokine from the grid TODO: Just remove from where you are!!
 		
+		double avogadro = 6.0221409e+23;
+		
+		
 		//TODO: this is in moles, not receptors so need to scale it before i remove, 
 		// eg if i took away 10,000 that would be 10,000 moles which is not what we want!!!
-		/*
-		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -iaBoundReceptors[0] );
-		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y, (int) z, -iaBoundReceptors[1] );
-		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y + 1, (int) z, -iaBoundReceptors[2] );
-		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y - 1, (int) z, -iaBoundReceptors[3] );
-		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z + 1, -iaBoundReceptors[4] );
-		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z - 1, -iaBoundReceptors[5] );
- 	*/
+		
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -(iaBoundReceptors[0] / avogadro) );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y, (int) z, -(iaBoundReceptors[1] / avogadro) );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y + 1, (int) z, -(iaBoundReceptors[2] / avogadro) );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y - 1, (int) z, -(iaBoundReceptors[3] / avogadro) );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z + 1, -(iaBoundReceptors[4] / avogadro) );
+		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z - 1, -(iaBoundReceptors[5] / avogadro) );
+ 
 		
 		// update the amount of free and bound receptors
 		for ( int i = 0; i < 6; i++ )
@@ -294,9 +304,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 			
 		
-
-		
-		int iTimesteps = 10;
+		int iTimesteps = 60;
 		int iR_i, iL_r;
 	
 		for ( int i = 0; i < iTimesteps; i++ )
@@ -312,7 +320,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 		}
 		
-
 		if ( displayODEGraph )
 		{
 			Grapher.updateODEGraph( m_iL_r ); //this gives an error when run on console
@@ -427,7 +434,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		for ( int i = 0; i < 6; i++ )
 		{
 			    iaBoundReceptors[i] = (Settings.BC.ODE.K_a() *  iReceptors * iaConcs[i]);//TODO WHY IS THERE A SQUARE ROOT HERE 
-			    System.out.println("number of chemokine bound at pesudoepod: " + iaBoundReceptors[i]);
+			
 		}
 		
 		return iaBoundReceptors;

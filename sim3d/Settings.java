@@ -310,7 +310,7 @@ public class Settings
 				
 				NodeList cxcl13NL = paramFDCElement.getElementsByTagName("CXCL13_EMITTED");
 				Node cxcl13N = cxcl13NL.item(0);
-				CXCL13_EMITTED_in_nM = Integer.parseInt(cxcl13N.getTextContent());
+				CXCL13_EMITTED_in_nM = Double.parseDouble(cxcl13N.getTextContent());
 				
 				NodeList stromanodeNL = paramFDCElement.getElementsByTagName("STROMA_NODE_RADIUS");
 				Node stromanodeN = stromanodeNL.item(0);
@@ -362,7 +362,7 @@ public class Settings
 		 * could do a tissue ELISA and titrate against fluorescently labelled chemokine as
 		 * we know roughly how many molecules there are in this???
 		 */
-		public static int CXCL13_EMITTED_in_nM;
+		public static double CXCL13_EMITTED_in_nM;
 		public static double CXCL13_EMITTED;
 		public static double CXCL13_EMITTED(){return CXCL13_EMITTED;}
 		

@@ -208,7 +208,7 @@ public class BCTest
 	@Test
 	public void testShouldMigrateTowardsChemokine()
 	{
-		m_pParticle.field[15][15][15] = (900 * Math.pow(10, -9));
+		m_pParticle.field[15][15][15] = (1 * Math.pow(10, -9));
 
 		
 		Settings.CXCL13.DECAY_CONSTANT = 1;
@@ -245,7 +245,7 @@ public class BCTest
 			{
 				bcCells[j].step( null );//why are you passing in null
 			}
-			m_pParticle.field[15][15][15] = (900.7* Math.pow(10, -9));
+			m_pParticle.field[15][15][15] = (1* Math.pow(10, -9));
 			m_pParticle.step( null );
 		}
 		
