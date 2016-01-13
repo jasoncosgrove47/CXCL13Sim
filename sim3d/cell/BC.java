@@ -181,7 +181,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			
 			vMovement = getMoveDirection();
 		
-			//System.out.println("Receptor number total equals: " + (m_iR_free + m_iR_i + m_iL_r ));
+			
+			double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
+			
+			//System.out.println("vectorMagnitude equals: " + vectorMagnitude );
 			
 			if ( vMovement.lengthSq() > 0 )
 			{
@@ -272,11 +275,23 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			if(proportionToBind > 1){proportionToBind = 1;}
 			if(proportionToBind < 0){proportionToBind = 0;}
 			
-			System.out.println("proportion of free receptors to bind: " + proportionToBind);
-			//System.out.println("total number of receptors is: " + (m_iL_r + m_iR_free + m_iR_i));
+
 			
 			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
+			
+			//double binding = (Settings.BC.ODE.K_a() * iReceptors * iaConcs[i]);
+			
+			//if(binding < 0){iaBoundReceptors[i]= 0;}
+			//else if(binding > iReceptors){iaBoundReceptors[i] = iReceptors;}
+			//else
+			//{
 				
+				//System.out.println("proportion of receptors to internalise: " + Settings.BC.ODE.K_a() *  iaConcs[i] );
+				// iaBoundReceptors[i] = (int)(Settings.BC.ODE.K_a() * iReceptors * iaConcs[i]);
+				// System.out.println("receptors to internalise: " + (int)(Settings.BC.ODE.K_a() *  iaConcs[i] * iReceptors) );
+			//}
+			
+			
 						 
 		}
 		
@@ -359,6 +374,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		{
 			
 		    iaBoundReceptors[i] = directionVectors[i];
+		 // System.out.println("The amount of receptors bound at pseudpod " + i + "is: " + iaBoundReceptors[i]);
 			
 		}
 		
@@ -433,7 +449,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// TODO this is just 1s!!
 		for ( int i = 0; i < 6; i++ )
 		{
-    
+		
+			
+			
 			double proportionToBind = (Settings.BC.ODE.K_a() *  iaConcs[i]);
 			
 			
@@ -443,7 +461,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			
 			
 			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
-		
+			
+			
+			//TODO this is where the bug is need to fix
+			//iaBoundReceptors[i] = (Settings.BC.ODE.K_a() *  iReceptors * iaConcs[i] );
 			
 		}
 		

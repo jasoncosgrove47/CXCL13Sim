@@ -303,7 +303,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable
 	{
 	
 		
-		//decay();
+		decay();
 		for ( int i = 0; i < Settings.DIFFUSION_STEPS; i++ )
 		{
 			m_daDiffusionAlgorithm.diffuse( this );

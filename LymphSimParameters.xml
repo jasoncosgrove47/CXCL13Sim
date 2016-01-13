@@ -11,10 +11,10 @@
 	</O>
 	
 	<BC>
-		<COUNT>2500</COUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
-		<COGNATECOUNT>50</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
+		<COUNT>2300</COUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
+		<COGNATECOUNT>200</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
 		<DISCRETISATION>5</DISCRETISATION>
-		<MIN_RECEPTORS>8550</MIN_RECEPTORS>
+		<MIN_RECEPTORS>0</MIN_RECEPTORS>
 		<TRAVEL_DISTANCE>0.91</TRAVEL_DISTANCE>
 	</BC>
 
@@ -23,8 +23,8 @@
 		<Rf>22000</Rf>
 		<Ri>0</Ri>
 		<Ka></Ka><!--0.7,0.1,0.1,-->
-		<Ki>0.033</Ki><!--0.5,0.85,0.3-->
-		<Kr>0.004</Kr><!--0.01,0.1,0.5-->
+		<Ki>0.4</Ki><!--0.5,0.85,0.3-->
+		<Kr>0.01</Kr><!--0.01,0.1,0.5-->
 		<delta>2</delta>
 		<gamma>0.01</gamma>
 	</ODE>
@@ -33,13 +33,13 @@
 		 <STARTINGANTIGENLEVEL>100</STARTINGANTIGENLEVEL>
 		 <COUNT>1000</COUNT>
 		 <DISCRETISATION>5</DISCRETISATION>
-		 <CXCL13_EMITTED>1.1995</CXCL13_EMITTED>
+		 <CXCL13_EMITTED>0.1995</CXCL13_EMITTED>
 		 <STROMA_NODE_RADIUS>0.175</STROMA_NODE_RADIUS>
 		 <STROMA_EDGE_RADIUS>0.15</STROMA_EDGE_RADIUS>
 	</FDC>
 	
 	<CXCL13>
-		 <DECAY_CONSTANT>0.9</DECAY_CONSTANT>
+		 <DECAY_CONSTANT>0.999</DECAY_CONSTANT>
 	</CXCL13>
 	
 	
