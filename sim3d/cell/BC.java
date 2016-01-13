@@ -187,8 +187,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			{
 				// Add some noise to the direction and take the average of our
 				// current direction and the new direction
-				vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),
-						Settings.BC.DIRECTION_ERROR() ) );
+				//vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
+				vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
 				if ( vMovement.lengthSq() > 0 )
 				{
 					vMovement = vMovement.normalize();
@@ -250,8 +250,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		
 		
-		
-		
 		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
 		
@@ -267,16 +265,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		{
 		
 		
-			double binding = (Settings.BC.ODE.K_a() * iReceptors * iaConcs[i]);
+			double proportionToBind = (Settings.BC.ODE.K_a() *  iaConcs[i]);
 			
-			if(binding < 0){iaBoundReceptors[i]= 0;}
-			else if(binding > iReceptors){iaBoundReceptors[i] = iReceptors;}
-			else
-			{
-				 iaBoundReceptors[i] = (int)(Settings.BC.ODE.K_a() *  iReceptors * iaConcs[i]);
-			}
+		
+			//cap the amount of receptors that can be bound
+			if(proportionToBind > 1){proportionToBind = 1;}
+			if(proportionToBind < 0){proportionToBind = 0;}
 			
-			System.out.println("number of receptors bound this timestep: " + iaBoundReceptors[i]);
+			System.out.println("proportion of free receptors to bind: " + proportionToBind);
+			//System.out.println("total number of receptors is: " + (m_iL_r + m_iR_free + m_iR_i));
+			
+			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
+				
 						 
 		}
 		
@@ -303,6 +303,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			m_iL_r += iaBoundReceptors[i];
 		}
 			
+		//TODO account for rate of Koff
+		//m_iL_r -= (0.1* m_iL_r);
 		
 		int iTimesteps = 60;
 		int iR_i, iL_r;
@@ -359,8 +361,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		    iaBoundReceptors[i] = directionVectors[i];
 			
 		}
-		
-	
 		
 		//need some kind of scaling to smoothe the function
 		
@@ -433,7 +433,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// TODO this is just 1s!!
 		for ( int i = 0; i < 6; i++ )
 		{
-			    iaBoundReceptors[i] = (Settings.BC.ODE.K_a() *  iReceptors * iaConcs[i]);//TODO WHY IS THERE A SQUARE ROOT HERE 
+    
+			double proportionToBind = (Settings.BC.ODE.K_a() *  iaConcs[i]);
+			
+			
+			//cap the amount of receptors that can be bound
+			if(proportionToBind > 1){proportionToBind = 1;}
+			if(proportionToBind < 0){proportionToBind = 0;}
+			
+			
+			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
+		
 			
 		}
 		

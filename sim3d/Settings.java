@@ -172,7 +172,7 @@ public class Settings
 		static double DIRECTION_ERROR;
 		public static double DIRECTION_ERROR()
 		{
-			return Math.PI / 2;
+			return Math.PI/2;
 		}
 		
 		/**
