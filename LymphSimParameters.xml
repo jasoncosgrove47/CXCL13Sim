@@ -11,8 +11,8 @@
 	</O>
 	
 	<BC>
-		<COUNT>2500</COUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
-		<COGNATECOUNT>10</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
+		<COUNT>2400</COUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
+		<COGNATECOUNT>100</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
 		<DISCRETISATION>5</DISCRETISATION>
 		<MIN_RECEPTORS>0</MIN_RECEPTORS>
 		<TRAVEL_DISTANCE>0.91</TRAVEL_DISTANCE>
@@ -23,7 +23,7 @@
 		<LR>3000</LR>
 		<Rf>22000</Rf>
 		<Ri>0</Ri>
-		<Ka></Ka><!--0.7,0.1,0.1,-->
+		<Ka>8.4e7</Ka><!--0.7,0.1,0.1,-->
 		<Ki>0.4</Ki><!--0.5,0.85,0.3-->
 		<Kr>0.01</Kr><!--0.01,0.1,0.5-->
 		<delta>2</delta>

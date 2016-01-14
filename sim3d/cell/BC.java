@@ -110,14 +110,19 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * Points on the collision grid we're intersecting with something
 	 */
 	HashSet <Int3D>					m_i3lCollisionPoints	= new HashSet<Int3D>();
-		
-	//determines how many times a cell collides in one timestep
-	int collisionCounter = 0;
-	
-	
+
+	/*
+	 * Determines the position of a BC on a stromal edge
+	 */
 	private double positionAlongStroma = 0;
 	
 	
+	/*
+	 * Determines how many collisions a BC has had this timestep
+	 * necessary to prevent infinite collisions
+	 */
+	int collisionCounter = 0;
+
 	
 	@Override
 	public boolean isStatic(){ return false; }
@@ -147,7 +152,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	@Override
 	public void step( final SimState state )//why is this final here
 	{
-				
+		
+	
 		collisionCounter = 0; 	//reset the collision counter for this timestep
 		m_i3lCollisionPoints.clear();
 		
@@ -170,35 +176,27 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		Double3D vMovement;
 		
-		//m_iL_r	
-		if ( m_iL_r > Settings.BC.MIN_RECEPTORS )
-		{
-			
-			vMovement = getMoveDirection();
+	
+		vMovement = getMoveDirection();
 		
-			//vectormagnitude makes things go loco but no idea why....
-			if ( vMovement.lengthSq() > 0)
+		//vectormagnitude makes things go loco but no idea why....
+		if ( vMovement.lengthSq() > 0)
+		{
+
+			double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
+			if(vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD)
 			{
-				
-				double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
-				if(vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD)
-				{
 					// Add some noise to the direction and take the average of our
 					// current direction and the new direction
-					//vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
 					vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
 					if ( vMovement.lengthSq() > 0 )
 					{
 						vMovement = vMovement.normalize();//TODO what is this section of code doing
 					}
-				
-				}
-				
-				else{ vMovement = null; }
 			}
+			
+			else{ vMovement = null; }
 		}
-		
-		
 		else{ vMovement = null; }
 		
 		if ( vMovement == null || vMovement.lengthSq() == 0 )//TODO: 0don't understand this line, need to sort it out
@@ -235,44 +233,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * 
 	 * TODO better methods exist, but this was quick to implement
 	 * TODO: This assumes a timestep of 1 second!
-	 * TODO: Unit tests for this method
-	 * TODO  Go back to the way that we did it.
-	 * 
-	 * TODO bug: It is possible to have negative receptors with this method
 	 */
 	private void receptorStep()
 	{
-		//amount of chemokine per timestep should be about 0.000000176
-		
-		/*
-		double[][][] ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z );
-		
-		
-		// Assume the receptors are spread evenly around the cell
-		int iReceptors = m_iR_free / 6;
-		
-		// get CXCL13 concentrations at each psuedopod
-		// {x+, x-, y+, y-, z+, z-}
-		double[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
-				ia3Concs[1][1][0] };
 	
-		double[] iaBoundReceptors = new double[6]; //stores how many receptors are bound at each psuedopod
-		
-		// TODO this is just 1s!!
-		for ( int i = 0; i < 6; i++ )
-		{
-		
-			double proportionToBind = (Settings.BC.ODE.K_a() *  iaConcs[i]);
-		
-			//cap the amount of receptors that can be bound
-			if(proportionToBind > 1){proportionToBind = 1;}
-			if(proportionToBind < 0){proportionToBind = 0;}
-		
-			
-			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
-			 
-		}
-		*/
 		
 		double[] iaBoundReceptors = calculateLigandBindingMoles();
 		
@@ -280,10 +244,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		double avogadro = 6.0221409e+23;
 		
-		
 		//TODO: this is in moles, not receptors so need to scale it before i remove, 
 		// eg if i took away 10,000 that would be 10,000 moles which is not what we want!!!
-		
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -(iaBoundReceptors[0] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y, (int) z, -(iaBoundReceptors[1] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y + 1, (int) z, -(iaBoundReceptors[2] / avogadro) );
@@ -291,18 +253,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z + 1, -(iaBoundReceptors[4] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z - 1, -(iaBoundReceptors[5] / avogadro) );
  
-		
 		// update the amount of free and bound receptors
 		for ( int i = 0; i < 6; i++ )
 		{
 			m_iR_free -= iaBoundReceptors[i];
 			m_iL_r += iaBoundReceptors[i];
 		}
-			
-		//TODO account for rate of Koff
-		//m_iL_r -= (0.1* m_iL_r);
+
 		
-		int iTimesteps = 60;
+		int iTimesteps = 10;
 		int iR_i, iL_r;
 	
 		for ( int i = 0; i < iTimesteps; i++ )
@@ -320,7 +279,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( displayODEGraph )
 		{
-			Grapher.updateODEGraph( m_iL_r ); //this gives an error when run on console
+			//Grapher.updateODEGraph( m_iL_r ); //this gives an error when run on console
 		}
 		
 	}
@@ -342,20 +301,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 */
 	private Double3D getMoveDirection()
 	{	
-		double[] iaBoundReceptors = new double[6];
-		double[] directionVectors = calculateLigandBindingMoles();
-		
-		
-		//need a good way to scale molar concentration
-		
-		// TODO this is just 1s!!
-		
-	
-		for ( int i = 0; i < 6; i++ )
-		{	
-		    iaBoundReceptors[i] = directionVectors[i];	
-		}
-		
+		double[] iaBoundReceptors = calculateLigandBindingMoles();
 		
 		//calculateMovementVector
 		Double3D vMovement = new Double3D(); //the new direction for the cell to move
@@ -394,69 +340,27 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		double[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
 				ia3Concs[1][1][0] };
 		
-	
-
 		double[] iaBoundReceptors = new double[6]; //stores how many receptors are bound at each psuedopod
 		
-
-		// TODO this is just 1s!!
-		for ( int i = 0; i < 6; i++ )
+		for ( int i = 0; i < 6; i++ ) // for each pseudopod
 		{
-			
 			double proportionToBind = (Settings.BC.ODE.K_a() *  iaConcs[i]);
-			
-			
 			
 			//cap the amount of receptors that can be bound
 			if(proportionToBind > 1){proportionToBind = 1;}
 			if(proportionToBind < 0){proportionToBind = 0;}
 			
 			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
-			System.out.println("proportionToBind" + proportionToBind);
-			
 		}
-		
-		return iaBoundReceptors;
-
-
-	}
-	
-	
-
-	
-	/*
-	 * Helper method to calculate the amount of ligand bound to receptor
-	 * returns an int array with the number of bound receptors at each psuedopod
-	 */
-	
-	/*
-	private int[] calculateLigandBinding()
-	{
-		
-		// Get the surrounding concentrations
-		int[][][] ia3Concs = Particle.get( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z );
-		
-		// Assume the receptors are spread evenly around the cell
-		int iReceptors = m_iR_free / 6;
-		
-		// get CXCL13 concentrations at each psuedopod
-		// {x+, x-, y+, y-, z+, z-}
-		int[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
-				ia3Concs[1][1][0] };
-		
-			
-		int[] iaBoundReceptors = new int[6]; //stores how many receptors are bound at each psuedopod
-		
-
-		// TODO this is just 1s!!
-		for ( int i = 0; i < 6; i++ )
-		{
-			iaBoundReceptors[i] = (int) (Settings.BC.ODE.K_a() * Math.sqrt( iReceptors * iaConcs[i] ));//TODO WHY IS THERE A SQUARE ROOT HERE
-		}
-		
 		return iaBoundReceptors;
 	}
-	*/
+	
+	
+
+	
+
+	
+
 	
 	@Override
 	public void registerCollisions( CollisionGrid cgGrid )

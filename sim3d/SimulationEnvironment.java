@@ -176,7 +176,7 @@ public class SimulationEnvironment extends SimState
 		seedCells(CELLTYPE.cB);
 		//seedCognateCells(Settings.BC.COGNATECOUNT);
 		//new Particle( schedule, Particle.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );// add particles
-		new ParticleMoles( schedule, ParticleMoles.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
+		ParticleMoles m_pParticle = new ParticleMoles( schedule, ParticleMoles.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
 	}
 	
 	
@@ -202,14 +202,12 @@ public class SimulationEnvironment extends SimState
 	 */
    public void seedCells(CELLTYPE celltype)
    {
-	   
 	   int count = 0; //the number of cells to seed
 	   
 	   //set the number of cells to seed
 	   if(celltype==CELLTYPE.B){count = Settings.BC.COUNT;}
 	   else if(celltype==CELLTYPE.cB){count = Settings.BC.COGNATECOUNT;}
 			
-	   
 	   //seed the cells
 	   for ( int i = 0; i < count; i++ )
 	   {	
@@ -218,7 +216,8 @@ public class SimulationEnvironment extends SimState
 				case B: 	 //if it's a B cell
 					BC bc = new BC();
 					bc.setObjectLocation( generateCoordinateWithinFollicle());
-					schedule.scheduleRepeating( bc, 0, 1 );
+				    //schedule.scheduleRepeating( bc, 0, 1 );
+					schedule.scheduleRepeating(30, 0, bc,1 ); //give a 30 second delay so chemokine has time to reach steady state
 					if ( i == 0 ){bc.displayODEGraph = true;} // so we only have 1 BC updating the ODE graph
 					
 					break;
@@ -226,8 +225,10 @@ public class SimulationEnvironment extends SimState
 				case cB: // if it's a cognate B cell
 					 cognateBC cbc = new cognateBC(i);
 					 cbc.setObjectLocation( generateCoordinateWithinFollicle());
-					 schedule.scheduleRepeating( cbc, 0, 1 );
-					 if ( i == 0 ){cbc.displayAntigenGraph = true;}
+					 //schedule.scheduleRepeating( cbc, 0, 1 );
+					 schedule.scheduleRepeating( 30, 0,cbc, 1 );//agents start at 100 timesteps to allow the chemokine to reach steady state
+					 
+					 //if ( i == 0 ){cbc.displayAntigenGraph = true;}
 					
 					break;
 					
@@ -238,9 +239,6 @@ public class SimulationEnvironment extends SimState
 	}
 		
   
-	
-   
-   
    /**
     * Generates a random coordinate within the follicle
     * could be optimised
@@ -319,6 +317,8 @@ public class SimulationEnvironment extends SimState
 				cgGrid.step( null );
 	}
 
+	
+	
 	//getters and setters
 	public static Controller getController() {return controller;}
 	public static void       setController(Controller controller) 

@@ -302,6 +302,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable
 	public void step( final SimState state )
 	{
 	
+	
 		
 		decay();
 		for ( int i = 0; i < Settings.DIFFUSION_STEPS; i++ )

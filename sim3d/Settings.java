@@ -83,7 +83,6 @@ public class Settings
 		 * 
 		 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352/Notes_Diffusion.pdf
 		 *      
-		 * TODO: Get Simon to explain this again to me     
 		 */
 		static double calculateDIFFUSION_TIMESTEP()
 		{
@@ -140,13 +139,11 @@ public class Settings
 		   }
 		
 		 
-			/**
-			 * Number of BCs to generate
-			 */
-			public static double		SIGNAL_THRESHOLD;
+		/**
+		* Number of BCs to generate
+		*/
+		public static double		SIGNAL_THRESHOLD;
 					
-			/**
-		
 		/**
 		 * Number of BCs to generate
 		 */
@@ -184,7 +181,7 @@ public class Settings
 		static double DIRECTION_ERROR;
 		public static double DIRECTION_ERROR()
 		{
-			return Math.PI/2;
+			return Math.PI/3; //45 degrees of noise
 		}
 		
 		/**
@@ -194,7 +191,7 @@ public class Settings
 		 */
 		public static double RANDOM_TURN_ANGLE()
 		{
-			//corresponds to 210 degrees
+			//60 degrees
 			return (Math.PI/2);//used to be 12, lets change to something larger and see what happens
 		}
 		
@@ -243,9 +240,9 @@ public class Settings
 					Node RiN = RiNL.item(0);
 					Ri = Integer.parseInt(RiN.getTextContent());
 					
-					//NodeList KaNL = paramODEElement.getElementsByTagName("Ka");
-					//Node KaN = KaNL.item(0);
-					//Ka = Double.parseDouble(KaN.getTextContent());
+					NodeList KaNL = paramODEElement.getElementsByTagName("Ka");
+					Node KaN = KaNL.item(0);
+					Ka = Double.parseDouble(KaN.getTextContent());
 					
 					NodeList KrNL = paramODEElement.getElementsByTagName("Kr");
 					Node KrN = KrNL.item(0);
@@ -275,7 +272,7 @@ public class Settings
 			public static int Ri() { return Ri;}
 		
 			//public static double Ka_in_nM;
-			public static double Ka = (8.4 * Math.pow(10, 7));
+			public static double Ka;
 			public static double K_a(){return Ka;}
 			
 			static double Kr;

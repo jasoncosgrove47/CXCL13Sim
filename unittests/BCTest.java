@@ -32,6 +32,11 @@ import static org.hamcrest.Matchers.*;
 /**
  * @author sjj509
  * 		need to fix these so they work with XML inputs
+ * 
+ * 
+ * TODO getting a memory leak which means that some tests are failing when they shouldnt be
+ * 
+ * 
  */
 public class BCTest
 {
