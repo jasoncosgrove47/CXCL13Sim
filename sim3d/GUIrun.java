@@ -99,9 +99,6 @@ public class GUIrun extends GUIState
 	/**
 	 * a 2D portrayal that will show a plane of the particles
 	 */
-	//FastValueGridPortrayal2D particlePortrayal = new FastValueGridPortrayal2D();
-			
-	
 	public FastHexaValueGridPortrayal2D CXCL13PortrayalFast	 = new FastHexaValueGridPortrayal2D();
 	
 	
@@ -176,19 +173,8 @@ public class GUIrun extends GUIState
 										// don't clip the underlying field portrayal to the fields height and width
 		ChemokineDisplay.setClipping(false); 
 		
-		//jfChemokine = display2D.createFrame();
-		//jfChemokine.setTitle( "Chemokine" );
-		// register the frame so it appears in the "Display" list
-		//c.registerFrame( jfChemokine );
-		//jfChemokine.setVisible( true );
-		//jfChemokine.setLocation( 700, 0 );
-		//jfChemokine.setBackground( Color.black );
-		//particlePortrayal.setMap( new ParticleColorMap() );
-		//display2D.attach( particlePortrayal, "CXCL13" );
-		
-		
-		
-		
+
+	
 		// don't clip the underlying field portrayal to the fields height and width
 		chemokineDisplayFrame = ChemokineDisplay.createFrame(); 
 		chemokineDisplayFrame.setTitle("Chemokine Fields");
@@ -196,12 +182,8 @@ public class GUIrun extends GUIState
 		chemokineDisplayFrame.setVisible(true);
 			
 	
-	
 		ChemokineDisplay.attach(CXCL13PortrayalFast, "CXCL13 Gradient");
 
-		
-		
-		
 		
 		// Load the graphing functionality
 		Grapher.init();
@@ -209,8 +191,6 @@ public class GUIrun extends GUIState
 		
 		
 		
-		
-
 		// ODE graphing
 		chartFrame = Grapher.chart.createFrame();
 		chartFrame.setVisible( true );
@@ -225,22 +205,6 @@ public class GUIrun extends GUIState
 		chartFrameAntigen.setLocation( 0, 700 );
 		c.registerFrame( chartFrameAntigen );
 				
-		
-		/**
-		// FDC Edge size bar chart
-		chartFrame2 = Grapher.bcFRCEdgeSizeChart.createFrame();
-		chartFrame2.setVisible( true );
-		chartFrame2.pack();
-		chartFrame2.setLocation( 0, 700 );
-		c.registerFrame( chartFrame2 );
-		
-		// FDC edge number bar chart
-		chartFrame3 = Grapher.bcFRCEdgeNumberChart.createFrame();
-		chartFrame3.setVisible( true );
-		chartFrame3.pack();
-		chartFrame3.setLocation( 0, 700 );
-		c.registerFrame( chartFrame3 );
-		*/
 	}
 	
 	/**
@@ -287,10 +251,9 @@ public class GUIrun extends GUIState
 		// tell the portrayals what to portray and how to portray them
 		fdcPortrayal.setField( FDC.drawEnvironment );
 		bcPortrayal.setField( BC.drawEnvironment );
-		//particlePortrayal.setField( ParticleMoles.getInstance( ParticleMoles.TYPE.CXCL13 ).m_ig2Display );
+
 		
 	    //CXCL13 Portrayals
-
 		CXCL13PortrayalFast.setField(ParticleMoles.getInstance( ParticleMoles.TYPE.CXCL13 ).m_ig2Display);
 		CXCL13PortrayalFast.setMap(CXCL13ColorMap);
 		

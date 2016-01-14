@@ -165,34 +165,23 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			setObjectLocation( new Double3D( x, y, z ) );
 		}
 		
-		// Calculate chemotaxis direction if we're above the receptor threshold
-		//TODO this is wrong, it's the number of bound receptors that signal not the free receptors
-		
+
 		//TODO test case to make sure that random walk leads to a low displacement
 		
 		Double3D vMovement;
-		
 		
 		//m_iL_r	
 		if ( m_iL_r > Settings.BC.MIN_RECEPTORS )
 		{
 			
-		
-			
 			vMovement = getMoveDirection();
 		
-			
-			
-			
-			//System.out.println("vectorMagnitude equals: " + vectorMagnitude );
-			
-			
 			//vectormagnitude makes things go loco but no idea why....
 			if ( vMovement.lengthSq() > 0)
 			{
 				
 				double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
-				if(vectorMagnitude > 10)
+				if(vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD)
 				{
 					// Add some noise to the direction and take the average of our
 					// current direction and the new direction
@@ -206,7 +195,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				}
 				
 				else{ vMovement = null; }
-				
 			}
 		}
 		
@@ -228,7 +216,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		handleBounce();                 // Check for bounces
 
-		
 		receptorStep();                 // Step forward the receptor ODE
 		registerCollisions( m_cgGrid ); // Register the new movement with the grid
 	}
@@ -257,11 +244,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	{
 		//amount of chemokine per timestep should be about 0.000000176
 		
-		
+		/*
 		double[][][] ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z );
-		
-		double totalConc = (ia3Concs[2][1][1]+ ia3Concs[0][1][1]+ ia3Concs[1][2][1]+ ia3Concs[1][0][1]+ ia3Concs[1][1][2]+ia3Concs[1][1][0]);
-		
 		
 		
 		// Assume the receptors are spread evenly around the cell
@@ -278,32 +262,19 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		for ( int i = 0; i < 6; i++ )
 		{
 		
-		
 			double proportionToBind = (Settings.BC.ODE.K_a() *  iaConcs[i]);
 		
 			//cap the amount of receptors that can be bound
 			if(proportionToBind > 1){proportionToBind = 1;}
 			if(proportionToBind < 0){proportionToBind = 0;}
-			
-
+		
 			
 			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
-			
-			//double binding = (Settings.BC.ODE.K_a() * iReceptors * iaConcs[i]);
-			
-			//if(binding < 0){iaBoundReceptors[i]= 0;}
-			//else if(binding > iReceptors){iaBoundReceptors[i] = iReceptors;}
-			//else
-			//{
-				
-				//System.out.println("proportion of receptors to internalise: " + Settings.BC.ODE.K_a() *  iaConcs[i] );
-				// iaBoundReceptors[i] = (int)(Settings.BC.ODE.K_a() * iReceptors * iaConcs[i]);
-				// System.out.println("receptors to internalise: " + (int)(Settings.BC.ODE.K_a() *  iaConcs[i] * iReceptors) );
-			//}
-			
-			
-						 
+			 
 		}
+		*/
+		
+		double[] iaBoundReceptors = calculateLigandBindingMoles();
 		
 		// Remove chemokine from the grid TODO: Just remove from where you are!!
 		
@@ -381,14 +352,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 	
 		for ( int i = 0; i < 6; i++ )
-		{
-			
-		    iaBoundReceptors[i] = directionVectors[i];
-		 // System.out.println("The amount of receptors bound at pseudpod " + i + "is: " + iaBoundReceptors[i]);
-			
+		{	
+		    iaBoundReceptors[i] = directionVectors[i];	
 		}
 		
-		//need some kind of scaling to smoothe the function
 		
 		//calculateMovementVector
 		Double3D vMovement = new Double3D(); //the new direction for the cell to move
@@ -404,26 +371,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	}
 		
 	
-	/**
-	private int calculateLigandBindingSimplified()
-	{
-		// Get the surrounding concentrations
-		int[][][] ia3Concs = Particle.get( Particle.TYPE.CXCL13, (int) x, (int) y, (int) z );
-		
-		// Assume the receptors are spread evenly around the cell
-		int iReceptors = m_iR_free;
-		
-		// get CXCL13 concentrations at each psuedopod
-		// {x+, x-, y+, y-, z+, z-}
-		int totalConc = (ia3Concs[2][1][1]+ ia3Concs[0][1][1]+ ia3Concs[1][2][1]+ ia3Concs[1][0][1]+ ia3Concs[1][1][2]+ia3Concs[1][1][0]);
-		
-		int LR = (int) (Settings.BC.ODE.K_a() * Math.sqrt( iReceptors * totalConc ));
-		
 
-		return(LR);
-       	
-	}
-	*/
 	
 	
 	/*
@@ -433,14 +381,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	private double[] calculateLigandBindingMoles()
 	{
 		
-	
-		
 		//need to figure out what is sensible to secrete per timestep, might as well do that in moles
 		// Get the surrounding concentrations
 		double[][][] ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z );
 		
 	
-		
 		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
 		
@@ -449,9 +394,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		double[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1], ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
 				ia3Concs[1][1][0] };
 		
-		double totalConc = (ia3Concs[2][1][1]+ ia3Concs[0][1][1]+ ia3Concs[1][2][1]+ ia3Concs[1][0][1]+ ia3Concs[1][1][2]+ia3Concs[1][1][0]);
-
-		
+	
 
 		double[] iaBoundReceptors = new double[6]; //stores how many receptors are bound at each psuedopod
 		
@@ -459,22 +402,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// TODO this is just 1s!!
 		for ( int i = 0; i < 6; i++ )
 		{
-		
-			
 			
 			double proportionToBind = (Settings.BC.ODE.K_a() *  iaConcs[i]);
+			
 			
 			
 			//cap the amount of receptors that can be bound
 			if(proportionToBind > 1){proportionToBind = 1;}
 			if(proportionToBind < 0){proportionToBind = 0;}
 			
-			
 			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
-			
-			
-			//TODO this is where the bug is need to fix
-			//iaBoundReceptors[i] = (Settings.BC.ODE.K_a() *  iReceptors * iaConcs[i] );
+			System.out.println("proportionToBind" + proportionToBind);
 			
 		}
 		
@@ -490,6 +428,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * Helper method to calculate the amount of ligand bound to receptor
 	 * returns an int array with the number of bound receptors at each psuedopod
 	 */
+	
+	/*
 	private int[] calculateLigandBinding()
 	{
 		
@@ -516,7 +456,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		return iaBoundReceptors;
 	}
-	
+	*/
 	
 	@Override
 	public void registerCollisions( CollisionGrid cgGrid )

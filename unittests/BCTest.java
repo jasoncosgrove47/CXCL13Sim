@@ -64,7 +64,7 @@ public class BCTest
 		Settings.DEPTH = 31;
 		Settings.DIFFUSION_COEFFICIENT = 1.519 * Math.pow( 10, -10 );
 		Settings.GRID_SIZE = 0.0001;
-		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (3.7 * Settings.DIFFUSION_COEFFICIENT);
+		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (43.7 * Settings.DIFFUSION_COEFFICIENT);
 		Settings.DIFFUSION_STEPS	= (int) (1 / Settings.DIFFUSION_TIMESTEP);
     }
 
@@ -135,6 +135,82 @@ public class BCTest
 	}
     */
 
+    
+    /*
+     * This is an integration test ensuring chemokine and migration work together
+     */
+	@Test
+	public void testChemotaxis()
+	{
+		m_pParticle.field[15][15][15] = (2 * Math.pow(10, -6));
+
+		
+		Settings.CXCL13.DECAY_CONSTANT = 0.8;
+		
+		Settings.BC.MIN_RECEPTORS = 0;
+		
+		Settings.BC.SIGNAL_THRESHOLD = 0;
+		
+		
+		// Let's diffuse a little
+		Settings.DIFFUSION_STEPS = 2;
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		m_pParticle.step( null );
+		
+		// Randomly place 100 BCs
+		BC[] bcCells = new BC[100];
+		for (int i = 0; i < 100; i++)
+		{
+			bcCells[i] = new BC();
+			
+			bcCells[i].setObjectLocation( new Double3D(Settings.RNG.nextInt(14)+8,Settings.RNG.nextInt(14)+8,Settings.RNG.nextInt(14)+8) );
+		}
+		// Let them move a bit
+		for ( int i = 0; i < 600; i++ )
+		{
+			for (int j = 0; j < 100; j++)
+			{
+				bcCells[j].step( null );
+			}
+			m_pParticle.field[15][15][15] = (2* Math.pow(10, -6));
+			m_pParticle.step( null );
+		}
+		
+		double avDistance = 0;
+		double maxDist = 0;
+		
+		//not quite sure what this bit is doing
+		for (int i = 0; i < 100; i++)
+		{
+			Double3D bcLoc = new Double3D(bcCells[i].x-15, bcCells[i].y-15, bcCells[i].z-15);//why take 15 away
+			
+			avDistance += bcLoc.length();//add this vector? see how far they are from origin?
+			
+			
+			//why do we need maxDist, doesn't seem to be doing anything
+			// do we need a maxDist criteria?
+			if ( maxDist < bcLoc.length() )
+			{
+				maxDist = bcLoc.length();
+			}
+		}
+
+		assertThat(avDistance/100, lessThan(7.0));//why is this condition here?
+	}
+	
+	
+    
+    
 
     /*
      * This is an integration test ensuring chemokine and migration work together
@@ -201,77 +277,7 @@ public class BCTest
     
 
 	
-    
-    /*
-     * This is an integration test ensuring chemokine and migration work together
-     */
-	@Test
-	public void testShouldMigrateTowardsChemokine()
-	{
-		m_pParticle.field[15][15][15] = (1 * Math.pow(10, -9));
 
-		
-		Settings.CXCL13.DECAY_CONSTANT = 1;
-		
-		Settings.BC.MIN_RECEPTORS = 0;
-		
-		// Let's diffuse a little
-		Settings.DIFFUSION_STEPS = 2;
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		m_pParticle.step( null );
-		
-		// Randomly place 100 BCs
-		BC[] bcCells = new BC[100];
-		for (int i = 0; i < 100; i++)
-		{
-			bcCells[i] = new BC();
-			
-			bcCells[i].setObjectLocation( new Double3D(Settings.RNG.nextInt(14)+8,Settings.RNG.nextInt(14)+8,Settings.RNG.nextInt(14)+8) );
-		}
-		// Let them move a bit
-		for ( int i = 0; i < 600; i++ )
-		{
-			for (int j = 0; j < 100; j++)
-			{
-				bcCells[j].step( null );//why are you passing in null
-			}
-			m_pParticle.field[15][15][15] = (1* Math.pow(10, -9));
-			m_pParticle.step( null );
-		}
-		
-		double avDistance = 0;
-		double maxDist = 0;
-		
-		//not quite sure what this bit is doing
-		for (int i = 0; i < 100; i++)
-		{
-			Double3D bcLoc = new Double3D(bcCells[i].x-15, bcCells[i].y-15, bcCells[i].z-15);//why take 15 away
-			
-			avDistance += bcLoc.length();//add this vector? see how far they are from origin?
-			
-			
-			//why do we need maxDist, doesn't seem to be doing anything
-			// do we need a maxDist criteria?
-			if ( maxDist < bcLoc.length() )
-			{
-				maxDist = bcLoc.length();
-			}
-		}
-
-		assertThat(avDistance/100, lessThan(7.0));//why is this condition here?
-	}
-	
-	
 	
 
 	
@@ -330,7 +336,6 @@ public class BCTest
 			
 			avDistance += bcLoc.length();
 			
-			System.out.println(bcLoc.length());
 			
 			if ( maxDist < bcLoc.length() )
 			{

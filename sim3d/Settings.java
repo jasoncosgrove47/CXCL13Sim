@@ -132,8 +132,20 @@ public class Settings
 				Node traveldistanceN = traveldistanceNL.item(0);
 				TRAVEL_DISTANCE = Double.parseDouble(traveldistanceN.getTextContent());
 	
+				NodeList stNL = paramBCElement.getElementsByTagName("SIGNAL_THRESHOLD");
+				Node stN = stNL.item(0);
+				SIGNAL_THRESHOLD = Double.parseDouble(stN.getTextContent());
+				
+				
 		   }
 		
+		 
+			/**
+			 * Number of BCs to generate
+			 */
+			public static double		SIGNAL_THRESHOLD;
+					
+			/**
 		
 		/**
 		 * Number of BCs to generate
