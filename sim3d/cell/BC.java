@@ -182,20 +182,31 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			vMovement = getMoveDirection();
 		
 			
-			double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
+			
 			
 			//System.out.println("vectorMagnitude equals: " + vectorMagnitude );
 			
-			if ( vMovement.lengthSq() > 0 )
+			
+			//vectormagnitude makes things go loco but no idea why....
+			if ( vMovement.lengthSq() > 0)
 			{
-				// Add some noise to the direction and take the average of our
-				// current direction and the new direction
-				//vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
-				vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
-				if ( vMovement.lengthSq() > 0 )
+				
+				double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
+				if(vectorMagnitude > 10)
 				{
-					vMovement = vMovement.normalize();
+					// Add some noise to the direction and take the average of our
+					// current direction and the new direction
+					//vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
+					vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
+					if ( vMovement.lengthSq() > 0 )
+					{
+						vMovement = vMovement.normalize();//TODO what is this section of code doing
+					}
+				
 				}
+				
+				else{ vMovement = null; }
+				
 			}
 		}
 		
@@ -269,7 +280,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		
 			double proportionToBind = (Settings.BC.ODE.K_a() *  iaConcs[i]);
-			
 		
 			//cap the amount of receptors that can be bound
 			if(proportionToBind > 1){proportionToBind = 1;}

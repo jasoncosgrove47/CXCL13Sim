@@ -1,7 +1,9 @@
 package sim3d;
 
+import sim.portrayal.grid.FastHexaValueGridPortrayal2D;
 import sim.portrayal.grid.FastValueGridPortrayal2D;
 import sim.portrayal3d.continuous.ContinuousPortrayal3D;
+import sim.util.gui.SimpleColorMap;
 import sim.engine.*;
 import sim.display.*;
 import sim.display3d.Display3D;
@@ -52,7 +54,17 @@ public class GUIrun extends GUIState
 	public JFrame	chartFrame;
 	public JFrame	chartFrame2;
 	public JFrame	chartFrame3;
-	public JFrame	chartFrameAntigen;			
+	public JFrame	chartFrameAntigen;	
+	
+	
+	
+	public java.awt.Color blue0		= new Color(30,40,190,180);
+ 	public java.awt.Color blueLow 	= new Color(30,40,190,0);
+ 	public java.awt.Color blue1 	= new Color(30,40,210,200);
+ 	public java.awt.Color blue2 	= new Color(200,40,230,220);
+ 	public java.awt.Color blue3 	= new Color(30,200,255,255);
+	
+ 	public SimpleColorMap CXCL13ColorMap  = new SimpleColorMap(0.01 * Math.pow(10, -9), 3 * Math.pow(10, -9), blueLow, blue3);
 	
 	/**
 	 * The main display
@@ -87,10 +99,15 @@ public class GUIrun extends GUIState
 	/**
 	 * a 2D portrayal that will show a plane of the particles
 	 */
-	FastValueGridPortrayal2D particlePortrayal = new FastValueGridPortrayal2D();
+	//FastValueGridPortrayal2D particlePortrayal = new FastValueGridPortrayal2D();
 			
 	
+	public FastHexaValueGridPortrayal2D CXCL13PortrayalFast	 = new FastHexaValueGridPortrayal2D();
 	
+	
+	public JFrame 	  chemokineDisplayFrame;
+	
+	public Display2D  ChemokineDisplay;
 	
 	/**
 	 * Constructor - creates a Simulation object
@@ -99,6 +116,9 @@ public class GUIrun extends GUIState
 	{
 		super( new SimulationEnvironment(System.currentTimeMillis(),IO.openXMLFile(paramFile) ) );
 	}
+	
+	
+	
 	
 	/**
 	 * Constructor
@@ -151,19 +171,44 @@ public class GUIrun extends GUIState
 		display3D.attach( fdcPortrayal, "FDC" );
 		display3D.attach( bcPortrayal, "BC" );
 		
-		jfChemokine = display2D.createFrame();
-		jfChemokine.setTitle( "Chemokine" );
+		ChemokineDisplay = new Display2D(600,600, this);//has to be hard coded otherwise gets called before the parameter files and goes a bit wacky!
+		
+										// don't clip the underlying field portrayal to the fields height and width
+		ChemokineDisplay.setClipping(false); 
+		
+		//jfChemokine = display2D.createFrame();
+		//jfChemokine.setTitle( "Chemokine" );
 		// register the frame so it appears in the "Display" list
-		c.registerFrame( jfChemokine );
-		jfChemokine.setVisible( true );
-		jfChemokine.setLocation( 700, 0 );
-		jfChemokine.setBackground( Color.black );
-		particlePortrayal.setMap( new ParticleColorMap() );
-		display2D.attach( particlePortrayal, "CXCL13" );
+		//c.registerFrame( jfChemokine );
+		//jfChemokine.setVisible( true );
+		//jfChemokine.setLocation( 700, 0 );
+		//jfChemokine.setBackground( Color.black );
+		//particlePortrayal.setMap( new ParticleColorMap() );
+		//display2D.attach( particlePortrayal, "CXCL13" );
+		
+		
+		
+		
+		// don't clip the underlying field portrayal to the fields height and width
+		chemokineDisplayFrame = ChemokineDisplay.createFrame(); 
+		chemokineDisplayFrame.setTitle("Chemokine Fields");
+		c.registerFrame(chemokineDisplayFrame);						
+		chemokineDisplayFrame.setVisible(true);
+			
+	
+	
+		ChemokineDisplay.attach(CXCL13PortrayalFast, "CXCL13 Gradient");
+
+		
+		
+		
 		
 		// Load the graphing functionality
 		Grapher.init();
 		Grapher.schedule = state.schedule;
+		
+		
+		
 		
 
 		// ODE graphing
@@ -228,6 +273,10 @@ public class GUIrun extends GUIState
 			chartFrameAntigen.dispose();
 		chartFrameAntigen = null;
 		
+		if(chemokineDisplayFrame != null) chemokineDisplayFrame.dispose();
+		chemokineDisplayFrame = null;
+		ChemokineDisplay = null;
+		
 	}
 	
 	/**
@@ -238,10 +287,22 @@ public class GUIrun extends GUIState
 		// tell the portrayals what to portray and how to portray them
 		fdcPortrayal.setField( FDC.drawEnvironment );
 		bcPortrayal.setField( BC.drawEnvironment );
-		particlePortrayal.setField( ParticleMoles.getInstance( ParticleMoles.TYPE.CXCL13 ).m_ig2Display );
+		//particlePortrayal.setField( ParticleMoles.getInstance( ParticleMoles.TYPE.CXCL13 ).m_ig2Display );
+		
+	    //CXCL13 Portrayals
+
+		CXCL13PortrayalFast.setField(ParticleMoles.getInstance( ParticleMoles.TYPE.CXCL13 ).m_ig2Display);
+		CXCL13PortrayalFast.setMap(CXCL13ColorMap);
+		
+		
 		
 		display3D.createSceneGraph();
 		display3D.reset();
+		
+		ChemokineDisplay.reset();									// causes the display to re-register itself with the GUIState after every step 
+		ChemokineDisplay.setBackdrop(Color.black);
+		ChemokineDisplay.repaint();									// show the initial arrangement of the simulation prior to running
+		
 	}
 	
 	/**
