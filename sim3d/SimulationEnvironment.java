@@ -141,10 +141,169 @@ public class SimulationEnvironment extends SimState
 	
 	
 	/**
+	 * This is used for high throughput experimentation and allows the ssytem to reach a steady state
+	 * before recording B-cell migration, ensures that outputs from parameter sweeps are not due
+	 * to recording before the system reaches steady state
+	 */
+	public void start()
+	{
+		//start the simulation
+		super.start();
+		
+		///////// Initialise the relevant grids  ///////////////
+		//Initialise the stromal grid
+		fdcEnvironment = new Continuous3D( Settings.FDC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
+		FDC.drawEnvironment = fdcEnvironment;
+		StromaEdge.drawEnvironment = fdcEnvironment;
+		
+		//Initialise the B cell grid
+		bcEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
+		BC.drawEnvironment = bcEnvironment;
+		
+		// Initialise the CollisionGrid
+		CollisionGrid cgGrid = new CollisionGrid( Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH, 1 );
+		schedule.scheduleRepeating( cgGrid, 3, 1 );
+		
+		
+		//initialise the relevant agents
+		initialiseStroma(cgGrid); //initialise the stromal network
+		ParticleMoles m_pParticle = new ParticleMoles( schedule, ParticleMoles.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
+		
+		
+		/*
+		 * get particular particles from the grid wait and see if they stabilise 
+		 */
+		
+		double totalConc_Tminus10;
+		double totalConc_T;
+		double[][][] ia3Concs;
+		
+		
+		//let the chemokine diffuse a little bit
+		for(int i = 0; i < 10; i++)
+		{
+			schedule.step(this);
+			ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, Settings.WIDTH/2, Settings.HEIGHT/2, Settings.DEPTH/2);
+			
+			if(i == 0)
+			{
+				
+				totalConc_Tminus10 = ia3Concs[2][1][1] + ia3Concs[0][1][1] + ia3Concs[1][2][1] + ia3Concs[1][0][1]+  ia3Concs[1][1][2]+ia3Concs[1][1][0];
+				
+			}
+			
+			if(i == 9)
+			{
+				totalConc_T = ia3Concs[2][1][1] + ia3Concs[0][1][1] + ia3Concs[1][2][1] + ia3Concs[1][0][1]+  ia3Concs[1][1][2]+ia3Concs[1][1][0];	
+			}
+			
+		}
+		
+		
+		//TODO potential here infinite loops, need some additional control to make sure that this doesn't happen.
+	
+		//if chemokine hasn't stabilised at this point, continue to step until it has
+		do
+		{	
+			ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, Settings.WIDTH/2, Settings.HEIGHT/2, Settings.DEPTH/2);
+			totalConc_Tminus10 = ia3Concs[2][1][1] + ia3Concs[0][1][1] + ia3Concs[1][2][1] + ia3Concs[1][0][1]+  ia3Concs[1][1][2]+ia3Concs[1][1][0];
+			
+			for(int i = 0; i < 10; i++) {schedule.step(this);}
+			
+			ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, Settings.WIDTH/2, Settings.HEIGHT/2, Settings.DEPTH/2);
+			totalConc_T = ia3Concs[2][1][1] + ia3Concs[0][1][1] + ia3Concs[1][2][1] + ia3Concs[1][0][1]+  ia3Concs[1][1][2]+ia3Concs[1][1][0];
+			
+		}
+		
+		while(totalConc_Tminus10 != totalConc_T);
+		System.out.println("Chemokine has stabilised: " + this.schedule.getSteps());
+		
+		
+		//////now let B cells do they thang
+		
+		
+		BC.m_cgGrid = cgGrid;
+
+		seedCells(CELLTYPE.B);
+		seedCells(CELLTYPE.cB);
+		
+		
+		cognateBC cbc = new cognateBC(1000000);
+		
+		cbc.setObjectLocation( generateCoordinateWithinFollicle());
+		scheduleStoppableCell(cbc);
+
+		
+		int LR_Tminus20 = 0;
+		int LR_T = 10000;
+		
+		
+		//give the B cells more time to reach steady state
+		for(int i = 0; i < 51; i++)
+		{
+			schedule.step(this);
+			if(i == 10)
+			{
+				LR_Tminus20 = cbc.m_iL_r;
+			}
+			if(i == 50)
+			{
+				LR_T = cbc.m_iL_r;
+			}
+		}
+		
+		do{
+			
+	
+			LR_Tminus20 = cbc.m_iL_r;
+		
+			for(int i = 0; i < 50; i++) {schedule.step(this);}
+			
+			LR_T = cbc.m_iL_r;
+			
+		}while(Math.sqrt(Math.pow((LR_T - LR_Tminus20),2)) > 500);
+		
+
+		System.out.println("B cells have stabilised: " + this.schedule.getSteps());
+	
+	
+		
+		cbc.removeDeadCell(bcEnvironment);
+		
+		
+	}
+	
+	
+
+	/**
+	 * Scheduling a cell returns a stoppable object.
+	 * we store the stoppable object as a variable 
+	 * within the BC class.
+	 * 
+	 * Then the BC can access its stopper variable 
+	 * and call the stop method. 
+	 * 
+	 * 
+	 * TODO look up pointers for java advanced
+	 * 
+	 * 
+	 * @param 
+	 */
+	public void scheduleStoppableCell(BC lymphocyte)
+	{
+				
+		//
+		lymphocyte.setStopper(schedule.scheduleRepeating(lymphocyte));
+
+	}
+	
+	
+	
+	/**
 	 * Sets up a simulation run. (Re)initialises the environments, generates a
 	 * stromal network and BCs randomly
 	 */
-	public void start()
+	public void startOld()
 	{
 		//start the simulation
 		super.start();
@@ -216,8 +375,8 @@ public class SimulationEnvironment extends SimState
 				case B: 	 //if it's a B cell
 					BC bc = new BC();
 					bc.setObjectLocation( generateCoordinateWithinFollicle());
-				    //schedule.scheduleRepeating( bc, 0, 1 );
-					schedule.scheduleRepeating(30, 0, bc,1 ); //give a 30 second delay so chemokine has time to reach steady state
+				    schedule.scheduleRepeating( bc, 0, 1 );
+					//schedule.scheduleRepeating(30, 0, bc,1 ); //give a 30 second delay so chemokine has time to reach steady state
 					if ( i == 0 ){bc.displayODEGraph = true;} // so we only have 1 BC updating the ODE graph
 					
 					break;
@@ -225,8 +384,8 @@ public class SimulationEnvironment extends SimState
 				case cB: // if it's a cognate B cell
 					 cognateBC cbc = new cognateBC(i);
 					 cbc.setObjectLocation( generateCoordinateWithinFollicle());
-					 //schedule.scheduleRepeating( cbc, 0, 1 );
-					 schedule.scheduleRepeating( 30, 0,cbc, 1 );//agents start at 100 timesteps to allow the chemokine to reach steady state
+					 schedule.scheduleRepeating( cbc, 0, 1 );
+					 //schedule.scheduleRepeating( 30, 0,cbc, 1 );//agents start at 100 timesteps to allow the chemokine to reach steady state
 					 
 					 //if ( i == 0 ){cbc.displayAntigenGraph = true;}
 					
@@ -242,6 +401,8 @@ public class SimulationEnvironment extends SimState
    /**
     * Generates a random coordinate within the follicle
     * could be optimised
+    * TODO need to set these as external parameters within the sim
+    * 
     * @return a random Double3D from within the follicle
     */
    public Double3D generateCoordinateWithinFollicle(){
@@ -254,7 +415,7 @@ public class SimulationEnvironment extends SimState
 		   y = random.nextInt( Settings.HEIGHT - 2 ) + 1;
 		   z = random.nextInt( Settings.DEPTH - 2 ) + 1;
 		   
-	   } while (isWithinCircle(x,y ,( Settings.WIDTH /2 ) + 1, ( Settings.HEIGHT / 2 ) + 1, 20) == false);
+	   } while (isWithinCircle(x,y ,( Settings.WIDTH /2 ) + 1, ( Settings.HEIGHT / 2 ) + 1, 10) == false);
 	   
 	   return new Double3D(x,y,z);
    }
@@ -268,9 +429,13 @@ public class SimulationEnvironment extends SimState
 		// Generate some stroma
 		ArrayList<FRCCell> frclCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
-		FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2, Settings.HEIGHT - 2, Settings.DEPTH - 2,
-				Settings.FDC.COUNT, frclCellLocations, sealEdges );
+		FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2, Settings.HEIGHT - 2, Settings.DEPTH - 2,Settings.FDC.COUNT, frclCellLocations, sealEdges );
 
+		
+		//TODO: this is hardcoded, need them as input parameters
+		//FRCStromaGenerator.generateStroma3D(24 - 2, 24- 2, 5- 2,Settings.FDC.COUNT, frclCellLocations, sealEdges );
+		
+		
 		// Create the FDC objects, display them, schedule them, and then put them on the collision grid
 		for ( FRCCell frcCell : frclCellLocations ) //why does this say FRC but then it moves onto FDCs?
 		{

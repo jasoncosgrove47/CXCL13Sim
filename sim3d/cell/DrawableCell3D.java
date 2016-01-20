@@ -1,5 +1,6 @@
 package sim3d.cell;
 
+import sim.engine.Stoppable;
 import sim.field.continuous.Continuous3D;
 import sim.portrayal3d.SimplePortrayal3D;
 import sim.util.Double3D;
@@ -9,7 +10,7 @@ import sim.util.Double3D;
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
-public abstract class DrawableCell3D extends SimplePortrayal3D
+public abstract class DrawableCell3D extends SimplePortrayal3D 
 {
 	/**
 	 * Position of the cell

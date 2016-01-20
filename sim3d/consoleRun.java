@@ -72,13 +72,14 @@ public class consoleRun
 		System.out.println("StromaSim v1.0 - Console Version");
 		System.out.println("\nAuthor: Jason Cosgrove, York Computational Immunology Lab");
 		
+	
 		do
 		{	
 			steps = simulation.schedule.getSteps();		
 			System.out.println("Steps: " + steps);		
 			if (!simulation.schedule.step(simulation))
 			break;	
-		} while(steps < 150);	
+		} while(steps < 250);	
 		
 		// finish the simulation
 		simulation.finish();	

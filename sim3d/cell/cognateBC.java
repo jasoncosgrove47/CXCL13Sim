@@ -55,9 +55,9 @@ public class cognateBC extends BC
 		//set the time frame for data collection
 		//30 minutes is what was done in vivo
 		// we should do the same to keep it comparable
-		if(state.schedule.getSteps()> 109 & state.schedule.getSteps()<141){
-			updatePosition(state);
-		}
+		//if(state.schedule.getSteps()> 209 & state.schedule.getSteps()<241){
+		//	updatePosition(state);
+		//}
 	}
 	
 	

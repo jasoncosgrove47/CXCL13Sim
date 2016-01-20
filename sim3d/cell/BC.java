@@ -2,6 +2,7 @@ package sim3d.cell;
 
 import sim.util.*;
 import sim.engine.*;
+import sim.field.continuous.Continuous2D;
 import sim.field.continuous.Continuous3D;
 
 import java.awt.Color;
@@ -221,7 +222,45 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 	
 	
+	/**
+	 * How to remove a BC form teh schedule:
+	 * 
+	 * when you schedule the BC it will return a stoppable object
+	 * we store this object so we can access it when we need to 
+	 * stop the object.
+	 * 
+	 * then to remove the object we simply call stop() on the 
+	 * stopper object
+	 * 
+	 * the BC can then be removed by garbage collection
+	 * 
+	 * @return 
+	 */
+
+	public void removeDeadCell( Continuous3D randomSpace)
+	{
+		
+		this.stop();
+		randomSpace.remove(this);
+	}
 	
+	  /**
+	   * Flag to show if this class has been stopped (when no longer needed)
+	   */
+	private Stoppable stopper = null;
+
+	/**
+	 * Method to change the value of the stopper
+	 * this is the stoppabkle object so we can access its stop method
+	 * stoppable can acess BC but not the other way round
+	 * @param stopper    Whether the class should be stopped or not
+	 */
+	public void setStopper(Stoppable stopper)   {this.stopper = stopper;}
+
+	/**
+	 * Method to stop the class where necessary
+	 */
+	public void stop(){stopper.stop();}
 	
 	
 	
@@ -246,18 +285,25 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		//TODO: this is in moles, not receptors so need to scale it before i remove, 
 		// eg if i took away 10,000 that would be 10,000 moles which is not what we want!!!
+	
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -(iaBoundReceptors[0] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y, (int) z, -(iaBoundReceptors[1] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y + 1, (int) z, -(iaBoundReceptors[2] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y - 1, (int) z, -(iaBoundReceptors[3] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z + 1, -(iaBoundReceptors[4] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z - 1, -(iaBoundReceptors[5] / avogadro) );
+		
+		
+
+	
+		
  
 		// update the amount of free and bound receptors
 		for ( int i = 0; i < 6; i++ )
 		{
 			m_iR_free -= iaBoundReceptors[i];
 			m_iL_r += iaBoundReceptors[i];
+			
 		}
 
 		
@@ -331,7 +377,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// Get the surrounding concentrations
 		double[][][] ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z );
 		
-	
+		
 		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
 		
@@ -351,6 +397,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			if(proportionToBind < 0){proportionToBind = 0;}
 			
 			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
+			
+			
 		}
 		return iaBoundReceptors;
 	}
@@ -393,7 +441,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// don't let a b cell collide more than collisionThreshold times
 		// otherwise you get in an infinite loop where a B cell continues bouncing
 		// indefinitely
-		int collisionThreshold = 10000;
+		int collisionThreshold = 50;
 		if ( m_i3lCollisionPoints.size() == 0 || collisionCounter > collisionThreshold)
 		{
 			return;
@@ -1148,6 +1196,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	public void setPositionAlongStroma(double positionAlongStroma) {
 		this.positionAlongStroma = positionAlongStroma;
 	}
+
+
+
+
+
+
+
+
+
 
 
 	

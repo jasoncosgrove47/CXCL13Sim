@@ -181,7 +181,7 @@ public class Settings
 		static double DIRECTION_ERROR;
 		public static double DIRECTION_ERROR()
 		{
-			return Math.PI/3; //45 degrees of noise
+			return Math.PI/3; //15
 		}
 		
 		/**
@@ -191,8 +191,8 @@ public class Settings
 		 */
 		public static double RANDOM_TURN_ANGLE()
 		{
-			//60 degrees
-			return (Math.PI/2);//used to be 12, lets change to something larger and see what happens
+			//90 degrees initially
+			return (8*Math.PI/7);//210, was 180
 		}
 		
 		/**

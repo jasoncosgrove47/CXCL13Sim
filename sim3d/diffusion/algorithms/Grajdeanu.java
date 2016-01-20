@@ -60,6 +60,8 @@ public class Grajdeanu extends DiffusionAlgorithm
 					// d is the distance to the neighbouring square, and µ is 
 					// the diffusion coefficient d^2 is calculated by squaring 
 					// each of the fundamental vector distances (i.e. pythagoras in 3D!)
+					// TODO do i need to put diffusion coefficient in seconds or minutes?
+					
 					m_adDiffusionCoefficients[x + 1][y + 1][z + 1] = Math
 							.exp( -(Math.pow( Settings.GRID_SIZE, 2 ) * (x * x + y * y + z * z))
 									/ (4 * dDiffuseCoeff * Settings.DIFFUSION_TIMESTEP) );
