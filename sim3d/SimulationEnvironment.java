@@ -41,8 +41,17 @@ public class SimulationEnvironment extends SimState
 	
 	private static final long serialVersionUID = 1;
 	
-	
+	/**
+	 * Boolean which is true when the system has reached
+	 * a steady state which signals the start of an experiment
+	 */
 	public static boolean steadyStateReached = false;
+	
+	
+	/**
+	 * Once the experiment has run for sufficient amount of time
+	 * this boolean becomes true which shuts down the simulation.
+	 */
 	public static boolean experimentFinished = false;
 	
 	/*
@@ -74,8 +83,9 @@ public class SimulationEnvironment extends SimState
 	{
 		B, cB, T
 	}
-	public TYPE celltype;
 	
+	//what type of cell we are dealing with
+	public TYPE celltype;
 	
 	/**
 	 * Constructor
@@ -88,7 +98,6 @@ public class SimulationEnvironment extends SimState
 		setupSimulationParameters();
 		Settings.RNG = random; // We set the MASON random object to the static Options class so we can access it everywhere
 	}
-	
 	
 	/**
 	 * Load parameters from an external xml 
@@ -103,7 +112,6 @@ public class SimulationEnvironment extends SimState
 		 Settings.CXCL13.loadParameters(parameters);
 	 }
 	
-	 
 	/**
 	 * Adds a slider for the display level in the MASON console
 	 */
@@ -112,9 +120,10 @@ public class SimulationEnvironment extends SimState
 		return new sim.util.Interval( 1, Settings.DEPTH );
 	}
 	
-	
 	/**
 	 * Destroy resources after use
+	 * TODO we should stop all cells so that they can be 
+	 * picked up by the garbage collector
 	 */
 	public void finish()
 	{
@@ -128,8 +137,7 @@ public class SimulationEnvironment extends SimState
 	 */
 	public int getDisplayLevel()
 	{
-		// Add 1 so the scale goes from 1 to 10 and not 0 to 9!
-		return Particle.getDisplayLevel() + 1;
+		return Particle.getDisplayLevel() + 1; // Add 1 so the scale goes from 1 to 10 and not 0 to 9!
 	}
 	
 	
@@ -144,13 +152,13 @@ public class SimulationEnvironment extends SimState
 	
 	
 	/**
-	 * This is used for high throughput experimentation and allows the ssytem to reach a steady state
+	 * This is used for high throughput experimentation and allows the system to reach a steady state
 	 * before recording B-cell migration, ensures that outputs from parameter sweeps are not due
 	 * to recording before the system reaches steady state
 	 */
 	public void start()
 	{
-		//start the simulation
+		
 		super.start();
 		
 		//Initialise the stromal grid
@@ -177,13 +185,13 @@ public class SimulationEnvironment extends SimState
 		//set the collision grid for B cells
 		BC.m_cgGrid = cgGrid;
 
-		//seed our tracker cells
+		//seed our tracker cells and let them reach steady state before seeding our non-tracker cells
 		seedCells(CELLTYPE.cB);
 		runBCellsUntilSteadyState();
 		seedCells(CELLTYPE.B);
 		
 		//step a little bit more so the cells have more time to stabilise
-		for(int i = 0; i < 20; i++)
+		for(int i = 0; i < 200; i++)
 		{
 			schedule.step(this);
 			
@@ -196,8 +204,6 @@ public class SimulationEnvironment extends SimState
 		//set the steady state guard to true so 
 		// b cells can begin recording data
 		steadyStateReached = true;
-		
-		
 	}
 	
 	
@@ -211,7 +217,6 @@ public class SimulationEnvironment extends SimState
 		double totalConc_Tminus10;
 		double totalConc_T;
 		double[][][] ia3Concs;
-		
 		
 		//let the chemokine diffuse a little bit
 		for(int i = 0; i < 10; i++)
@@ -228,7 +233,6 @@ public class SimulationEnvironment extends SimState
 			{
 				totalConc_T = ia3Concs[2][1][1] + ia3Concs[0][1][1] + ia3Concs[1][2][1] + ia3Concs[1][0][1]+  ia3Concs[1][1][2]+ia3Concs[1][1][0];	
 			}
-			
 		}
 		
 		
@@ -243,7 +247,6 @@ public class SimulationEnvironment extends SimState
 			
 			ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, Settings.WIDTH/2, Settings.HEIGHT/2, Settings.DEPTH/2);
 			totalConc_T = ia3Concs[2][1][1] + ia3Concs[0][1][1] + ia3Concs[1][2][1] + ia3Concs[1][0][1]+  ia3Concs[1][1][2]+ia3Concs[1][1][0];
-			
 		}
 		
 		while(totalConc_Tminus10 != totalConc_T);
@@ -277,14 +280,10 @@ public class SimulationEnvironment extends SimState
 			LR_Tminus20 = cbc.m_iL_r; //calculate LR at start of loop
 			for(int i = 0; i < 50; i++) {schedule.step(this);}
 			LR_T = cbc.m_iL_r; //record LR at end of loop
-			
 		}while(Math.sqrt(Math.pow((LR_T - LR_Tminus20),2)) > 500); //TODO we have set an arbritrary treshold here but this will need refining. 
-		
-
-		System.out.println("B cells have stabilised: " + this.schedule.getSteps());
 	
-		//get rid of these cells as we don't need them anymore
-		cbc.removeDeadCell(bcEnvironment);
+		System.out.println("B cells have stabilised: " + this.schedule.getSteps());
+		cbc.removeDeadCell(bcEnvironment); //get rid of these cells as we don't need them anymore
 
 	}
 	

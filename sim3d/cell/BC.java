@@ -170,18 +170,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 		
 
+		
+		//TODO migration needs to be encapsulated as it's own method
+		
 		//TODO test case to make sure that random walk leads to a low displacement
 		
 		Double3D vMovement;
-		
-	
-		vMovement = getMoveDirection();
-		
+		vMovement = getMoveDirection();		
+		double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
+
 		//vectormagnitude makes things go loco but no idea why....
 		if ( vMovement.lengthSq() > 0)
 		{
-
-			double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
 			if(vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD)
 			{
 					// Add some noise to the direction and take the average of our
@@ -202,16 +202,24 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			// no data! so do a random turn
 			//vMovement = Vector3DHelper.getBiasedRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
 			vMovement = Vector3DHelper.getRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
-			
 		}
 		
 		// Reset all the movement/collision data
 		m_d3aCollisions.clear();
 		m_d3aMovements = new ArrayList<Double3D>();
-		m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() ) );
+		
+		//if there is some signalling then the cell increases it's instantaneous velocity
+		if(vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD)
+		{
+			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + 0.4) );
+		}
+		else
+		{
+			//no signalling therefore no increase in instantaneous velocity
+			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() ) );
+		}
 		
 		handleBounce();                 // Check for bounces
-
 		receptorStep();                 // Step forward the receptor ODE
 		registerCollisions( m_cgGrid ); // Register the new movement with the grid
 	}
@@ -220,7 +228,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 	
 	/**
-	 * How to remove a BC form teh schedule:
+	 * How to remove a BC from the schedule:
 	 * 
 	 * when you schedule the BC it will return a stoppable object
 	 * we store this object so we can access it when we need to 
@@ -230,10 +238,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * stopper object
 	 * 
 	 * the BC can then be removed by garbage collection
-	 * 
-	 * @return 
 	 */
-
 	public void removeDeadCell( Continuous3D randomSpace)
 	{
 		
@@ -264,25 +269,20 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	/**
 	 * Perform a step for the receptor 
 	 * Euler method with step size 0.1
-	 * 
-	 * updated the ODE
-	 * 
+	 * TODO  assumes a timestep of 1 second!
 	 * TODO better methods exist, but this was quick to implement
-	 * TODO: This assumes a timestep of 1 second!
+
 	 */
 	private void receptorStep()
 	{
-	
-		
 		double[] iaBoundReceptors = calculateLigandBindingMoles();
 		
 		// Remove chemokine from the grid TODO: Just remove from where you are!!
 		
 		double avogadro = 6.0221409e+23;
 		
-		//TODO: this is in moles, not receptors so need to scale it before i remove, 
+		//this is in moles, not receptors so need to scale it before i remove, 
 		// eg if i took away 10,000 that would be 10,000 moles which is not what we want!!!
-	
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y, (int) z, -(iaBoundReceptors[0] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y, (int) z, -(iaBoundReceptors[1] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y + 1, (int) z, -(iaBoundReceptors[2] / avogadro) );
@@ -290,20 +290,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z + 1, -(iaBoundReceptors[4] / avogadro) );
 		ParticleMoles.add( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z - 1, -(iaBoundReceptors[5] / avogadro) );
 		
-		
-
-	
-		
- 
 		// update the amount of free and bound receptors
 		for ( int i = 0; i < 6; i++ )
 		{
 			m_iR_free -= iaBoundReceptors[i];
-			m_iL_r += iaBoundReceptors[i];
-			
+			m_iL_r += iaBoundReceptors[i];	
 		}
 
-		
 		int iTimesteps = 10;
 		int iR_i, iL_r;
 	
@@ -313,29 +306,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			iL_r = m_iL_r;
 
 			m_iR_free += (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_r() * iR_i);
-			
 			m_iR_i += (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_i() * iL_r) - (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_r() * iR_i);
-
 			m_iL_r -= (int) ((1.0 / iTimesteps)  * Settings.BC.ODE.K_i() * iL_r);
-	
 		}
 		
-		if ( displayODEGraph )
+		if ( displayODEGraph && SimulationEnvironment.steadyStateReached ==  true )
 		{
 			//Grapher.updateODEGraph( m_iL_r ); //this gives an error when run on console
 		}
-		
 	}
 	
-	
-	
-	
-	
-
-
-	
 	/**  
-	 * Definitely, need some unit tests for this method
 	 * 
 	 * Samples CXCL13 in the vicinity of the cell, and calculates a new movement
 	 * direction. Also removes some CXCL13 from the simulation.
@@ -374,7 +355,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// Get the surrounding concentrations
 		double[][][] ia3Concs = ParticleMoles.get( ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z );
 		
-		
 		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
 		
@@ -394,18 +374,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			if(proportionToBind < 0){proportionToBind = 0;}
 			
 			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
-			
-			
 		}
 		return iaBoundReceptors;
 	}
 	
 	
-
-	
-
-	
-
 	
 	@Override
 	public void registerCollisions( CollisionGrid cgGrid )
@@ -430,7 +403,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 	
 	/**
-	 * Need more comments
+	 * Handles collisions between b cells and stroma
 	 */
 	@Override
 	public void handleCollisions( CollisionGrid cgGrid )
@@ -658,7 +631,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	private void updateMovementToAccountForCollision(double length, Double3D d1, Double3D d2, Double3D p1, Double3D p2, 
 			double s, double t, int i)
 	{
-		
 			Double3D d3NewDir;
 			
 			// Get the approach direction normalised, and in reverse
@@ -713,7 +685,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 
 	
 	/**
-	 * Helper method
+	 * Helper method for collide stroma edge
+	 * 
+	 * returns a double, length
 	 */
 	private double updateLength(double length, Double3D ac,Double3D bc, double e, double f, Double3D d2)
 	{
@@ -739,17 +713,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 	
 	/**
-	 * Helper method that determines the new value of S
+	 * Helper method that determines the new value of S in collideStromaEdge
+	 * where S is TODO what is s again
 	 */
 	private double calculateSNew(double s, double length, Double3D d1, Double3D d2)
 	{
-			double sNew = s; // TODO what is this variable doing
+			double sNew = s; 
 	
 			// (Options.BC.COLLISION_RADIUS +
 			// Options.FDC.STROMA_EDGE_RADIUS-Math.sqrt(length)) is the
 			// length we're missing
-			// So we just add that on. TODO If lines are basically
-			// parallel, this might take a while
+			// So we just add that on.
 			double dSinTheta = Math.sqrt( Vector3DHelper.crossProduct( d2, d1 ).lengthSq()/(d2.lengthSq()*d1.lengthSq()) ); // sin th
 			double dActualLength = Math.sqrt( length );
 			
