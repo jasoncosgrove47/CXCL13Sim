@@ -52,12 +52,18 @@ public class cognateBC extends BC
 		// record the cells coordinates in arraylists
 
 		
+
+		
 		//set the time frame for data collection
 		//30 minutes is what was done in vivo
 		// we should do the same to keep it comparable
-		//if(state.schedule.getSteps()> 209 & state.schedule.getSteps()<241){
-		//	updatePosition(state);
-		//}
+		
+		
+		//once the system has reached steady state the BC can start to record it's position
+		if(SimulationEnvironment.steadyStateReached == true)
+		{
+			updatePosition(state);
+		}
 	}
 	
 	

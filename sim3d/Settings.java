@@ -262,6 +262,10 @@ public class Settings
 			   }
 			
 			
+			 
+
+			 
+			 
 			public static int LR;
 			public static int LR(){ return LR; }
 			

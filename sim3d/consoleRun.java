@@ -79,13 +79,14 @@ public class consoleRun
 			System.out.println("Steps: " + steps);		
 			if (!simulation.schedule.step(simulation))
 			break;	
-		} while(steps < 250);	
+		} while(simulation.experimentFinished == false);
 		
 		// finish the simulation
 		simulation.finish();	
 		System.out.println("\nSimulation completed successfully!\n\n");
 		
-		outputToCSV.generateCSVFile("/Users/jc1571/Desktop/formattedData.csv");
+		outputToCSV.generateCSVFile("/Users/jc1571/Desktop/rawData.csv");
+		outputToCSV.processData("/Users/jc1571/Desktop/processedData.csv");
 		
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();

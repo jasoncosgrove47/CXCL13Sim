@@ -67,11 +67,25 @@ public class Controller implements Steppable {
 	public Controller(){}
 	
 
+	
+	int experimentCounter = 0;
+	
 	/**
 	 * Shouldnt need to implement steppable if the B cells are writing to it. 
 	 * But useful for debugging.
 	 */
-	public void step(SimState state) {}
+	public void step(SimState state) {
+		
+		experimentCounter ++;
+		int lengthOfExperiment = 30;
+		
+		if(experimentCounter > lengthOfExperiment){
+			SimulationEnvironment.experimentFinished = true;
+		}
+		
+		
+		
+	}
 
 	
 	// getters and setters for the controlller

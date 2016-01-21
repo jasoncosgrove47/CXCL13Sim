@@ -78,10 +78,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * m_ signifies it's a member variable
 	 */
 	public int					m_iL_r					= Settings.BC.ODE.LR();
-	/**
-	 * (ODE) Desensitised Receptor
-	 */
-	//public int					m_iR_d					= Settings.BC.ODE.Rd();
+
 	/**
 	 * (ODE) Free Receptors on cell surface
 	 */
