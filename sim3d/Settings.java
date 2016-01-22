@@ -181,7 +181,7 @@ public class Settings
 		static double DIRECTION_ERROR;
 		public static double DIRECTION_ERROR()
 		{
-			return Math.PI/3; //15
+			return (Math.PI/3); //60, this is quite high as the noise is biased towards the top of the cone
 		}
 		
 		/**

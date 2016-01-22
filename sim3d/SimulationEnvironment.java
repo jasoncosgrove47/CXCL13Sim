@@ -191,7 +191,7 @@ public class SimulationEnvironment extends SimState
 		seedCells(CELLTYPE.B);
 		
 		//step a little bit more so the cells have more time to stabilise
-		for(int i = 0; i < 200; i++)
+		for(int i = 0; i < 50; i++)
 		{
 			schedule.step(this);
 			
@@ -269,7 +269,7 @@ public class SimulationEnvironment extends SimState
 		int LR_T = 10000;
 		
 		//give the B cells more time to reach steady state
-		for(int i = 0; i < 51; i++)
+		for(int i = 0; i < 101; i++)
 		{
 			schedule.step(this);
 			if(i == 10){LR_Tminus20 = cbc.m_iL_r;}
@@ -280,7 +280,7 @@ public class SimulationEnvironment extends SimState
 			LR_Tminus20 = cbc.m_iL_r; //calculate LR at start of loop
 			for(int i = 0; i < 50; i++) {schedule.step(this);}
 			LR_T = cbc.m_iL_r; //record LR at end of loop
-		}while(Math.sqrt(Math.pow((LR_T - LR_Tminus20),2)) > 500); //TODO we have set an arbritrary treshold here but this will need refining. 
+		}while(Math.sqrt(Math.pow((LR_T - LR_Tminus20),2)) > 1000); //TODO we have set an arbritrary treshold here but this will need refining. 
 	
 		System.out.println("B cells have stabilised: " + this.schedule.getSteps());
 		cbc.removeDeadCell(bcEnvironment); //get rid of these cells as we don't need them anymore
