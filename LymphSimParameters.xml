@@ -11,21 +11,21 @@
 	</O>
 	
 	<BC>
-		<COUNT>4800</COUNT> <!-- 200,000 B cells per follicle. 10% of which is 20000 -->
+		<COUNT>48</COUNT> <!-- 200,000 B cells per follicle. 10% of which is 20000 -->
 		<COGNATECOUNT>200</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
 		<DISCRETISATION>5</DISCRETISATION>
 		<MIN_RECEPTORS>0</MIN_RECEPTORS>
-		<TRAVEL_DISTANCE>0.75</TRAVEL_DISTANCE><!-- was 0.8 -->
-		<SIGNAL_THRESHOLD>60</SIGNAL_THRESHOLD>
+		<TRAVEL_DISTANCE>0.675</TRAVEL_DISTANCE><!-- was 0.8 -->
+		<SIGNAL_THRESHOLD>50</SIGNAL_THRESHOLD><!-- was 60 -->
 	</BC>
 
 	<ODE> 
 		<LR>0</LR><!-- 3000 -->
-		<Rf>25000</Rf><!--22000 -->
+		<Rf>000</Rf><!--22000 -->
 		<Ri>0</Ri>
-		<Ka>8.4e7</Ka><!--0.7,0.1,0.1,-->
+		<Ka>8.0e7</Ka><!--0.7,0.1,0.1,-->
 		<Ki>0.4</Ki><!--0.4,0.4-->
-		<Kr>0.062</Kr><!--0.01,0.1-->
+		<Kr>0.07</Kr><!--0.01,0.1-->
 		<delta>2</delta>
 		<gamma>0.01</gamma>
 	</ODE>
@@ -40,7 +40,7 @@
 	</FDC>
 	
 	<CXCL13>
-		 <DECAY_CONSTANT>0.5</DECAY_CONSTANT>
+		 <DECAY_CONSTANT>0.4</DECAY_CONSTANT>
 	</CXCL13>
 	
 	

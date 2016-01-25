@@ -181,7 +181,8 @@ public class Settings
 		static double DIRECTION_ERROR;
 		public static double DIRECTION_ERROR()
 		{
-			return (Math.PI/3); //60, this is quite high as the noise is biased towards the top of the cone
+			//return (Math.PI/15); //75, this is quite high as the noise is biased towards the top of the cone
+			return 0;
 		}
 		
 		/**
@@ -192,7 +193,7 @@ public class Settings
 		public static double RANDOM_TURN_ANGLE()
 		{
 			//90 degrees initially
-			return (8*Math.PI/7);//210, was 180
+			return (13*Math.PI/12);//195
 		}
 		
 		/**
