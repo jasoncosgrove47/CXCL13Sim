@@ -216,12 +216,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		//if there is some signalling then the cell increases it's instantaneous velocity
 		if(vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD)
 		{
-			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + 0.275 ));
+			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + 0.35 ));
 		}
 		else if(vectorMagnitude < Settings.BC.SIGNAL_THRESHOLD && m_iL_r > 0) // this is also the case if receptors are saturated or equally biased in each direction, still signalling going on
 		{
 			//no signalling therefore no increase in instantaneous velocity
-			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + 0.275 ) );
+			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + 0.35 ) );
 		}
 		else 
 		{
