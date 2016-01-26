@@ -193,7 +193,8 @@ public class Settings
 		public static double RANDOM_TURN_ANGLE()
 		{
 			//90 degrees initially
-			return (7*Math.PI/12);//(7*pi/12) = 105
+			return (Math.PI);//150
+		
 		}
 		
 		/**

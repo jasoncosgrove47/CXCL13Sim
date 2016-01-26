@@ -190,8 +190,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			{
 					// Add some noise to the direction and take the average of our
 					// current direction and the new direction
-					//vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
-					vMovement = m_d3Face.add( Vector3DHelper.getRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
+				
+				// the multiply is to scale the new vector, when we multiply by 2 we are favouring the new signal more than the old
+					vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ).multiply(0.33) );
+					//vMovement = m_d3Face.add( Vector3DHelper.getRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
 					if ( vMovement.lengthSq() > 0 )
 					{
 						vMovement = vMovement.normalize();//TODO what is this section of code doing
@@ -205,8 +207,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		if ( vMovement == null || vMovement.lengthSq() == 0 )//TODO: 0don't understand this line, need to sort it out
 		{
 			// no data! so do a random turn
-			//vMovement = Vector3DHelper.getBiasedRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
 			vMovement = Vector3DHelper.getRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
+			//vMovement = Vector3DHelper.getRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
 		}
 		
 		// Reset all the movement/collision data
@@ -216,12 +218,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		//if there is some signalling then the cell increases it's instantaneous velocity
 		if(vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD)
 		{
-			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + 0.36 ));
+			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() +0.23 )); // was + 0.3
 		}
 		else if(vectorMagnitude < Settings.BC.SIGNAL_THRESHOLD && m_iL_r > 0) // this is also the case if receptors are saturated or equally biased in each direction, still signalling going on
 		{
 			//no signalling therefore no increase in instantaneous velocity
-			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + 0.36 ) );
+			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() +0.23) ); // was + 0.3
 		}
 		else 
 		{
