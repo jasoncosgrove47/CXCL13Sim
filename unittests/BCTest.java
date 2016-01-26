@@ -152,7 +152,8 @@ public class BCTest
 		
 		Settings.CXCL13.DECAY_CONSTANT = 0.8;
 		
-		Settings.BC.MIN_RECEPTORS = 0;
+	
+		
 		
 		Settings.BC.SIGNAL_THRESHOLD = 0;
 		
@@ -232,7 +233,9 @@ public class BCTest
 		
 		Settings.CXCL13.DECAY_CONSTANT = 0.5;
 		
-		Settings.BC.MIN_RECEPTORS = 0;
+
+		Settings.BC.SIGNAL_THRESHOLD = 0;
+		
 		
 		// Let's diffuse a little
 		Settings.DIFFUSION_STEPS = 2;

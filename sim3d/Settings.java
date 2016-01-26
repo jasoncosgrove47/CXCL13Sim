@@ -80,9 +80,7 @@ public class Settings
 		/**
 		 * How much time a single iteration of the diffusion process will take us
 		 * forward
-		 * 
-		 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352/Notes_Diffusion.pdf
-		 *      
+		 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352/Notes_Diffusion.pdf    
 		 */
 		static double calculateDIFFUSION_TIMESTEP()
 		{
@@ -107,8 +105,6 @@ public class Settings
 		 */
 		 public static void loadParameters(Document params)
 		 {
-			 	// Simulation Tag
-
 			    Element paramBCElement = (Element) params.getElementsByTagName("BC").item(0);			      
 			    
 				NodeList countNL = paramBCElement.getElementsByTagName("COUNT");
@@ -122,11 +118,7 @@ public class Settings
 				NodeList discretisationNL = paramBCElement.getElementsByTagName("DISCRETISATION");
 				Node discretisationN = discretisationNL.item(0);
 				DISCRETISATION = Integer.parseInt(discretisationN.getTextContent());
-				
-				NodeList minreceptorsNL = paramBCElement.getElementsByTagName("MIN_RECEPTORS");
-				Node minreceptorsN = minreceptorsNL.item(0);
-				MIN_RECEPTORS = Integer.parseInt(minreceptorsN.getTextContent());
-				
+								
 				NodeList traveldistanceNL = paramBCElement.getElementsByTagName("TRAVEL_DISTANCE");
 				Node traveldistanceN = traveldistanceNL.item(0);
 				TRAVEL_DISTANCE = Double.parseDouble(traveldistanceN.getTextContent());
@@ -135,9 +127,28 @@ public class Settings
 				Node stN = stNL.item(0);
 				SIGNAL_THRESHOLD = Double.parseDouble(stN.getTextContent());
 				
+				NodeList rtaNL = paramBCElement.getElementsByTagName("RANDOM_TURN_ANGLE");
+				Node rtaN = rtaNL.item(0);
+				RANDOM_TURN_ANGLE = Double.parseDouble(rtaN.getTextContent());
 				
+				NodeList csNL = paramBCElement.getElementsByTagName("CHEMOKINESIS_SCALAR");
+				Node csN = csNL.item(0);
+				CHEMOKINESIS_SCALAR = Double.parseDouble(csN.getTextContent());
+				
+				NodeList pNL = paramBCElement.getElementsByTagName("PERSISTENCE");
+				Node pN = pNL.item(0);
+				PERSISTENCE = Double.parseDouble(pN.getTextContent());	
 		   }
 		
+		/**
+		 * The bias of the memory vector with respect to the cells orientation
+		 */
+		public static double PERSISTENCE; 
+		 
+		/**
+		 * Increase in velocity observed in chemokinesis
+		 */
+		public static double CHEMOKINESIS_SCALAR;
 		 
 		/**
 		* Number of BCs to generate
@@ -150,7 +161,7 @@ public class Settings
 		public static int		COUNT;
 				
 		/**
-		 * Number of antigen specificBCs to generate
+		 * Number of antigen specific BCs to generate
 		 */
 		public static int		COGNATECOUNT;
 		
@@ -160,11 +171,6 @@ public class Settings
 		 */
 		public static double	DISCRETISATION;
 												
-		/**
-		 * The number of receptors required for chemotaxis
-		 */
-		public static int MIN_RECEPTORS;
-		
 		/**
 		 * The distance a BC will travel
 		 */
@@ -181,20 +187,17 @@ public class Settings
 		static double DIRECTION_ERROR;
 		public static double DIRECTION_ERROR()
 		{
-			//return (Math.PI/15); //75, this is quite high as the noise is biased towards the top of the cone
+		
 			return 0;
 		}
 		
 		/**
 		 * The max angle to turn when moving randomly
-		 * TODO why is this constraint necessary
-		 * and how was it derived
 		 */
+		static double RANDOM_TURN_ANGLE;
 		public static double RANDOM_TURN_ANGLE()
 		{
-			//90 degrees initially
-			return (Math.PI);//150
-		
+			return RANDOM_TURN_ANGLE;
 		}
 		
 		/**
@@ -225,73 +228,69 @@ public class Settings
 			 */
 			 public static void loadParameters(Document params)
 			 {
-				 	// Simulation Tag
-
-				    Element paramODEElement = (Element) params.getElementsByTagName("ODE").item(0);			      
+				Element paramODEElement = (Element) params.getElementsByTagName("ODE").item(0);			      
 			        
-					NodeList LRNL = paramODEElement.getElementsByTagName("LR");
-					Node LRN = LRNL.item(0);
-					LR = Integer.parseInt(LRN.getTextContent());
+				NodeList LRNL = paramODEElement.getElementsByTagName("LR");
+				Node LRN = LRNL.item(0);
+				LR = Integer.parseInt(LRN.getTextContent());
 					
+				NodeList RfNL = paramODEElement.getElementsByTagName("Rf");
+				Node RfN = RfNL.item(0);
+				Rf = Integer.parseInt(RfN.getTextContent());
 					
-					NodeList RfNL = paramODEElement.getElementsByTagName("Rf");
-					Node RfN = RfNL.item(0);
-					Rf = Integer.parseInt(RfN.getTextContent());
+				NodeList RiNL = paramODEElement.getElementsByTagName("Ri");
+				Node RiN = RiNL.item(0);
+				Ri = Integer.parseInt(RiN.getTextContent());
 					
-					NodeList RiNL = paramODEElement.getElementsByTagName("Ri");
-					Node RiN = RiNL.item(0);
-					Ri = Integer.parseInt(RiN.getTextContent());
+				NodeList KaNL = paramODEElement.getElementsByTagName("Ka");
+				Node KaN = KaNL.item(0);
+				Ka = Double.parseDouble(KaN.getTextContent());
 					
-					NodeList KaNL = paramODEElement.getElementsByTagName("Ka");
-					Node KaN = KaNL.item(0);
-					Ka = Double.parseDouble(KaN.getTextContent());
+				NodeList KrNL = paramODEElement.getElementsByTagName("Kr");
+				Node KrN = KrNL.item(0);
+				Kr = Double.parseDouble(KrN.getTextContent());
 					
-					NodeList KrNL = paramODEElement.getElementsByTagName("Kr");
-					Node KrN = KrNL.item(0);
-					Kr = Double.parseDouble(KrN.getTextContent());
-					
-					NodeList KiNL = paramODEElement.getElementsByTagName("Ki");
-					Node KiN = KiNL.item(0);
-					Ki = Double.parseDouble(KiN.getTextContent());
-					
-					NodeList gammaNL = paramODEElement.getElementsByTagName("gamma");
-					Node gammaN = gammaNL.item(0);
-					gamma = Double.parseDouble(gammaN.getTextContent());
-					
-					NodeList deltaNL = paramODEElement.getElementsByTagName("delta");
-					Node deltaN = deltaNL.item(0);
-					delta = Double.parseDouble(deltaN.getTextContent());
-			   }
-			
-			
-			 
-
-			 
-			 
+				NodeList KiNL = paramODEElement.getElementsByTagName("Ki");
+				Node KiN = KiNL.item(0);
+				Ki = Double.parseDouble(KiN.getTextContent());
+			 }
+				
+			/**
+			 * ligand bound receptors on cell surface
+			 */
 			public static int LR;
 			public static int LR(){ return LR; }
 			
+			/**
+			 * Free surface receptors
+			 */
 			public static int Rf;
 			public static int Rf(){ return Rf; }
-																
+			
+			/**
+			 * Number of receptors inside the cell													
+			 */
 			public static int Ri;
 			public static int Ri() { return Ri;}
 		
-			//public static double Ka_in_nM;
+			/**
+			 * binding constant for receptor-ligand
+			 */
 			public static double Ka;
 			public static double K_a(){return Ka;}
 			
+			/**
+			 * rate of receptor recycling from an internal pool
+			 */
 			static double Kr;
 			public static double K_r(){return Kr;}
 			
+			/**
+			 * rate of receptor internalisation
+			 */
 			static double Ki;
 			public static double K_i(){return Ki;}
-			
-			static double gamma;
-			public static double gamma(){return gamma;}
-			
-			static double delta;
-			public static double delta(){return delta;}
+
 		}
 	}
 	
@@ -314,7 +313,6 @@ public class Settings
 				Node alN = alNL.item(0);
 				STARTINGANTIGENLEVEL = Integer.parseInt(alN.getTextContent());
 			    
-			    
 				NodeList countNL = paramFDCElement.getElementsByTagName("COUNT");
 				Node countN = countNL.item(0);
 				COUNT = Integer.parseInt(countN.getTextContent());
@@ -336,9 +334,7 @@ public class Settings
 				STROMA_EDGE_RADIUS = Double.parseDouble(stromaedgeN.getTextContent());
 				
 				CXCL13_EMITTED = scaleEmissionRate();
-			
 		   }
-		 
 		 
 		 //scale CXCL13_EMITTED to nM
 		 private static double scaleEmissionRate()
@@ -411,8 +407,6 @@ public class Settings
 			 * the rate of protein decay per timestep (do we also need to account for each gridspace?)
 			 */
 			public static double	DECAY_CONSTANT;
-		 
-		
 	}
 	
 }

@@ -192,7 +192,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 					// current direction and the new direction
 				
 				// the multiply is to scale the new vector, when we multiply by 2 we are favouring the new signal more than the old
-					vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ).multiply(0.33) );
+					vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR()).multiply(Settings.BC.PERSISTENCE) );
 					//vMovement = m_d3Face.add( Vector3DHelper.getRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
 					if ( vMovement.lengthSq() > 0 )
 					{
@@ -218,12 +218,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		//if there is some signalling then the cell increases it's instantaneous velocity
 		if(vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD)
 		{
-			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() +0.23 )); // was + 0.3
+			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + Settings.BC.CHEMOKINESIS_SCALAR)); 
 		}
 		else if(vectorMagnitude < Settings.BC.SIGNAL_THRESHOLD && m_iL_r > 0) // this is also the case if receptors are saturated or equally biased in each direction, still signalling going on
 		{
 			//no signalling therefore no increase in instantaneous velocity
-			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() +0.23) ); // was + 0.3
+			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + Settings.BC.CHEMOKINESIS_SCALAR)); 
 		}
 		else 
 		{
@@ -281,8 +281,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * Perform a step for the receptor 
 	 * Euler method with step size 0.1
 	 * TODO  assumes a timestep of 1 second!
-	 * TODO better methods exist, but this was quick to implement
-
 	 */
 	private void receptorStep()
 	{
@@ -1171,11 +1169,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 	}
 
-	public double getPositionAlongStroma() {
+	public double getPositionAlongStroma() 
+	{
 		return positionAlongStroma;
 	}
 
-	public void setPositionAlongStroma(double positionAlongStroma) {
+	public void setPositionAlongStroma(double positionAlongStroma) 
+	{
 		this.positionAlongStroma = positionAlongStroma;
 	}
 

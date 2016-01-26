@@ -242,7 +242,9 @@ public class BCIntegrationTests
 		
 		m_pParticle.m_dDecayRateInv = 1;
 		
-		Settings.BC.MIN_RECEPTORS = 0;
+		//Settings.BC.MIN_RECEPTORS = 0;
+		
+		Settings.BC.SIGNAL_THRESHOLD = 0;
 		
 		// Let's diffuse a little
 		Settings.DIFFUSION_STEPS = 2;
