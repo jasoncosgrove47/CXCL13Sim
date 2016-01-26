@@ -30,6 +30,9 @@ import dataLogger.Grapher;
 public class GUIrun extends GUIState
 {
 
+	
+	
+	
 	public static String paramFile;
 	/**
 	 * Returns the name of the simulation - a MASON thing
@@ -45,7 +48,8 @@ public class GUIrun extends GUIState
 	public static void main( String[] args )
 	{
 		paramFile = args[0]; 
-		new GUIrun().createController();
+		SimulationEnvironment.simulation = new SimulationEnvironment(System.currentTimeMillis(),IO.openXMLFile(paramFile) );
+		new GUIrun(SimulationEnvironment.simulation).createController();
 	}
 	
 	/**
@@ -109,9 +113,9 @@ public class GUIrun extends GUIState
 	/**
 	 * Constructor - creates a Simulation object
 	 */
-	public GUIrun()
+	public GUIrun(SimulationEnvironment sim)
 	{
-		super( new SimulationEnvironment(System.currentTimeMillis(),IO.openXMLFile(paramFile) ) );
+		super( sim );
 	}
 	
 	
@@ -274,6 +278,7 @@ public class GUIrun extends GUIState
 	public void start()
 	{
 		super.start();
+		
 		setupPortrayals();
 		Grapher.start();
 	}

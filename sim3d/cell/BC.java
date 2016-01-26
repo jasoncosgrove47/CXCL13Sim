@@ -157,28 +157,77 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		if ( m_d3aMovements != null && m_d3aMovements.size() > 0 ) // If we have a stored movement, execute it
 		{
-			for ( Double3D d3Movement : m_d3aMovements )
-			{
-				
-				//TODO this should be in an ifSpaceAvailable where we determine
-				// if there are cells near where we want to go max = 2
-				// if this is the case then don't move or maybe have a look at close grids?
-				x += d3Movement.x;
-				y += d3Movement.y;
-				z += d3Movement.z;
-			}
+			performSavedMovements();
+		}
+	
+		//TODO test case to make sure that random walk leads to a low displacement
+
+		calculateWhereToMoveNext();
+		
+		handleBounce();                 // Check for bounces
+		receptorStep();                 // Step forward the receptor ODE
+		registerCollisions( m_cgGrid ); // Register the new movement with the grid
+	}
+	
+	
+	
+	public Int3D getDiscretizedLocation(Continuous3D grid)
+	{
+		Double3D me = grid.getObjectLocation(this);//obtain coordinates of the tcell
+		Int3D meDiscrete = grid.discretize(me);
+		return meDiscrete;
+	}
+	
+	
+	/*
+	 * moves the BC based on the precomputed trajectory from 
+	 * previous timestep
+	 */
+	public void performSavedMovements()
+	{
+	
+	
+		
+		
+		
+		for ( Double3D d3Movement : m_d3aMovements )
+		{
 			
-			// Remember which way we're now facing
-			m_d3Face = m_d3aMovements.get( m_d3aMovements.size() - 1 ).normalize();
+			//TODO this should be in an ifSpaceAvailable where we determine
+			// if there are cells near where we want to go max = 2
+			// if this is the case then don't move or maybe have a look at close grids?
+			x += d3Movement.x;
+			y += d3Movement.y;
+			z += d3Movement.z;
+		}
+	
+		
+		//need to see if there is actually space to move
+		Double3D putativeLocation = new Double3D( x, y, z );
+		
+		//see if there are any cells at the putative location
+		Bag cells = SimulationEnvironment.simulation.bcEnvironment.getNeighborsExactlyWithinDistance(putativeLocation, 1);//not quite one because cells can squeeze
+		
+		// Remember which way we're now facing
+		m_d3Face = m_d3aMovements.get( m_d3aMovements.size() - 1 ).normalize();
+		
+		//System.out.println("number of cells" + cells.numObjs);
+		//it sometimes returns itself
+		if(cells.numObjs < 4){
+			
 			setObjectLocation( new Double3D( x, y, z ) );
 		}
-		
 
 		
-		//TODO migration needs to be encapsulated as it's own method
 		
-		//TODO test case to make sure that random walk leads to a low displacement
-		
+	}
+	
+	/**
+	 * calculate where to move for the next
+	 * timestep.
+	 */
+	public void calculateWhereToMoveNext()
+	{
 		Double3D vMovement;
 		vMovement = getMoveDirection();		
 		double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
@@ -191,9 +240,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 					// Add some noise to the direction and take the average of our
 					// current direction and the new direction
 				
-				// the multiply is to scale the new vector, when we multiply by 2 we are favouring the new signal more than the old
+					// the multiply is to scale the new vector, when we multiply by 2 we are favouring the new signal more than the old
 					vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR()).multiply(Settings.BC.PERSISTENCE) );
-					//vMovement = m_d3Face.add( Vector3DHelper.getRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR() ) );
+
 					if ( vMovement.lengthSq() > 0 )
 					{
 						vMovement = vMovement.normalize();//TODO what is this section of code doing
@@ -204,11 +253,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 		else{ vMovement = null; }
 		
-		if ( vMovement == null || vMovement.lengthSq() == 0 )//TODO: 0don't understand this line, need to sort it out
+		if ( vMovement == null || vMovement.lengthSq() == 0 )
 		{
 			// no data! so do a random turn
 			vMovement = Vector3DHelper.getRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
-			//vMovement = Vector3DHelper.getRandomDirectionInCone( m_d3Face, Settings.BC.RANDOM_TURN_ANGLE() );
 		}
 		
 		// Reset all the movement/collision data
@@ -230,10 +278,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			//no signalling therefore no increase in instantaneous velocity
 			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE()) );
 		}
-		handleBounce();                 // Check for bounces
-		receptorStep();                 // Step forward the receptor ODE
-		registerCollisions( m_cgGrid ); // Register the new movement with the grid
+		
+		
 	}
+	
+	
 	
 	
 	
@@ -252,14 +301,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 */
 	public void removeDeadCell( Continuous3D randomSpace)
 	{
-		
 		this.stop();
 		randomSpace.remove(this);
 	}
 	
-	  /**
-	   * Flag to show if this class has been stopped (when no longer needed)
-	   */
+	/**
+	 * Flag to show if this class has been stopped (when no longer needed)
+	 */
 	private Stoppable stopper = null;
 
 	/**
@@ -275,8 +323,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 */
 	public void stop(){stopper.stop();}
 	
-	
-	
 	/**
 	 * Perform a step for the receptor 
 	 * Euler method with step size 0.1
@@ -285,9 +331,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	private void receptorStep()
 	{
 		double[] iaBoundReceptors = calculateLigandBindingMoles();
-		
-		// Remove chemokine from the grid TODO: Just remove from where you are!!
-		
+
 		double avogadro = 6.0221409e+23;
 		
 		//this is in moles, not receptors so need to scale it before i remove, 
@@ -329,7 +373,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * 
 	 * Samples CXCL13 in the vicinity of the cell, and calculates a new movement
 	 * direction. Also removes some CXCL13 from the simulation.
-	 * 
 	 * @return The new direction for the cell to move
 	 */
 	private Double3D getMoveDirection()
@@ -349,10 +392,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		return vMovement;
 	}
 		
-	
 
-	
-	
 	/*
 	 * Helper method to calculate the amount of ligand bound to receptor
 	 * returns an int array with the number of bound receptors at each psuedopod
@@ -386,7 +426,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 		return iaBoundReceptors;
 	}
-	
 	
 	
 	@Override
@@ -669,8 +708,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				i++;
 			}
 			
-			// We need to add up all vectors after this one so we can add a
-			// new vector of this length
+			// We need to add up all vectors after this one 
+			// so we can add a new vector of this length
 			double dNewLength = 0;
 			while (m_d3aMovements.size() > i)
 			{
@@ -720,7 +759,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		return length;
 	}
 	
-	
 	/**
 	 * Helper method that determines the new value of S in collideStromaEdge
 	 * where S is TODO what is s again
@@ -740,8 +778,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			return sNew;
 	}
 			
-
-	
 	/*
 	 * Helper function which calculates the closest point between two lines
 	 * called by collideStromaEdge, returns the closest points between two lines
@@ -828,7 +864,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			double dNewPosZ = dPosZ;
 			
 			// add all movement vectors after the index, 
-			// TODO why do we break up all of the movements like this, what do these variables represent
 			for ( int i = iMovementIndex; i < m_d3aMovements.size(); i++ )
 			{
 				Double3D d3Movement = m_d3aMovements.get( i );
@@ -1039,22 +1074,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 				{
 					m_d3aMovements.set( i, d3TruncMovement );
 					m_d3aMovements.add( i + 1, d3Remainder );
-					
-					// if we don't increment i, it will get flipped again!
-					i++;
+					i++; 	// if we don't increment i, it will get flipped again!
 				}
 				else
 				{
 					m_d3aMovements.set( i, d3Remainder );
 				}
-				
 				bFlipped = true;
 				bBounce = true;
 			}
-			
 			dTempPosZ += d3Movement.z;
 		}
-		
 		return bBounce;
 	}
 	

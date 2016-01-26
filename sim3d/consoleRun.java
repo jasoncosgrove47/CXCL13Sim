@@ -36,11 +36,7 @@ public class consoleRun
 	 */
 	public static String outputPath =  "/Users/jc1571/Desktop/"; 
 	
-	/*
-	 * The class responsible for initialising the simulation
-	 * irrespective of a GUI or console run.
-	 */
-	public static SimulationEnvironment simulation;
+
 	
 	/*
 	 * name of output filename
@@ -64,25 +60,25 @@ public class consoleRun
 		//initialise the simulation
 		int seed= (int) (System.currentTimeMillis());	
 		String paramFile = args[0];							
-		simulation = new SimulationEnvironment(seed,IO.openXMLFile(paramFile));							
+		SimulationEnvironment.simulation = new SimulationEnvironment(seed,IO.openXMLFile(paramFile));							
 
 		//start the simulation
 		long steps = 0;
-		simulation.start();
+		SimulationEnvironment.simulation.start();
 		System.out.println("StromaSim v1.0 - Console Version");
 		System.out.println("\nAuthor: Jason Cosgrove, York Computational Immunology Lab");
 		
 	
 		do
 		{	
-			steps = simulation.schedule.getSteps();		
+			steps = SimulationEnvironment.simulation.schedule.getSteps();		
 			System.out.println("Steps: " + steps);		
-			if (!simulation.schedule.step(simulation))
+			if (!SimulationEnvironment.simulation.schedule.step(SimulationEnvironment.simulation))
 			break;	
-		} while(simulation.experimentFinished == false);
+		} while(SimulationEnvironment.simulation.experimentFinished == false);
 		
 		// finish the simulation
-		simulation.finish();	
+		SimulationEnvironment.simulation.finish();	
 		System.out.println("\nSimulation completed successfully!\n\n");
 		
 		outputToCSV.generateCSVFile("/Users/jc1571/Desktop/rawData.csv");

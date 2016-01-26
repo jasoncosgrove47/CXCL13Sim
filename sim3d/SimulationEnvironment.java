@@ -21,6 +21,7 @@ import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Particle;
 import sim3d.diffusion.ParticleMoles;
 import sim3d.util.FRCStromaGenerator;
+import sim3d.util.IO;
 import sim3d.util.Vector3DHelper;
 import sim3d.util.FRCStromaGenerator.FRCCell;
 
@@ -53,6 +54,9 @@ public class SimulationEnvironment extends SimState
 	 * this boolean becomes true which shuts down the simulation.
 	 */
 	public static boolean experimentFinished = false;
+	
+	
+	public static SimulationEnvironment simulation;
 	
 	/*
 	 * 3D grid where B cells and cBs exist
@@ -159,7 +163,13 @@ public class SimulationEnvironment extends SimState
 	public void start()
 	{
 		
+		
+		
 		super.start();
+		
+	
+
+	
 		
 		//Initialise the stromal grid
 		fdcEnvironment = new Continuous3D( Settings.FDC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );

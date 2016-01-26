@@ -18,7 +18,7 @@
 		<SIGNAL_THRESHOLD>50</SIGNAL_THRESHOLD><!-- was 60 -->
 		<RANDOM_TURN_ANGLE>3.14</RANDOM_TURN_ANGLE><!-- angle for random turns, in radians -->
 		<CHEMOKINESIS_SCALAR>0.25</CHEMOKINESIS_SCALAR><!-- increase in velocity during chemokinesis -->
-		<PERSISTENCE>0.33</PERSISTENCE><!-- bias of the memory vector, values less than 1 means memory is stronger than current signal -->
+		<PERSISTENCE>0.3</PERSISTENCE><!-- bias of the memory vector, values less than 1 means memory is stronger than current signal -->
 	</BC>
 
 	<ODE> 
