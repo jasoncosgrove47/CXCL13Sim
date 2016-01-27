@@ -49,10 +49,11 @@ public class BCTest
 		
 		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";		// set the seed for the simulation, be careful for when running on cluster																	
 		parameters = IO.openXMLFile(paramFile);
-		
+		SimulationEnvironment.simulation = new SimulationEnvironment(System.currentTimeMillis(),IO.openXMLFile(paramFile));	
 		Settings.BC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
 		Settings.FDC.loadParameters(parameters);
+		SimulationEnvironment.simulation.start(true);
 	}
 	
 	
@@ -71,6 +72,12 @@ public class BCTest
 		Settings.GRID_SIZE = 0.0001;
 		Settings.DIFFUSION_TIMESTEP = Math.pow( Settings.GRID_SIZE, 2 ) / (43.7 * Settings.DIFFUSION_COEFFICIENT);
 		Settings.DIFFUSION_STEPS	= (int) (1 / Settings.DIFFUSION_TIMESTEP);
+		
+		
+
+		
+		
+		
     }
 
 
@@ -88,6 +95,9 @@ public class BCTest
     	m_pParticle = null;
     	ParticleMoles.reset();
     	BC.drawEnvironment = null;
+    	
+    	
+    	
     }
 	
     

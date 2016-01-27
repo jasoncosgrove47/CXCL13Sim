@@ -81,8 +81,8 @@ public class consoleRun
 		SimulationEnvironment.simulation.finish();	
 		System.out.println("\nSimulation completed successfully!\n\n");
 		
-		outputToCSV.generateCSVFile("/Users/jc1571/Desktop/rawData.csv");
-		outputToCSV.processData("/Users/jc1571/Desktop/processedData.csv");
+		//outputToCSV.generateRawData("/Users/jc1571/Desktop/rawData.csv");
+		outputToCSV.processData("/Users/jc1571/Desktop/processedData.csv","/Users/jc1571/Desktop/rawData.csv");
 		
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();

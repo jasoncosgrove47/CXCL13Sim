@@ -155,6 +155,16 @@ public class SimulationEnvironment extends SimState
 	}
 	
 	
+	
+	/**
+	 * Override the start method for testing purposes
+	 * @param testcase
+	 */
+	public void start(boolean testcase){
+		super.start();
+	}
+	
+	
 	/**
 	 * This is used for high throughput experimentation and allows the system to reach a steady state
 	 * before recording B-cell migration, ensures that outputs from parameter sweeps are not due

@@ -185,10 +185,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 */
 	public void performSavedMovements()
 	{
-	
-	
-		
-		
 		
 		for ( Double3D d3Movement : m_d3aMovements )
 		{
@@ -213,13 +209,20 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		//System.out.println("number of cells" + cells.numObjs);
 		//it sometimes returns itself
-		if(cells.numObjs < 4){
+		
+		//need to do cells minus one as it includes this cell
+		int otherCells = cells.numObjs - 1;
+		
+		double pmove = Math.exp(-otherCells);
+		
+		double random = SimulationEnvironment.simulation.random.nextDouble();
+		
+		
+		if(random  < pmove){
 			
 			setObjectLocation( new Double3D( x, y, z ) );
 		}
-
-		
-		
+	
 	}
 	
 	/**

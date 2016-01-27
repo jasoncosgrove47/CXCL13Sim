@@ -10,115 +10,81 @@ import sim3d.SimulationEnvironment;
 import sim3d.util.CSVFileOutput6;
 
 
-public class outputToCSV {
+public final class outputToCSV {
 	/**
 	 * Forms the view component of the MVC (see controller)
 	 * responsible for processing data and exporting in .csv format
 	 * 
-	 * 
-	 * TODO code needs refactoring
-	 * 
 	 * @author jason cosgrove
 	 */
 	
-
-	
-	
-	
 	
 	/**
-	 * Calculates the speed, motility coefficient and meandering index for each cell
-	 * 
-	 * 
+	 * process migration data and send processed 
+	 * and raw data to csv files
 	 */
-	public static void processData(String fileName)
+	public static void processData(String processedFileName, String rawFileName)
 	{
 	
-		FileWriter writer;
+		FileWriter rawDataWriter;
+		FileWriter processedDataWriter;
+		
+		
 		try
 		{
-			writer = new FileWriter(fileName);
+			processedDataWriter = new FileWriter(processedFileName);
 			//set the data headings
-			writer.append("TrackID");
-			writer.append(',');
-			writer.append("dT");
-			writer.append(',');
-			writer.append("MC");
-			writer.append(',');
-			writer.append("MI");
-			writer.append(',');
-			writer.append("Speed");
-			writer.append('\n');
+			processedDataWriter.append("TrackID");
+			processedDataWriter.append(',');
+			processedDataWriter.append("dT");
+			processedDataWriter.append(',');
+			processedDataWriter.append("MC");
+			processedDataWriter.append(',');
+			processedDataWriter.append("MI");
+			processedDataWriter.append(',');
+			processedDataWriter.append("Speed");
+			processedDataWriter.append('\n');
 			
+			
+			rawDataWriter = new FileWriter(rawFileName);
+			//set the data headings
+			rawDataWriter.append("TrackID");
+			rawDataWriter.append(',');
+			rawDataWriter.append("Timepoint");
+			rawDataWriter.append(',');
+			rawDataWriter.append("CentroidX");
+			rawDataWriter.append(',');
+			rawDataWriter.append("CentroidY");
+			rawDataWriter.append(',');
+			rawDataWriter.append("CentroidZ");
+			rawDataWriter.append('\n');
+			
+		
 			//for each tracker cell
 			for(Integer key : SimulationEnvironment.getController().getX_Coordinates().keySet())
-			{
-			    //get all of their x,y and z coordinates
-			    ArrayList<Double> Xcoords = SimulationEnvironment.getController().getX_Coordinates().get(key);
-			    ArrayList<Double> Ycoords = SimulationEnvironment.getController().getY_Coordinates().get(key);
-			    ArrayList<Double> Zcoords = SimulationEnvironment.getController().getZ_Coordinates().get(key);
-			 
-				Double3D startLocation = null; // the starting position of the cell
-		    	Double3D endLocation = null;  // the final position of the cell
-		    	Double3D previousLocation = null; // cells location at the previous timestep
-		    	Double3D thisLocation = null; //cells location at this timestep 
-		    	
-		    	double totalDisplacement = 0;
-		    	double netDisplacement = 0;
-		    	
-			    for(int i = 0; i < Xcoords.size();i++)
-			    {
-			    	//for each timepoint
-			    	if(i==0)
-			    	{
-			    		//multiply by 10 because each gridspace equals 10 microns
-			    		startLocation = new Double3D(Xcoords.get(i)*10, Ycoords.get(i)*10,  Zcoords.get(i)*10);
-			    		previousLocation = new Double3D(Xcoords.get(i)*10, Ycoords.get(i)*10,  Zcoords.get(i)*10);
-			    		thisLocation = new Double3D(Xcoords.get(i)*10, Ycoords.get(i)*10,  Zcoords.get(i)*10);
-			    	}
-			    	else
-			    	{
-			    		thisLocation = new Double3D(Xcoords.get(i)*10, Ycoords.get(i)*10,  Zcoords.get(i)*10);
-			    		
-			    		//calculate the displacement between this timestep and the last one
-			    		totalDisplacement += previousLocation.distance(thisLocation);
-			    		
-			    		//if this is the last coordinate of the track then we need to mark it
-			    		if(i == Xcoords.size()-1)
-			    		{	
-				    		endLocation = thisLocation;
-				    	}	
-			    		
-			    	}
-			    	
-			    	previousLocation = thisLocation;
-			    }
-			    
-			   
-			    netDisplacement = startLocation.distance(endLocation);			
-			    int time = Xcoords.size();
-			    
-			    double meanderingIndex = totalDisplacement/netDisplacement;
-			    double motilityCoefficient = (Math.pow(netDisplacement,2)/(6*time));
-			    double speed = totalDisplacement/time;
+			{		
+				double[] results = processMigrationData(key, rawDataWriter);
 			    
 			    //write the data out to the file
-	            writer.append(Integer.toString(key));
-	            writer.append(',');
-	            writer.append(Integer.toString(time));
-	            writer.append(',');
-	            writer.append(Double.toString(motilityCoefficient));
-	            writer.append(',');
-	            writer.append(Double.toString(meanderingIndex));
-	            writer.append(',');
-	            writer.append(Double.toString(speed));
-	            writer.append('\n'); 
- 
+	            processedDataWriter.append(Integer.toString(key));
+	            processedDataWriter.append(',');
+	            processedDataWriter.append(Double.toString(results[0]));
+	            processedDataWriter.append(',');
+	            processedDataWriter.append(Double.toString(results[1]));
+	            processedDataWriter.append(',');
+	            processedDataWriter.append(Double.toString(results[2]));
+	            processedDataWriter.append(',');
+	            processedDataWriter.append(Double.toString(results[3]));
+	            processedDataWriter.append('\n'); 
+	               
 		  }
 		
 		//close the file stream
-		writer.flush();
-        writer.close();
+		processedDataWriter.flush();
+        processedDataWriter.close();
+        
+        rawDataWriter.flush();
+        rawDataWriter.close();
 		
 		}
 		catch (IOException e) {e.printStackTrace();}	 
@@ -127,106 +93,81 @@ public class outputToCSV {
 	
 	
 	
-	
 	/**
-	 * Given a pathname this method will write a formatted .csv file with
-	 * the cellID, Timepoint, X,Y and Z coordinates (as strings)
-	 * @param input path and filename as one string
+	 * Calculates the speed, motility coefficient and meandering index for each cell
+	 * @param key for an individual cell
+	 * @return a double array with relevant motility parameters
+	 * @throws IOException 
 	 */
-	public static void generateCSVFile(String fileName) 
+	private static double[] processMigrationData(Integer key, FileWriter rawDataWriter) throws IOException
 	{
+		    //get all of their x,y and z coordinates
+		    ArrayList<Double> Xcoords = SimulationEnvironment.getController().getX_Coordinates().get(key);
+		    ArrayList<Double> Ycoords = SimulationEnvironment.getController().getY_Coordinates().get(key);
+		    ArrayList<Double> Zcoords = SimulationEnvironment.getController().getZ_Coordinates().get(key);
 		 
-		FileWriter writer;
-		 
-		try 
-		{
-			writer = new FileWriter(fileName);
-			//set the data headings
-			writer.append("TrackID");
-			writer.append(',');
-			writer.append("Timepoint");
-			writer.append(',');
-			writer.append("CentroidX");
-			writer.append(',');
-			writer.append("CentroidY");
-			writer.append(',');
-			writer.append("CentroidZ");
-			writer.append('\n');
-		 
-			//for each indexed cell
-			for(Integer key : SimulationEnvironment.getController().getX_Coordinates().keySet())
-			{
-			    //get the double arrayList from the coordinate map
-			    ArrayList<Double> Xcoords = SimulationEnvironment.getController().getX_Coordinates().get(key);
-			    ArrayList<Double> Ycoords = SimulationEnvironment.getController().getY_Coordinates().get(key);
-			    ArrayList<Double> Zcoords = SimulationEnvironment.getController().getZ_Coordinates().get(key);
-			 
-			    //get the X,Y and Z coords for each timepoint
-			    // and write them out to file
-			    for(int i = 0; i < Xcoords.size();i++)
-			    {
-			    	int timepoint = i;
-			    	
-			    	//need to multiply by 10 because each gridspace equals 10 microns
-			    	//therefore the output we get will be directly comparable with experimental
-			    	Double x = Xcoords.get(i)*10;
-			    	Double y = Ycoords.get(i)*10;
-			    	Double z = Zcoords.get(i)*10;
-				
-			    	//write the data out to the file
-	                writer.append(Integer.toString(key));
-	                writer.append(',');
-	                writer.append(Integer.toString(timepoint));
-	                writer.append(',');
-	                writer.append(Double.toString(x));
-	                writer.append(',');
-	                writer.append(Double.toString(y));
-	                writer.append(',');
-	                writer.append(Double.toString(z));
-	                writer.append('\n'); 
-			    }  
-			}
-			//close the file stream
-			writer.flush();
-	        writer.close();
-			   
-		} 
-		 catch (IOException e) {e.printStackTrace();}	 
-	}
-	
-
-	
-
-		/*
-		
-		
-		public static ArrayList<Integer> DataOutput = new ArrayList<Integer>(Collections.nCopies(6, 0));
-		public static ArrayList<String> headers = new ArrayList<String>() {{
-		    add("X-coordinates");
-		    add("X-coordinates");
-		    add("X-coordinates");
-		    add("X-coordinates");
-		    add("X-coordinates");
-		    add("X-coordinates");
-		}};
-		
-		
-		public static void updateArrayList( int primedCells)
-		{	
-			
-			DataOutput.set(0,primedCells);
+			Double3D startLocation = null; // the starting position of the cell
+	    	Double3D endLocation = null;  // the final position of the cell
+	    	Double3D previousLocation = null; // cells location at the previous timestep
+	    	Double3D thisLocation = null; //cells location at this timestep 
+	    	
+	    	double totalDisplacement = 0;
+	    	double netDisplacement = 0;
+	    	
+	    	double x = 0, y = 0, z = 0;
+	    	
+		    for(int i = 0; i < Xcoords.size();i++)
+		    {
+		    	
+		    	x = Xcoords.get(i)*10;
+		    	y = Ycoords.get(i)*10;
+		    	z = Zcoords.get(i)*10;
+		    	
+		    	 rawDataWriter.append(Integer.toString(key));
+		         rawDataWriter.append(',');
+		         rawDataWriter.append(Integer.toString(i));
+		         rawDataWriter.append(',');
+		         rawDataWriter.append(Double.toString(x));
+		         rawDataWriter.append(',');
+		         rawDataWriter.append(Double.toString(y));
+		         rawDataWriter.append(',');
+		         rawDataWriter.append(Double.toString(z));
+		         rawDataWriter.append('\n'); 
+		    
+		    	//for each timepoint
+		    	if(i==0)
+		    	{
+		    		//multiply by 10 because each gridspace equals 10 microns
+		    		startLocation = new Double3D(Xcoords.get(i)*10, Ycoords.get(i)*10,  Zcoords.get(i)*10);
+		    		previousLocation = new Double3D(Xcoords.get(i)*10, Ycoords.get(i)*10,  Zcoords.get(i)*10);
+		    		thisLocation = new Double3D(Xcoords.get(i)*10, Ycoords.get(i)*10,  Zcoords.get(i)*10);
+		    	}
+		    	else
+		    	{
+		    		thisLocation = new Double3D(Xcoords.get(i)*10, Ycoords.get(i)*10,  Zcoords.get(i)*10);
+		    		
+		    		//calculate the displacement between this timestep and the last one
+		    		totalDisplacement += previousLocation.distance(thisLocation);
+		    		
+		    		//if this is the last coordinate of the track then we need to mark it
+		    		if(i == Xcoords.size()-1)
+		    		{	
+			    		endLocation = thisLocation;
+			    	}	
+		    	}
+		    	previousLocation = thisLocation;
+		    }
+		    
+		   
+		    netDisplacement = startLocation.distance(endLocation);			
+		    double time = Xcoords.size();
+		    
+		    double meanderingIndex = totalDisplacement/netDisplacement;
+		    double motilityCoefficient = (Math.pow(netDisplacement,2)/(6*time));
+		    double speed = totalDisplacement/time;
+		    
+		    double[] output = {time, motilityCoefficient, meanderingIndex,speed,x,y,z};
+		    
+		    return output;
 		}
-		
-		
-
-
-    public static void writeCSV(ArrayList data, ArrayList headers, String filePath, String outputFileName)
-    {
-    	CSVFileOutput6 fo = new CSVFileOutput6(filePath,outputFileName,headers);
-    	fo.writeDataToFile(data);
-    }
-
-*/
-
-
 }

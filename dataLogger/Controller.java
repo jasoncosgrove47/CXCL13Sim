@@ -30,32 +30,34 @@ public class Controller implements Steppable {
 	 * 
 	 * MVC design pattern: http://www.tutorialspoint.com/design_pattern/mvc_pattern.htm
 	 * 
-	 * Model: Each cognate B-cell is responsible for maintaining it's own data 
-	 * Controller: DataLogger contains data maps which B cells write to 
-	 * 			   (more efficient than iterating through each cell to do so)
-	 * View: OutputToCSV or grapher modules display the data
+	 * Model: 		SimulationEnvironment. Each cognate B-cell is responsible for 
+	 * 				maintaining it's own data 
+	 * Controller:  DataLogger contains data maps which B cells write to 
+	 * 			    (more efficient than iterating through each cell to do so)
+	 * View: 		GUIrun or consoleRun are responsible for running the model and
+	 * 		 		instantiate OutputToCSV or Grapher to display the data
 	 * 
 	 * @author jason cosgrove
 	 */
-	
-	
-
-	/**
-	 * Counts the entire number of cells in the simulation
-	 */
-	private static Map<String, Integer> cellCounter = new HashMap<String, Integer>();
 	
 	/*
 	 * Counter for the number of antigen primed B cells in the simulation
 	 */
 	private static int primedCells = 0;
 	
+
+	/**
+	 * Timer for the experiment, incremented in timsteps
+	 * of the simulation
+	 */
+	private int experimentTimer;
+	private int lengthOfExperiment;
 	
 	/**
 	 * Coordinate maps 
-	 * Key: the index of each individual cognateBC
-	 * Value: An arraylist containing the cells position 
-	 * 		  in a given dimension for a given timestep
+	 * Key: 	the index of each individual cognateBC
+	 * Value: 	An arraylist containing the cells position 
+	 * 		  	in a given dimension for a given timestep
 	 */
     private Map<Integer,ArrayList<Double>> X_Coordinates = new HashMap<Integer,ArrayList<Double>>();
     private Map<Integer,ArrayList<Double>> Y_Coordinates = new HashMap<Integer,ArrayList<Double>>();
@@ -64,38 +66,34 @@ public class Controller implements Steppable {
 	/*
 	 * Constructor for the controller class
 	 */
-	public Controller(){}
-	
-
-	
-	int experimentCounter = 0;
+	public Controller()
+	{	
+		experimentTimer = 0;
+		lengthOfExperiment = 30;
+	}
 	
 	/**
-	 * Shouldnt need to implement steppable if the B cells are writing to it. 
-	 * But useful for debugging.
+	 * Controls the length of an experiment and signals to the main class
+	 * when an experiment is finished
 	 */
-	public void step(SimState state) {
-		
-		experimentCounter ++;
-		int lengthOfExperiment = 30;
-		
-		if(experimentCounter > lengthOfExperiment){
+	public void step(SimState state) 
+	{
+		experimentTimer ++;
+		if(experimentTimer > lengthOfExperiment)
+		{
 			SimulationEnvironment.experimentFinished = true;
 		}
-		
-		
-		
 	}
 
 	
 	// getters and setters for the controlller
+	// better to have these private as we don't
+	// wan't any external classes changing them
 	public static int getPrimedCells() {return primedCells;}
 	public static void setPrimedCells(int primedCells) {Controller.primedCells = primedCells;}
 
 	public Map<Integer,ArrayList<Double>> getX_Coordinates() {return X_Coordinates;}
 	public Map<Integer,ArrayList<Double>> getY_Coordinates() {return Y_Coordinates;}
 	public Map<Integer,ArrayList<Double>> getZ_Coordinates() {return Z_Coordinates;}
-
-
 	
 }
