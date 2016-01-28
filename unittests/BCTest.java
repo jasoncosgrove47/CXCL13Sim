@@ -49,11 +49,13 @@ public class BCTest
 		
 		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";		// set the seed for the simulation, be careful for when running on cluster																	
 		parameters = IO.openXMLFile(paramFile);
-		SimulationEnvironment.simulation = new SimulationEnvironment(System.currentTimeMillis(),IO.openXMLFile(paramFile));	
+
 		Settings.BC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
 		Settings.FDC.loadParameters(parameters);
-		SimulationEnvironment.simulation.start(true);
+		
+	
+	
 	}
 	
 	
@@ -74,10 +76,7 @@ public class BCTest
 		Settings.DIFFUSION_STEPS	= (int) (1 / Settings.DIFFUSION_TIMESTEP);
 		
 		
-
-		
-		
-		
+	
     }
 
 
@@ -86,7 +85,10 @@ public class BCTest
 	{
 		m_pParticle = new ParticleMoles(schedule, ParticleMoles.TYPE.CXCL13, 31, 31, 31);
 		
-		BC.drawEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, 31, 31, 31 );
+		BC.bcEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, 31, 31, 31);
+		BC.drawEnvironment = BC.bcEnvironment;
+		
+		//BC.drawEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, 31, 31, 31 );
 	}
 
     @After
@@ -109,46 +111,6 @@ public class BCTest
     // Test - see if receptor levels change in response to different ligand inputs
     
     
-    
-    
-    //TODO do receptor levels change over time
-    //TODO check all of the states in which a B cell can exist and make sure that they are all reached
-    //TODO check vector calculations
-    //TODO check capable of acquiring antigen
-    
-    /**
-    @Test
-	public void testShouldAcquireAntigen()
-	{
-    	long steps = 0;
-    	long seed = System.currentTimeMillis();
-    	SimulationEnvironment sim = new SimulationEnvironment(seed,IO.openXMLFile("/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml"));
-    	Options.BC.COUNT=0;
-    	Options.BC.COGNATECOUNT=0;
-    	
-    
-    	
-    	sim.start();
-
-    	sim.seedCognateCells(5);
-		do
-		{	
-			steps = sim.schedule.getSteps();		
-			if (!sim.schedule.step(sim))
-			break;	
-		}while(steps < 300);	
-		
-		int antigenCaptured = 0;
-		Bag cells =  sim.bcEnvironment.allObjects;
-		for(int i = 0; i < cells.size(); i++){
-			cognateBC cBC = (cognateBC) cells.get(i);
-		}
-		
-		// finish the simulation
-		sim.finish();
-    	
-	}
-    */
 
     
     /*
@@ -160,12 +122,14 @@ public class BCTest
 		m_pParticle.field[15][15][15] = (2 * Math.pow(10, -6));
 
 		
-		Settings.CXCL13.DECAY_CONSTANT = 0.8;
+		Settings.CXCL13.DECAY_CONSTANT = 0.5;
 		
 	
 		
 		
-		Settings.BC.SIGNAL_THRESHOLD = 0;
+		Settings.BC.SIGNAL_THRESHOLD = 50;
+		
+		Settings.BC.ODE.Ri = 0;
 		
 		
 		// Let's diffuse a little
@@ -184,8 +148,8 @@ public class BCTest
 		m_pParticle.step( null );
 		
 		// Randomly place 100 BCs
-		BC[] bcCells = new BC[100];
-		for (int i = 0; i < 100; i++)
+		BC[] bcCells = new BC[10];
+		for (int i = 0; i < 10; i++)
 		{
 			bcCells[i] = new BC();
 			
@@ -194,11 +158,11 @@ public class BCTest
 		// Let them move a bit
 		for ( int i = 0; i < 600; i++ )
 		{
-			for (int j = 0; j < 100; j++)
+			for (int j = 0; j < 10; j++)
 			{
-				bcCells[j].step( null );
+				bcCells[j].step( null);
 			}
-			m_pParticle.field[15][15][15] = (2* Math.pow(10, -6));
+			m_pParticle.field[15][15][15] =  10* Math.pow(10, -9);
 			m_pParticle.step( null );
 		}
 		
@@ -206,7 +170,7 @@ public class BCTest
 		double maxDist = 0;
 		
 		//not quite sure what this bit is doing
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 10; i++)
 		{
 			Double3D bcLoc = new Double3D(bcCells[i].x-15, bcCells[i].y-15, bcCells[i].z-15);//why take 15 away
 			
@@ -221,7 +185,7 @@ public class BCTest
 			}
 		}
 
-		assertThat(avDistance/100, lessThan(7.0));//why is this condition here?
+		assertThat(avDistance/10, lessThan(7.0));//why is this condition here?
 	}
 	
 	
@@ -234,7 +198,7 @@ public class BCTest
 	@Test
 	public void testReceptorConservation()
 	{
-		m_pParticle.field[15][15][15] = 100000;
+		m_pParticle.field[15][15][15] = (1.7* Math.pow(10, -9));
 
 		Settings.BC.ODE.Rf = 1000;
 		Settings.BC.ODE.Ri = 1000;
@@ -365,13 +329,7 @@ public class BCTest
 		//again not sure what these are doing
 		assertThat(avDistance/100, lessThan(3.0));
 		
-		//maybe we should assume that 90% should be a better test
-		
-	
-		// This test needs to be refined as some times a cell may escape	
-		//assertThat(maxDist, lessThan(3.1));
-		
-		// so we don't break other tests!
+
 		BC.m_cgGrid = null;
 	}
 	

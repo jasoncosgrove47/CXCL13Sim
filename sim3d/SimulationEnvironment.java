@@ -59,11 +59,6 @@ public class SimulationEnvironment extends SimState
 	public static SimulationEnvironment simulation;
 	
 	/*
-	 * 3D grid where B cells and cBs exist
-	 */
-	public Continuous3D	bcEnvironment; 
-	
-	/*
 	 * 3D grid for Stroma
 	 */
 	public Continuous3D	fdcEnvironment; 
@@ -156,14 +151,7 @@ public class SimulationEnvironment extends SimState
 	
 	
 	
-	/**
-	 * Override the start method for testing purposes
-	 * @param testcase
-	 */
-	public void start(boolean testcase){
-		super.start();
-	}
-	
+
 	
 	/**
 	 * This is used for high throughput experimentation and allows the system to reach a steady state
@@ -187,8 +175,11 @@ public class SimulationEnvironment extends SimState
 		StromaEdge.drawEnvironment = fdcEnvironment;
 		
 		//Initialise the B cell grid
-		bcEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
-		BC.drawEnvironment = bcEnvironment;
+		//better to have it in BC
+		//as can then access it from test cases
+		// without instantiating simulation environment
+		BC.bcEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
+		BC.drawEnvironment = BC.bcEnvironment;
 		
 		// Initialise the CollisionGrid
 		CollisionGrid cgGrid = new CollisionGrid( Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH, 1 );
@@ -303,7 +294,7 @@ public class SimulationEnvironment extends SimState
 		}while(Math.sqrt(Math.pow((LR_T - LR_Tminus20),2)) > 1000); //TODO we have set an arbritrary treshold here but this will need refining. 
 	
 		System.out.println("B cells have stabilised: " + this.schedule.getSteps());
-		cbc.removeDeadCell(bcEnvironment); //get rid of these cells as we don't need them anymore
+		cbc.removeDeadCell(BC.bcEnvironment); //get rid of these cells as we don't need them anymore
 
 	}
 	
@@ -352,8 +343,8 @@ public class SimulationEnvironment extends SimState
 		StromaEdge.drawEnvironment = fdcEnvironment;
 		
 		//Initialise the B cell grid
-		bcEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
-		BC.drawEnvironment = bcEnvironment;
+		BC.bcEnvironment = new Continuous3D( Settings.BC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH );
+		BC.drawEnvironment = BC.bcEnvironment;
 		
 		// Initialise the CollisionGrid
 		CollisionGrid cgGrid = new CollisionGrid( Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH, 1 );

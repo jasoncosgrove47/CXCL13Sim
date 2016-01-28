@@ -33,6 +33,7 @@ public class cognateBC extends BC
 	public boolean displayAntigenGraph	= false;
 	private int antigenCaptured = 0; //number of antigen acquired by each antigen
 	
+
 	
 	/**
 	 * Constructor
@@ -42,6 +43,9 @@ public class cognateBC extends BC
 	{
 		this.type = TYPE.NAIVE;
 		this.setIndex(index);
+		//this.m_iL_r = 0;
+		//this.m_iR_free = 0;
+		//this.m_iR_i = 0;
 	}
 	
 	@Override
@@ -57,7 +61,7 @@ public class cognateBC extends BC
 		//set the time frame for data collection
 		//30 minutes is what was done in vivo
 		// we should do the same to keep it comparable
-		
+
 		
 		//once the system has reached steady state the BC can start to record it's position
 		if(SimulationEnvironment.steadyStateReached == true)

@@ -47,7 +47,14 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	 * DrawableCell3D.setObjectLocation
 	 */
 	public static Continuous3D	drawEnvironment;
-								
+			
+	
+	
+	/*
+	 * 3D grid where B cells and cBs exist
+	 */
+	public static Continuous3D	bcEnvironment; 
+	
 	/**
 	 * The collision grid that contains this element; used to register
 	 * collisions
@@ -170,6 +177,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	}
 	
 	
+
 	
 	public Int3D getDiscretizedLocation(Continuous3D grid)
 	{
@@ -197,12 +205,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 			z += d3Movement.z;
 		}
 	
-		
 		//need to see if there is actually space to move
 		Double3D putativeLocation = new Double3D( x, y, z );
 		
 		//see if there are any cells at the putative location
-		Bag cells = SimulationEnvironment.simulation.bcEnvironment.getNeighborsExactlyWithinDistance(putativeLocation, 1);//not quite one because cells can squeeze
+		Bag cells = BC.bcEnvironment.getNeighborsExactlyWithinDistance(putativeLocation, 1);//not quite one because cells can squeeze
 		
 		// Remember which way we're now facing
 		m_d3Face = m_d3aMovements.get( m_d3aMovements.size() - 1 ).normalize();
@@ -215,7 +222,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		
 		double pmove = Math.exp(-otherCells);
 		
-		double random = SimulationEnvironment.simulation.random.nextDouble();
+		double random = Settings.RNG.nextDouble();
 		
 		
 		if(random  < pmove){
@@ -224,6 +231,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		}
 	
 	}
+	
+	
+
 	
 	/**
 	 * calculate where to move for the next
@@ -235,7 +245,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		vMovement = getMoveDirection();		
 		double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
 
-		//vectormagnitude makes things go loco but no idea why....
+	
+		
+		
 		if ( vMovement.lengthSq() > 0)
 		{
 			if(vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD)
@@ -243,8 +255,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 					// Add some noise to the direction and take the average of our
 					// current direction and the new direction
 				
+
+				
 					// the multiply is to scale the new vector, when we multiply by 2 we are favouring the new signal more than the old
-					vMovement = m_d3Face.add( Vector3DHelper.getBiasedRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR()).multiply(Settings.BC.PERSISTENCE) );
+					vMovement = m_d3Face.add( Vector3DHelper.getRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR()).multiply(Settings.BC.PERSISTENCE) );
 
 					if ( vMovement.lengthSq() > 0 )
 					{
@@ -266,15 +280,24 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		m_d3aCollisions.clear();
 		m_d3aMovements = new ArrayList<Double3D>();
 		
+		
+		
+		//calculated from maiuri paper in cell 2015
+		double speedScalar = (Math.log(1/Settings.BC.PERSISTENCE))/3;
+		
+		
 		//if there is some signalling then the cell increases it's instantaneous velocity
 		if(vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD)
 		{
-			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + Settings.BC.CHEMOKINESIS_SCALAR)); 
+		
+			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + speedScalar)); 
 		}
 		else if(vectorMagnitude < Settings.BC.SIGNAL_THRESHOLD && m_iL_r > 0) // this is also the case if receptors are saturated or equally biased in each direction, still signalling going on
 		{
+			
+			
 			//no signalling therefore no increase in instantaneous velocity
-			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + Settings.BC.CHEMOKINESIS_SCALAR)); 
+			m_d3aMovements.add( vMovement.multiply( Settings.BC.TRAVEL_DISTANCE() + speedScalar)); 
 		}
 		else 
 		{
@@ -349,8 +372,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		// update the amount of free and bound receptors
 		for ( int i = 0; i < 6; i++ )
 		{
-			m_iR_free -= iaBoundReceptors[i];
-			m_iL_r += iaBoundReceptors[i];	
+			this.m_iR_free -= iaBoundReceptors[i];
+			this.m_iL_r += iaBoundReceptors[i];	
 		}
 
 		int iTimesteps = 10;
@@ -358,12 +381,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	
 		for ( int i = 0; i < iTimesteps; i++ )
 		{
-			iR_i = m_iR_i;
-			iL_r = m_iL_r;
+			iR_i = this.m_iR_i;
+			iL_r = this.m_iL_r;
 
-			m_iR_free += (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_r() * iR_i);
-			m_iR_i += (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_i() * iL_r) - (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_r() * iR_i);
-			m_iL_r -= (int) ((1.0 / iTimesteps)  * Settings.BC.ODE.K_i() * iL_r);
+			this.m_iR_free += (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_r() * iR_i);
+			this.m_iR_i += (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_i() * iL_r) - (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_r() * iR_i);
+			this.m_iL_r -= (int) ((1.0 / iTimesteps)  * Settings.BC.ODE.K_i() * iL_r);
 		}
 		
 		if ( displayODEGraph && SimulationEnvironment.steadyStateReached ==  true )
