@@ -11,8 +11,8 @@
 	</O>
 	
 	<BC>
-		<COUNT>4800</COUNT> <!-- 200,000 B cells per follicle. 10% of which is 20000 -->
-		<COGNATECOUNT>200</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
+		<COUNT>48</COUNT> <!-- 200,000 B cells per follicle. 10% of which is 20000 -->
+		<COGNATECOUNT>2</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
 		<DISCRETISATION>5</DISCRETISATION>
 		<TRAVEL_DISTANCE>0.67</TRAVEL_DISTANCE><!-- was 0.8 -->
 		<SIGNAL_THRESHOLD>20</SIGNAL_THRESHOLD><!-- was 60 -->

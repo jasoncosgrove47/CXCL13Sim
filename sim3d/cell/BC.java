@@ -243,9 +243,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 	{
 		Double3D vMovement;
 		vMovement = getMoveDirection();		
-		double vectorMagnitude = Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
+		double vectorMagnitude = vMovement.lengthSq();
+				
+		//Math.sqrt(Math.pow(vMovement.x, 2) + Math.pow(vMovement.y, 2) + Math.pow(vMovement.z, 2));
 
 	
+
 		
 		
 		if ( vMovement.lengthSq() > 0)
@@ -255,7 +258,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 					// Add some noise to the direction and take the average of our
 					// current direction and the new direction
 				
-
+			
 				
 					// the multiply is to scale the new vector, when we multiply by 2 we are favouring the new signal more than the old
 					vMovement = m_d3Face.add( Vector3DHelper.getRandomDirectionInCone( vMovement.normalize(),Settings.BC.DIRECTION_ERROR()).multiply(Settings.BC.PERSISTENCE) );
@@ -414,6 +417,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable
 		vMovement = vMovement.add( new Double3D( 0, 1, 0 ).multiply( iaBoundReceptors[2] - iaBoundReceptors[3] ) );
 		// Z
 		vMovement = vMovement.add( new Double3D( 0, 0, 1 ).multiply( iaBoundReceptors[4] - iaBoundReceptors[5] ) );
+		
+		
+		
 		
 		return vMovement;
 	}

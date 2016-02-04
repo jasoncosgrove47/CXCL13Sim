@@ -73,6 +73,7 @@ public class consoleRun
 		{	
 			steps = SimulationEnvironment.simulation.schedule.getSteps();		
 			System.out.println("Steps: " + steps);		
+			System.out.println("test does print work " );
 			if (!SimulationEnvironment.simulation.schedule.step(SimulationEnvironment.simulation))
 			break;	
 		} while(SimulationEnvironment.simulation.experimentFinished == false);
