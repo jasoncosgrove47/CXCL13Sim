@@ -51,7 +51,6 @@ public class SystemTests
     	
     	sim.start();
 
-    	
 		do
 		{	
 			steps = sim.schedule.getSteps();		
@@ -59,7 +58,7 @@ public class SystemTests
 			break;	
 		}while(steps < 300);	
 		
-		Bag cells =  sim.bcEnvironment.allObjects;
+		Bag cells =  BC.bcEnvironment.allObjects;
 		
 		int primedCount = 0;
 		TYPE[] activationStatus = new TYPE[100];

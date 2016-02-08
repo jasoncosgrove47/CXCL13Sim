@@ -88,15 +88,14 @@ public class Settings {
 	 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
 	 *      /Notes_Diffusion.pdf
 	 *      
-	 *  We divide the timestep by 60 as we want diffusion occuring on a timescale
-	 *  of seconds, but cells updated on a timescale of minutes
 	 */
 	static double calculateDIFFUSION_TIMESTEP() {
-		return (Math.pow(GRID_SIZE, 2) / (40.15 * DIFFUSION_COEFFICIENT))/60;
+		return (Math.pow(GRID_SIZE, 2) / (40.15 * DIFFUSION_COEFFICIENT));
 	}
 
+	//multiply by 60 as we want to update diffusion in seconds and not minutes
 	static int calculateDIFFUSION_STEPS() {
-		return (int) (1 / DIFFUSION_TIMESTEP);
+		return (int) (60 / DIFFUSION_TIMESTEP);
 	}
 
 	// //////////////////////// BC PARAMETERS ////////////////////////////////

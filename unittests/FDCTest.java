@@ -4,80 +4,74 @@
 package unittests;
 
 
-import org.junit.After;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.*;
+import java.util.ArrayList;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.w3c.dom.Document;
-
+import org.junit.Test;
 import ec.util.MersenneTwisterFast;
-import sim.engine.Schedule;
-import sim.field.continuous.Continuous3D;
 import sim3d.Settings;
-import sim3d.cell.BC;
-import sim3d.diffusion.Particle;
-import sim3d.util.IO;
+import sim3d.cell.StromaEdge;
+import sim3d.util.FRCStromaGenerator;
+import sim3d.util.FRCStromaGenerator.FRCCell;
 
 
 /**
- * @author sjj509 need to fix these so they work with XML inputs
+ * Test some basic functionality of the FDC network
  */
 public class FDCTest {
-	private Schedule schedule = new Schedule();
-	private Particle m_pParticle;
-	public static Document parameters;
+	
 
-	private static void loadParameters() {
-
-		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";
-		parameters = IO.openXMLFile(paramFile);
-		Settings.BC.loadParameters(parameters);
-		Settings.BC.ODE.loadParameters(parameters);
-		Settings.FDC.loadParameters(parameters);
-	}
-
-	@BeforeClass
-	public static void oneTimeSetUp() {
-
-		// load in all of the BC and FDC parameters but overwrite some of the
-		// options parameters to make the tests faster
-
-		loadParameters();
-		Settings.RNG = new MersenneTwisterFast();
-		Settings.WIDTH = 31;
-		Settings.HEIGHT = 31;
-		Settings.DEPTH = 31;
-		Settings.DIFFUSION_COEFFICIENT = 1.519 * Math.pow(10, -10);
-		Settings.GRID_SIZE = 0.0001;
-		Settings.DIFFUSION_TIMESTEP = Math.pow(Settings.GRID_SIZE, 2)
-				/ (3.7 * Settings.DIFFUSION_COEFFICIENT);
-		Settings.DIFFUSION_STEPS = (int) (1 / Settings.DIFFUSION_TIMESTEP);
-	}
 
 	@Before
 	public void setUp() throws Exception {
-		m_pParticle = new Particle(schedule, Particle.TYPE.CXCL13, 31, 31, 31);
-
-		BC.drawEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31,
-				31, 31);
+		Settings.RNG = new MersenneTwisterFast();
+		
 	}
 
-	@After
-	public void tearDown() {
-		m_pParticle.field = null;
-		m_pParticle = null;
-		Particle.reset();
-		BC.drawEnvironment = null;
+	/*
+	 * Make sure that the FDC can display antigen
+	 */
+	@Test
+	public void canDisplayAntigen() {
+		
+		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
+		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
+		FRCStromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
+				selEdges);
+		
+		Settings.FDC.STARTINGANTIGENLEVEL = 100;
+		for (StromaEdge seEdge : selEdges) {
+			seEdge.getAntigen();
+			assertThat(seEdge.getAntigen(), greaterThan(0));
+		}
 	}
 
-	// Test - should put the Lymphocytes in all of their states and make sure
-	// that the state transitions occur as expected
-	// Test - see if receptor levels change in response to different ligand
-	// inputs
+	
+	/**
+	 * Make sure that the FDC can lose antigen
+	 */
+	@Test
+	public void canLoseAntigen(){
+		
+		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
+		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
+		FRCStromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
+				selEdges);
+		
+		Settings.FDC.STARTINGANTIGENLEVEL = 100;
+		for (StromaEdge seEdge : selEdges) {
+			seEdge.setAntigenLevelLowerHalf(seEdge.getAntigen());
+			assertThat(seEdge.getAntigen(), lessThan(100));
+		}
+		
+		
+	}
 
-	// TODO check that the stromal network forms properly
-	// TODO check that the stroma can secrete chemokine and that it secretes
+
+	// TODO Integration test check that the stroma can secrete chemokine and that it secretes
 	// before it diffuses
-	// TODO check that the FDC can express antigen
-	// TODO check that the FDC can lose antigen
+
 
 }

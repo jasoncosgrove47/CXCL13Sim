@@ -56,6 +56,7 @@ public class DiffusionAlgorithmTest {
 		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2)
 				/ (40.15 * Settings.DIFFUSION_COEFFICIENT));// need to recalibrate
 
+		//multiply by 60 as we want to update diffusion in seconds and not minutes
 		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
 		
 		
@@ -118,6 +119,10 @@ public class DiffusionAlgorithmTest {
 	 * Test method for
 	 * {@link sim3d.diffusion.algorithms.DiffusionAlgorithm#diffuse(sim3d.diffusion.Particle)}
 	 * Test that the mean squared displacement of the chemokine matches what we expect
+	 * 
+	 * This won't pass everytime because the algorithm needs to be updated 
+	 * 
+	 * 
 	 */
 	@Test
 	public void testMeanSquare() {
