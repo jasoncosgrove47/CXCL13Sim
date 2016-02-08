@@ -2,8 +2,11 @@ package dataLogger;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+
 import sim.util.Double3D;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 
 public final class outputToCSV {
@@ -106,8 +109,11 @@ public final class outputToCSV {
 		Double3D previousLocation = null;//location at the previous timestep
 		Double3D thisLocation = null;    //location at this timestep
 
-		double totalDisplacement = 0;
-		double netDisplacement = 0;
+		
+		//BigDecimals are more precise than doubles
+		// to avoid rounding errors
+		double totalDisplacement = 0.0;
+		double netDisplacement = 0.0;
 
 		double x = 0, y = 0, z = 0;
 
@@ -116,9 +122,9 @@ public final class outputToCSV {
 			// get the x,y and z coordinates of each cell
 			// multiply by 10 because each gridspace
 			// equals 10 microns
-			x = Xcoords.get(i) * 10;
-			y = Ycoords.get(i) * 10;
-			z = Zcoords.get(i) * 10;
+			x = Xcoords.get(i) * Settings.GRID_SIZE;
+			y = Ycoords.get(i) * Settings.GRID_SIZE;
+			z = Zcoords.get(i) * Settings.GRID_SIZE;
 
 			// update raw data file
 			rawDataWriter.append(Integer.toString(key));

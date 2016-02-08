@@ -4,7 +4,7 @@
 <input>
 	<O>
 		<GRID_SIZE>0.00001</GRID_SIZE>
-		<DIFFUSION_COEFFICIENT>0.0000000000076</DIFFUSION_COEFFICIENT><!-- was 10,0.0000000000076, now it's in cm^2/sec  -->
+		<DIFFUSION_COEFFICIENT>7.6e-12</DIFFUSION_COEFFICIENT><!-- in metres^2 / second -->
 		<WIDTH>38</WIDTH> 
 		<HEIGHT>38</HEIGHT>
 		<DEPTH>10</DEPTH><!-- we take two away so this will actually be 20 microns less than this value-->

@@ -5,16 +5,19 @@ package unittests;
 
 import static org.junit.Assert.assertEquals;
 
+
 //import org.hamcrest.number.IsCloseTo;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim3d.Settings;
 import sim3d.diffusion.Particle;
+import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 import sim3d.diffusion.algorithms.Grajdeanu;
 import sim3d.util.IO;
 
@@ -25,7 +28,7 @@ import sim3d.util.IO;
 public class DiffusionAlgorithmTest {
 	private Schedule schedule = new Schedule();
 	private Particle m_pParticle = new Particle(schedule, Particle.TYPE.CXCL13,
-			81, 81, 81);// this should be particle moles
+			41, 41, 41);// this should be particle moles
 	public static Document parameters;
 
 	private static void loadParameters() {
@@ -50,10 +53,12 @@ public class DiffusionAlgorithmTest {
 		Settings.DIFFUSION_COEFFICIENT = 0.0000000000076;
 		Settings.GRID_SIZE = 0.00001;
 
-		Settings.DIFFUSION_TIMESTEP = Math.pow(Settings.GRID_SIZE, 2)
-				/ (40.15 * Settings.DIFFUSION_COEFFICIENT);// need to recalibrate
+		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2)
+				/ (40.15 * Settings.DIFFUSION_COEFFICIENT));// need to recalibrate
 
-		Settings.DIFFUSION_STEPS = (int) (1 / Settings.DIFFUSION_TIMESTEP);
+		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
+		
+		
 
 		System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT
 				+ "timestep: " + Settings.DIFFUSION_STEPS + "steps: "
@@ -67,8 +72,8 @@ public class DiffusionAlgorithmTest {
 	 */
 	@Test
 	public void testConservation() {
-		m_pParticle.field[25][25][25] = 100;
-		m_pParticle.field[25][26][25] = 100;
+		m_pParticle.field[20][20][20] = 100;
+		m_pParticle.field[21][21][21] = 100;
 
 		Settings.CXCL13.DECAY_CONSTANT = 1;
 
@@ -78,9 +83,9 @@ public class DiffusionAlgorithmTest {
 
 		int iPartSum = 0;
 
-		for (int x = 0; x < 51; x++) {
-			for (int y = 0; y < 51; y++) {
-				for (int z = 0; z < 51; z++) {
+		for (int x = 0; x < 41; x++) {
+			for (int y = 0; y < 41; y++) {
+				for (int z = 0; z < 41; z++) {
 					iPartSum += m_pParticle.field[x][y][z];
 				}
 			}
@@ -117,33 +122,56 @@ public class DiffusionAlgorithmTest {
 	@Test
 	public void testMeanSquare() {
 
-		m_pParticle.setDiffusionAlgorithm(new Grajdeanu(
-				Settings.DIFFUSION_COEFFICIENT, 81, 81, 81));
+		Settings.GRID_SIZE = 0.00001;
+		Settings.CXCL13.DECAY_CONSTANT = 1;
+		
+		Settings.DIFFUSION_STEPS = 20;
+		
+		DiffusionAlgorithm da = new Grajdeanu(
+				Settings.DIFFUSION_COEFFICIENT, 41, 41, 41);
+		
+		m_pParticle.setDiffusionAlgorithm(da);
 
-		m_pParticle.field[40][40][40] = 1000;
-		double iMeanSquare = 0;
+		m_pParticle.field[20][20][20] = 1000;
+		double iMeanSquare = 0; // = <x^2> when divided my number of particles
 
-		int iNumSteps = (int) (80.0 / Settings.DIFFUSION_STEPS)
+		
+		//calculates teh number of times needed to loop
+		int iNumSteps = (int) (20.0 / Settings.DIFFUSION_STEPS)
 				* Settings.DIFFUSION_STEPS;
+		
 
 		for (int i = 0; i < iNumSteps; i++) {
 			m_pParticle.step(null);
 
-			for (int x = 0; x < 81; x++) {
-				for (int y = 0; y < 81; y++) {
-					for (int z = 0; z < 81; z++) {
+			iMeanSquare = 0;
+			for (int x = 0; x < 41; x++) {
+				for (int y = 0; y < 41; y++) {
+					for (int z = 0; z < 41; z++) {
+						
+						//squared distance from center space
+						//multiply by 10 because we want the distance in microns
 						iMeanSquare += m_pParticle.field[x][y][z]
-								* (Math.pow(Settings.GRID_SIZE * (40 - x), 2)
+								* (Math.pow(Settings.GRID_SIZE * (20 - x), 2)
 										+ Math.pow(Settings.GRID_SIZE
-												* (40 - y), 2) + Math.pow(
-										Settings.GRID_SIZE * (40 - z), 2));
+												* (20 - y), 2) + Math.pow(
+										Settings.GRID_SIZE * (20 - z), 2));
 					}
 				}
 			}
+			
+			
+			
+			//divide the squared distance by num of particles to
+			// get the mean displacement
 			iMeanSquare /= 1000;
+		
+			System.out.println("iMeanSquare is: " + iMeanSquare);
 
 		}
 
+		
+		//assert that D = <x^2>/6t
 		assertThat(
 				iMeanSquare
 						/ (6 * iNumSteps * Settings.DIFFUSION_STEPS * Settings.DIFFUSION_TIMESTEP),

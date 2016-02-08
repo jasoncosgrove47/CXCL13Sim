@@ -131,7 +131,7 @@ public class SimulationEnvironment extends SimState {
 	 * outputs from parameter sweeps are not due to recording before the system
 	 * reaches steady state
 	 */
-	public void adaptivestart() {
+	public void Adaptivestart() {
 
 		super.start();
 
@@ -229,6 +229,10 @@ public class SimulationEnvironment extends SimState {
 					+ ia3Concs[1][2][1] + ia3Concs[1][0][1] + ia3Concs[1][1][2]
 					+ ia3Concs[1][1][0];
 
+			System.out.println("stuck in do while loop: "
+					+ this.schedule.getSteps());
+			
+			
 			for (int i = 0; i < 10; i++) {
 				schedule.step(this);
 			}
@@ -241,7 +245,7 @@ public class SimulationEnvironment extends SimState {
 					+ ia3Concs[1][1][0];
 		}
 
-		while (totalConc_Tminus10 != totalConc_T);
+		while ( totalConc_Tminus10 != totalConc_T );
 		System.out.println("Chemokine has stabilised: "
 				+ this.schedule.getSteps());
 	}

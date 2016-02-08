@@ -53,11 +53,26 @@ public class BCTest {
 		Settings.WIDTH = 31;
 		Settings.HEIGHT = 31;
 		Settings.DEPTH = 31;
+		
+		
 		Settings.DIFFUSION_COEFFICIENT = 0.0000000000076;
-		Settings.GRID_SIZE = 0.0001;
-		Settings.DIFFUSION_TIMESTEP = Math.pow(Settings.GRID_SIZE, 2)
-				/ (43.7 * Settings.DIFFUSION_COEFFICIENT);
+		Settings.GRID_SIZE = 0.00001;
+
+		//NEED TO DIVIDE THE WHOLE THING BY 60 AS DIFFUSION UPDATES
+		// EVERY SECOND BUT CELLS EVERY 1 MIN
+		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2)
+				/ (40.15 * Settings.DIFFUSION_COEFFICIENT))/60;// need to recalibrate
+
 		Settings.DIFFUSION_STEPS = (int) (1 / Settings.DIFFUSION_TIMESTEP);
+		
+
+
+		System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT
+				+ "timestep: " + Settings.DIFFUSION_STEPS + "steps: "
+				+ Settings.DIFFUSION_TIMESTEP);
+		
+		
+
 
 	}
 

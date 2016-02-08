@@ -43,11 +43,12 @@ public class Settings {
 		NodeList diffusionNL = paramOElement
 				.getElementsByTagName("DIFFUSION_COEFFICIENT");
 		Node diffusionN = diffusionNL.item(0);
-		DIFFUSION_COEFFICIENT = Double.parseDouble(diffusionN.getTextContent());
+		DIFFUSION_COEFFICIENT= Double.parseDouble(diffusionN.getTextContent());
 
 		// this must be computed here otherwise these values get set to zero
 		DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
 		DIFFUSION_STEPS = calculateDIFFUSION_STEPS();
+		
 	}
 
 	
@@ -78,15 +79,20 @@ public class Settings {
 	public static double DIFFUSION_TIMESTEP;
 	public static int DIFFUSION_STEPS;
 
+	
+	
 	/**
 	 * How much time a single iteration of the diffusion process will take us
 	 * forward
 	 * 
 	 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
 	 *      /Notes_Diffusion.pdf
+	 *      
+	 *  We divide the timestep by 60 as we want diffusion occuring on a timescale
+	 *  of seconds, but cells updated on a timescale of minutes
 	 */
 	static double calculateDIFFUSION_TIMESTEP() {
-		return Math.pow(GRID_SIZE, 2) / (40.15 * DIFFUSION_COEFFICIENT);
+		return (Math.pow(GRID_SIZE, 2) / (40.15 * DIFFUSION_COEFFICIENT))/60;
 	}
 
 	static int calculateDIFFUSION_STEPS() {
