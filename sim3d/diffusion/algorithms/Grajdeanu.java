@@ -1,7 +1,6 @@
 package sim3d.diffusion.algorithms;
 
 import sim3d.Settings;
-import sim3d.SimulationEnvironment;
 
 /**
  * Diffusion method proposed by Adrian Grajdeanu in
@@ -35,7 +34,13 @@ public class Grajdeanu extends DiffusionAlgorithm
 	
 	/**
 	 * Sets the diffusion coefficients of the parent using the diffusion
-	 * coefficient
+	 * coefficient.In the gradjeanu implementation the diffusion coefficient isn't used 
+	 * directly. 
+	 * 
+	 * The coefficient is exp(-d^2/mu)
+	 * Where:
+	 * 	d^2 is Math.pow( Settings.GRID_SIZE, 2 ) * (x * x + y * y + z * z)
+	 * 	mu is 4Dt (which is in the Grajdeanu paper).
 	 * 
 	 * @param dDiffuseCoeff
 	 *            The diffusion coefficient to use
@@ -49,6 +54,7 @@ public class Grajdeanu extends DiffusionAlgorithm
 		double dTotalDistance = 0;
 		
 		// Loop through the surrounding squares in 3D space
+		// the Moore neighbourhood
 		for ( int x = -1; x < 2; x++ )
 		{
 			for ( int y = -1; y < 2; y++ )
@@ -60,8 +66,9 @@ public class Grajdeanu extends DiffusionAlgorithm
 					// d is the distance to the neighbouring square, and µ is 
 					// the diffusion coefficient d^2 is calculated by squaring 
 					// each of the fundamental vector distances (i.e. pythagoras in 3D!)
-					// TODO do i need to put diffusion coefficient in seconds or minutes?
-					
+					// this stops anisotropy as accounts for fact that diagonal neighbours
+					// are further away than lateral ones
+	
 					m_adDiffusionCoefficients[x + 1][y + 1][z + 1] = Math
 							.exp( -(Math.pow( Settings.GRID_SIZE, 2 ) * (x * x + y * y + z * z))
 									/ (4 * dDiffuseCoeff * Settings.DIFFUSION_TIMESTEP) );
@@ -71,6 +78,9 @@ public class Grajdeanu extends DiffusionAlgorithm
 				}
 			}
 		}
+		
+		// need to normalise so that the total amount being diffused is less than or equal
+		// to the total amount that exists
 		double dNormalisingCoefficient = 1 / dTotalDistance;
 		
 		for ( int x = 0; x < 3; x++ )

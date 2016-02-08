@@ -1,6 +1,6 @@
-	/**
-	 * Code obtained from Mark Read's ARTIMMUS simulation - Generic read/write file access methods
-	 */
+/**
+ * Code obtained from Mark Read's ARTIMMUS simulation - Generic read/write file access methods
+ */
 package sim3d.util;
 
 import java.io.File;
@@ -31,32 +31,34 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class IO 
-{
-	
+public class IO {
+
 	/**
-	 * Opens an XML file from the filesystem as a Document, so that information can be extracted from it.  
+	 * Opens an XML file from the filesystem as a Document, so that information
+	 * can be extracted from it.
 	 * 
-	 * @param file - the location of the file, as a string. 
+	 * @param file
+	 *            - the location of the file, as a string.
 	 */
-	public static Document openXMLFile(String location)
-	{
-		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+	public static Document openXMLFile(String location) {
+		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
+				.newInstance();
 		DocumentBuilder docBuilder;
-		
+
 		Document doc = null;
-		
+
 		try {
 			docBuilder = docBuilderFactory.newDocumentBuilder();
 			doc = docBuilder.parse(new File(location));
 
-			//	normalize text representation
+			// normalize text representation
 			doc.getDocumentElement().normalize();
-			
-			// remove any nodes in the DOM document that contain only whitespace. 
+
+			// remove any nodes in the DOM document that contain only
+			// whitespace.
 			removeWhitespaceNodes(doc);
 			removeCommentNodes(doc);
-			
+
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (SAXException e) {
@@ -66,68 +68,88 @@ public class IO
 		}
 		return doc;
 	}
-	
+
 	/**
-	 * Code obtained (and slightly modified, but not much) from http://www.roseindia.net/java/beginners/CopyFile.shtml
+	 * Code obtained (and slightly modified, but not much) from
+	 * http://www.roseindia.net/java/beginners/CopyFile.shtml
+	 * 
 	 * @param source
 	 * @param dest
 	 */
-	public static void copyFile(String source, String dest){
-	    try{
-	      File sf = new File(source);
-	      File df = new File(dest);
-	      InputStream in = new FileInputStream(sf);
-	      
-	      OutputStream out = new FileOutputStream(df);
+	public static void copyFile(String source, String dest) {
+		try {
+			File sf = new File(source);
+			File df = new File(dest);
+			InputStream in = new FileInputStream(sf);
 
-	      byte[] buf = new byte[1024];
-	      int len;
-	      while ((len = in.read(buf)) > 0){
-	        out.write(buf, 0, len);
-	      }
-	      in.close();
-	      out.close();
-	      System.out.println("File " + source + " copied to " + dest);
-	    }
-	    catch(FileNotFoundException ex){
-	      System.out.println(ex.getMessage() + " in the specified directory.");
-	      System.exit(0);
-	    }
-	    catch(IOException e){
-	      System.out.println(e.getMessage());      
-	    }
-	  }
-	
+			OutputStream out = new FileOutputStream(df);
+
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = in.read(buf)) > 0) {
+				out.write(buf, 0, len);
+			}
+			in.close();
+			out.close();
+			System.out.println("File " + source + " copied to " + dest);
+		} catch (FileNotFoundException ex) {
+			System.out
+					.println(ex.getMessage() + " in the specified directory.");
+			System.exit(0);
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
 	/**
-	 * Method takes an XML document represented as a DOM document and writes it to the file system. 
+	 * Method takes an XML document represented as a DOM document and writes it
+	 * to the file system.
 	 * 
-	 * @param document the Document representation of the XML file
-	 * @param location the directory path to the location where the XML file is to be writen to 
-	 * @param filename the file name of the file that the XML is to be written in.
+	 * @param document
+	 *            the Document representation of the XML file
+	 * @param location
+	 *            the directory path to the location where the XML file is to be
+	 *            writen to
+	 * @param filename
+	 *            the file name of the file that the XML is to be written in.
 	 */
-	public static void writeXMLFile(Document document, String location, String filename)
-	{
+	public static void writeXMLFile(Document document, String location,
+			String filename) {
 		File directories = new File(location);
-		if(directories.exists() == false)									// if the directory structure does not already exist, then create it. 
+		if (directories.exists() == false) // if the directory structure does
+											// not already exist, then create
+											// it.
 		{
-			try{
+			try {
 				directories.mkdirs();
 			} catch (Exception e) {
-				System.out.println("FileSystemIO: Failed to create the directory structure in which to write the XML file. " + e.getStackTrace());
+				System.out
+						.println("FileSystemIO: Failed to create the directory structure in which to write the XML file. "
+								+ e.getStackTrace());
 			}
 		}
 		File outputFile = new File(location + File.separator + filename);
-		if(outputFile.exists())
-			throw new RuntimeException("FileSystemIO: designated output file already exists!");
-		
+		if (outputFile.exists())
+			throw new RuntimeException(
+					"FileSystemIO: designated output file already exists!");
 
 		try {
-			TransformerFactory tFactory = TransformerFactory.newInstance();	// transformer converts source to an output. 
+			TransformerFactory tFactory = TransformerFactory.newInstance(); // transformer
+																			// converts
+																			// source
+																			// to
+																			// an
+																			// output.
 			Transformer transformer = tFactory.newTransformer();
 
-			DOMSource source = new DOMSource(document); 					// the source for the transformation.
-			StreamResult result = new StreamResult(outputFile); 			// where the transformation is to be sent to.
-			transformer.transform(source, result); 							// perform the transformation from source to result. 
+			DOMSource source = new DOMSource(document); // the source for the
+														// transformation.
+			StreamResult result = new StreamResult(outputFile); // where the
+																// transformation
+																// is to be sent
+																// to.
+			transformer.transform(source, result); // perform the transformation
+													// from source to result.
 
 		} catch (TransformerConfigurationException tce) {
 			// Error generated by the parser
@@ -151,75 +173,72 @@ public class IO
 			x.printStackTrace();
 
 		}
-		
+
 	}
 
 	/**
-	 * Code to remove nodes from the DOM tree that contain only whitespace charaters. Adapted from code obtained from 
+	 * Code to remove nodes from the DOM tree that contain only whitespace
+	 * charaters. Adapted from code obtained from
 	 * 
-	 * http://stackoverflow.com/questions/978810/how-to-strip-whitespace-only-text-nodes-from-a-dom-before-serialization
+	 * http://stackoverflow.com/questions/978810/how-to-strip-whitespace-only-
+	 * text-nodes-from-a-dom-before-serialization
 	 * 
 	 */
-	private static Document removeWhitespaceNodes(Document doc)
-	{
+	private static Document removeWhitespaceNodes(Document doc) {
 		XPathFactory xpathFactory = XPathFactory.newInstance();
 		try {
-			//	 XPath to find empty text nodes.
+			// XPath to find empty text nodes.
 			XPathExpression xpathExp = xpathFactory.newXPath().compile(
-			        "//text()[normalize-space(.) = '']");  
-			NodeList emptyTextNodes = (NodeList) 
-		        xpathExp.evaluate(doc, XPathConstants.NODESET);
+					"//text()[normalize-space(.) = '']");
+			NodeList emptyTextNodes = (NodeList) xpathExp.evaluate(doc,
+					XPathConstants.NODESET);
 
-			//	Remove each empty text node from document.
-			for (int i = 0; i < emptyTextNodes.getLength(); i++) 
-			{	
-			    Node emptyTextNode = emptyTextNodes.item(i);
-			    emptyTextNode.getParentNode().removeChild(emptyTextNode);
+			// Remove each empty text node from document.
+			for (int i = 0; i < emptyTextNodes.getLength(); i++) {
+				Node emptyTextNode = emptyTextNodes.item(i);
+				emptyTextNode.getParentNode().removeChild(emptyTextNode);
 			}
-		} catch (Exception e)
-		{ 
-			System.out.println("exception raised whilst removing whitespace nodes from document : "+ e.getStackTrace());
+		} catch (Exception e) {
+			System.out
+					.println("exception raised whilst removing whitespace nodes from document : "
+							+ e.getStackTrace());
 		}
-		
+
 		return doc;
 	}
-	
-	private static Document removeCommentNodes(Document doc)
-	{
+
+	private static Document removeCommentNodes(Document doc) {
 		Element e = doc.getDocumentElement();
 		removeCommentNodesRecursion(e);
-		
+
 		return doc;
 	}
-	
-	private static void removeCommentNodesRecursion(Node n)
-	{
-		if(n instanceof Comment)
-		{
+
+	private static void removeCommentNodesRecursion(Node n) {
+		if (n instanceof Comment) {
 			n.getParentNode().removeChild(n);
-		} else 	{
+		} else {
 			NodeList ns = n.getChildNodes();
-			if(ns == null) 	return;
-			for(int i = 0; i < ns.getLength(); i++)
-			{
+			if (ns == null)
+				return;
+			for (int i = 0; i < ns.getLength(); i++) {
 				Node child = ns.item(i);
 				removeCommentNodesRecursion(child);
 			}
 		}
 	}
-	
-	public static void printDOMRecursive(int indent, Node n)
-	{
+
+	public static void printDOMRecursive(int indent, Node n) {
 		System.out.println();
-		for(int i = 0; i < indent; i++)
+		for (int i = 0; i < indent; i++)
 			System.out.print("  ");
-		
+
 		System.out.print(n.getNodeName() + "  __  " + n.getTextContent());
-		
+
 		NodeList ns = n.getChildNodes();
-		if (ns == null) return;
-		for(int i = 0; i < ns.getLength(); i++)
-		{
+		if (ns == null)
+			return;
+		for (int i = 0; i < ns.getLength(); i++) {
 			Node child = ns.item(i);
 			printDOMRecursive(indent + 1, child);
 		}

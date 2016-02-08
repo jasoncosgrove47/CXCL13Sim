@@ -8,7 +8,6 @@ import sim.engine.Steppable;
 import sim.field.grid.IntGrid2D;
 import sim.field.grid.IntGrid3D;
 import sim3d.Settings;
-import sim3d.SimulationEnvironment;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
 /**
@@ -16,8 +15,6 @@ import sim3d.diffusion.algorithms.DiffusionAlgorithm;
  * contains the amount of chemokine within each discrete grid space. Handles
  * decay and diffusion (via DiffusionAlgorithm) of chemokines.
  * 
- * TODO Perhaps the static part of this class should've been put into another
- * manager class or something TODO parametrise diffusion on a per solute basis
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
@@ -137,11 +134,7 @@ public class Particle extends IntGrid3D implements Steppable
 		m_iDisplayLevel = iDisplayLevel;
 	}
 	
-	/**
-	 * The coefficient used for particle decay
-	 * TODO: this needs to be an external input and should definitely not be this high
-	 */
-	public double m_dDecayRateInv = 0.9;
+
 	
 	/**
 	 * A 2D grid containing the values using m_iDisplayIndex as the z-index
@@ -190,8 +183,8 @@ public class Particle extends IntGrid3D implements Steppable
 		m_iHeight = iHeight;
 		m_iDepth = iDepth;
 		
-		//TODO I don't think this diffusion coefficient is being used anymore
-		m_daDiffusionAlgorithm = new sim3d.diffusion.algorithms.Grajdeanu( 10, iWidth, iHeight, iDepth );
+
+		m_daDiffusionAlgorithm = new sim3d.diffusion.algorithms.Grajdeanu(  Settings.DIFFUSION_COEFFICIENT, iWidth, iHeight, iDepth );
 		
 		// setup up stepping
 		ms_pParticles[ms_emTypeMap.get( pType )] = this;
@@ -229,7 +222,6 @@ public class Particle extends IntGrid3D implements Steppable
 					// add 0.5 so it rounds (1.6 -> 2) instead of just flooring the value (1.6 -> 1)
 					// TODO need this bit of code explained
 					field[x][y][z] = (int) (0.5 + field[x][y][z] * Settings.CXCL13.DECAY_CONSTANT);
-					//field[x][y][z] = (int) (0.5 + field[x][y][z] * m_dDecayRateInv);
 				}
 			}
 		}
@@ -305,7 +297,6 @@ public class Particle extends IntGrid3D implements Steppable
 	public void step( final SimState state )
 	{
 		
-	
 		decay();
 		for ( int i = 0; i < Settings.DIFFUSION_STEPS; i++ )
 		{
@@ -317,7 +308,6 @@ public class Particle extends IntGrid3D implements Steppable
 
 	/**
 	 * Updates the 2D display
-	 * TODO: this would be a lot more efficient if the first index was z. Probably not worth it, thinking about it, though.
 	 */
 	public void updateDisplay()
 	{

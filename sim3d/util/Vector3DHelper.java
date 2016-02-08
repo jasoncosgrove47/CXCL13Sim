@@ -2,7 +2,6 @@ package sim3d.util;
 
 import sim.util.Double3D;
 import sim3d.Settings;
-import sim3d.SimulationEnvironment;
 
 /**
  * A singleton with helper functions for dealing with vectors (Double3Ds)
@@ -19,10 +18,8 @@ public class Vector3DHelper {
 		// TODO which is faster? this one has less calcs, but one more random
 		// call - I suspect this is slower
 		// see http://mathworld.wolfram.com/SpherePointPicking.html at the
-		// bottom
-		// return new Double3D(Math.abs(Options.RNG.nextGaussian()),
+		// bottom return new Double3D(Math.abs(Options.RNG.nextGaussian()),
 		// Options.RNG.nextGaussian(), Options.RNG.nextGaussian()).normalize();
-
 		// see getRandomDirectionInCone()
 		double z = Settings.RNG.nextDouble() * 2 - 1;
 		double phi = Settings.RNG.nextDouble() * 2 * Math.PI;

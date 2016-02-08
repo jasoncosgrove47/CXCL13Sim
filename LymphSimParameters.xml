@@ -4,7 +4,7 @@
 <input>
 	<O>
 		<GRID_SIZE>0.00001</GRID_SIZE>
-		<DIFFUSION_COEFFICIENT>0.0000000000076</DIFFUSION_COEFFICIENT><!-- 0.0000000000076, 2.5333333e-12, should this be per min or per second? -->
+		<DIFFUSION_COEFFICIENT>0.0000000000076</DIFFUSION_COEFFICIENT><!-- was 10,0.0000000000076, now it's in cm^2/sec  -->
 		<WIDTH>38</WIDTH> 
 		<HEIGHT>38</HEIGHT>
 		<DEPTH>10</DEPTH><!-- we take two away so this will actually be 20 microns less than this value-->
@@ -15,17 +15,17 @@
 		<COGNATECOUNT>2</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
 		<DISCRETISATION>5</DISCRETISATION>
 		<TRAVEL_DISTANCE>0.67</TRAVEL_DISTANCE><!-- was 0.8 -->
-		<SIGNAL_THRESHOLD>20</SIGNAL_THRESHOLD><!-- was 60 -->
+		<SIGNAL_THRESHOLD>20</SIGNAL_THRESHOLD><!-- was 20 -->
 		<RANDOM_TURN_ANGLE>3.14</RANDOM_TURN_ANGLE><!-- angle for random turns, in radians, was 3.14, 2.618 -->
 		<CHEMOKINESIS_SCALAR>0.3</CHEMOKINESIS_SCALAR><!-- increase in velocity during chemokinesis, was 0.25 -->
-		<PERSISTENCE>0.40</PERSISTENCE><!-- was 0.26 then 0.37, bias of the memory vector, values less than 1 means memory is stronger than current signal -->
+		<PERSISTENCE>0.4</PERSISTENCE><!-- was 0.40, bias of the memory vector, values less than 1 means memory is stronger than current signal -->
 	</BC>
 
 	<ODE> 
 		<LR>0</LR><!-- 3000 -->
 		<Rf>30000</Rf><!--30000 -->
 		<Ri>0</Ri>
-		<Ka>5.0e7</Ka><!--0.7,0.1,0.1,-->
+		<Ka>5.0e7</Ka><!---->
 		<Ki>0.1</Ki><!--was 0.1-->
 		<Kr>0.09</Kr><!--0.09-->
 	</ODE>
@@ -40,7 +40,7 @@
 	</FDC>
 	
 	<CXCL13>
-		 <DECAY_CONSTANT>0.75</DECAY_CONSTANT>
+		 <DECAY_CONSTANT>0.99999</DECAY_CONSTANT>
 	</CXCL13>
 	
 	
