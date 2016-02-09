@@ -55,14 +55,14 @@ public class GUIrun extends GUIState {
 	public JFrame chartFrameAntigen;
 
 	// colours for displaying chemokine values
-	public java.awt.Color blue0 = new Color(30, 40, 190, 180);
-	public java.awt.Color blueLow = new Color(30, 40, 190, 0);
+	public java.awt.Color blue0 = new Color(30, 40, 190, 100);
+	public java.awt.Color blueLow = new Color(30, 40, 190, 30);
 	public java.awt.Color blue1 = new Color(30, 40, 210, 200);
 	public java.awt.Color blue2 = new Color(200, 40, 230, 220);
 	public java.awt.Color blue3 = new Color(30, 200, 255, 255);
 
-	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(0.01 * Math.pow(
-			10, -9), 3 * Math.pow(10, -9), blueLow, blue3);
+	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(1 * Math.pow(
+			10, -20), 9 * Math.pow(10, -15), blueLow, blue3);
 
 	/**
 	 * The main display

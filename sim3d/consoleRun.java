@@ -18,12 +18,12 @@ public class consoleRun {
 	/*
 	 * Path where file should be sent to
 	 */
-	public static String outputPath = "/Users/jc1571/Desktop/";
-
+	public static String outputPath;
+	
 	/*
 	 * name of output filename
 	 */
-	public static String outputFileName = "foo.csv";
+	public static String outputFileName;
 
 	/**
 	 * Runs the simulation
@@ -36,8 +36,15 @@ public class consoleRun {
 		System.out.println("start time: " + sdf.format(formattedstarttime));
 
 		// initialise the simulation
-		int seed = (int) (System.currentTimeMillis());
+		
+		// use a proper seed, see the following:
+		// http://www0.cs.ucl.ac.uk/staff/D.Jones/GoodPracticeRNG.pdf
+		int seed = (int) (Integer.valueOf(args[3])* System.currentTimeMillis());
+		
+		
 		String paramFile = args[0];
+		outputPath = args[1];
+		outputFileName = args[2];
 		SimulationEnvironment.simulation = new SimulationEnvironment(seed,
 				IO.openXMLFile(paramFile));
 
@@ -52,7 +59,6 @@ public class consoleRun {
 		do {
 			steps = SimulationEnvironment.simulation.schedule.getSteps();
 			System.out.println("Steps: " + steps);
-			System.out.println("test does print work ");
 			if (!SimulationEnvironment.simulation.schedule
 					.step(SimulationEnvironment.simulation))
 				break;
@@ -62,8 +68,9 @@ public class consoleRun {
 		SimulationEnvironment.simulation.finish();
 		System.out.println("\nSimulation completed successfully!\n\n");
 
-		outputToCSV.writeDataToFile("/Users/jc1571/Desktop/processedData.csv",
-				"/Users/jc1571/Desktop/rawData.csv");
+		//String fullPath = outputPath + outputFileName;
+		
+		outputToCSV.writeDataToFile(outputPath + outputFileName);
 
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();

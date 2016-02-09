@@ -161,7 +161,7 @@ public class SimulationEnvironment extends SimState {
 				Settings.DEPTH);
 
 		// let chemokine stabilise before adding the other cells
-		runChemokineUntilSteadyState();
+		//runChemokineUntilSteadyState();
 
 		// set the collision grid for B cells
 		BC.m_cgGrid = cgGrid;
@@ -229,8 +229,7 @@ public class SimulationEnvironment extends SimState {
 					+ ia3Concs[1][2][1] + ia3Concs[1][0][1] + ia3Concs[1][1][2]
 					+ ia3Concs[1][1][0];
 
-			System.out.println("stuck in do while loop: "
-					+ this.schedule.getSteps());
+
 			
 			
 			for (int i = 0; i < 10; i++) {
@@ -347,6 +346,8 @@ public class SimulationEnvironment extends SimState {
 	
 		new ParticleMoles(schedule,ParticleMoles.TYPE.CXCL13, 
 				Settings.WIDTH, Settings.HEIGHT,Settings.DEPTH);
+		
+
 	}
 
 	/**

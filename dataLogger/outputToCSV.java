@@ -20,15 +20,14 @@ public final class outputToCSV {
 	/**
 	 * processes migration data and sends processed and raw data to csv files
 	 */
-	public static void writeDataToFile(String processedFileName,
-			String rawFileName) {
+	public static void writeDataToFile(String processedFileName) {
 
-		FileWriter rawDataWriter;
+		//FileWriter rawDataWriter;
 		FileWriter processedDataWriter;
 
 		try {
 			processedDataWriter = new FileWriter(processedFileName);
-			rawDataWriter = new FileWriter(rawFileName);
+			//rawDataWriter = new FileWriter(rawFileName);
 
 
 			processedDataWriter.append("TrackID");
@@ -43,6 +42,7 @@ public final class outputToCSV {
 			processedDataWriter.append('\n');
 
 			// set the data headings
+			/*
 			rawDataWriter.append("TrackID");
 			rawDataWriter.append(',');
 			rawDataWriter.append("Timepoint");
@@ -53,11 +53,11 @@ public final class outputToCSV {
 			rawDataWriter.append(',');
 			rawDataWriter.append("CentroidZ");
 			rawDataWriter.append('\n');
-
+			 	*/
 			// for each tracker cell
 			for (Integer key : SimulationEnvironment.getController()
 					.getX_Coordinates().keySet()) {
-				double[] results = processMigrationData(key, rawDataWriter);
+				double[] results = processMigrationData(key);
 
 				// write the data out to the file
 				processedDataWriter.append(Integer.toString(key));
@@ -77,8 +77,8 @@ public final class outputToCSV {
 			processedDataWriter.flush();
 			processedDataWriter.close();
 
-			rawDataWriter.flush();
-			rawDataWriter.close();
+			//rawDataWriter.flush();
+			//rawDataWriter.close();
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -94,8 +94,7 @@ public final class outputToCSV {
 	 * @return a double array with relevant motility parameters
 	 * @throws IOException
 	 */
-	private static double[] processMigrationData(Integer key,
-			FileWriter rawDataWriter) throws IOException {
+	private static double[] processMigrationData(Integer key) throws IOException {
 		// get all of their x,y and z coordinates
 		ArrayList<Double> Xcoords = SimulationEnvironment.getController()
 				.getX_Coordinates().get(key);
@@ -127,6 +126,7 @@ public final class outputToCSV {
 			z = Zcoords.get(i) * Settings.GRID_SIZE;
 
 			// update raw data file
+			/*
 			rawDataWriter.append(Integer.toString(key));
 			rawDataWriter.append(',');
 			rawDataWriter.append(Integer.toString(i));
@@ -137,7 +137,8 @@ public final class outputToCSV {
 			rawDataWriter.append(',');
 			rawDataWriter.append(Double.toString(z));
 			rawDataWriter.append('\n');
-
+			 	*/
+			
 			thisLocation = new Double3D(x, y, z);
 
 			// for each timepoint
