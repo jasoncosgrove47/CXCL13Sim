@@ -219,6 +219,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 	/**
 	 * calculate where to move for the next timestep.
+	 * definitely need to refactor this method
 	 */
 	public void calculateWhereToMoveNext() {
 		Double3D vMovement;
@@ -226,7 +227,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		double vectorMagnitude = vMovement.lengthSq();
 
 		if (vMovement.lengthSq() > 0) {
-			if (vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD) {
+			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
 				// Add some noise to the direction and take the average of our
 				// current direction and the new direction
 
@@ -649,7 +650,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 				// does add a
 				// little elasticity
 				// Basically repeat the process until we go over
-				while (length < BC_SE_COLLIDE_DIST_SQ + 0.05 && s > 0 && s < 1) {
+				//TODO this value can affect the speed of the simulation so really 
+				// need to be careful
+				
+				
+				// we add on the collidedist/10 term because if the BC and stroma are 
+				// the exact distance apart then the BC won't know that it has collided 
+				// so we bring it back just slightly to make sure that it collides in the 
+				// next time step
+				while (length < BC_SE_COLLIDE_DIST_SQ + (BC_SE_COLLIDE_DIST_SQ/10) && s > 0 && s < 1) {
 					sNew = calculateSNew(s, length, d1, d2);
 
 					// Collision Detection p. 130

@@ -227,8 +227,10 @@ public class Settings {
 		/**
 		 * The radius of the sphere that will collide with things. Also
 		 * determines the display size.
+		 * 
+		 * code is highly sensitive to changes in this so be very careful!!
 		 */
-		public static double COLLISION_RADIUS = 0.5; 
+		public static double COLLISION_RADIUS = 0.35; 
 
 		/**
 		 * Parameterisation of the ODE for the receptors in the BCs

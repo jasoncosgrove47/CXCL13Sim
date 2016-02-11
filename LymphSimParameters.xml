@@ -15,7 +15,7 @@
 		<COGNATECOUNT>2</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
 		<DISCRETISATION>5</DISCRETISATION>
 		<TRAVEL_DISTANCE>0.67</TRAVEL_DISTANCE><!-- was 0.8 -->
-		<SIGNAL_THRESHOLD>20</SIGNAL_THRESHOLD><!-- was 20 -->
+		<SIGNAL_THRESHOLD>0</SIGNAL_THRESHOLD><!-- was 20 -->
 		<RANDOM_TURN_ANGLE>3.14</RANDOM_TURN_ANGLE><!-- angle for random turns, in radians, was 3.14, 2.618 -->
 		<CHEMOKINESIS_SCALAR>0.3</CHEMOKINESIS_SCALAR><!-- increase in velocity during chemokinesis, was 0.25 -->
 		<PERSISTENCE>0.4</PERSISTENCE><!-- was 0.40, bias of the memory vector, values less than 1 means memory is stronger than current signal -->
