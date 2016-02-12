@@ -89,6 +89,9 @@ public class Settings {
 	 *      /Notes_Diffusion.pdf
 	 *      
 	 */
+	
+
+
 	static double calculateDIFFUSION_TIMESTEP() {
 		return (Math.pow(GRID_SIZE, 2) / (40.15 * DIFFUSION_COEFFICIENT));
 	}
@@ -98,6 +101,12 @@ public class Settings {
 		return (int) (60 / DIFFUSION_TIMESTEP);
 	}
 
+
+
+	
+
+
+	
 	// //////////////////////// BC PARAMETERS ////////////////////////////////
 
 	/**
@@ -359,7 +368,7 @@ public class Settings {
 			NodeList cxcl13NL = paramFDCElement
 					.getElementsByTagName("CXCL13_EMITTED");
 			Node cxcl13N = cxcl13NL.item(0);
-			CXCL13_EMITTED_in_nM = Double.parseDouble(cxcl13N.getTextContent());
+			CXCL13_EMITTED = Double.parseDouble(cxcl13N.getTextContent());
 
 			NodeList stromanodeNL = paramFDCElement
 					.getElementsByTagName("STROMA_NODE_RADIUS");
@@ -373,13 +382,10 @@ public class Settings {
 			STROMA_EDGE_RADIUS = Double.parseDouble(stromaedgeN
 					.getTextContent());
 
-			CXCL13_EMITTED = scaleEmissionRate();
+			//CXCL13_EMITTED = scaleEmissionRate();
 		}
 
-		// scale CXCL13_EMITTED to nM
-		private static double scaleEmissionRate() {
-			return (CXCL13_EMITTED_in_nM * Math.pow(10, -9));
-		}
+
 
 		/**
 		 * Number of antigen per FDC at the start of the simulation
@@ -410,7 +416,7 @@ public class Settings {
 		/**
 		 * The amount of chemokine secreted at each time step 
 		 */
-		public static double CXCL13_EMITTED_in_nM;
+		//public static double CXCL13_EMITTED_in_nM;
 		public static double CXCL13_EMITTED;
 
 		public static double CXCL13_EMITTED() {

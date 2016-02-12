@@ -4,43 +4,43 @@
 <input>
 	<O>
 		<GRID_SIZE>0.00001</GRID_SIZE>
-		<DIFFUSION_COEFFICIENT>7.6e-12</DIFFUSION_COEFFICIENT><!-- in metres^2 / second -->
-		<WIDTH>38</WIDTH> 
-		<HEIGHT>38</HEIGHT>
+		<DIFFUSION_COEFFICIENT>7.6e-12</DIFFUSION_COEFFICIENT><!--  4.56e-10 , in metres^2 / second -->
+		<WIDTH>34</WIDTH> 
+		<HEIGHT>34</HEIGHT>
 		<DEPTH>10</DEPTH><!-- we take two away so this will actually be 20 microns less than this value-->
 	</O>
 	
 	<BC>
 		<COUNT>48</COUNT> <!-- 200,000 B cells per follicle. 10% of which is 20000 -->
-		<COGNATECOUNT>2</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
+		<COGNATECOUNT>200</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
 		<DISCRETISATION>5</DISCRETISATION>
 		<TRAVEL_DISTANCE>0.67</TRAVEL_DISTANCE><!-- was 0.8 -->
-		<SIGNAL_THRESHOLD>0</SIGNAL_THRESHOLD><!-- was 20 -->
+		<SIGNAL_THRESHOLD>10</SIGNAL_THRESHOLD><!-- was 20 -->
 		<RANDOM_TURN_ANGLE>3.14</RANDOM_TURN_ANGLE><!-- angle for random turns, in radians, was 3.14, 2.618 -->
 		<CHEMOKINESIS_SCALAR>0.3</CHEMOKINESIS_SCALAR><!-- increase in velocity during chemokinesis, was 0.25 -->
-		<PERSISTENCE>0.4</PERSISTENCE><!-- was 0.40, bias of the memory vector, values less than 1 means memory is stronger than current signal -->
+		<PERSISTENCE>0.9</PERSISTENCE><!-- was 0.40, bias of the memory vector, values less than 1 means memory is stronger than current signal -->
 	</BC>
 
 	<ODE> 
 		<LR>0</LR><!-- 3000 -->
 		<Rf>30000</Rf><!--30000 -->
 		<Ri>0</Ri>
-		<Ka>5.0e7</Ka><!---->
-		<Ki>0.1</Ki><!--was 0.1-->
-		<Kr>0.09</Kr><!--0.09-->
+		<Ka>4.4e5</Ka><!--in  M^-1 s%-1, calibrated to keep sensitivity of ligand between 1 and 1000ng ml^-1, although literature says 8.4e5 need to see what effect Koff has-->
+		<Ki>0.0033</Ki><!--in s^-1-->
+		<Kr>0.004</Kr><!--in s^-1-->
 	</ODE>
 
 	<FDC>
 		 <STARTINGANTIGENLEVEL>100</STARTINGANTIGENLEVEL>
-		 <COUNT>400</COUNT>
-		 <DISCRETISATION>5</DISCRETISATION>
-		 <CXCL13_EMITTED>5e-8</CXCL13_EMITTED><!-- was 2.1995-->
+		 <COUNT>350</COUNT>
+		 <DISCRETISATION>5</DISCRETISATION><!-- how big the diffusion neighbourhood is, shouldnt need to change -->
+		 <CXCL13_EMITTED>4e-13</CXCL13_EMITTED><!-- 1ng is 1e-13 moles so this is 0.1ng, far too high definitely need more cells!!! -->
 		 <STROMA_NODE_RADIUS>0.175</STROMA_NODE_RADIUS>
 		 <STROMA_EDGE_RADIUS>0.15</STROMA_EDGE_RADIUS>
 	</FDC>
 	
 	<CXCL13>
-		 <DECAY_CONSTANT>1</DECAY_CONSTANT>
+		 <DECAY_CONSTANT>0.01</DECAY_CONSTANT><!--proportion removed per sec -->
 	</CXCL13>
 	
 	

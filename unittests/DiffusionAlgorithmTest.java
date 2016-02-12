@@ -50,15 +50,15 @@ public class DiffusionAlgorithmTest {
 
 		// loadParameters();
 		Settings.RNG = new MersenneTwisterFast();
-		Settings.DIFFUSION_COEFFICIENT = 0.0000000000076;
+		Settings.DIFFUSION_COEFFICIENT = 4.56e-10;
+
 		Settings.GRID_SIZE = 0.00001;
 
 		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2)
-				/ (40.15 * Settings.DIFFUSION_COEFFICIENT));// need to recalibrate
+				/ (40.15 * Settings.DIFFUSION_COEFFICIENT));// was 40.15, 10 gives a near enough value
 
 		//multiply by 60 as we want to update diffusion in seconds and not minutes
-		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
-		
+		Settings.DIFFUSION_STEPS = (int) (1 / Settings.DIFFUSION_TIMESTEP);
 		
 
 		System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT
@@ -122,6 +122,10 @@ public class DiffusionAlgorithmTest {
 	 * 
 	 * This won't pass everytime because the algorithm needs to be updated 
 	 * 
+	 * Don't trust this as the other one passes even with a ridiculous
+	 * diffusion pattern
+	 * 
+	 * might do my own version of this test
 	 * 
 	 */
 	@Test
@@ -145,6 +149,7 @@ public class DiffusionAlgorithmTest {
 		int iNumSteps = (int) (20.0 / Settings.DIFFUSION_STEPS)
 				* Settings.DIFFUSION_STEPS;
 		
+		//TODO i should probably just reset the diffusion steps here no?
 
 		for (int i = 0; i < iNumSteps; i++) {
 			m_pParticle.step(null);
@@ -170,11 +175,11 @@ public class DiffusionAlgorithmTest {
 			//divide the squared distance by num of particles to
 			// get the mean displacement
 			iMeanSquare /= 1000;
-		
-			System.out.println("iMeanSquare is: " + iMeanSquare);
 
 		}
 
+		
+		
 		
 		//assert that D = <x^2>/6t
 		assertThat(
@@ -183,4 +188,18 @@ public class DiffusionAlgorithmTest {
 				is(closeTo(Settings.DIFFUSION_COEFFICIENT,
 						Settings.DIFFUSION_COEFFICIENT / 2)));
 	}
+	
+	
+	/**
+	 * New test mean squared
+	 * pick a random grid space 50 microns away from chemokine source
+	 * 
+	 */
+	
+	
+	
+	
+	
+	
+	
 }

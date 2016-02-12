@@ -20,14 +20,14 @@ public final class outputToCSV {
 	/**
 	 * processes migration data and sends processed and raw data to csv files
 	 */
-	public static void writeDataToFile(String processedFileName) {
+	public static void writeDataToFile(String processedFileName, String rawFileName) {
 
-		//FileWriter rawDataWriter;
+		FileWriter rawDataWriter;
 		FileWriter processedDataWriter;
 
 		try {
 			processedDataWriter = new FileWriter(processedFileName);
-			//rawDataWriter = new FileWriter(rawFileName);
+			rawDataWriter = new FileWriter(rawFileName);
 
 
 			processedDataWriter.append("TrackID");
@@ -42,7 +42,7 @@ public final class outputToCSV {
 			processedDataWriter.append('\n');
 
 			// set the data headings
-			/*
+			
 			rawDataWriter.append("TrackID");
 			rawDataWriter.append(',');
 			rawDataWriter.append("Timepoint");
@@ -53,11 +53,11 @@ public final class outputToCSV {
 			rawDataWriter.append(',');
 			rawDataWriter.append("CentroidZ");
 			rawDataWriter.append('\n');
-			 	*/
+			
 			// for each tracker cell
 			for (Integer key : SimulationEnvironment.getController()
 					.getX_Coordinates().keySet()) {
-				double[] results = processMigrationData(key);
+				double[] results = processMigrationData(key, rawDataWriter);
 
 				// write the data out to the file
 				processedDataWriter.append(Integer.toString(key));
@@ -94,7 +94,7 @@ public final class outputToCSV {
 	 * @return a double array with relevant motility parameters
 	 * @throws IOException
 	 */
-	private static double[] processMigrationData(Integer key) throws IOException {
+	private static double[] processMigrationData(Integer key, FileWriter rawDataWriter) throws IOException {
 		// get all of their x,y and z coordinates
 		ArrayList<Double> Xcoords = SimulationEnvironment.getController()
 				.getX_Coordinates().get(key);
@@ -120,13 +120,14 @@ public final class outputToCSV {
 		for (int i = 0; i < Xcoords.size(); i++) {
 			// get the x,y and z coordinates of each cell
 			// multiply by 10 because each gridspace
-			// equals 10 microns
-			x = Xcoords.get(i) * Settings.GRID_SIZE;
-			y = Ycoords.get(i) * Settings.GRID_SIZE;
-			z = Zcoords.get(i) * Settings.GRID_SIZE;
+			// equals 10 microns, and we want output in microns
+			// and not metres
+			x = Xcoords.get(i) * 10;
+			y = Ycoords.get(i) * 10;
+			z = Zcoords.get(i) * 10;
 
 			// update raw data file
-			/*
+		
 			rawDataWriter.append(Integer.toString(key));
 			rawDataWriter.append(',');
 			rawDataWriter.append(Integer.toString(i));
@@ -137,7 +138,7 @@ public final class outputToCSV {
 			rawDataWriter.append(',');
 			rawDataWriter.append(Double.toString(z));
 			rawDataWriter.append('\n');
-			 	*/
+		
 			
 			thisLocation = new Double3D(x, y, z);
 

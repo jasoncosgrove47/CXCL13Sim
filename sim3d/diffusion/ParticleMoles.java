@@ -230,11 +230,16 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 * exponential decay
 	 */
 	public void decay() {
-		// Adjust for decay
+		
+		//determine how much is left after decay per timestep
+		//done it this way as it is easier to caompare
+		// to experimental data
+		double amountLeft = 1 - Settings.CXCL13.DECAY_CONSTANT;
+		//
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
 				for (int z = 0; z < m_iDepth; z++) {
-					field[x][y][z] = (field[x][y][z] * Settings.CXCL13.DECAY_CONSTANT);
+					field[x][y][z] = (field[x][y][z] * amountLeft);
 				}
 			}
 		}
@@ -312,13 +317,14 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 */
 	public void step(final SimState state) {
 
-		decay();
+		
 		for (int i = 0; i < Settings.DIFFUSION_STEPS; i++) {
 			m_daDiffusionAlgorithm.diffuse(this);
 
 		}
 
 		updateDisplay();
+		decay();
 	}
 
 	/**

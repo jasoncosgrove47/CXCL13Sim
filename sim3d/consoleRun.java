@@ -62,7 +62,7 @@ public class consoleRun {
 			if (!SimulationEnvironment.simulation.schedule
 					.step(SimulationEnvironment.simulation))
 				break;
-		} while (SimulationEnvironment.experimentFinished == false);
+		} while (SimulationEnvironment.experimentFinished == false); // 
 
 		// finish the simulation
 		SimulationEnvironment.simulation.finish();
@@ -70,7 +70,7 @@ public class consoleRun {
 
 		//String fullPath = outputPath + outputFileName;
 		
-		outputToCSV.writeDataToFile(outputPath + outputFileName);
+		outputToCSV.writeDataToFile(outputPath + outputFileName, "/Users/jc1571/Desktop/rawData.csv");
 
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();

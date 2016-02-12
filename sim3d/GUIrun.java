@@ -62,7 +62,7 @@ public class GUIrun extends GUIState {
 	public java.awt.Color blue3 = new Color(30, 200, 255, 255);
 
 	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(1 * Math.pow(
-			10, -20), 9 * Math.pow(10, -15), blueLow, blue3);
+			10, -21), 6 * Math.pow(10, -18), blueLow, blue3);
 
 	/**
 	 * The main display

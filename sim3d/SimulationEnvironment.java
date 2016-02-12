@@ -163,6 +163,13 @@ public class SimulationEnvironment extends SimState {
 		// let chemokine stabilise before adding the other cells
 		//runChemokineUntilSteadyState();
 
+
+		//let chemokine stabilise before adding other cells
+		for (int i = 0; i < 500; i++) {
+			schedule.step(this);
+		}
+		
+		
 		// set the collision grid for B cells
 		BC.m_cgGrid = cgGrid;
 
@@ -244,7 +251,7 @@ public class SimulationEnvironment extends SimState {
 					+ ia3Concs[1][1][0];
 		}
 
-		while ( totalConc_Tminus10 != totalConc_T );
+		while ( (totalConc_Tminus10 - totalConc_T) >0.001);
 		System.out.println("Chemokine has stabilised: "
 				+ this.schedule.getSteps());
 	}

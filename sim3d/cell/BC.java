@@ -228,15 +228,22 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
+				
+				//TODO: remove print statement
+				System.out.println(" the cell is chemotactic");
 				// Add some noise to the direction and take the average of our
 				// current direction and the new direction
 
 				// the multiply is to scale the new vector, when we multiply by
 				// 2 we are favouring the new signal more than the old
-				vMovement = m_d3Face.add(Vector3DHelper
-						.getRandomDirectionInCone(vMovement.normalize(),
+				
+				
+				vMovement = m_d3Face.add(Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
 								Settings.BC.DIRECTION_ERROR()).multiply(
 								Settings.BC.PERSISTENCE));
+				
+			
+				
 
 				if (vMovement.lengthSq() > 0) {
 					vMovement = vMovement.normalize();
@@ -324,10 +331,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 	/**
 	 * Perform a step for the receptor Euler method with step size 0.1 
+	 * 
+	 * TODO need to add in term for Koff
 	 */
 	private void receptorStep() {
 		double[] iaBoundReceptors = calculateLigandBindingMoles();
 
+		
 		double avogadro = 6.0221409e+23;
 
 		// this is in moles, not receptors so need to scale it before i remove,
@@ -352,17 +362,19 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 			this.m_iL_r += iaBoundReceptors[i];
 		}
 
-		int iTimesteps = 10;
+		
+		
+		int iTimesteps = 60;
 		int iR_i, iL_r;
 
 		for (int i = 0; i < iTimesteps; i++) {
 			iR_i = this.m_iR_i;
 			iL_r = this.m_iL_r;
 
-			this.m_iR_free += (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_r() * iR_i);
-			this.m_iR_i += (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_i() * iL_r)
-					- (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_r() * iR_i);
-			this.m_iL_r -= (int) ((1.0 / iTimesteps) * Settings.BC.ODE.K_i() * iL_r);
+			this.m_iR_free += (int) (Settings.BC.ODE.K_r() * iR_i);
+			this.m_iR_i += (int)  (Settings.BC.ODE.K_i() * iL_r)
+					- (int)  (Settings.BC.ODE.K_r() * iR_i);
+			this.m_iL_r -= (int)  (Settings.BC.ODE.K_i() * iL_r);
 		}
 
 		if (displayODEGraph && SimulationEnvironment.steadyStateReached == true) {
@@ -424,7 +436,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 		for (int i = 0; i < 6; i++) // for each pseudopod
 		{
-			double proportionToBind = (Settings.BC.ODE.K_a() * iaConcs[i]);
+			
+			double proportionToBind = 0;
+			//the binding constant is given per sec so best to do that
+			for (int j = 0; j < 60;j++)
+			{
+				proportionToBind += (Settings.BC.ODE.K_a() * iaConcs[i]);
+			}
 
 			// cap the amount of receptors that can be bound
 			if (proportionToBind > 1) {
