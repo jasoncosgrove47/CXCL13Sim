@@ -176,7 +176,7 @@ public class SimulationEnvironment extends SimState {
 		// seed our tracker cells and let them reach steady state before seeding
 		// our non-tracker cells
 		seedCells(CELLTYPE.cB);
-		runBCellsUntilSteadyState();
+		//runBCellsUntilSteadyState();
 		seedCells(CELLTYPE.B);
 
 		// step a little bit more so the cells have more time to stabilise

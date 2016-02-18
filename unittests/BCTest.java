@@ -95,10 +95,6 @@ public class BCTest {
 	}
 
 
-	// Test - see if receptor levels change in response to different ligand
-	// inputs
-
-	
 	
 
 	

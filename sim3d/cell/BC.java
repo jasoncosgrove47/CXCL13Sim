@@ -3,10 +3,12 @@ package sim3d.cell;
 import sim.util.*;
 import sim.engine.*;
 import sim.field.continuous.Continuous3D;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
 import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.GeometryArray;
@@ -16,6 +18,7 @@ import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3f;
+
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Settings;
@@ -23,6 +26,7 @@ import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.ParticleMoles;
+import sim3d.util.ODESolver;
 import sim3d.util.Vector3DHelper;
 
 /**
@@ -383,6 +387,107 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		}
 	}
 
+	
+	
+	private void receptorStepNew() {
+		double[] iaBoundReceptors = calculateLigandBindingNew();
+
+		//avogadors number - number of molecules in 1 mole
+		double avogadro = 6.0221409e+23;
+
+		// this is in moles, not receptors so need to scale it before i remove,
+		// eg if i took away 10,000 that would be 10,000 moles which is not what
+		// we want!!!
+		//TODO should be encapsulated as consume ligand
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y,
+				(int) z, -(iaBoundReceptors[0] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y,
+				(int) z, -(iaBoundReceptors[1] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y + 1,
+				(int) z, -(iaBoundReceptors[2] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y - 1,
+				(int) z, -(iaBoundReceptors[3] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y,
+				(int) z + 1, -(iaBoundReceptors[4] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y,
+				(int) z - 1, -(iaBoundReceptors[5] / avogadro));
+
+		// update the amount of free and bound receptors
+		for (int i = 0; i < 6; i++) {
+			this.m_iR_free -= iaBoundReceptors[i];
+			this.m_iL_r += iaBoundReceptors[i];
+		}
+
+	
+		int iTimesteps = 60;
+		int iR_i, iL_r;
+		double h = 1; 
+
+		double Rf_t = this.m_iR_free ;
+		double LR_t = this.m_iL_r;
+		double Ri_t = this.m_iR_i ;
+		
+		double Ki = Settings.BC.ODE.K_i();//Ka is already in seconds		
+		double Kr = Settings.BC.ODE.K_r();
+		iR_i = this.m_iR_i;
+		iL_r = this.m_iL_r;
+		
+		
+		//TODO need to look at this code again there are
+		//definitely mistakes
+		for (int i = 0; i < iTimesteps; i++) {
+			
+			double Rf_tplus1;
+			double LR_tplus1;
+			double Ri_tplus1;
+			
+			/**
+			 * Solve the ODE using 4th order Runge Kutta
+			 */
+			double LRK1 = h * (Ki*iL_r);
+			double LRK2 = h * ((Ki*iL_r) + LRK1/2) ;
+			double LRK3 = h * ((Ki*iL_r) + LRK2/2) ;
+			double LRK4 = h * ((Ki*iL_r) + LRK3) ;
+			
+			double RiK1 = h * ((Ki  * iL_r) - (Kr * iR_i));
+			double RiK2 = h * (((Ki * iL_r) - (Kr * iR_i)) + RiK1/2);
+			double RiK3 = h * (((Ki * iL_r) - (Kr * iR_i)) + RiK2/2);
+			double RiK4 = h * (((Ki * iL_r) - (Kr * iR_i)) + RiK3);
+			
+			double RfK1 = h * (Kr*iR_i);
+			double RfK2 = h * ((Kr*iR_i) + LRK1/2) ;
+			double RfK3 = h * ((Kr*iR_i) + LRK2/2) ;
+			double RfK4 = h * ((Kr*iR_i) + LRK3) ;
+		
+			//update the new value of each receptor
+			Rf_tplus1 = (Rf_t + (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6)) ;
+			LR_tplus1 = (LR_t + (LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6)) ;
+			Ri_tplus1 = (Ri_t + (RiK1/6) + (RiK2/3)  + (RiK3/3) + (RiK4/6)) ;
+			
+			//set R_t for the next timestep
+			Rf_t = Rf_tplus1;
+			LR_t = LR_tplus1;
+			Ri_t = Ri_tplus1;
+		}
+
+		
+		this.m_iR_free = (int) Rf_t;
+		this.m_iR_i = (int) Ri_t;
+		this.m_iL_r = (int) Rf_t;
+		
+	
+
+		if (displayODEGraph && SimulationEnvironment.steadyStateReached == true) {
+			// Grapher.updateODEGraph( m_iL_r ); //this gives an error when run
+												 // on console
+		}
+	}
+
+	
+	
+	
+	
+	
 	/**
 	 * 
 	 * Samples CXCL13 in the vicinity of the cell, and calculates a new movement
@@ -442,6 +547,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 			for (int j = 0; j < 60;j++)
 			{
 				proportionToBind += (Settings.BC.ODE.K_a() * iaConcs[i]);
+				
+				
+				//TODO this shoudl work but think about it with a clear head tomorrow 
+				//m_iL_r -= (int)(3e-3 * m_iL_r);
+				// Koff = 3e-3
 			}
 
 			// cap the amount of receptors that can be bound
@@ -457,6 +567,82 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		return iaBoundReceptors;
 	}
 
+	
+	
+	/**
+	 * Updated version for the rungekutta method
+	 * @return
+	 */
+	private double[] calculateLigandBindingNew() {
+
+		// need to figure out what is sensible to secrete per timestep, might as
+		// well do that in moles. Get the surrounding concentrations
+		double[][][] ia3Concs = ParticleMoles.get(ParticleMoles.TYPE.CXCL13,
+				(int) x, (int) y, (int) z);
+
+		// Assume the receptors are spread evenly around the cell
+		int iReceptors = m_iR_free / 6;
+
+		// get CXCL13 concentrations at each psuedopod
+		// {x+, x-, y+, y-, z+, z-}
+		double[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1],
+				ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
+				ia3Concs[1][1][0] };
+
+		
+		//store how many receptors are bound at each pseudopod
+		double[] iaBoundReceptors = new double[6];
+		
+		for (int i = 0; i < 6; i++) // for each pseudopod
+		{
+			
+			double Rf_t = 0;
+			double proportionToBind = 0;
+
+			
+			for (int j = 0; j < 60;j++)
+			{
+				
+				if(j == 0){
+					Rf_t = iReceptors; 
+				}
+				
+				double h = 1; //want to update the equation every second so use 1 / 60 
+				
+				double Ka = Settings.BC.ODE.K_a();				
+				
+				double RfK1 = h * (Ka  * iaConcs[i]);
+				double RfK2 = h * ((Ka  * iaConcs[i]) + RfK1/2) ;
+				double RfK3 = h * ((Ka  * iaConcs[i]) + RfK2/2) ;
+				double RfK4 = h * ((Ka  * iaConcs[i]) + RfK3) ;
+				
+				// the total change in bound receptor for this time increment is
+				//given b this equation
+				proportionToBind += (Rf_t + (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+				
+				//now need to update the value of Rf_t for the next timestep
+				Rf_t = (Rf_t + (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+				
+			}
+
+			// cap the amount of receptors that can be bound
+			if (proportionToBind > 1) {
+				proportionToBind = 1;
+			}
+			if (proportionToBind < 0) {
+				proportionToBind = 0;
+			}
+
+			//not sure about this casting, need to make sure that it is ok
+			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
+		}
+		return iaBoundReceptors;
+	}
+	
+	
+	
+	
+	
 	@Override
 	public void registerCollisions(CollisionGrid cgGrid) {
 		if (cgGrid == null) {

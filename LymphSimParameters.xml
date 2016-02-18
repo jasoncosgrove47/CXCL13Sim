@@ -5,14 +5,14 @@
 	<O>
 		<GRID_SIZE>0.00001</GRID_SIZE>
 		<DIFFUSION_COEFFICIENT>7.6e-12</DIFFUSION_COEFFICIENT><!--  4.56e-10 , in metres^2 / second -->
-		<WIDTH>34</WIDTH> 
-		<HEIGHT>34</HEIGHT>
-		<DEPTH>10</DEPTH><!-- we take two away so this will actually be 20 microns less than this value-->
+		<WIDTH>44</WIDTH> 
+		<HEIGHT>44</HEIGHT>
+		<DEPTH>14</DEPTH><!-- we take two away so this will actually be 20 microns less than this value-->
 	</O>
 	
 	<BC>
-		<COUNT>48</COUNT> <!-- 200,000 B cells per follicle. 10% of which is 20000 -->
-		<COGNATECOUNT>200</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
+		<COUNT>20</COUNT> <!-- 200,000 B cells per follicle. 10% of which is 20000 -->
+		<COGNATECOUNT>20</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
 		<DISCRETISATION>5</DISCRETISATION>
 		<TRAVEL_DISTANCE>0.67</TRAVEL_DISTANCE><!-- was 0.8 -->
 		<SIGNAL_THRESHOLD>10</SIGNAL_THRESHOLD><!-- was 20 -->
@@ -23,24 +23,24 @@
 
 	<ODE> 
 		<LR>0</LR><!-- 3000 -->
-		<Rf>30000</Rf><!--30000 -->
+		<Rf>50000</Rf><!--30000 -->
 		<Ri>0</Ri>
-		<Ka>4.4e5</Ka><!--in  M^-1 s%-1, calibrated to keep sensitivity of ligand between 1 and 1000ng ml^-1, although literature says 8.4e5 need to see what effect Koff has-->
+		<Ka>6.25e9</Ka><!--in  M^-1 s%-1, calibrated to keep sensitivity of ligand between 1 and 1000ng ml^-1, although literature says 8.4e5 need to see what effect Koff has-->
 		<Ki>0.0033</Ki><!--in s^-1-->
 		<Kr>0.004</Kr><!--in s^-1-->
 	</ODE>
 
 	<FDC>
 		 <STARTINGANTIGENLEVEL>100</STARTINGANTIGENLEVEL>
-		 <COUNT>350</COUNT>
+		 <COUNT>1000</COUNT>
 		 <DISCRETISATION>5</DISCRETISATION><!-- how big the diffusion neighbourhood is, shouldnt need to change -->
-		 <CXCL13_EMITTED>4e-13</CXCL13_EMITTED><!-- 1ng is 1e-13 moles so this is 0.1ng, far too high definitely need more cells!!! -->
+		 <CXCL13_EMITTED>4.166e-17</CXCL13_EMITTED><!-- 25pg per hour -->
 		 <STROMA_NODE_RADIUS>0.175</STROMA_NODE_RADIUS>
 		 <STROMA_EDGE_RADIUS>0.15</STROMA_EDGE_RADIUS>
 	</FDC>
 	
 	<CXCL13>
-		 <DECAY_CONSTANT>0.01</DECAY_CONSTANT><!--proportion removed per sec -->
+		 <DECAY_CONSTANT>0.001</DECAY_CONSTANT><!--proportion removed per sec -->
 	</CXCL13>
 	
 	
