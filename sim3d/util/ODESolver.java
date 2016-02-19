@@ -2,29 +2,18 @@ package sim3d.util;
 
 public class ODESolver {
 
-	/**
-	 * This class employs a 4th order runga kutta
-	 */
-	
 
-	
-	/*
+	/**
+	 * 4th order Runge Kutta Solver as described from:
+	 * http://mathworld.wolfram.com/Runge-KuttaMethod.html
+	 * 
+	 * ODE system: f(Rf), f(LR), F(Ri)
+	 * 
 	 * d[LR] = Ka[L][Rf] - Ki[LR]
 	 * 
 	 * d[Rf] = Kr[Ri] - Ka[L][Rf]
 	 * 
 	 * d[Ri] = Ki[LR] - Kr[Ri]
-	 * 
-	 */
-	//Solve system of ODEs using
-	// a fourth order Runge Kutta
-	
-	
-	/**
-	 * Approach is taken from:
-	 * http://mathworld.wolfram.com/Runge-KuttaMethod.html
-	 * 
-	 * ODE system: f(Rf), f(LR), F(Ri)
 	 * 
 	 * h = timestep
 	 * 
@@ -36,17 +25,38 @@ public class ODESolver {
 	 * Rf(t+1) = Rt + 1/6RfK1 + 1/3RfK2 + 1/3RfK3 + 1/6RfK4
 	 * LR(t+1) = LRt + 1/6LRK1 + 1/3LRK2 + 1/3LRK3 + 1/6LRK4
 	 * Ri(t+1) = Rit + 1/6RiK1 + 1/3RiK2 + 1/3RiK3 + 1/6RiK4
+	 * @return 
 	 * 
 	 */
 	
-	public void solveODE(double Ka, double Kr, double Ki, int Rf, int LR, int Ri, double L){
-		double h = 0.01666; // timestep, 0.01666 = 1 second
+	
+	/*
+	 * This portion of the ODE interfaces with the ABM so is solved
+	 * seperately. 4th order Runge Kutta
+	 */
+	public double solveLR(double Ka, double Ki, int Rf, int LR, double L){
+		double h = 0.01666; 
 		
 		double RfK1 = h * ((Ka * L * Rf) -  (Ki*LR))  ;
 		double RfK2 = h * ( ((Ka * L * Rf) - (Ki*LR)) + RfK1/2) ;
 		double RfK3 = h * ( ((Ka * L * Rf) - (Ki*LR)) + RfK2/2) ;
 		double RfK4 = h * ( ((Ka * L * Rf) - (Ki*LR)) + RfK3) ;
 		
+		double Rf_t1 = (Rf + (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6)) ;
+
+		return Rf_t1;
+	}
+
+	
+	/**
+	 * This portion of the ODE does not interface directly with 
+	 * the ABM so we calculate this separately
+	 * 4th order Runge Kutta
+	 */
+	public double[] solveRestofODE(double Ka, double Kr, double Ki, int Rf, int LR, int Ri, double L){
+		double h = 0.01666; 
+		
+		double [ ] results = new double [ 2 ];
 		double RiK1 = h * ((Ki * LR) -  (Kr * Ri));
 		double RiK2 = h * (((Ki * LR) - (Kr * Ri)) + RiK1/2);
 		double RiK3 = h * (((Ki * LR) - (Kr * Ri)) + RiK2/2);
@@ -57,29 +67,13 @@ public class ODESolver {
 		double LRK3 = h * (((Kr*Ri) - (Ka * L * Rf)) + LRK2/2);
 		double LRK4 = h * (((Kr*Ri) - (Ka * L * Rf)) + LRK3);
 		
-		double Rf_t1 = (Rf + (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6)) ;
-		double LR_t1 = (LR + (LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6)) ;
-		double Ri_t1 = (Ri + (RiK1/6) + (RiK2/3)  + (RiK3/3) + (RiK4/6)) ;
+		results[0] = (LR + (LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6)) ;
+		results[1] = (Ri + (RiK1/6) + (RiK2/3)  + (RiK3/3) + (RiK4/6)) ;
+		
+		return results;
 		
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 }

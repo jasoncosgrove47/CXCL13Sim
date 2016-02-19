@@ -172,7 +172,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		calculateWhereToMoveNext();
 
 		handleBounce(); // Check for bounces
-		receptorStep(); // Step forward the receptor ODE
+		//receptorStep(); // Step forward the receptor ODE
+		receptorStepNew();
 		registerCollisions(m_cgGrid); // Register the new movement with the grid
 	}
 
@@ -413,7 +414,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 				(int) z - 1, -(iaBoundReceptors[5] / avogadro));
 
 		// update the amount of free and bound receptors
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 6; i++) {	
 			this.m_iR_free -= iaBoundReceptors[i];
 			this.m_iL_r += iaBoundReceptors[i];
 		}
@@ -422,61 +423,45 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		int iTimesteps = 60;
 		int iR_i, iL_r;
 		double h = 1; 
-
-		double Rf_t = this.m_iR_free ;
-		double LR_t = this.m_iL_r;
-		double Ri_t = this.m_iR_i ;
 		
 		double Ki = Settings.BC.ODE.K_i();//Ka is already in seconds		
 		double Kr = Settings.BC.ODE.K_r();
-		iR_i = this.m_iR_i;
-		iL_r = this.m_iL_r;
 		
+		/**
+		 * Solve the ODE using 4th order Runge Kutta
+		 * timestep j equals 1 second
+		 */
 		
-		//TODO need to look at this code again there are
-		//definitely mistakes
 		for (int i = 0; i < iTimesteps; i++) {
 			
-			double Rf_tplus1;
-			double LR_tplus1;
-			double Ri_tplus1;
+	
+			iR_i = this.m_iR_i;
+			iL_r = this.m_iL_r;
 			
-			/**
-			 * Solve the ODE using 4th order Runge Kutta
-			 */
+			//receptors internalised from surface
 			double LRK1 = h * (Ki*iL_r);
 			double LRK2 = h * ((Ki*iL_r) + LRK1/2) ;
 			double LRK3 = h * ((Ki*iL_r) + LRK2/2) ;
 			double LRK4 = h * ((Ki*iL_r) + LRK3) ;
 			
-			double RiK1 = h * ((Ki  * iL_r) - (Kr * iR_i));
-			double RiK2 = h * (((Ki * iL_r) - (Kr * iR_i)) + RiK1/2);
-			double RiK3 = h * (((Ki * iL_r) - (Kr * iR_i)) + RiK2/2);
-			double RiK4 = h * (((Ki * iL_r) - (Kr * iR_i)) + RiK3);
-			
+			//receptors that are recycled from internal pool
 			double RfK1 = h * (Kr*iR_i);
 			double RfK2 = h * ((Kr*iR_i) + LRK1/2) ;
 			double RfK3 = h * ((Kr*iR_i) + LRK2/2) ;
 			double RfK4 = h * ((Kr*iR_i) + LRK3) ;
-		
-			//update the new value of each receptor
-			Rf_tplus1 = (Rf_t + (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6)) ;
-			LR_tplus1 = (LR_t + (LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6)) ;
-			Ri_tplus1 = (Ri_t + (RiK1/6) + (RiK2/3)  + (RiK3/3) + (RiK4/6)) ;
 			
-			//set R_t for the next timestep
-			Rf_t = Rf_tplus1;
-			LR_t = LR_tplus1;
-			Ri_t = Ri_tplus1;
+			this.m_iR_free += (int) ((RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+			this.m_iR_i += (int) ((LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6))
+					- (int) ((RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+			this.m_iL_r -= (int)   ((LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6));
+			
+
 		}
 
-		
-		this.m_iR_free = (int) Rf_t;
-		this.m_iR_i = (int) Ri_t;
-		this.m_iL_r = (int) Rf_t;
-		
+		int totalNumber = this.m_iR_free + this.m_iR_i + this.m_iL_r;
 	
 
+			
 		if (displayODEGraph && SimulationEnvironment.steadyStateReached == true) {
 			// Grapher.updateODEGraph( m_iL_r ); //this gives an error when run
 												 // on console
@@ -496,8 +481,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * @return The new direction for the cell to move
 	 */
 	private Double3D getMoveDirection() {
-		double[] iaBoundReceptors = calculateLigandBindingMoles();
-
+		//double[] iaBoundReceptors = calculateLigandBindingMoles();
+		double[] iaBoundReceptors = calculateLigandBindingNew();
 	
 		//the new direction for the cell to move
 		Double3D vMovement = new Double3D();
