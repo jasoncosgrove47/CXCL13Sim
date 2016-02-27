@@ -35,6 +35,10 @@ public class Settings {
 		NodeList depthNL = paramOElement.getElementsByTagName("DEPTH");
 		Node depthN = depthNL.item(0);
 		DEPTH = Integer.parseInt(depthN.getTextContent());
+		
+		NodeList elNL = paramOElement.getElementsByTagName("EXPERIMENTLENGTH");
+		Node elN = elNL.item(0);
+		EXPERIMENTLENGTH = Integer.parseInt(elN.getTextContent());
 
 		NodeList gridNL = paramOElement.getElementsByTagName("GRID_SIZE");
 		Node gridN = gridNL.item(0);
@@ -64,6 +68,9 @@ public class Settings {
 	public static int WIDTH;
 	public static int HEIGHT;
 	public static int DEPTH;
+	
+	// the length of an experiment, once steady state is reached
+	public static int EXPERIMENTLENGTH;
 
 	/**
 	 * Size of one edge of a grid space in meters
@@ -200,7 +207,16 @@ public class Settings {
 		static double TRAVEL_DISTANCE;
 
 		public static double TRAVEL_DISTANCE() {
-			return TRAVEL_DISTANCE; 
+			//nextGaussian() is normal distributed with mean 0 and std-deviance 1
+
+			//so if you want mean traveldistance and std-deviance 1 micron you'll need to call 
+			// it as nextGaussian()*sd+TRAVEL_DISTANCE
+			
+			double sd = 0.55; //let's set the sd to 1 micron for the minute and see how that goes
+			
+			double td =  SimulationEnvironment.simulation.random.nextGaussian()*sd + TRAVEL_DISTANCE;
+			return td;
+			
 		}
 
 		/**

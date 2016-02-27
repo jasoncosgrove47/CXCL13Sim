@@ -24,6 +24,10 @@ public final class outputToCSV {
 
 		FileWriter rawDataWriter;
 		FileWriter processedDataWriter;
+		
+		double dendritesVisited;
+		//the percentage of the network the B-cell has scanned
+		double networkScanned;
 
 		try {
 			processedDataWriter = new FileWriter(processedFileName);
@@ -39,6 +43,8 @@ public final class outputToCSV {
 			processedDataWriter.append("MI");
 			processedDataWriter.append(',');
 			processedDataWriter.append("Speed");
+			processedDataWriter.append(',');
+			processedDataWriter.append("dendritesVisited");
 			processedDataWriter.append('\n');
 
 			// set the data headings
@@ -55,10 +61,21 @@ public final class outputToCSV {
 			rawDataWriter.append('\n');
 			
 			// for each tracker cell
-			for (Integer key : SimulationEnvironment.getController()
+			for (Integer key : Controller.getInstance()
 					.getX_Coordinates().keySet()) {
 				double[] results = processMigrationData(key, rawDataWriter);
+				
+				
+				//calculate the percentage of the network scanned
+				
+				dendritesVisited = (double) Controller.getInstance().getDendritesVisited().get(key);
 
+				networkScanned = (dendritesVisited / SimulationEnvironment.totalNumberOfDendrites);
+				
+				System.out.println("dendrites visited equals: " + dendritesVisited);
+				System.out.println("total number of dendrites: " + SimulationEnvironment.totalNumberOfDendrites);
+				System.out.println("percentage network scanned: " + networkScanned);
+				
 				// write the data out to the file
 				processedDataWriter.append(Integer.toString(key));
 				processedDataWriter.append(',');
@@ -69,8 +86,13 @@ public final class outputToCSV {
 				processedDataWriter.append(Double.toString(results[2]));
 				processedDataWriter.append(',');
 				processedDataWriter.append(Double.toString(results[3]));
+				processedDataWriter.append(',');
+				processedDataWriter.append(Double.toString(networkScanned));
 				processedDataWriter.append('\n');
 
+				
+				
+				
 			}
 
 			// close the file stream
@@ -96,11 +118,11 @@ public final class outputToCSV {
 	 */
 	private static double[] processMigrationData(Integer key, FileWriter rawDataWriter) throws IOException {
 		// get all of their x,y and z coordinates
-		ArrayList<Double> Xcoords = SimulationEnvironment.getController()
+		ArrayList<Double> Xcoords = Controller.getInstance()
 				.getX_Coordinates().get(key);
-		ArrayList<Double> Ycoords = SimulationEnvironment.getController()
+		ArrayList<Double> Ycoords = Controller.getInstance()
 				.getY_Coordinates().get(key);
-		ArrayList<Double> Zcoords = SimulationEnvironment.getController()
+		ArrayList<Double> Zcoords = Controller.getInstance()
 				.getZ_Coordinates().get(key);
 
 		Double3D startLocation = null;   //starting position

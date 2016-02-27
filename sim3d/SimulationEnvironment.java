@@ -16,6 +16,8 @@ import sim3d.util.FRCStromaGenerator;
 import sim3d.util.FRCStromaGenerator.FRCCell;
 
 /**
+ * TODO this also needs to be a singleton class
+ * 
  * 
  * This class sets up and runs the simulation absent of any GUI related function
  * as a MASON design pattern, in line with the MASON (Model/View/Controller).
@@ -42,12 +44,24 @@ public class SimulationEnvironment extends SimState {
 	 */
 	public static boolean experimentFinished = false;
 
+	
+	public static int totalNumberOfDendrites = 0;
+	
+	
+	/**
+	 * A static instance of the simulation that only
+	 * get's set here - there may be a better way
+	 * to do this TODO
+	 */
 	public static SimulationEnvironment simulation;
 
 	/*
 	 * 3D grid for Stroma
 	 */
 	public Continuous3D fdcEnvironment;
+	
+	
+	public static ParticleMoles particlemoles;
 
 	/*
 	 * Parameter file: XML format
@@ -57,7 +71,7 @@ public class SimulationEnvironment extends SimState {
 	/*
 	 * Controller responsible for recording data from the simulation
 	 */
-	private static Controller controller;
+	//private static Controller controller;
 
 	/**
 	 * ENUM for the cell types
@@ -156,7 +170,7 @@ public class SimulationEnvironment extends SimState {
 
 		// initialise the relevant agents
 		initialiseStroma(cgGrid); // initialise the stromal network
-		new ParticleMoles(schedule,
+		particlemoles  = new ParticleMoles(schedule,
 				ParticleMoles.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT,
 				Settings.DEPTH);
 
@@ -186,8 +200,8 @@ public class SimulationEnvironment extends SimState {
 		}
 
 		// now initialise the datalogger
-		controller = new Controller();
-		schedule.scheduleRepeating(getController());
+
+		schedule.scheduleRepeating(Controller.getInstance());
 
 		// set the steady state guard to true so
 		// b cells can begin recording data
@@ -324,8 +338,8 @@ public class SimulationEnvironment extends SimState {
 		super.start();
 
 		// initialise the controller and add to the schedule,
-		controller = new Controller();
-		schedule.scheduleRepeating(getController());
+		//controller = new Controller();
+		//schedule.scheduleRepeating(getController());
 
 		// Initialise the stromal grid
 		fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
@@ -338,6 +352,19 @@ public class SimulationEnvironment extends SimState {
 				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
 		BC.drawEnvironment = BC.bcEnvironment;
 
+		
+		
+		
+		new ParticleMoles(schedule,ParticleMoles.TYPE.CXCL13, 
+				Settings.WIDTH, Settings.HEIGHT,Settings.DEPTH);
+		
+		//let diffusion stabilise before adding the cells
+		for (int i = 0; i < 200; i++) {
+			schedule.step(this);
+		}
+		
+		
+		
 		// Initialise the CollisionGrid
 		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH,
 				Settings.HEIGHT, Settings.DEPTH, 1);
@@ -348,13 +375,14 @@ public class SimulationEnvironment extends SimState {
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
 
+
+	
+		
+		
 		seedCells(CELLTYPE.B);
 		seedCells(CELLTYPE.cB);
-	
-		new ParticleMoles(schedule,ParticleMoles.TYPE.CXCL13, 
-				Settings.WIDTH, Settings.HEIGHT,Settings.DEPTH);
 		
-
+		
 	}
 
 	/**
@@ -439,6 +467,10 @@ public class SimulationEnvironment extends SimState {
 		return new Double3D(x, y, z);
 	}
 
+	
+
+	
+	
 	/*
 	 * Generate and initialise a stromal network
 	 */
@@ -447,10 +479,15 @@ public class SimulationEnvironment extends SimState {
 		// Generate some stroma
 		ArrayList<FRCCell> frclCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
+		/*
 		FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2,
 				Settings.HEIGHT - 2, Settings.DEPTH - 2, Settings.FDC.COUNT,
 				frclCellLocations, sealEdges);
-
+        */
+		
+		FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2,
+				Settings.HEIGHT - 2, Settings.DEPTH - 2, Settings.FDC.COUNT,
+				frclCellLocations, sealEdges);
 
 		// Create the FDC objects, display them, schedule them, and then put
 		// them on the collision grid
@@ -504,15 +541,12 @@ public class SimulationEnvironment extends SimState {
 
 		// All the static cells are in, now reset the collision data
 		cgGrid.step(null);
+		
+		//count the entire number of dendrites so we can get a percentage scanned measure
+		totalNumberOfDendrites = sealEdges.size();
+		
+		
 	}
 
-	// getters and setters
-	public static Controller getController() {
-		return controller;
-	}
-
-	public static void setController(Controller controller) {
-		SimulationEnvironment.controller = controller;
-	}
 
 }

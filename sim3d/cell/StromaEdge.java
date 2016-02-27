@@ -1,6 +1,7 @@
 package sim3d.cell;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
@@ -11,6 +12,8 @@ import javax.media.j3d.TransformGroup;
 import javax.media.j3d.TransparencyAttributes;
 import javax.vecmath.Point3d;
 
+import sim.engine.SimState;
+import sim.engine.Steppable;
 import sim.field.continuous.Continuous3D;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.util.Double3D;
@@ -25,12 +28,34 @@ import sim3d.collisiondetection.CollisionGrid;
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
-public class StromaEdge extends DrawableCell3D implements Collidable {
+public class StromaEdge extends DrawableCell3D implements java.io.Serializable, Collidable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+
+
+
+
 	/**
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
 	 */
 	public static Continuous3D drawEnvironment;
+	
+	
+	
+	
+	//records which cells have collided with this edge
+	//as we want to limit the interactions between 
+	// a given stromal edge and a b cell
+	ArrayList<Integer> cellsCollidedWithUpperHalf = new ArrayList<Integer>();
+	ArrayList<Integer> cellsCollidedWithLowerHalf = new ArrayList<Integer>();
+	
+	
+	//public int[] cellsCollidedWithUpperHalf;
+	//public int[] cellsCollidedWithLowerHalf;
 
 	/**
 	 * Define colours so that we can add an antigen heatmap later if required.
@@ -212,4 +237,8 @@ public class StromaEdge extends DrawableCell3D implements Collidable {
 	public void setAntigenLevelLowerHalf(int antigenLevelLowerEdge) {
 		this.antigenLevelLowerEdge = antigenLevelLowerEdge;
 	}
+
+
+
+
 }

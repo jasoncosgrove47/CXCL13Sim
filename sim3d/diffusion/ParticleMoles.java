@@ -12,6 +12,7 @@ import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
 /**
  * Same as Particle but accounts for Moles not absoloute molecules
+ * is just an object of type doubleGrid3D
  * 
  * @author Jason Cosgrove
  */
@@ -323,6 +324,9 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 
 		}
 		
+		
+		//this code doesn't do anything but is useful for calibrating
+		// chemokine concentration
 		double totalChemokineValue = 0;
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
@@ -332,8 +336,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 			}
 		}
 		
-		System.out.println("total chemokine value is: " + totalChemokineValue);
-
+		//System.out.println("total chemokine value is" + totalChemokineValue);
 		updateDisplay();
 		decay();
 	}

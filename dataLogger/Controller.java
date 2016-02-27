@@ -3,14 +3,18 @@ package dataLogger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 
 @SuppressWarnings("serial")
 public class Controller implements Steppable {
 
 	/**
+	 * Is a singleton class
+	 * 
 	 * All data collection is handled through this class, it has functionality
 	 * to track populations of cell types and single cell tracking experiments.
 	 * 
@@ -26,6 +30,23 @@ public class Controller implements Steppable {
 	 * @author jason cosgrove
 	 */
 
+	
+	private static Controller instance = null;
+	
+	protected Controller(){
+		experimentTimer = 0;
+		//lengthOfExperiment = 30;
+		
+		lengthOfExperiment = Settings.EXPERIMENTLENGTH;
+	}
+	
+	public static Controller getInstance(){
+		if(instance ==null){
+			instance = new Controller();
+		}
+		return instance;
+	}
+	
 	/*
 	 * Counter for the number of antigen primed B cells in the simulation
 	 */
@@ -34,7 +55,7 @@ public class Controller implements Steppable {
 	/**
 	 * Timer for the experiment, incremented in timesteps of the simulation
 	 */
-	private int experimentTimer;
+	private int experimentTimer = 0;
 
 	/*
 	 * The duration of an in silico experiment
@@ -49,14 +70,10 @@ public class Controller implements Steppable {
 	private Map<Integer, ArrayList<Double>> X_Coordinates = new HashMap<Integer, ArrayList<Double>>();
 	private Map<Integer, ArrayList<Double>> Y_Coordinates = new HashMap<Integer, ArrayList<Double>>();
 	private Map<Integer, ArrayList<Double>> Z_Coordinates = new HashMap<Integer, ArrayList<Double>>();
+	
+	//need to initialise this
+	private Map<Integer,Integer> dendritesVisited = new HashMap<Integer, Integer>();
 
-	/*
-	 * Constructor for the controller class
-	 */
-	public Controller() {
-		experimentTimer = 0;
-		lengthOfExperiment = 30;
-	}
 
 	/**
 	 * Controls the length of an experiment and signals to the main class when
@@ -64,6 +81,7 @@ public class Controller implements Steppable {
 	 */
 	public void step(SimState state) {
 		experimentTimer++;
+	
 		if (experimentTimer > lengthOfExperiment) {
 			SimulationEnvironment.experimentFinished = true;
 		}
@@ -91,5 +109,12 @@ public class Controller implements Steppable {
 	public Map<Integer, ArrayList<Double>> getZ_Coordinates() {
 		return Z_Coordinates;
 	}
+
+	public Map<Integer,Integer> getDendritesVisited() {
+		return dendritesVisited;
+	}
+
+
+
 
 }

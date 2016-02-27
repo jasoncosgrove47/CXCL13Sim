@@ -19,6 +19,7 @@ import javax.media.j3d.TransformGroup;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3f;
 
+import dataLogger.Grapher;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Settings;
@@ -66,7 +67,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	/**
 	 * Required to prevent a warning
 	 */
-	private static final long serialVersionUID = 1;
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Boolean to tell the cell whether or not it should be sending graph data;
@@ -169,6 +170,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		}
 
 
+		//System.out.println("nextGaussian is: " + SimulationEnvironment.simulation.random.nextGaussian());
+		
 		calculateWhereToMoveNext();
 
 		handleBounce(); // Check for bounces
@@ -189,6 +192,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 */
 	public void performSavedMovements() {
 
+		Double3D oldLocation = new Double3D(x,y,z);
+		
 		for (Double3D d3Movement : m_d3aMovements) {
 
 			
@@ -197,45 +202,154 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 			z += d3Movement.z;
 		}
 
-		// need to see if there is actually space to move
+	
+		// Remember which way we're now facing
+		m_d3Face = m_d3aMovements.get(m_d3aMovements.size() - 1).normalize();
+		//if space to move then move
+		//TODO pretty sure i would need to update the 
+		// x,y and z from for loop above if i don't move
+		if(determineSpaceToMove(x,y,z)){
+			setObjectLocation(new Double3D(x, y, z));
+		}
+		
+		//TODO need to implement this method but needs debugging first
+		// cells seem to be clustering really tightly with it
+	
+		/*
+		Double3D locationToMoveTo = checkFreeSpaceAlongPath(x,y,z,oldLocation);
+		
+		//update these coordinates, does this help anything?
+		x= locationToMoveTo.x;
+		y= locationToMoveTo.y;
+		z= locationToMoveTo.z;
+		
+		//if there is free space available then migrate
+	
+		setObjectLocation(locationToMoveTo);
+		*/
+
+	}
+
+	
+	
+	/**
+	 * Looks at how many cells are in the target location,
+	 * if this is full then it checks halfway along the
+	 * target path
+	 * @return 
+	 */
+	public Double3D checkFreeSpaceAlongPath(double x, double y, double z, Double3D oldLocation){
+		
+		
+		//get the location we want to go to
+		Double3D putativeLocation = new Double3D(x, y, z);
+	
+		// see how many cells are at the putative location
+		Bag cells = BC.bcEnvironment.getNeighborsExactlyWithinDistance(
+				putativeLocation, 0.7);// cell is actually 0.7
+			
+
+		//use this to decide probabilistically whether or not to move
+		int otherCells = cells.numObjs - 1;
+		double pmove = Math.exp(-otherCells);
+
+		double random = Settings.RNG.nextDouble();
+
+		if (random < pmove) {
+			return putativeLocation;
+		}
+		
+		
+		//if not returned at this point we need to determine what the midway point is
+		//between curent and target location and see if htere is space available there
+		double midx = ((oldLocation.x + putativeLocation.x)/2);
+		double midy = ((oldLocation.y + putativeLocation.y)/2);
+		double midz = ((oldLocation.z + putativeLocation.z)/2);
+		
+		Double3D midpoint = new Double3D(midx, midy, midz);
+		
+		
+		// see if there are any cells at the putative location
+		Bag cells_m = BC.bcEnvironment.getNeighborsExactlyWithinDistance(
+						midpoint, 0.7);// cell is actually 0.7
+					
+				// need to do cells minus one as it includes this cell
+		int otherCells_m = cells_m.numObjs - 1;
+
+				//need to account for in
+		double pmove_m = Math.exp(-otherCells_m);
+
+		double random_m = Settings.RNG.nextDouble();
+
+		if (random_m < pmove_m) {
+			return midpoint;
+		}
+				
+		else return oldLocation;
+		
+	}
+	
+	
+	
+	/**
+	 * TODO This stops the cell moving the entire distance
+	 * but why couldnt it move halfway along?
+	 * 
+	 * 
+	 * TODO not fully convinced that this method is correct
+	 * 
+	 * 
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public boolean determineSpaceToMove(double x, double y, double z){
 		Double3D putativeLocation = new Double3D(x, y, z);
 
 		// see if there are any cells at the putative location
 		Bag cells = BC.bcEnvironment.getNeighborsExactlyWithinDistance(
-				putativeLocation, 1);// not quite one because cells can squeeze
-
-		// Remember which way we're now facing
-		m_d3Face = m_d3aMovements.get(m_d3aMovements.size() - 1).normalize();
-
-
+				putativeLocation, 0.7);// cell is actually 0.7
+		
+	
 		// need to do cells minus one as it includes this cell
 		int otherCells = cells.numObjs - 1;
 
+		
+		//need to account for in
 		double pmove = Math.exp(-otherCells);
 
 		double random = Settings.RNG.nextDouble();
 
 		if (random < pmove) {
 
-			setObjectLocation(new Double3D(x, y, z));
+			return true;
+		
 		}
-
+		
+		else return false;
+		
 	}
-
+	
+	
+	
 	/**
 	 * calculate where to move for the next timestep.
 	 * definitely need to refactor this method
+	 * maybe i should check for BC collisions here
 	 */
 	public void calculateWhereToMoveNext() {
 		Double3D vMovement;
 		vMovement = getMoveDirection();
 		double vectorMagnitude = vMovement.lengthSq();
+		
+	
 
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
 				
 				//TODO: remove print statement
-				System.out.println(" the cell is chemotactic");
+				//System.out.println(" the cell is chemotactic");
 				// Add some noise to the direction and take the average of our
 				// current direction and the new direction
 
@@ -334,62 +448,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		stopper.stop();
 	}
 
+
+	
 	/**
 	 * Perform a step for the receptor Euler method with step size 0.1 
 	 * 
 	 * TODO need to add in term for Koff
 	 */
-	private void receptorStep() {
-		double[] iaBoundReceptors = calculateLigandBindingMoles();
-
-		
-		double avogadro = 6.0221409e+23;
-
-		// this is in moles, not receptors so need to scale it before i remove,
-		// eg if i took away 10,000 that would be 10,000 moles which is not what
-		// we want!!!
-		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y,
-				(int) z, -(iaBoundReceptors[0] / avogadro));
-		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y,
-				(int) z, -(iaBoundReceptors[1] / avogadro));
-		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y + 1,
-				(int) z, -(iaBoundReceptors[2] / avogadro));
-		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y - 1,
-				(int) z, -(iaBoundReceptors[3] / avogadro));
-		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y,
-				(int) z + 1, -(iaBoundReceptors[4] / avogadro));
-		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y,
-				(int) z - 1, -(iaBoundReceptors[5] / avogadro));
-
-		// update the amount of free and bound receptors
-		for (int i = 0; i < 6; i++) {
-			this.m_iR_free -= iaBoundReceptors[i];
-			this.m_iL_r += iaBoundReceptors[i];
-		}
-
-		
-		
-		int iTimesteps = 60;
-		int iR_i, iL_r;
-
-		for (int i = 0; i < iTimesteps; i++) {
-			iR_i = this.m_iR_i;
-			iL_r = this.m_iL_r;
-
-			this.m_iR_free += (int) (Settings.BC.ODE.K_r() * iR_i);
-			this.m_iR_i += (int)  (Settings.BC.ODE.K_i() * iL_r)
-					- (int)  (Settings.BC.ODE.K_r() * iR_i);
-			this.m_iL_r -= (int)  (Settings.BC.ODE.K_i() * iL_r);
-		}
-
-		if (displayODEGraph && SimulationEnvironment.steadyStateReached == true) {
-			// Grapher.updateODEGraph( m_iL_r ); //this gives an error when run
-												 // on console
-		}
-	}
-
-	
-	
 	private void receptorStepNew() {
 		double[] iaBoundReceptors = calculateLigandBindingNew();
 
@@ -434,7 +499,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		
 		for (int i = 0; i < iTimesteps; i++) {
 			
-	
 			iR_i = this.m_iR_i;
 			iL_r = this.m_iL_r;
 			
@@ -455,14 +519,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 					- (int) ((RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
 			this.m_iL_r -= (int)   ((LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6));
 			
-
 		}
 
-		int totalNumber = this.m_iR_free + this.m_iR_i + this.m_iL_r;
-	
-
-			
-		if (displayODEGraph && SimulationEnvironment.steadyStateReached == true) {
+		if (displayODEGraph) {
 			// Grapher.updateODEGraph( m_iL_r ); //this gives an error when run
 												 // on console
 		}
@@ -500,61 +559,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		return vMovement;
 	}
 
-	/*
-	 * Helper method to calculate the amount of ligand bound to receptor returns
-	 * an int array with the number of bound receptors at each psuedopod
-	 */
-	private double[] calculateLigandBindingMoles() {
 
-		// need to figure out what is sensible to secrete per timestep, might as
-		// well do that in moles. Get the surrounding concentrations
-		double[][][] ia3Concs = ParticleMoles.get(ParticleMoles.TYPE.CXCL13,
-				(int) x, (int) y, (int) z);
-
-		// Assume the receptors are spread evenly around the cell
-		int iReceptors = m_iR_free / 6;
-
-		// get CXCL13 concentrations at each psuedopod
-		// {x+, x-, y+, y-, z+, z-}
-		double[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1],
-				ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
-				ia3Concs[1][1][0] };
-
-		
-		//store how many receptors are bound at each pseudopod
-		double[] iaBoundReceptors = new double[6];
-
-		for (int i = 0; i < 6; i++) // for each pseudopod
-		{
-			
-			double proportionToBind = 0;
-			//the binding constant is given per sec so best to do that
-			for (int j = 0; j < 60;j++)
-			{
-				proportionToBind += (Settings.BC.ODE.K_a() * iaConcs[i]);
-				
-				
-				//TODO this shoudl work but think about it with a clear head tomorrow 
-				//m_iL_r -= (int)(3e-3 * m_iL_r);
-				// Koff = 3e-3
-			}
-
-			// cap the amount of receptors that can be bound
-			if (proportionToBind > 1) {
-				proportionToBind = 1;
-			}
-			if (proportionToBind < 0) {
-				proportionToBind = 0;
-			}
-
-			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
-		}
-		return iaBoundReceptors;
-	}
-
-	
 	
 	/**
+	 *  Helper method to calculate the amount of ligand bound to receptor returns
+	 * an int array with the number of bound receptors at each psuedopod
+	 * 
 	 * Updated version for the rungekutta method
 	 * @return
 	 */
@@ -575,22 +585,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 				ia3Concs[1][1][0] };
 
 		
+
 		//store how many receptors are bound at each pseudopod
 		double[] iaBoundReceptors = new double[6];
 		
 		for (int i = 0; i < 6; i++) // for each pseudopod
 		{
 			
-			double Rf_t = 0;
 			double proportionToBind = 0;
 
 			
 			for (int j = 0; j < 60;j++)
 			{
-				
-				if(j == 0){
-					Rf_t = iReceptors; 
-				}
 				
 				double h = 1; //want to update the equation every second so use 1 / 60 
 				
@@ -603,10 +609,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 				
 				// the total change in bound receptor for this time increment is
 				//given b this equation
-				proportionToBind += (Rf_t + (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
-				
-				//now need to update the value of Rf_t for the next timestep
-				Rf_t = (Rf_t + (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+				proportionToBind += ( (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
 				
 			}
 
@@ -620,6 +623,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 			//not sure about this casting, need to make sure that it is ok
 			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
+			
+
 		}
 		return iaBoundReceptors;
 	}
@@ -689,7 +694,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 				{
 					iCollisionMovement = m_d3aMovements.size() - 1;
 					bCollision = true;
-					// acquireAntigen(cCell);
+					//acquireAntigen(cCell);
 				}
 				break;
 			case STROMA:

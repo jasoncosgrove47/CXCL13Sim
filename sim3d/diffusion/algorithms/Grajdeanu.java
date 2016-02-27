@@ -69,6 +69,11 @@ public class Grajdeanu extends DiffusionAlgorithm
 					// this stops anisotropy as accounts for fact that diagonal neighbours
 					// are further away than lateral ones
 	
+					
+					//TODO add some value to the center squares diffusion coefficient
+					// such that more chemokine stays there. Remember that the algorithm
+					// weights each surrounding gridspace and then normalises it so we
+					// can increase the weighting at the central space by doing this
 					m_adDiffusionCoefficients[x + 1][y + 1][z + 1] = Math
 							.exp( -(Math.pow( Settings.GRID_SIZE, 2 ) * (x * x + y * y + z * z))
 									/ (4 * dDiffuseCoeff * Settings.DIFFUSION_TIMESTEP) );
@@ -81,6 +86,7 @@ public class Grajdeanu extends DiffusionAlgorithm
 		
 		// need to normalise so that the total amount being diffused is less than or equal
 		// to the total amount that exists
+
 		double dNormalisingCoefficient = 1 / dTotalDistance;
 		
 		for ( int x = 0; x < 3; x++ )

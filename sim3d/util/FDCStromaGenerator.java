@@ -14,7 +14,7 @@ import sim3d.cell.StromaEdge;
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
-public class FRCStromaGenerator {
+public class FDCStromaGenerator {
 	/**
 	 * Class to keep track of edges for each cell
 	 */
@@ -407,9 +407,6 @@ public class FRCStromaGenerator {
 				// This distribution... It approximately matches the paper, and
 				// was derived using the divided differences method
 				// http://www.wolframalpha.com/input/?i=0.392281+x-0.342923+x%5E2%2B0.151204+x%5E3-0.0270696+x%5E4%2B0.00180148+x%5E5+between+x+%3D+0+and+5
-				//divided differences allows you to interplaote a continuous
-				// distribution from discrete data
-				//http://mathforcollege.com/nm/mws/gen/05inp/mws_gen_inp_txt_ndd.pdf
 				double length = Settings.RNG.nextDouble() * 2.6;
 				length = 0.00180148 * Math.pow(length, 5) - 0.0270696
 						* Math.pow(length, 4) + 0.151204 * Math.pow(length, 3)

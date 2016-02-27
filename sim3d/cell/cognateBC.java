@@ -13,8 +13,12 @@ import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 
-@SuppressWarnings("serial")
+
 public class cognateBC extends BC {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// stores position of cBC in each dimension for each timestep
 	private ArrayList<Double> positionX = new ArrayList<Double>();
 	private ArrayList<Double> positionY = new ArrayList<Double>();
@@ -23,7 +27,11 @@ public class cognateBC extends BC {
 	private Integer index = 0; // unique identifier of each cBC
 	public boolean displayAntigenGraph = false;
 	private int antigenCaptured = 0; // number of antigen acquired by each cBC
+	private int dendritesVisited = 0; //these kind of things should just be a member variable to keep style consistent with simon
 
+	//counter for migration data collection
+	int counter = 0;
+	
 	/**
 	 * Constructor
 	 * 
@@ -35,22 +43,40 @@ public class cognateBC extends BC {
 		this.setIndex(index);
 		
 		//need to set these to zero for the CXCR5 KO experiment
-		// this.m_iL_r = 0;
-		// this.m_iR_free = 0;
-		// this.m_iR_i = 0;
+		//as we need a functional follicle to form for consistency
+		 this.m_iL_r = 0;
+		 this.m_iR_free = 0;
+		 this.m_iR_i = 0;
 	}
 
 	@Override
 	public void step(final SimState state) {
+		
+		
+		
 		super.step(state);
 
 		// once the system has reached steady state the BC can start to record
 		// it's position
 		if (SimulationEnvironment.steadyStateReached == true) {
-			updatePosition(state);
+			
+			
+			//the experiment runs for 6 hours but only 
+			// need to record migration data for 30 mins
+			if(counter < 30){
+				updatePosition(state);
+				
+			}
+			
+			counter ++;
+			
 		}
 	}
 
+	
+
+	
+	
 	/**
 	 * Updates the cells X,Y and Z coordinates in the XY and Z arraylists and
 	 * the controllers coordinate MAPs so they can be accessed by viewers 
@@ -59,12 +85,14 @@ public class cognateBC extends BC {
 		positionX.add(this.x);
 		positionY.add(this.y);
 		positionZ.add(this.z);
+		
+		
 
-		SimulationEnvironment.getController().getX_Coordinates()
+		Controller.getInstance().getX_Coordinates()
 				.put(this.getIndex(), this.getPositionX());
-		SimulationEnvironment.getController().getY_Coordinates()
+		Controller.getInstance().getY_Coordinates()
 				.put(this.getIndex(), this.getPositionY());
-		SimulationEnvironment.getController().getZ_Coordinates()
+		Controller.getInstance().getZ_Coordinates()
 				.put(this.getIndex(), this.getPositionZ());
 	}
 
@@ -82,6 +110,14 @@ public class cognateBC extends BC {
 	 */
 	@Override
 	public void handleCollisions(CollisionGrid cgGrid) {
+		
+		//initialise the dataMap
+		if(this.dendritesVisited == 0 & Controller.getInstance().getDendritesVisited().containsKey(this.index) == false){
+			
+			Controller.getInstance().getDendritesVisited().put(this.index, this.dendritesVisited);
+		
+		}
+		
 		
 		// don't let a b cell collide more than collisionThreshold times
 		int collisionThreshold = 10;
@@ -138,22 +174,43 @@ public class cognateBC extends BC {
 	private void acquireAntigen(Collidable cCell) {
 		StromaEdge sEdge = (StromaEdge) cCell;
 
+		
+		//determine if the cell has already grabbed antigen from this dendrite
+		boolean lowerCollision = sEdge.cellsCollidedWithLowerHalf.contains(this.index);
+		boolean upperCollision = sEdge.cellsCollidedWithUpperHalf.contains(this.index);
+		
+		
+		
+		
+		
+	
 		// we divide the stroma in two as make it more accurate
-		if (this.getPositionAlongStroma() > 0.5) // if on the upper half of the
+		if (this.getPositionAlongStroma() > 0.5 & upperCollision == false) // if on the upper half of the
 													// stromal edge
 		{
+	
 			if (sEdge.getAntigenLevelUpperEdge() > 0) // if the stroma has
 														// antigen to present
 			{
 				//remove antigen from the stromal edge
 				sEdge.setAntigenLevelUpperEdge(sEdge.getAntigenLevelUpperEdge() - 1); 
+				sEdge.cellsCollidedWithUpperHalf.add(this.index);
+				
+				//TODO not the prettiest code so should refactor
+				this.dendritesVisited += 1;
+				Controller.getInstance().getDendritesVisited().put(this.index, this.dendritesVisited);
+			
+			
 			}
-		} else {
+		} else if(lowerCollision == false){
 			if (sEdge.getAntigenLevelLowerEdge() > 0) // if on the lower half of
 														// the stromal edge
 			{
 				// remove antigen from stromal edge
 				sEdge.setAntigenLevelLowerHalf(sEdge.getAntigenLevelLowerEdge() - 1); 
+				sEdge.cellsCollidedWithLowerHalf.add(this.index);
+				this.dendritesVisited +=1;
+				Controller.getInstance().getDendritesVisited().put(this.index, this.dendritesVisited);
 			}
 		}
 
@@ -165,9 +222,10 @@ public class cognateBC extends BC {
 			this.type = TYPE.PRIMED;
 
 			// update the number of primed cells in the simulation
-			SimulationEnvironment.getController();
-			Controller.setPrimedCells(Controller.getPrimedCells() + 1);
-			;
+	
+			//TODO why the hell is this happening
+			Controller.getInstance().setPrimedCells(Controller.getInstance().getPrimedCells() + 1);
+			
 		}
 
 		if (displayAntigenGraph) {

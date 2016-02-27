@@ -24,7 +24,7 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable {
 	 */
 	public static Continuous3D drawEnvironment;
 
-	private static final long serialVersionUID = 1;
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void addCollisionPoint(Int3D i3Point) {
