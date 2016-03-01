@@ -443,9 +443,7 @@ public class SimulationEnvironment extends SimState {
 				scheduleStoppableCell((cognateBC) bc);
 			}
 		}
-	
 
-		
 		
 		//why isnt this working
 		particlemoles = (ParticleMoles) ReadObjects.restoreCXCL13();
