@@ -2,8 +2,11 @@ package sim3d;
 
 
 import java.util.ArrayList;
+
 import org.w3c.dom.Document;
+
 import dataLogger.Controller;
+import dataLogger.ReadObjects;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -333,14 +336,18 @@ public class SimulationEnvironment extends SimState {
 	 * Sets up a simulation run. (Re)initialises the environments, generates a
 	 * stromal network and BCs randomly
 	 */
-	public void start() {
+	public void startClassic() {
 		// start the simulation
 		super.start();
 
 		// initialise the controller and add to the schedule,
 		//controller = new Controller();
 		//schedule.scheduleRepeating(getController());
-
+		
+		//colon=(Colon) ReadObjects.restoreColon();
+		
+		//fdcEnvironment = (Continuous3D) ReadObjects.restoreFDC();
+		
 		// Initialise the stromal grid
 		fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
 				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
@@ -350,19 +357,18 @@ public class SimulationEnvironment extends SimState {
 		// Initialise the B cell grid
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION,
 				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
+		//BC.bcEnvironment = (Continuous3D) ReadObjects.restoreBC();
+		
 		BC.drawEnvironment = BC.bcEnvironment;
 
-		
-		
-		
-		new ParticleMoles(schedule,ParticleMoles.TYPE.CXCL13, 
+	
+		particlemoles = new ParticleMoles(schedule,ParticleMoles.TYPE.CXCL13, 
 				Settings.WIDTH, Settings.HEIGHT,Settings.DEPTH);
 		
 		//let diffusion stabilise before adding the cells
 		for (int i = 0; i < 200; i++) {
 			schedule.step(this);
 		}
-		
 		
 		
 		// Initialise the CollisionGrid
@@ -375,9 +381,6 @@ public class SimulationEnvironment extends SimState {
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
 
-
-	
-		
 		
 		seedCells(CELLTYPE.B);
 		seedCells(CELLTYPE.cB);
@@ -385,6 +388,89 @@ public class SimulationEnvironment extends SimState {
 		
 	}
 
+	
+	/*
+	 * Starts sim from a predefined steady state
+	 */
+	public void start() {
+		// start the simulation
+		super.start();
+
+		fdcEnvironment = (Continuous3D) ReadObjects.restoreFDC();		
+		FDC.drawEnvironment = fdcEnvironment;
+		StromaEdge.drawEnvironment = fdcEnvironment;
+		//need to readd all of the stroma to the schedule yo!!don't forget the ordering though
+		
+		
+		
+		Bag FDCs = fdcEnvironment.getAllObjects();
+		for(Object fdc : FDCs)
+		{
+			
+
+			if(fdc instanceof FDC)
+			{
+			
+				Double3D loc = fdcEnvironment.getObjectLocation(fdc);
+				((DrawableCell3D) fdc).setObjectLocation(loc);
+				schedule.scheduleRepeating((Steppable) fdc, 2, 1);
+			}
+			else if(fdc instanceof StromaEdge)
+			{
+				
+			}
+		}
+		
+		
+		// Initialise the B cell grid
+		BC.bcEnvironment = (Continuous3D) ReadObjects.restoreBC();
+		BC.drawEnvironment = BC.bcEnvironment;
+
+
+		Bag BCs = BC.bcEnvironment.getAllObjects();
+		for(Object bc : BCs)
+		{	
+			if(bc instanceof BC)
+			{	
+				Double3D loc = BC.bcEnvironment.getObjectLocation(bc);
+				((DrawableCell3D) bc).setObjectLocation(loc);			
+				scheduleStoppableCell((BC) bc);
+			}
+			else if(bc instanceof cognateBC)
+			{
+				Double3D loc = BC.bcEnvironment.getObjectLocation(bc);
+				((DrawableCell3D) bc).setObjectLocation(loc);
+				scheduleStoppableCell((cognateBC) bc);
+			}
+		}
+	
+
+		
+		
+		//why isnt this working
+		particlemoles = (ParticleMoles) ReadObjects.restoreCXCL13();
+		particlemoles.ms_emTypeMap.put(ParticleMoles.TYPE.CXCL13, particlemoles.ms_emTypeMap.size());
+		particlemoles.ms_pParticles[particlemoles.ms_emTypeMap.get(ParticleMoles.TYPE.CXCL13)] = particlemoles;
+		schedule.scheduleRepeating(particlemoles, 3, 1);
+	
+	
+		
+		// Initialise the CollisionGrid
+		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH,
+				Settings.HEIGHT, Settings.DEPTH, 1);
+		schedule.scheduleRepeating(cgGrid, 3, 1);
+
+
+		// BCs will need to update their collision profile each
+		// step so tell them what collision grid to use
+		BC.m_cgGrid = cgGrid;
+
+		
+		
+	}
+	
+	
+	
 	/**
 	 * Tests whether co-ordinates x,y are not in the circle centered at
 	 * circleCentreX, circleCentreY with a specified radius

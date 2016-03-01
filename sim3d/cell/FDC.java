@@ -2,7 +2,9 @@ package sim3d.cell;
 
 import sim.engine.*;
 import sim.field.continuous.Continuous3D;
+
 import javax.media.j3d.TransformGroup;
+
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
@@ -77,6 +79,8 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable {
 
 	@Override
 	public void step(final SimState state) {
+		
+
 	
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z,
 				Settings.FDC.CXCL13_EMITTED());

@@ -1,5 +1,7 @@
 package sim3d.diffusion.algorithms;
 
+import java.io.Serializable;
+
 import sim3d.Settings;
 
 /**
@@ -10,8 +12,10 @@ import sim3d.Settings;
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  * @see https://cs.gmu.edu/~tr-admin/papers/GMU-CS-TR-2007-1.pdf
  */
-public class Grajdeanu extends DiffusionAlgorithm
+public class Grajdeanu extends DiffusionAlgorithm implements Serializable
 {
+	
+	private static final long serialVersionUID = 1L;
 	/**
 	 * Initialise the class and set the diffusion coefficients for the
 	 * DiffusionAlgorithm parent
@@ -31,6 +35,8 @@ public class Grajdeanu extends DiffusionAlgorithm
 		
 		setDiffusionCoefficients( dDiffusionCoefficient );
 	}
+	
+
 	
 	/**
 	 * Sets the diffusion coefficients of the parent using the diffusion

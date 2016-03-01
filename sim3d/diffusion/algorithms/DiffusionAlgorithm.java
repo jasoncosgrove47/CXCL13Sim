@@ -43,6 +43,11 @@ public class DiffusionAlgorithm {
 		m_iHeight = iHeight;
 		m_iDepth = iDepth;
 	}
+	
+
+	protected DiffusionAlgorithm(){
+		
+	}
 
 	/**
 	 * Visitor design pattern - so diffusion and particle grids are separate but

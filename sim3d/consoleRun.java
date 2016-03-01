@@ -65,7 +65,7 @@ public class consoleRun {
 			// let diffusion warm up for 200 steps
 			// then run the entire sim for 300 runs to stabilise
 
-			if (steps == 500) {
+			if (steps == 221) {
 				// instantiate the experimental controller and
 				// start to record data
 
@@ -98,9 +98,13 @@ public class consoleRun {
 
 		// String fullPath = outputPath + outputFileName;
 
-		outputToCSV.writeDataToFile(outputPath + outputFileName,
-				"/Users/jc1571/Desktop/rawData.csv");
+		//outputToCSV.writeDataToFile(outputPath + outputFileName,
+		//		"/Users/jc1571/Desktop/rawData.csv");
 
+		outputToCSV.writeDataToFile(outputPath + outputFileName);
+		
+		
+		
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
 		Date formattedendtime = new Date(endtime);

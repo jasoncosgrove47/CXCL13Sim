@@ -44,9 +44,9 @@ public class cognateBC extends BC {
 		
 		//need to set these to zero for the CXCR5 KO experiment
 		//as we need a functional follicle to form for consistency
-		 this.m_iL_r = 0;
-		 this.m_iR_free = 0;
-		 this.m_iR_i = 0;
+		 //this.m_iL_r = 0;
+		 //this.m_iR_free = 0;
+		 //this.m_iR_i = 0;
 	}
 
 	@Override

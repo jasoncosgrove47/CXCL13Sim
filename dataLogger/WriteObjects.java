@@ -71,7 +71,7 @@ public class WriteObjects {
 			
 			// Create an ObjectOutputStream to put objects into save file.
 			ObjectOutputStream save = new ObjectOutputStream(saveFile);
-			save.writeObject(simulation.particlemoles);// TODO this needs to be
+			save.writeObject(SimulationEnvironment.particlemoles);// TODO this needs to be
 														// the particle grid
 			// Close the file.
 			save.close(); // This also closes saveFile.

@@ -32,13 +32,13 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	/**
 	 * Gives each ENUM an array index
 	 */
-	private static EnumMap<TYPE, Integer> ms_emTypeMap = new EnumMap<TYPE, Integer>(
+	public static EnumMap<TYPE, Integer> ms_emTypeMap = new EnumMap<TYPE, Integer>(
 			TYPE.class);
 
 	/**
 	 * The instances of Particle being handled
 	 */
-	private static ParticleMoles[] ms_pParticles = new ParticleMoles[4];
+	public static ParticleMoles[] ms_pParticles = new ParticleMoles[4];
 
 	private static final long serialVersionUID = 1;
 
@@ -221,6 +221,9 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 *            Positive or negative absolute change in particle amount
 	 */
 	public void add(int x, int y, int z, double amount) {
+
+		
+		
 		field[x % m_iWidth][y % m_iHeight][z % m_iDepth] = Math.max(0, field[x
 				% m_iWidth][y % m_iHeight][z % m_iDepth]
 				+ amount);

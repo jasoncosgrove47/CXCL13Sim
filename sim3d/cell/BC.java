@@ -159,6 +159,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
+		
+		
 
 		collisionCounter = 0; // reset the collision counter for this timestep
 		m_i3lCollisionPoints.clear();
@@ -465,6 +467,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		// eg if i took away 10,000 that would be 10,000 moles which is not what
 		// we want!!!
 		//TODO should be encapsulated as consume ligand
+		
+		
+		if(x< 1 || y < 1||z < 1){
+			
+			
+			x = 1;
+			
+		}
+		
+		
+		
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y,
 				(int) z, -(iaBoundReceptors[0] / avogadro));
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y,
