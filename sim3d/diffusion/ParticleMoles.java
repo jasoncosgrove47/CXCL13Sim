@@ -223,7 +223,6 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	public void add(int x, int y, int z, double amount) {
 
 		
-		
 		field[x % m_iWidth][y % m_iHeight][z % m_iDepth] = Math.max(0, field[x
 				% m_iWidth][y % m_iHeight][z % m_iDepth]
 				+ amount);
@@ -321,6 +320,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 */
 	public void step(final SimState state) {
 
+	
 		
 		for (int i = 0; i < Settings.DIFFUSION_STEPS; i++) {
 			m_daDiffusionAlgorithm.diffuse(this);
@@ -341,7 +341,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 		
 		//System.out.println("total chemokine value is" + totalChemokineValue);
 		updateDisplay();
-		decay();
+		//decay();
 	}
 
 	/**

@@ -79,17 +79,17 @@ public class CreateOATFiles {
 		/**
 		 * Where parameter file generated in SPARTAN is
 		 */
-		String lhcParamsForRunsFilePathBase = "/home/kieran/Desktop/JC_OAT/";
+		String lhcParamsForRunsFilePathBase = "/Users/jc1571/Desktop/OAT/";
 
 		/**
 		 * The original, calibrated parameter file
 		 */
-		String paramsMetaDataFilePath = "/home/kieran/Desktop/GCSimParameters.xml";
+		String paramsMetaDataFilePath = "/Users/jc1571/Desktop/OAT/LymphSimParameters.xml";
 
 		/**
 		 * Folder where you want adapted parameter files to be stored
 		 */
-		String paramFileOutputFolder = "/home/kieran/Desktop/JC_OAT/";
+		String paramFileOutputFolder = "/Users/jc1571/Desktop/OAT/inputfiles/";
 
 		/**
 		 * Number of parameter sets generated
@@ -100,16 +100,17 @@ public class CreateOATFiles {
 		 * Arraylist of the names of the measures of interest in the analysis.
 		 */
 		ArrayList<String> simMeasures = new ArrayList<String>();
-		simMeasures.add("maxAgeBCell");
-		simMeasures.add("maxNonInteractiveTime");
-		simMeasures.add("differentiationProbability");
-		simMeasures.add("centroblastLifeSpan");
-		simMeasures.add("maxAge");
-		simMeasures.add("dedifferentiationProbability");
-		simMeasures.add("centrocyteLifeSpan");
-		simMeasures.add("maxNonInteractingThreshold");
-		simMeasures.add("maxAgeTFh");
-
+		simMeasures.add("CHEMOKINESIS_SCALAR");
+		simMeasures.add("COUNT");
+		simMeasures.add("CXCL13_EMITTED");
+		simMeasures.add("DECAY_CONSTANT");
+		simMeasures.add("DIFFUSION_COEFFICIENT");
+		simMeasures.add("Ka");
+		simMeasures.add("Ki");
+		simMeasures.add("Kr");
+		simMeasures.add("Rf");
+		simMeasures.add("TRAVEL_DISTANCE");
+		
 		Iterator<String> params = simMeasures.iterator();
 
 		while (params.hasNext()) {
@@ -188,6 +189,8 @@ public class CreateOATFiles {
 								if (!groupVars.item(k).getNodeName()
 										.equals("#text")) {
 									// Write the tag to the new file
+									System.out.println(groupVars.item(k).getNodeName());
+									
 									Element paramName = docWriting
 											.createElement(groupVars.item(k)
 													.getNodeName());

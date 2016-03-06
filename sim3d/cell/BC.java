@@ -160,7 +160,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	public void step(final SimState state)// why is this final here
 	{
 		
-		
+	
 
 		collisionCounter = 0; // reset the collision counter for this timestep
 		m_i3lCollisionPoints.clear();

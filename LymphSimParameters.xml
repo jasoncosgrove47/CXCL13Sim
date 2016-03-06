@@ -4,44 +4,44 @@
 <input>
 	<O>
 		<GRID_SIZE>0.00001</GRID_SIZE>
-		<DIFFUSION_COEFFICIENT>7.6e-12</DIFFUSION_COEFFICIENT><!--  4.56e-10 , in metres^2 / second -->
+		<DIFFUSION_COEFFICIENT>7.6</DIFFUSION_COEFFICIENT>
 		<WIDTH>28</WIDTH> 
 		<HEIGHT>28</HEIGHT>
-		<DEPTH>10</DEPTH><!-- we take 2 away so this will actually be 20 microns less than this value-->
-		<EXPERIMENTLENGTH>30</EXPERIMENTLENGTH><!-- the length of an "experiment" in minutes, leave as 6 hours for now-->
+		<DEPTH>10</DEPTH>
+		<EXPERIMENTLENGTH>30</EXPERIMENTLENGTH>
 	</O>
 	
 	<BC>
-		<COUNT>57</COUNT> <!-- was 6000 -->
-		<COGNATECOUNT>300</COGNATECOUNT> <!-- 25,000 B cells per follicle. 10% of which is 2500 -->
+		<COUNT>57</COUNT>
+		<COGNATECOUNT>300</COGNATECOUNT>
 		<DISCRETISATION>5</DISCRETISATION>
-		<TRAVEL_DISTANCE>0.65</TRAVEL_DISTANCE><!-- was 0.8 -->
-		<SIGNAL_THRESHOLD>10</SIGNAL_THRESHOLD><!-- was 20 -->
-		<RANDOM_TURN_ANGLE>3.14</RANDOM_TURN_ANGLE><!-- angle for random turns, in radians, was 3.14, 2.618 -->
-		<CHEMOKINESIS_SCALAR>0.25</CHEMOKINESIS_SCALAR><!-- increase in velocity during chemokinesis, was 0.25 -->
-		<PERSISTENCE>0.4</PERSISTENCE><!-- was 0.5, bias of the memory vector, values less than 1 means memory is stronger than current signal -->
+		<TRAVEL_DISTANCE>0.65</TRAVEL_DISTANCE>
+		<SIGNAL_THRESHOLD>10</SIGNAL_THRESHOLD>
+		<RANDOM_TURN_ANGLE>3.14</RANDOM_TURN_ANGLE>
+		<CHEMOKINESIS_SCALAR>0.25</CHEMOKINESIS_SCALAR>
+		<PERSISTENCE>0.4</PERSISTENCE>
 	</BC>
 
 	<ODE> 
-		<LR>0</LR><!-- 3000 -->
-		<Rf>30000</Rf><!--30000 -->
+		<LR>0</LR>
+		<Rf>30000</Rf>
 		<Ri>0</Ri>
-		<Ka>7.0e8</Ka><!--in  M^-1 s%-1, calibrated to keep sensitivity of ligand between 1 and 1000ng ml^-1, although literature says 8.4e5 need to see what effect Koff has-->
-		<Ki>0.004</Ki><!--in s^-1-->
-		<Kr>0.0033</Kr><!--in s^-1-->
+		<Ka>7.0</Ka>
+		<Ki>0.004</Ki>
+		<Kr>0.0033</Kr>
 	</ODE>
 
 	<FDC>
 		 <STARTINGANTIGENLEVEL>100</STARTINGANTIGENLEVEL>
-		 <COUNT>275</COUNT><!-- was 300 this value gives us a follicle that is approx 15% of total follicle volume -->
-		 <DISCRETISATION>5</DISCRETISATION><!-- how big the diffusion neighbourhood is, shouldnt need to change -->
-		 <CXCL13_EMITTED>150.0e-14</CXCL13_EMITTED><!-- was 2.0e-15 -->
+		 <FDCCOUNT>275</FDCCOUNT>
+		 <DISCRETISATION>5</DISCRETISATION>
+		 <CXCL13_EMITTED>150.0</CXCL13_EMITTED>
 		 <STROMA_NODE_RADIUS>0.175</STROMA_NODE_RADIUS>
-		 <STROMA_EDGE_RADIUS>0.3</STROMA_EDGE_RADIUS><!-- says 2 in the other paper so we will leave it at 3 for now-->
+		 <STROMA_EDGE_RADIUS>0.3</STROMA_EDGE_RADIUS>
 	</FDC>
 	
 	<CXCL13>
-		 <DECAY_CONSTANT>0.005</DECAY_CONSTANT><!--proportion removed per sec -->
+		 <DECAY_CONSTANT>0.005</DECAY_CONSTANT>
 	</CXCL13>
 	
 	

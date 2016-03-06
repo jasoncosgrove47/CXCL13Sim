@@ -29,7 +29,6 @@ public class WriteObjects {
 
 			save.writeObject(simulation.fdcEnvironment);// TODO this needs to be
 														// the particle grid
-
 			// Close the file.
 			save.close(); // This also closes saveFile.
 		} catch (Exception exc) {
@@ -37,7 +36,6 @@ public class WriteObjects {
 
 		}
 	}
-	
 	
 	
 	public void writeBC(SimulationEnvironment simulation) {
@@ -66,9 +64,6 @@ public class WriteObjects {
 			FileOutputStream saveFile = new FileOutputStream(
 					"/Users/jc1571/Desktop/cxcl13output.sav");
 
-			
-	
-			
 			// Create an ObjectOutputStream to put objects into save file.
 			ObjectOutputStream save = new ObjectOutputStream(saveFile);
 			save.writeObject(SimulationEnvironment.particlemoles);// TODO this needs to be

@@ -9,6 +9,7 @@ import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.ParticleMoles;
@@ -82,8 +83,12 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable {
 		
 
 	
+		System.out.println("FDC is on schedule");
+		
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z,
 				Settings.FDC.CXCL13_EMITTED());
+		
+	
 
 	}
 }

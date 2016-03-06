@@ -336,7 +336,7 @@ public class SimulationEnvironment extends SimState {
 	 * Sets up a simulation run. (Re)initialises the environments, generates a
 	 * stromal network and BCs randomly
 	 */
-	public void startClassic() {
+	public void start() {
 		// start the simulation
 		super.start();
 
@@ -392,7 +392,7 @@ public class SimulationEnvironment extends SimState {
 	/*
 	 * Starts sim from a predefined steady state
 	 */
-	public void start() {
+	public void startSS() {
 		// start the simulation
 		super.start();
 
@@ -447,8 +447,8 @@ public class SimulationEnvironment extends SimState {
 		
 		//why isnt this working
 		particlemoles = (ParticleMoles) ReadObjects.restoreCXCL13();
-		particlemoles.ms_emTypeMap.put(ParticleMoles.TYPE.CXCL13, particlemoles.ms_emTypeMap.size());
-		particlemoles.ms_pParticles[particlemoles.ms_emTypeMap.get(ParticleMoles.TYPE.CXCL13)] = particlemoles;
+		ParticleMoles.ms_emTypeMap.put(ParticleMoles.TYPE.CXCL13, ParticleMoles.ms_emTypeMap.size());
+		ParticleMoles.ms_pParticles[ParticleMoles.ms_emTypeMap.get(ParticleMoles.TYPE.CXCL13)] = particlemoles;
 		schedule.scheduleRepeating(particlemoles, 3, 1);
 	
 	

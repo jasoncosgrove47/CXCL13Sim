@@ -65,7 +65,7 @@ public class consoleRun {
 			// let diffusion warm up for 200 steps
 			// then run the entire sim for 300 runs to stabilise
 
-			if (steps == 221) {
+			if (steps == 500) {
 				// instantiate the experimental controller and
 				// start to record data
 

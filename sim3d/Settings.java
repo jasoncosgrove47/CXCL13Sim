@@ -47,9 +47,11 @@ public class Settings {
 		NodeList diffusionNL = paramOElement
 				.getElementsByTagName("DIFFUSION_COEFFICIENT");
 		Node diffusionN = diffusionNL.item(0);
-		DIFFUSION_COEFFICIENT= Double.parseDouble(diffusionN.getTextContent());
+		DIFFUSION_COEFFICIENT_PREFIX= Double.parseDouble(diffusionN.getTextContent());
 
+		
 		// this must be computed here otherwise these values get set to zero
+		DIFFUSION_COEFFICIENT = scaleDIFFUSION_COEFFICIENT();
 		DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
 		DIFFUSION_STEPS = calculateDIFFUSION_STEPS();
 		
@@ -83,6 +85,10 @@ public class Settings {
 	 * we are dealing with
 	 */
 	public static double DIFFUSION_COEFFICIENT;
+	
+	public static double DIFFUSION_COEFFICIENT_PREFIX;
+	
+	
 	public static double DIFFUSION_TIMESTEP;
 	public static int DIFFUSION_STEPS;
 
@@ -91,6 +97,7 @@ public class Settings {
 	/**
 	 * How much time a single iteration of the diffusion process will take us
 	 * forward
+	 * @return 
 	 * 
 	 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
 	 *      /Notes_Diffusion.pdf
@@ -98,6 +105,11 @@ public class Settings {
 	 */
 	
 
+	static double scaleDIFFUSION_COEFFICIENT(){
+		
+		return (DIFFUSION_COEFFICIENT_PREFIX * (1e-12));
+	}
+	
 
 	static double calculateDIFFUSION_TIMESTEP() {
 		return (Math.pow(GRID_SIZE, 2) / (40.15 * DIFFUSION_COEFFICIENT));
@@ -286,7 +298,9 @@ public class Settings {
 
 				NodeList KaNL = paramODEElement.getElementsByTagName("Ka");
 				Node KaN = KaNL.item(0);
-				Ka = Double.parseDouble(KaN.getTextContent());
+				Ka_PREFIX = Double.parseDouble(KaN.getTextContent());
+				
+				Ka = scaleKa();
 
 				NodeList KrNL = paramODEElement.getElementsByTagName("Kr");
 				Node KrN = KrNL.item(0);
@@ -327,6 +341,12 @@ public class Settings {
 			/**
 			 * binding constant for receptor-ligand
 			 */
+			public static double Ka_PREFIX;
+			
+			private static double scaleKa(){
+				return (Ka_PREFIX * 1e+8);
+			}
+			
 			public static double Ka;
 
 			public static double K_a() {
@@ -372,7 +392,7 @@ public class Settings {
 			Node alN = alNL.item(0);
 			STARTINGANTIGENLEVEL = Integer.parseInt(alN.getTextContent());
 
-			NodeList countNL = paramFDCElement.getElementsByTagName("COUNT");
+			NodeList countNL = paramFDCElement.getElementsByTagName("FDCCOUNT");
 			Node countN = countNL.item(0);
 			COUNT = Integer.parseInt(countN.getTextContent());
 
@@ -384,7 +404,7 @@ public class Settings {
 			NodeList cxcl13NL = paramFDCElement
 					.getElementsByTagName("CXCL13_EMITTED");
 			Node cxcl13N = cxcl13NL.item(0);
-			CXCL13_EMITTED = Double.parseDouble(cxcl13N.getTextContent());
+			emissionrate = Double.parseDouble(cxcl13N.getTextContent());
 
 			NodeList stromanodeNL = paramFDCElement
 					.getElementsByTagName("STROMA_NODE_RADIUS");
@@ -398,7 +418,7 @@ public class Settings {
 			STROMA_EDGE_RADIUS = Double.parseDouble(stromaedgeN
 					.getTextContent());
 
-			//CXCL13_EMITTED = scaleEmissionRate();
+			CXCL13_EMITTED = scaleEmissionRate(emissionrate);
 		}
 
 
@@ -433,7 +453,14 @@ public class Settings {
 		 * The amount of chemokine secreted at each time step 
 		 */
 		//public static double CXCL13_EMITTED_in_nM;
+		
+		private static double emissionrate;
+		
 		public static double CXCL13_EMITTED;
+		
+		public static double scaleEmissionRate(double emissionrate){
+			return (emissionrate * 1E-14);
+		}
 
 		public static double CXCL13_EMITTED() {
 			return CXCL13_EMITTED;
