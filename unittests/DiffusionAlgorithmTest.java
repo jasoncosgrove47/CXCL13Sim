@@ -50,7 +50,7 @@ public class DiffusionAlgorithmTest {
 
 		// loadParameters();
 		Settings.RNG = new MersenneTwisterFast();
-		Settings.DIFFUSION_COEFFICIENT = 4.56e-10;
+		Settings.DIFFUSION_COEFFICIENT = 7.6e-12;
 
 		Settings.GRID_SIZE = 0.00001;
 

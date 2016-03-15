@@ -221,13 +221,7 @@ public class Settings {
 		public static double TRAVEL_DISTANCE() {
 			//nextGaussian() is normal distributed with mean 0 and std-deviance 1
 
-			//so if you want mean traveldistance and std-deviance 1 micron you'll need to call 
-			// it as nextGaussian()*sd+TRAVEL_DISTANCE
-			
-			double sd = 0.55; //let's set the sd to 1 micron for the minute and see how that goes
-			
-			double td =  SimulationEnvironment.simulation.random.nextGaussian()*sd + TRAVEL_DISTANCE;
-			return td;
+			return TRAVEL_DISTANCE;
 			
 		}
 

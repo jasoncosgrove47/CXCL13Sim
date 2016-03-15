@@ -82,8 +82,6 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable {
 	public void step(final SimState state) {
 		
 
-	
-		System.out.println("FDC is on schedule");
 		
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z,
 				Settings.FDC.CXCL13_EMITTED());
