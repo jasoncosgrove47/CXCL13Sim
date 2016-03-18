@@ -35,18 +35,13 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 	private static final long serialVersionUID = 1L;
 
 
-
-
-
 	/**
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
 	 */
 	public static Continuous3D drawEnvironment;
 	
-	
-	
-	
+		
 	//records which cells have collided with this edge
 	//as we want to limit the interactions between 
 	// a given stromal edge and a b cell
@@ -69,8 +64,13 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 	/**
 	 * A vector representing the movement from point 1 to point 2
 	 */
-	private Double3D m_d3Edge;
+	public Double3D m_d3Edge;
 
+	
+	
+	//The midpoint of the edge, useful for creating branching structures
+	public Double3D midpoint;
+	
 	/*
 	 * Divide each dendrite in two so that a B cell must be at the correct part
 	 * of the dendrite to acquire antigen
@@ -105,6 +105,9 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 		// vector representing the stromal edge
 		m_d3Edge = d3Point2.subtract(d3Point1);
 
+		
+		midpoint = new Double3D((d3Point1.x + d3Point2.x)/2,(d3Point1.y + d3Point2.y)/2,(d3Point1.z + d3Point2.z)/2);
+		
 		// divide antigen amount by 2 to make sure a BC has to interact with the
 		// correct portion of the edge to acquire antigen. Otherwise a BC could 
 		// interact with one end of the edge but take antigen from the other end

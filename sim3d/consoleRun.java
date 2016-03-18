@@ -78,10 +78,10 @@ public class consoleRun {
 
 				// write the steady state out to file so we can observe it later
 				// on....
-				WriteObjects wo = new WriteObjects();
-				wo.writeFDC(SimulationEnvironment.simulation);
-				wo.writeBC(SimulationEnvironment.simulation);
-				wo.writeCXCL13(SimulationEnvironment.simulation);
+				//WriteObjects wo = new WriteObjects();
+				//wo.writeFDC(SimulationEnvironment.simulation);
+				//wo.writeBC(SimulationEnvironment.simulation);
+				//wo.writeCXCL13(SimulationEnvironment.simulation);
 				
 				System.out
 				.println("The experiment will now begin");

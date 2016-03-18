@@ -63,6 +63,7 @@ public class cognateBC extends BC {
 			
 			//the experiment runs for 6 hours but only 
 			// need to record migration data for 30 mins
+
 			if(counter < 30){
 				updatePosition(state);
 				

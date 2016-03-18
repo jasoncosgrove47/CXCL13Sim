@@ -73,8 +73,6 @@ public class BCIntegrationTests {
 				+ Settings.DIFFUSION_TIMESTEP);
 		
 		
-
-
 	}
 
 	@Before
@@ -97,8 +95,6 @@ public class BCIntegrationTests {
 	}
 
 
-
-	
 	
 	/*
 	 * Ensure that the cell can enter a CXCL13 sensitive state

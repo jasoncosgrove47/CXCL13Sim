@@ -18,6 +18,7 @@ import sim3d.diffusion.ParticleMoles;
 import sim3d.util.FRCStromaGenerator;
 import sim3d.util.FRCStromaGenerator.FRCCell;
 
+
 /**
  * TODO this also needs to be a singleton class
  * 
@@ -340,13 +341,7 @@ public class SimulationEnvironment extends SimState {
 		// start the simulation
 		super.start();
 
-		// initialise the controller and add to the schedule,
-		//controller = new Controller();
-		//schedule.scheduleRepeating(getController());
 		
-		//colon=(Colon) ReadObjects.restoreColon();
-		
-		//fdcEnvironment = (Continuous3D) ReadObjects.restoreFDC();
 		
 		// Initialise the stromal grid
 		fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
@@ -375,8 +370,12 @@ public class SimulationEnvironment extends SimState {
 		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH,
 				Settings.HEIGHT, Settings.DEPTH, 1);
 		schedule.scheduleRepeating(cgGrid, 3, 1);
-		initialiseStroma(cgGrid); // initialise the stromal network
-
+		
+		
+		//initialiseStroma(cgGrid); // initialise the stromal network
+		initialiseFDC(cgGrid);
+		
+		
 		// BCs will need to update their collision profile each
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
@@ -633,4 +632,179 @@ public class SimulationEnvironment extends SimState {
 	}
 
 
+	
+	
+
+	/*
+	 * Generate and initialise a stromal network
+	 */
+	private void initialiseFDC(CollisionGrid cgGrid) {
+
+		// Generate some stroma
+		ArrayList<FRCStromaGenerator.FRCCell> frclCellLocations = new ArrayList<FRCStromaGenerator.FRCCell>();
+		ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
+		/*
+		FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2,
+				Settings.HEIGHT - 2, Settings.DEPTH - 2, Settings.FDC.COUNT,
+				frclCellLocations, sealEdges);
+        */
+		
+		FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2,
+				Settings.HEIGHT - 2, Settings.DEPTH - 2, Settings.FDC.COUNT,
+				frclCellLocations, sealEdges);
+
+		// Create the FDC objects, display them, schedule them, and then put
+		// them on the collision grid
+		for (FRCStromaGenerator.FRCCell frcCell : frclCellLocations) // why does this say FRC but
+													// then it moves onto FDCs?
+		{
+			// Grapher.bcFRCEdgeNumberSeries[Math.min( frcCell.iEdges - 1, 11
+			// )]++;
+			FDC fdc = new FDC();
+
+			// This will register the FDC with the environment/display
+			// to account for the border which is one gridspace in width
+			fdc.setObjectLocation(new Double3D(frcCell.d3Location.x + 1,
+					frcCell.d3Location.y + 1, frcCell.d3Location.z + 1));
+			
+			schedule.scheduleRepeating((Steppable) fdc, 2, 1);
+
+		
+		}
+
+		// Add the stroma edges to the display/CollisionGrid
+		for (StromaEdge seEdge : sealEdges) {
+			Double3D d3Point = seEdge.getPoint1();
+			Double3D d3Point2 = seEdge.getPoint2();
+
+			// Check if it's out of bounds - if not then add the info to the
+			// graphs
+			// Don't need this code if the graphs aren't working
+
+			if (!(d3Point.x <= 0 || d3Point.x >= (Settings.WIDTH - 2)
+					|| d3Point.y <= 0 || d3Point.y >= (Settings.HEIGHT - 2)
+					|| d3Point.z <= 0 || d3Point.z >= (Settings.DEPTH - 2))
+					&& !(d3Point2.x <= 0 || d3Point2.x >= (Settings.WIDTH - 2)
+							|| d3Point2.y <= 0
+							|| d3Point2.y >= (Settings.HEIGHT - 2)
+							|| d3Point2.z <= 0 || d3Point2.z >= (Settings.DEPTH - 2))) {
+				int iCat = (int) (5 * (seEdge.getPoint2()
+						.subtract(seEdge.getPoint1()).length() - 1.2));
+				// Grapher.bcFRCEdgeSizeSeries[Math.max( 0, Math.min( iCat, 19 )
+				// )]++;
+			}
+			
+		
+			int branchesAdded = 0;
+			
+			// Register with display and CG
+			seEdge.setObjectLocation(new Double3D(seEdge.x + 1, seEdge.y + 1,
+					seEdge.z + 1));
+			
+			seEdge.registerCollisions(cgGrid);
+			
+
+			
+			//add bracnhes to neighbouring cells
+			Bag neighbouredges = fdcEnvironment.getNeighborsExactlyWithinDistance(seEdge.midpoint, 2);
+			
+			for(int j=0; j <neighbouredges.size() - 1;j++)
+			{
+				if(neighbouredges.get(j) instanceof StromaEdge)
+				{
+					
+					if(branchesAdded < 1)
+					{
+						StromaEdge neighbouredge = (StromaEdge) neighbouredges.get(j);
+						branch b = new branch(seEdge.midpoint,neighbouredge.midpoint);
+						b.setObjectLocation(new Double3D(b.x + 1, b.y + 1,
+							b.z + 1));	
+						
+						
+						Bag branchedges = fdcEnvironment.getNeighborsExactlyWithinDistance(b.midpoint, 2);
+						
+						int subbranches = 0;
+						
+						for(int k=0; k < branchedges.size() - 1;k++)
+						{
+							
+							if(subbranches < 1)
+							{
+								if(branchedges.get(k) instanceof FDC)
+								{
+									FDC fdc = (FDC) branchedges.get(k);
+									branch b2 = new branch(b.midpoint,new Double3D(fdc.x, fdc.y, fdc.z));
+									b2.setObjectLocation(new Double3D(b2.x + 1, b2.y + 1,
+										b2.z + 1));	
+									
+									b2.registerCollisions(cgGrid);
+								
+								}
+							
+								subbranches +=1;
+							}
+						}		
+						branchesAdded += 1;
+					}
+				}	
+			}
+		}
+
+		
+		//addBranchestoBranches(0.3);
+		
+		//count the entire number of dendrites so we can get a percentage scanned measure
+		totalNumberOfDendrites = sealEdges.size();
+		
+		
+	}
+	
+	
+
+	/**
+	 * Add branches to the stroma to get a more web-like morphology
+	 * @param sealEdges
+	 */
+	public void addBranchestoBranches( double distance)
+	{
+		
+		Bag Stroma = null;
+		Stroma = fdcEnvironment.getAllObjects();
+		for(int i=0; i <Stroma.size();i++)
+		{
+			if(Stroma.get(i) instanceof branch)
+			{
+				branch se = (branch) Stroma.get(i);
+				
+				//calculate midpoint and then use this 
+				//to see what might be close
+				Bag neighbouredges = null;
+				neighbouredges = fdcEnvironment.getNeighborsExactlyWithinDistance(se.midpoint, distance);
+				
+				int branchesAdded = 0;
+				
+				for(int j=0; j <neighbouredges.size() - 1;j++)
+				{
+					if(branchesAdded < 2)
+					{
+					
+						if(neighbouredges.get(j) instanceof branch && branchesAdded < 2)
+						{
+						
+							branch neighbouredge = (branch) neighbouredges.get(j);
+							branch b = new branch(se.midpoint,neighbouredge.midpoint);
+							b.setObjectLocation(new Double3D(b.x + 1, b.y + 1,
+								b.z + 1));
+						
+							branchesAdded +=1;
+						
+						}
+					}
+				}
+			}
+		}	
+	}
+	
+	
+	
 }
