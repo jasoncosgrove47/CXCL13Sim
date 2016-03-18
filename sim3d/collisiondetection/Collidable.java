@@ -45,7 +45,7 @@ public interface Collidable
 	 */
 	public static enum CLASS
 	{
-		BC, STROMA, STROMA_EDGE
+		BC, STROMA, STROMA_EDGE,BRANCH
 	}
 	
 	/**

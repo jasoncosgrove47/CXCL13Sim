@@ -86,6 +86,34 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 	 * @param d3Point2
 	 *            Absolute value of the end point
 	 */
+	
+	
+	
+	public StromaEdge(Double3D d3Point1, Double3D d3Point2, boolean branch) {
+
+		// makes sure that first point is always lower on the z axis
+		// Make sure it's ordered on the z index
+		if (d3Point1.z > d3Point2.z) {
+			Double3D temp = d3Point1;
+			d3Point1 = d3Point2;
+			d3Point2 = temp;
+		}
+
+		// location of stroma is static so easiest to specify it's location in
+		// the constructor
+		x = d3Point1.x;
+		y = d3Point1.y;
+		z = d3Point1.z;
+
+		// vector representing the stromal edge
+		m_d3Edge = d3Point2.subtract(d3Point1);
+
+		
+		midpoint = new Double3D((d3Point1.x + d3Point2.x)/2,(d3Point1.y + d3Point2.y)/2,(d3Point1.z + d3Point2.z)/2);
+		
+	
+	}
+	
 	public StromaEdge(Double3D d3Point1, Double3D d3Point2) {
 
 		// makes sure that first point is always lower on the z axis

@@ -739,6 +739,7 @@ public class SimulationEnvironment extends SimState {
 									
 									b2.registerCollisions(cgGrid);
 								
+									totalNumberOfDendrites +=1;
 								}
 							
 								subbranches +=1;
@@ -754,7 +755,7 @@ public class SimulationEnvironment extends SimState {
 		//addBranchestoBranches(0.3);
 		
 		//count the entire number of dendrites so we can get a percentage scanned measure
-		totalNumberOfDendrites = sealEdges.size();
+		totalNumberOfDendrites += sealEdges.size();
 		
 		
 	}

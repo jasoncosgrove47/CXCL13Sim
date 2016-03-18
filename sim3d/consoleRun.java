@@ -69,6 +69,9 @@ public class consoleRun {
 				// instantiate the experimental controller and
 				// start to record data
 
+				
+				System.out.println("total number of branches: " + SimulationEnvironment.simulation.totalNumberOfDendrites);
+				
 				System.out
 						.println("System has a reached a steady state, saving steady state information");
 

@@ -153,6 +153,19 @@ public class cognateBC extends BC {
 					bCollision = true;
 				}
 				break;
+				
+			case BRANCH:
+				
+				if (collideStromaEdge((branch) cCell, iCollisionMovement))
+				{
+					
+					iCollisionMovement = m_d3aMovements.size() - 1;
+					acquireAntigen(cCell);
+					bCollision = true;
+				}
+				
+				
+				break;
 			case STROMA:
 				break;
 			case BC:
