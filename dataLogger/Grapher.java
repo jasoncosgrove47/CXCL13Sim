@@ -67,6 +67,13 @@ public class Grapher {
 		chart.updateChartWithin(schedule.getSteps(), 1000);
 	}
 
+	
+	/**
+	 * Add a point to the antigen chart at the current schedule timestep
+	 * 
+	 * @param x
+	 *            The value to plot
+	 */
 	public static void updateAntigenGraph(double x) {
 		seriesAntigen.add(schedule.getTime(), x, false);
 		chartAntigen.updateChartWithin(schedule.getSteps(), 1000);

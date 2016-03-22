@@ -32,6 +32,8 @@ public class consoleRun {
 	 * Runs the simulation
 	 */
 	public static void main(String[] args) {
+		
+		
 		// output the start time
 		long starttime = System.currentTimeMillis();
 		SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
@@ -39,17 +41,16 @@ public class consoleRun {
 		System.out.println("start time: " + sdf.format(formattedstarttime));
 
 		// initialise the simulation
-
-		// use a proper seed, see the following:
+		// NOTE: make sure to use a proper seed, see the following:
 		// http://www0.cs.ucl.ac.uk/staff/D.Jones/GoodPracticeRNG.pdf
 		int seed = (int) (Integer.valueOf(args[3]) * System.currentTimeMillis());
-
 		String paramFile = args[0];
 		outputPath = args[1];
 		outputFileName = args[2];
 		SimulationEnvironment.simulation = new SimulationEnvironment(seed,
 				IO.openXMLFile(paramFile));
 
+		
 		// start the simulation
 		long steps = 0;
 		SimulationEnvironment.simulation.start();
@@ -62,25 +63,22 @@ public class consoleRun {
 			steps = SimulationEnvironment.simulation.schedule.getSteps();
 			System.out.println("Steps: " + steps);
 
-			// let diffusion warm up for 200 steps
-			// then run the entire sim for 300 runs to stabilise
-
+			//run the simulation for 500 steps to allow it to reach steady-state
 			if (steps == 500) {
-				// instantiate the experimental controller and
-				// start to record data
-
 				
-				System.out.println("total number of branches: " + SimulationEnvironment.simulation.totalNumberOfDendrites);
-				
+				//update the steadyState guard to begin recording data
+				SimulationEnvironment.steadyStateReached = true;
+			
 				System.out
 						.println("System has a reached a steady state, saving steady state information");
 
+				// instantiate the experimental controller and
+				// start to record data
 				SimulationEnvironment.simulation.schedule
 						.scheduleRepeating(Controller.getInstance());
-				SimulationEnvironment.steadyStateReached = true;
+				
 
 				// write the steady state out to file so we can observe it later
-				// on....
 				//WriteObjects wo = new WriteObjects();
 				//wo.writeFDC(SimulationEnvironment.simulation);
 				//wo.writeBC(SimulationEnvironment.simulation);
@@ -99,13 +97,8 @@ public class consoleRun {
 		SimulationEnvironment.simulation.finish();
 		System.out.println("\nSimulation completed successfully!\n\n");
 
-		// String fullPath = outputPath + outputFileName;
-
-		//outputToCSV.writeDataToFile(outputPath + outputFileName,
-		//		"/Users/jc1571/Desktop/rawData.csv");
-
+		//write the recorded data to a .csv file
 		outputToCSV.writeDataToFile(outputPath + outputFileName);
-		
 		
 		
 		// Output the time taken for simulation to run

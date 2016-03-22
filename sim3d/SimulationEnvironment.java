@@ -19,10 +19,7 @@ import sim3d.util.FRCStromaGenerator;
 import sim3d.util.FRCStromaGenerator.FRCCell;
 
 
-/**
- * TODO this also needs to be a singleton class
- * 
- * 
+/** 
  * This class sets up and runs the simulation absent of any GUI related function
  * as a MASON design pattern, in line with the MASON (Model/View/Controller).
  * 
@@ -48,7 +45,9 @@ public class SimulationEnvironment extends SimState {
 	 */
 	public static boolean experimentFinished = false;
 
-	
+	/**
+	 * Total number of dendrites in the FDC network
+	 */
 	public static int totalNumberOfDendrites = 0;
 	
 	
@@ -64,18 +63,16 @@ public class SimulationEnvironment extends SimState {
 	 */
 	public Continuous3D fdcEnvironment;
 	
-	
+	/**
+	 * Instance of the particle moles class
+	 * TODO needs to be a singleton
+	 */
 	public static ParticleMoles particlemoles;
 
 	/*
 	 * Parameter file: XML format
 	 */
 	public static Document parameters;
-
-	/*
-	 * Controller responsible for recording data from the simulation
-	 */
-	//private static Controller controller;
 
 	/**
 	 * ENUM for the cell types
@@ -84,11 +81,10 @@ public class SimulationEnvironment extends SimState {
 		B, cB, T
 	}
 
-	// what type of cell we are dealing with
 	public TYPE celltype;
 
 	/**
-	 * Constructor
+	 * Constructor for the simulation environment
 	 * 
 	 * @param seed
 	 *            Used by MASON for the random seed
@@ -114,6 +110,8 @@ public class SimulationEnvironment extends SimState {
 
 	/**
 	 * Adds a slider for the display level in the MASON console
+	 * TODO need to get this working to look at different depths
+	 * of chemokine, would make a cool video!
 	 */
 	public Object domDisplayLevel() {
 		return new sim.util.Interval(1, Settings.DEPTH);

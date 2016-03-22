@@ -30,16 +30,22 @@ public class Controller implements Steppable {
 	 * @author jason cosgrove
 	 */
 
-	
+	//the single instance of the class
 	private static Controller instance = null;
 	
+	
+	/*
+	 * Constructor for the class
+	 */
 	protected Controller(){
 		experimentTimer = 0;
-		//lengthOfExperiment = 30;
+	
 		
 		lengthOfExperiment = Settings.EXPERIMENTLENGTH;
 	}
 	
+	
+	// returns the instance of the class
 	public static Controller getInstance(){
 		if(instance ==null){
 			instance = new Controller();
@@ -63,9 +69,10 @@ public class Controller implements Steppable {
 	private int lengthOfExperiment;
 
 	/**
-	 * Coordinate maps Key: the index of each individual cognateBC Value: An
-	 * arraylist containing the cells position in a given dimension for a given
-	 * timestep
+	 * Coordinate maps 
+	 * Key: the index of each individual cognateBC 
+	 * Value: An arraylist containing the cells position 
+	 * in a given dimension for a given timestep
 	 */
 	private Map<Integer, ArrayList<Double>> X_Coordinates = new HashMap<Integer, ArrayList<Double>>();
 	private Map<Integer, ArrayList<Double>> Y_Coordinates = new HashMap<Integer, ArrayList<Double>>();
@@ -87,9 +94,7 @@ public class Controller implements Steppable {
 		}
 	}
 
-	// getters and setters for the controlller
-	// better to have these private as we don't
-	// wan't any external classes changing them
+	// getters and setters for the controller
 	public static int getPrimedCells() {
 		return primedCells;
 	}

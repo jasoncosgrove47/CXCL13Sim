@@ -11,7 +11,7 @@ import ec.util.MersenneTwisterFast;
 
 /**
  * All the parameters for the simulation. Note: parameters in functions can be
- * changed while the simulation is running!
+ * changed while the simulation is running.
  * 
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
@@ -71,7 +71,9 @@ public class Settings {
 	public static int HEIGHT;
 	public static int DEPTH;
 	
-	// the length of an experiment, once steady state is reached
+	/*
+	 *  the length of an experiment, once steady state is reached
+	 */
 	public static int EXPERIMENTLENGTH;
 
 	/**
@@ -85,48 +87,40 @@ public class Settings {
 	 * we are dealing with
 	 */
 	public static double DIFFUSION_COEFFICIENT;
-	
 	public static double DIFFUSION_COEFFICIENT_PREFIX;
-	
-	
-	public static double DIFFUSION_TIMESTEP;
-	public static int DIFFUSION_STEPS;
-
-	
-	
-	/**
-	 * How much time a single iteration of the diffusion process will take us
-	 * forward
-	 * @return 
-	 * 
-	 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
-	 *      /Notes_Diffusion.pdf
-	 *      
+	/*
+	 * Scale the diffusion coefficient
 	 */
-	
-
 	static double scaleDIFFUSION_COEFFICIENT(){
 		
 		return (DIFFUSION_COEFFICIENT_PREFIX * (1e-12));
 	}
 	
 
+
+	/**
+	 * How much time a single iteration of the diffusion process will take us
+	 * forward
+	 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
+	 *      /Notes_Diffusion.pdf    
+	 */
+	public static double DIFFUSION_TIMESTEP;
+	public static int DIFFUSION_STEPS;
+	/*
+	 * Calculates the appropriate timestep for diffusion
+	 */
 	static double calculateDIFFUSION_TIMESTEP() {
 		return (Math.pow(GRID_SIZE, 2) / (40.15 * DIFFUSION_COEFFICIENT));
 	}
-
-	//multiply by 60 as we want to update diffusion in seconds and not minutes
+	/**
+	 * Divide by 60 as we want to update diffusion in seconds and not minutes
+	 * @return
+	 */
 	static int calculateDIFFUSION_STEPS() {
 		return (int) (60 / DIFFUSION_TIMESTEP);
 	}
 
-
-
 	
-
-
-	
-	// //////////////////////// BC PARAMETERS ////////////////////////////////
 
 	/**
 	 * Subclass containing all the BC parameters
@@ -415,16 +409,13 @@ public class Settings {
 			CXCL13_EMITTED = scaleEmissionRate(emissionrate);
 		}
 
-
-
 		/**
 		 * Number of antigen per FDC at the start of the simulation
 		 */
-
 		public static int STARTINGANTIGENLEVEL;
+		
 		/**
 		 * Number of FDCs to generate
-		 * 
 		 * NOTE: this is just a maximum. If there's no room to fit them all, it
 		 * won't keep trying
 		 */
@@ -446,8 +437,6 @@ public class Settings {
 		/**
 		 * The amount of chemokine secreted at each time step 
 		 */
-		//public static double CXCL13_EMITTED_in_nM;
-		
 		private static double emissionrate;
 		
 		public static double CXCL13_EMITTED;
@@ -473,6 +462,7 @@ public class Settings {
 	}
 
 	public static class CXCL13 {
+		
 		public static void loadParameters(Document params) {
 			// Simulation Tag
 			Element paramCXCL13Element = (Element) params.getElementsByTagName(
