@@ -55,7 +55,7 @@ public class DiffusionAlgorithmTest {
 		Settings.GRID_SIZE = 0.00001;
 
 		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2)
-				/ (40.15 * Settings.DIFFUSION_COEFFICIENT));// was 40.15, 10 gives a near enough value
+				/ (40.00 * Settings.DIFFUSION_COEFFICIENT));// was 40.15, 10 gives a near enough value
 
 		//multiply by 60 as we want to update diffusion in seconds and not minutes
 		Settings.DIFFUSION_STEPS = (int) (1 / Settings.DIFFUSION_TIMESTEP);

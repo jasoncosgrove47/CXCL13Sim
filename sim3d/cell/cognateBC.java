@@ -61,12 +61,10 @@ public class cognateBC extends BC {
 		if (SimulationEnvironment.steadyStateReached == true) {
 			
 			
-			//the experiment runs for 6 hours but only 
+			//the experiment runs for 12 hours but only 
 			// need to record migration data for 30 mins
-
 			if(counter < 30){
 				updatePosition(state);
-				
 			}
 			
 			counter ++;
@@ -149,8 +147,15 @@ public class cognateBC extends BC {
 				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement))
 				{
 					iCollisionMovement = m_d3aMovements.size() - 1;
-					acquireAntigen(cCell);
 					bCollision = true;
+					
+					//this guard is here as we don't want the agents to acquire
+					//antigen until controller starts recording
+					if(SimulationEnvironment.steadyStateReached == true)
+					{
+						acquireAntigen(cCell);
+					}
+					
 				}
 				break;
 				
@@ -160,8 +165,16 @@ public class cognateBC extends BC {
 				{
 					
 					iCollisionMovement = m_d3aMovements.size() - 1;
-					acquireAntigen(cCell);
 					bCollision = true;
+					
+					
+					//this guard is here as we don't want the agents to acquire
+					//antigen until controller starts recording
+					if(SimulationEnvironment.steadyStateReached == true)
+					{
+						acquireAntigen(cCell);
+					}
+					
 				}
 				
 				
@@ -194,10 +207,6 @@ public class cognateBC extends BC {
 		boolean upperCollision = sEdge.cellsCollidedWithUpperHalf.contains(this.index);
 		
 		
-		
-		
-		
-	
 		// we divide the stroma in two as make it more accurate
 		if (this.getPositionAlongStroma() > 0.5 & upperCollision == false) // if on the upper half of the
 													// stromal edge

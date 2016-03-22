@@ -360,10 +360,13 @@ public class SimulationEnvironment extends SimState {
 		particlemoles = new ParticleMoles(schedule,ParticleMoles.TYPE.CXCL13, 
 				Settings.WIDTH, Settings.HEIGHT,Settings.DEPTH);
 		
+		
+	
+		
 		//let diffusion stabilise before adding the cells
-		for (int i = 0; i < 200; i++) {
-			schedule.step(this);
-		}
+		//for (int i = 0; i < 200; i++) {
+		//	schedule.step(this);
+		//}
 		
 		
 		// Initialise the CollisionGrid

@@ -350,8 +350,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
 				
-				//TODO: remove print statement
-				//System.out.println(" the cell is chemotactic");
+				
 				// Add some noise to the direction and take the average of our
 				// current direction and the new direction
 
@@ -364,7 +363,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 								Settings.BC.PERSISTENCE));
 				
 			
-				
 
 				if (vMovement.lengthSq() > 0) {
 					vMovement = vMovement.normalize();
@@ -389,8 +387,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		m_d3aMovements = new ArrayList<Double3D>();
 
 		// calculated from maiuri paper in cell 2015
+	
+		//TODO Persistence represents the strength of the new vector with
+		// respect to where we are now, thus the memory vector is 1/alpha
+		// times stronger than the current vector and we use this as a
+		// measure of the cell
 		double speedScalar = (Math.log(1 / Settings.BC.PERSISTENCE)) / 3;
 
+	
+		
+
+		
+		
 		// if there is some signalling then the cell increases it's
 		// instantaneous velocity
 		if (vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD) {

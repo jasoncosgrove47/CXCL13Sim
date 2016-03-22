@@ -324,6 +324,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 		
 		for (int i = 0; i < Settings.DIFFUSION_STEPS; i++) {
 			m_daDiffusionAlgorithm.diffuse(this);
+			decay();
 
 		}
 		
@@ -339,19 +340,72 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 			}
 		}
 		
-		//System.out.println("total chemokine value is" + totalChemokineValue);
-		updateDisplay();
-		//decay();
+		System.out.println("total chemokine value is" + totalChemokineValue);
+		
+		updateDisplay2();
+		
+		//TODO is decay getting called in diffuse cos needs to be on the same time scale
+		
+		
+		
+		
+		
+		
 	}
 
 	/**
 	 * Updates the 2D display
 	 */
-	public void updateDisplay() {
+	public void updateDisplay2() {
+		
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
+				
+				double val = field[x][y][m_iDisplayLevel];
+				if(val < 8e-16){
+					m_ig2Display.set(x, y, 0);
+				}
+				else if(val > 8e-16 && val < 5e-15){
+					m_ig2Display.set(x, y, 2);
+				}
+				else if(val > 5e-15 && val < 5e-14){
+					m_ig2Display.set(x, y, 3);
+				}
+			
+				else if(val > 5e-14 && val < 1e-13){
+					m_ig2Display.set(x, y, 4);
+				}
+			
+				else if(val > 1e-13 && val < 5e-13){
+					m_ig2Display.set(x, y,6);
+				}
+				else if(val > 5e-13 && val < 1e-12){
+					m_ig2Display.set(x, y, 9);
+				}
+				else if(val > 1e-12 && val < 2.5e-12){
+					m_ig2Display.set(x, y, 11);
+				}
+				else if(val > 2.5e-12){
+					m_ig2Display.set(x, y, 15);
+				}
+			}
+		}
+	}
+	
+	
+	
+	/**
+	 * Updates the 2D display
+	 */
+	public void updateDisplay() {
+		
+		for (int x = 0; x < m_iWidth; x++) {
+			for (int y = 0; y < m_iHeight; y++) {
+				
+				
+				
 				m_ig2Display.set(x, y, field[x][y][m_iDisplayLevel]);
-
+			
 			}
 		}
 	}
