@@ -13,13 +13,11 @@ import sim3d.SimulationEnvironment;
 public class Controller implements Steppable {
 
 	/**
-	 * Is a singleton class
 	 * 
-	 * All data collection is handled through this class, it has functionality
+	 * All data collection is handled through this singleton class, it has functionality
 	 * to track populations of cell types and single cell tracking experiments.
 	 * 
 	 * MVC design pattern:
-	 * http://www.tutorialspoint.com/design_pattern/mvc_pattern.htm
 	 * 
 	 * Model: SimulationEnvironment. Each cognate B-cell is responsible for
 	 * maintaining it's own data Controller: DataLogger contains data maps which
@@ -27,27 +25,31 @@ public class Controller implements Steppable {
 	 * so) View: GUIrun or consoleRun are responsible for running the model and
 	 * instantiate OutputToCSV or Grapher to display the data
 	 * 
-	 * @author jason cosgrove
+	 * @author Jason Cosgrove
 	 */
 
-	//the single instance of the class
+	/**
+	 * The single instance of the class
+	 */
 	private static Controller instance = null;
-	
 	
 	/*
 	 * Constructor for the class
 	 */
 	protected Controller(){
+		//counter to record the duration of an experiment
 		experimentTimer = 0;
-	
-		
+		//the length of an experiment, in minutes
 		lengthOfExperiment = Settings.EXPERIMENTLENGTH;
 	}
 	
-	
-	// returns the instance of the class
+	/**
+	 * Returns the sole instance of the class
+	 * @return a controller object
+	 */
 	public static Controller getInstance(){
-		if(instance ==null){
+		if(instance ==null)
+		{
 			instance = new Controller();
 		}
 		return instance;
@@ -81,19 +83,40 @@ public class Controller implements Steppable {
 	//need to initialise this
 	private Map<Integer,Integer> dendritesVisited = new HashMap<Integer, Integer>();
 
-
 	/**
 	 * Controls the length of an experiment and signals to the main class when
 	 * an experiment is finished
 	 */
 	public void step(SimState state) {
+		
+		//increment the experiment timer
 		experimentTimer++;
 	
+		// stop the experiment once the counter reaches
+		// lengthOfExperiment
 		if (experimentTimer > lengthOfExperiment) {
 			SimulationEnvironment.experimentFinished = true;
 		}
 	}
 
+	
+	/**
+	 * Controls the length of an experiment and signals to the main class when
+	 * an experiment is finished
+	 * used for testing
+	 */
+	public void step() {
+		
+		//increment the experiment timer
+		experimentTimer++;
+	
+		// stop the experiment once the counter reaches
+		// lengthOfExperiment
+		if (experimentTimer > lengthOfExperiment) {
+			SimulationEnvironment.experimentFinished = true;
+		}
+	}
+	
 	// getters and setters for the controller
 	public static int getPrimedCells() {
 		return primedCells;
@@ -118,8 +141,5 @@ public class Controller implements Steppable {
 	public Map<Integer,Integer> getDendritesVisited() {
 		return dendritesVisited;
 	}
-
-
-
 
 }

@@ -16,20 +16,48 @@ import sim3d.collisiondetection.CollisionGrid;
 
 public class cognateBC extends BC {
 	/**
+	 * A cognateBC is a type of B-cell which
+	 * can bind to antigen. Within an in silico
+	 * experiment we track only this cell type
 	 * 
+	 * @author: Jason Cosgrove
 	 */
+	
 	private static final long serialVersionUID = 1L;
-	// stores position of cBC in each dimension for each timestep
+	
+	/**
+	 * Used to store the x,y and z coordinates of a BC during 
+	 * a cell tracking experiment
+	 */
 	private ArrayList<Double> positionX = new ArrayList<Double>();
 	private ArrayList<Double> positionY = new ArrayList<Double>();
 	private ArrayList<Double> positionZ = new ArrayList<Double>();
 
-	private Integer index = 0; // unique identifier of each cBC
+	/**
+	 * Unique identifier of each cBC
+	 */
+	private Integer index = 0; 
+	
+	/**
+	 * Graphs the number of primed cells within the system
+	 * if running the GUI
+	 */
 	public boolean displayAntigenGraph = false;
-	private int antigenCaptured = 0; // number of antigen acquired by each cBC
-	private int dendritesVisited = 0; //these kind of things should just be a member variable to keep style consistent with simon
+	
+	/**
+	 * The number of antigen captured by a cBC
+	 */
+	private int antigenCaptured = 0; 
+	
+	/**
+	 * The number of unique dendrites visited by a cBC
+	 */
+	private int dendritesVisited = 0; 
 
-	//counter for migration data collection
+	/**
+	 * Counter used to increment time in a 
+	 * cell migration experiment
+	 */
 	int counter = 0;
 	
 	/**
@@ -53,7 +81,6 @@ public class cognateBC extends BC {
 	public void step(final SimState state) {
 		
 		
-		
 		super.step(state);
 
 		// once the system has reached steady state the BC can start to record
@@ -72,10 +99,6 @@ public class cognateBC extends BC {
 		}
 	}
 
-	
-
-	
-	
 	/**
 	 * Updates the cells X,Y and Z coordinates in the XY and Z arraylists and
 	 * the controllers coordinate MAPs so they can be accessed by viewers 
@@ -105,7 +128,9 @@ public class cognateBC extends BC {
 	public TYPE type;
 
 	/**
-	 * Need more comments
+	 * Handles collisions between stroma and cognate B cells
+	 * Might be able to refactor
+	 * TODO Need more comments
 	 */
 	@Override
 	public void handleCollisions(CollisionGrid cgGrid) {
@@ -174,7 +199,6 @@ public class cognateBC extends BC {
 					{
 						acquireAntigen(cCell);
 					}
-					
 				}
 				
 				
@@ -193,8 +217,7 @@ public class cognateBC extends BC {
 	}
 
 	/**
-	 * Acquire antigen from a B cell TODO update to account for heterogeneity at
-	 * some point
+	 * Acquire antigen from a stroma edge or branch
 	 * 
 	 * @param cCell
 	 */
@@ -288,9 +311,13 @@ public class cognateBC extends BC {
 		return transf;
 	}
 
-
-	// getters and setters, more efficient to have cBC update the MAP than
-	// controller
+	/**
+	 * Getters and setters for key parameters
+	 * TODO probably more consistent to have
+	 * them as member variables, need to ask 
+	 * Simon
+	 * @return
+	 */
 	public int getAntigenCaptured() {
 		return antigenCaptured;
 	}

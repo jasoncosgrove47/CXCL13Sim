@@ -14,9 +14,10 @@ import sim3d.diffusion.algorithms.DiffusionAlgorithm;
  * Same as Particle but accounts for Moles not absoloute molecules
  * is just an object of type doubleGrid3D
  * 
- * @author Jason Cosgrove
+ * @author Jason Cosgrove, Simon Jarrett
  */
 public class ParticleMoles extends DoubleGrid3D implements Steppable {
+	
 	/**
 	 * ENUM for the chemokine types
 	 */
@@ -86,7 +87,6 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 
 		return pTarget.getArea(x, y, z);
 	}
-
 
 	/**
 	 * Accessor for m_iDisplayLevel
@@ -229,8 +229,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	}
 
 	/**
-	 * Simulate decay of the chemokine using the m_dDecayRateInv TODO change to
-	 * exponential decay
+	 * Simulate decay of the chemokine using the m_dDecayRateInv
 	 */
 	public void decay() {
 		
@@ -320,8 +319,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 */
 	public void step(final SimState state) {
 
-	
-		
+		//diffuse and decay at a rate diffusion steps per sim timestep
 		for (int i = 0; i < Settings.DIFFUSION_STEPS; i++) {
 			m_daDiffusionAlgorithm.diffuse(this);
 			decay();
@@ -329,8 +327,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 		}
 		
 		
-		//this code doesn't do anything but is useful for calibrating
-		// chemokine concentration
+	//TODO refactor as a method, calcualte total chemokine value
 		double totalChemokineValue = 0;
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
@@ -344,9 +341,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 		
 		updateDisplay2();
 		
-		//TODO is decay getting called in diffuse cos needs to be on the same time scale
-		
-		
+	
 		
 		
 		
@@ -362,10 +357,10 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 			for (int y = 0; y < m_iHeight; y++) {
 				
 				double val = field[x][y][m_iDisplayLevel];
-				if(val < 8e-16){
+				if(val < 6e-16){
 					m_ig2Display.set(x, y, 0);
 				}
-				else if(val > 8e-16 && val < 5e-15){
+				else if(val > 6e-16 && val < 5e-15){
 					m_ig2Display.set(x, y, 2);
 				}
 				else if(val > 5e-15 && val < 5e-14){
@@ -382,31 +377,29 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 				else if(val > 5e-13 && val < 1e-12){
 					m_ig2Display.set(x, y, 9);
 				}
-				else if(val > 1e-12 && val < 2.5e-12){
+				else if(val > 1e-12 && val < 2e-12){
 					m_ig2Display.set(x, y, 11);
 				}
-				else if(val > 2.5e-12){
+				else if(val > 2e-12){
 					m_ig2Display.set(x, y, 15);
 				}
 			}
 		}
 	}
 	
-	
-	
 	/**
 	 * Updates the 2D display
 	 */
 	public void updateDisplay() {
+
 		
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
-				
-				
-				
+
 				m_ig2Display.set(x, y, field[x][y][m_iDisplayLevel]);
-			
+
 			}
 		}
 	}
+
 }

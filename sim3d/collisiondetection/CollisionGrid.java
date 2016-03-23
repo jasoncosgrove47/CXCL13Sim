@@ -22,8 +22,6 @@ public class CollisionGrid implements Steppable {
 
 	private static final long serialVersionUID = 1L;
 
-	// Private Members
-
 	/**
 	 * A 3D array of lists of Collidable objects containing the objects that
 	 * will interact with that grid space for that time step
@@ -59,8 +57,6 @@ public class CollisionGrid implements Steppable {
 	 * m_ia3GridUpdateStep)
 	 */
 	private int m_iCurrentStep = 0;
-
-	// Private Methods
 
 	/**
 	 * Adds a Collidable object to a grid location. Performs checks as to
@@ -130,7 +126,6 @@ public class CollisionGrid implements Steppable {
 		}
 	}
 
-	// Public Methods
 	/**
 	 * @param iWidth
 	 *            Width of the grid

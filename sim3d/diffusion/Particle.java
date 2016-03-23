@@ -11,6 +11,8 @@ import sim3d.Settings;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
 /**
+ * TODO need to get rid of this when sort branching out
+ * 
  * Class to keep track of chemokine in the simulation. Extends IntGrid3D which
  * contains the amount of chemokine within each discrete grid space. Handles
  * decay and diffusion (via DiffusionAlgorithm) of chemokines.
@@ -27,8 +29,6 @@ public class Particle extends IntGrid3D implements Steppable
 	{
 		CCL19, CCL21, CXCL13, EBI2L
 	}
-	
-	// Static variables
 	
 	/**
 	 * The z-index to display
@@ -80,8 +80,6 @@ public class Particle extends IntGrid3D implements Steppable
 		return pTarget.getArea( x, y, z );
 	}
 															
-	// Static methods
-	
 	/**
 	 * Accessor for m_iDisplayLevel
 	 */
@@ -133,8 +131,6 @@ public class Particle extends IntGrid3D implements Steppable
 	{
 		m_iDisplayLevel = iDisplayLevel;
 	}
-	
-
 	
 	/**
 	 * A 2D grid containing the values using m_iDisplayIndex as the z-index
@@ -208,7 +204,6 @@ public class Particle extends IntGrid3D implements Steppable
 	
 	/**
 	 * Simulate decay of the chemokine using the m_dDecayRateInv
-	 * TODO change to exponential decay
 	 */
 	public void decay()
 	{
@@ -220,7 +215,6 @@ public class Particle extends IntGrid3D implements Steppable
 				for ( int z = 0; z < m_iDepth; z++ )
 				{
 					// add 0.5 so it rounds (1.6 -> 2) instead of just flooring the value (1.6 -> 1)
-					// TODO need this bit of code explained
 					field[x][y][z] = (int) (0.5 + field[x][y][z] * Settings.CXCL13.DECAY_CONSTANT);
 				}
 			}

@@ -1,33 +1,37 @@
 package sim3d.util;
 
+
+
+/**
+ * 4th order Runge Kutta Solver as described from:
+ * http://mathworld.wolfram.com/Runge-KuttaMethod.html
+ * 
+ * ODE system: f(Rf), f(LR), F(Ri)
+ * 
+ * d[LR] = Ka[L][Rf] - Ki[LR]
+ * 
+ * d[Rf] = Kr[Ri] - Ka[L][Rf]
+ * 
+ * d[Ri] = Ki[LR] - Kr[Ri]
+ * 
+ * h = timestep
+ * 
+ * K1 = hF(Rf, LR, Ri)
+ * K2 = hF(Rf + (K1Rf/2), LR + (K1Rf/2), Ri + (K1Rf/2)
+ * K3 = hF(Rf + (K2Rf/2), LR + (K2Rf/2), Ri + (K2Rf/2)
+ * K4 = hF(Rf + K3Rf, LR + K3LR, Ri + K3Ri)
+ * 
+ * Rf(t+1) = Rt + 1/6RfK1 + 1/3RfK2 + 1/3RfK3 + 1/6RfK4
+ * LR(t+1) = LRt + 1/6LRK1 + 1/3LRK2 + 1/3LRK3 + 1/6LRK4
+ * Ri(t+1) = Rit + 1/6RiK1 + 1/3RiK2 + 1/3RiK3 + 1/6RiK4
+ * @return 
+ * 
+ * 
+ * @author Jason Cosgrove
+ * 
+ */
 public class ODESolver {
 
-
-	/**
-	 * 4th order Runge Kutta Solver as described from:
-	 * http://mathworld.wolfram.com/Runge-KuttaMethod.html
-	 * 
-	 * ODE system: f(Rf), f(LR), F(Ri)
-	 * 
-	 * d[LR] = Ka[L][Rf] - Ki[LR]
-	 * 
-	 * d[Rf] = Kr[Ri] - Ka[L][Rf]
-	 * 
-	 * d[Ri] = Ki[LR] - Kr[Ri]
-	 * 
-	 * h = timestep
-	 * 
-	 * K1 = hF(Rf, LR, Ri)
-	 * K2 = hF(Rf + (K1Rf/2), LR + (K1Rf/2), Ri + (K1Rf/2)
-	 * K3 = hF(Rf + (K2Rf/2), LR + (K2Rf/2), Ri + (K2Rf/2)
-	 * K4 = hF(Rf + K3Rf, LR + K3LR, Ri + K3Ri)
-	 * 
-	 * Rf(t+1) = Rt + 1/6RfK1 + 1/3RfK2 + 1/3RfK3 + 1/6RfK4
-	 * LR(t+1) = LRt + 1/6LRK1 + 1/3LRK2 + 1/3LRK3 + 1/6LRK4
-	 * Ri(t+1) = Rit + 1/6RiK1 + 1/3RiK2 + 1/3RiK3 + 1/6RiK4
-	 * @return 
-	 * 
-	 */
 	
 	
 	/*

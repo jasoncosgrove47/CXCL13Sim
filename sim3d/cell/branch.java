@@ -21,12 +21,25 @@ import sim3d.collisiondetection.Collidable.CLASS;
 
 public class branch extends StromaEdge{
 
-	public double STROMA_EDGE_RADIUS;
+	/**
+	 * A branch is a smaller edge and used to account for
+	 * the web-like morphology of the FDC network, a branch
+	 * can connect to the midpoint of two edges, or the midpoints
+	 * of two branches
+	 * 
+	 * @author: Jason Cosgrove
+	 */
+	private static final long serialVersionUID = 1L;
 	
+	public double STROMA_EDGE_RADIUS;
 	
 	private int antigenLevel = 0;
 	
-
+	/**
+	 * Constructor for the branch class
+	 * @param d3Point1 the start of the branch
+	 * @param d3Point2 the end of the branch
+	 */
 	public branch(Double3D d3Point1, Double3D d3Point2) {
 		super(d3Point1, d3Point2,true);
 		
@@ -38,7 +51,6 @@ public class branch extends StromaEdge{
 		this.STROMA_EDGE_RADIUS = 0.1;
 		// TODO Auto-generated constructor stub
 	}
-
 
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
@@ -88,11 +100,13 @@ public class branch extends StromaEdge{
 				this.STROMA_EDGE_RADIUS);
 	}
 
-
+	/**
+	 * The number of antigen that the branch has to express
+	 * @return
+	 */
 	public int getAntigenLevel() {
 		return antigenLevel;
 	}
-
 
 	public void setAntigenLevel(int antigenLevel) {
 		this.antigenLevel = antigenLevel;

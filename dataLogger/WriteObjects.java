@@ -15,9 +15,14 @@ public class WriteObjects {
 	 * @param simulation
 	 *            the controller for the simulation - Simulation Environment
 	 * 
-	 *            Authors: Jason cosgrove, Steph Dyson
+	 * @authors: Jason cosgrove, Steph Dyson
 	 */
 
+	
+	/**
+	 * Saves the FDC network so we can load it into another simulation
+	 * @param simulation
+	 */
 	public void writeFDC(SimulationEnvironment simulation) {
 		try { // Catch errors in I/O if necessary.
 				// Open a file to write to, named SavedObj.sav.
@@ -27,8 +32,8 @@ public class WriteObjects {
 			// Create an ObjectOutputStream to put objects into save file.
 			ObjectOutputStream save = new ObjectOutputStream(saveFile);
 
-			save.writeObject(simulation.fdcEnvironment);// TODO this needs to be
-														// the particle grid
+			save.writeObject(simulation.fdcEnvironment);
+														
 			// Close the file.
 			save.close(); // This also closes saveFile.
 		} catch (Exception exc) {
@@ -37,7 +42,10 @@ public class WriteObjects {
 		}
 	}
 	
-	
+	/**
+	 * Saves the B-cell grid so we can load it into another simulation
+	 * @param simulation
+	 */
 	public void writeBC(SimulationEnvironment simulation) {
 		try { // Catch errors in I/O if necessary.
 				// Open a file to write to, named SavedObj.sav.
@@ -46,8 +54,8 @@ public class WriteObjects {
 
 			// Create an ObjectOutputStream to put objects into save file.
 			ObjectOutputStream save = new ObjectOutputStream(saveFile);
-			save.writeObject(BC.bcEnvironment);// TODO this needs to be
-														// the particle grid
+			save.writeObject(BC.bcEnvironment);
+														
 			// Close the file.
 			save.close(); // This also closes saveFile.
 		} catch (Exception exc) {
@@ -57,7 +65,10 @@ public class WriteObjects {
 	}
 
 	
-	
+	/**
+	 * Saves the CXCL13 grid so it can be loaded into another simulation.
+	 * @param simulation
+	 */
 	public void writeCXCL13(SimulationEnvironment simulation) {
 		try { // Catch errors in I/O if necessary.
 				// Open a file to write to, named SavedObj.sav.
@@ -77,14 +88,4 @@ public class WriteObjects {
 	}
 
 
-	/*
-	 * 3) In the class that you want to write out, use this method (and change
-	 * step== to whenever you want to write it):
-	 * 
-	 * if(step ==1440*20 && !IBDSim.restore){ WriteObjects wo= new
-	 * WriteObjects(); wo.writeColon(simulation); }
-	 * 
-	 * 4) To restore a grid you just need to use this in your main class:
-	 * colon=(Colon) ReadObjects.restoreColon();
-	 */
 }

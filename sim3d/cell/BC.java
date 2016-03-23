@@ -160,8 +160,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	public void step(final SimState state)// why is this final here
 	{
 		
-	
-
 		collisionCounter = 0; // reset the collision counter for this timestep
 		m_i3lCollisionPoints.clear();
 
@@ -182,6 +180,37 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		registerCollisions(m_cgGrid); // Register the new movement with the grid
 	}
 
+	
+	/**
+	 * Controls what a B cell agent does for each time step Each Bcell registers
+	 * its intended path on the collision grid, once all B cells register the
+	 * collision grid handles the movement at the next iteration the B cells are
+	 * moved. B cells only collide with stroma
+	 */
+	public void step()// why is this final here
+	{
+		
+		collisionCounter = 0; // reset the collision counter for this timestep
+		m_i3lCollisionPoints.clear();
+
+		//if we have a stored move then execute it
+		if (m_d3aMovements != null && m_d3aMovements.size() > 0) 
+		{
+			performSavedMovements();
+		}
+
+
+		//System.out.println("nextGaussian is: " + SimulationEnvironment.simulation.random.nextGaussian());
+		
+		calculateWhereToMoveNext();
+
+		handleBounce(); // Check for bounces
+		//receptorStep(); // Step forward the receptor ODE
+		receptorStepNew();
+		registerCollisions(m_cgGrid); // Register the new movement with the grid
+	}
+
+	
 	public Int3D getDiscretizedLocation(Continuous3D grid) {
 		Double3D me = grid.getObjectLocation(this);// obtain coordinates of the
 													// tcell
@@ -232,8 +261,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 	}
 
-	
-	
 	/**
 	 * Looks at how many cells are in the target location,
 	 * if this is full then it checks halfway along the
@@ -291,8 +318,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		
 	}
 	
-	
-	
 	/**
 	 * TODO This stops the cell moving the entire distance
 	 * but why couldnt it move halfway along?
@@ -332,8 +357,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		else return false;
 		
 	}
-	
-	
 	
 	/**
 	 * calculate where to move for the next timestep.
@@ -458,8 +481,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		stopper.stop();
 	}
 
-
-	
 	/**
 	 * Perform a step for the receptor Euler method with step size 0.1 
 	 * 
@@ -548,11 +569,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		}
 	}
 
-	
-	
-	
-	
-	
 	/**
 	 * 
 	 * Samples CXCL13 in the vicinity of the cell, and calculates a new movement
@@ -580,8 +596,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		return vMovement;
 	}
 
-
-	
 	/**
 	 *  Helper method to calculate the amount of ligand bound to receptor returns
 	 * an int array with the number of bound receptors at each psuedopod
@@ -649,10 +663,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		}
 		return iaBoundReceptors;
 	}
-	
-	
-	
-	
 	
 	@Override
 	public void registerCollisions(CollisionGrid cgGrid) {
@@ -1291,8 +1301,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		}
 		return bBounce;
 	}
-
-	//////////// 3D Model for GUI ///////////////
 
 	/*
 	 * This is the 3D model of the B cell. Overrides JAVA 3D so we never

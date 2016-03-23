@@ -1,7 +1,7 @@
 /**
  * 
  */
-package unittests;
+package acceptanceTests;
 
 
 import static org.hamcrest.MatcherAssert.assertThat;

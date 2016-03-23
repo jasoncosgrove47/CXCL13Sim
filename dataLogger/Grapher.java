@@ -8,7 +8,7 @@ import sim.util.media.chart.TimeSeriesChartGenerator;
  * Handles all graphing functionality, and allows simulation to post graphing
  * information though static variables and methods
  * 
- * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
+ * @author Simon Jarrett, Jason Cosgrove
  */
 public class Grapher {
 	/**
@@ -67,7 +67,6 @@ public class Grapher {
 		chart.updateChartWithin(schedule.getSteps(), 1000);
 	}
 
-	
 	/**
 	 * Add a point to the antigen chart at the current schedule timestep
 	 * 

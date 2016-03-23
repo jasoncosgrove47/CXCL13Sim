@@ -26,34 +26,29 @@ import sim3d.collisiondetection.CollisionGrid;
  * An agent representing the edge of stroma. Used to represent the dendrites of
  * the FDCs for the purposes of display and collision.
  * 
- * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
+ * @author Jason Cosgrove, Simon Jarrett
  */
-public class StromaEdge extends DrawableCell3D implements java.io.Serializable, Collidable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
+		Collidable {
 
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
 	 */
 	public static Continuous3D drawEnvironment;
-	
-		
-	//records which cells have collided with this edge
-	//as we want to limit the interactions between 
-	// a given stromal edge and a b cell
+
+	/**
+	 * Records which cells ahve collided with this edge as we want to know the
+	 * number of unique edges and branches visited by a cognate BC
+	 */
 	ArrayList<Integer> cellsCollidedWithUpperHalf = new ArrayList<Integer>();
 	ArrayList<Integer> cellsCollidedWithLowerHalf = new ArrayList<Integer>();
-	
-	
-	//public int[] cellsCollidedWithUpperHalf;
-	//public int[] cellsCollidedWithLowerHalf;
 
 	/**
 	 * Define colours so that we can add an antigen heatmap later if required.
+	 * TODO there might be a cool figure we could get out of this!
 	 */
 	public java.awt.Color blue0 = new Color(30, 40, 190, 180);
 	public java.awt.Color blueLow = new Color(30, 40, 190, 0);
@@ -66,29 +61,30 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 	 */
 	public Double3D m_d3Edge;
 
-	
-	
-	//The midpoint of the edge, useful for creating branching structures
+	/**
+	 * The midpoint of the edge, used for creating branches
+	 */
 	public Double3D midpoint;
-	
-	/*
+
+	/**
 	 * Divide each dendrite in two so that a B cell must be at the correct part
 	 * of the dendrite to acquire antigen
 	 */
 	private int antigenLevelUpperEdge;
+	
+	/**
+	 * Divide each dendrite in two so that a B cell must be at the correct part
+	 * of the dendrite to acquire antigen
+	 */
 	private int antigenLevelLowerEdge;
 
 	/**
-	 * Constructor
+	 * Constructor for the stromal edge
 	 * 
 	 * @param d3Point1
-	 *            Absolute value of the start point
 	 * @param d3Point2
-	 *            Absolute value of the end point
+	 * @param branch
 	 */
-	
-	
-	
 	public StromaEdge(Double3D d3Point1, Double3D d3Point2, boolean branch) {
 
 		// makes sure that first point is always lower on the z axis
@@ -108,12 +104,17 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 		// vector representing the stromal edge
 		m_d3Edge = d3Point2.subtract(d3Point1);
 
-		
-		midpoint = new Double3D((d3Point1.x + d3Point2.x)/2,(d3Point1.y + d3Point2.y)/2,(d3Point1.z + d3Point2.z)/2);
-		
-	
+		midpoint = new Double3D((d3Point1.x + d3Point2.x) / 2,
+				(d3Point1.y + d3Point2.y) / 2, (d3Point1.z + d3Point2.z) / 2);
+
 	}
-	
+
+	/**
+	 * TODO, can we get rid of this?
+	 * 
+	 * @param d3Point1
+	 * @param d3Point2
+	 */
 	public StromaEdge(Double3D d3Point1, Double3D d3Point2) {
 
 		// makes sure that first point is always lower on the z axis
@@ -133,11 +134,12 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 		// vector representing the stromal edge
 		m_d3Edge = d3Point2.subtract(d3Point1);
 
-		
-		midpoint = new Double3D((d3Point1.x + d3Point2.x)/2,(d3Point1.y + d3Point2.y)/2,(d3Point1.z + d3Point2.z)/2);
-		
+		// the midpoint of the vector
+		midpoint = new Double3D((d3Point1.x + d3Point2.x) / 2,
+				(d3Point1.y + d3Point2.y) / 2, (d3Point1.z + d3Point2.z) / 2);
+
 		// divide antigen amount by 2 to make sure a BC has to interact with the
-		// correct portion of the edge to acquire antigen. Otherwise a BC could 
+		// correct portion of the edge to acquire antigen. Otherwise a BC could
 		// interact with one end of the edge but take antigen from the other end
 		setAntigenLevelUpperEdge(Settings.FDC.STARTINGANTIGENLEVEL / 2);
 		setAntigenLevelLowerHalf(Settings.FDC.STARTINGANTIGENLEVEL / 2);
@@ -168,7 +170,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
 		if (transf == null)// add || true to update the stroma visualisation
-						
+
 		{
 
 			StromaEdge fdc = (StromaEdge) obj;
@@ -183,7 +185,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 			Appearance aAppearance = new Appearance();
 
 			Color col = Settings.FDC.DRAW_COLOR();
-
 
 			if (fdc.getAntigen() < 90) {
 				col = blue3;
@@ -248,7 +249,10 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 				Settings.FDC.STROMA_EDGE_RADIUS);
 	}
 
-	// getters and setters
+	/*
+	 * Getters and Setters for the class
+	 * @return
+	 */
 	public int getAntigenLevelUpperEdge() {
 		return antigenLevelUpperEdge;
 	}
@@ -268,8 +272,5 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable, 
 	public void setAntigenLevelLowerHalf(int antigenLevelLowerEdge) {
 		this.antigenLevelLowerEdge = antigenLevelLowerEdge;
 	}
-
-
-
 
 }

@@ -8,6 +8,8 @@ import sim.util.gui.ColorMap;
  * A colour map that will go from black to blue, and then start to change hue.
  * Looks pretty nice
  * 
+ * TODO get rid of this class
+ * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
 public class ParticleColorMap implements ColorMap

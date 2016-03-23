@@ -1,7 +1,7 @@
 /**
  * 
  */
-package unittests;
+package acceptanceTests;
 
 import static org.junit.Assert.*;
 import java.util.ArrayList;

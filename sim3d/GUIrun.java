@@ -69,13 +69,15 @@ public class GUIrun extends GUIState {
 	public java.awt.Color blue2 = new Color(200, 40, 230, 220);
 	public java.awt.Color blue3 = new Color(30, 200, 255, 255);
 	public java.awt.Color lightBlue = new Color(173, 216, 230, 30);
-
+	public java.awt.Color red = new Color(255, 0, 0, 200);
+	public java.awt.Color lightred = new Color(255, 212, 212,25);
+	
 	/**
 	 * Color map which is used to visualise CXCL13 concentration
 	 * concentration is scaled between 1 and 15 to display the 
 	 * chemokine gradient
 	 */
-	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(1,15, lightBlue, blue1);
+	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(1,15, lightred, red);
 
 	/**
 	 * The main display

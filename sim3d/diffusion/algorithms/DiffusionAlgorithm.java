@@ -44,7 +44,7 @@ public class DiffusionAlgorithm {
 		m_iDepth = iDepth;
 	}
 	
-
+	//TODO why is this here? singleton???
 	protected DiffusionAlgorithm(){
 		
 	}
@@ -57,6 +57,7 @@ public class DiffusionAlgorithm {
 	 * step of the particle to the immediate diffusion neighbourhood using the
 	 * coefficients set in m_adDiffusionCoefficients.
 	 * 
+	 * TODO delete this method
 	 * 
 	 * @param pSpace
 	 *            The Particle object to visit
@@ -204,6 +205,18 @@ public class DiffusionAlgorithm {
 		}
 	}
 
+	/**
+	 * Visitor design pattern - so diffusion and particle grids are separate but
+	 * can work together could have put diffuse in particle class but this keeps
+	 * it as a distinct thing without worrying about implementation and
+	 * separates diffusion from the particle grid that performs one diffusion
+	 * step of the particle to the immediate diffusion neighbourhood using the
+	 * coefficients set in m_adDiffusionCoefficients.
+	 * 
+	 * 
+	 * @param pSpace
+	 *            The Particle object to visit
+	 */
 	public void diffuse(ParticleMoles pSpace) {
 		// A temporary variable containing the previous value of pSpace.field
 		double[][][] ia3Concentrations = new double[m_iWidth][m_iHeight][m_iDepth];

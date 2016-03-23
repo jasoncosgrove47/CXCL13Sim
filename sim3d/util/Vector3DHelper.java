@@ -9,6 +9,7 @@ import sim3d.Settings;
  * @author Simon Jarrett (simonjjarrett@gmail.com)
  */
 public class Vector3DHelper {
+	
 	/**
 	 * Generates a uniform random point on the unit sphere
 	 * 
@@ -302,4 +303,5 @@ public class Vector3DHelper {
 
 		return new Double3D(x, y, z);
 	}
+
 }

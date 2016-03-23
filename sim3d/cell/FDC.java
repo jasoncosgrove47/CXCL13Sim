@@ -18,9 +18,10 @@ import sim3d.diffusion.ParticleMoles;
  * An FDC agent. Represents the nucleus of the FDC, and handles the secretion of
  * chemokine to the particle grid.
  * 
- * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
+ * @author Jason Cosgrove, Simon Jarrett
  */
 public class FDC extends DrawableCell3D implements Steppable, Collidable {
+	
 	/**
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
@@ -80,15 +81,10 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable {
 
 	@Override
 	public void step(final SimState state) {
-		
-
-		
+	
+		//secrete chemokine
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z,
 				Settings.FDC.CXCL13_EMITTED());
-		
-	   
-		
-		
-
+	
 	}
 }
