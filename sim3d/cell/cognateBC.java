@@ -15,6 +15,7 @@ import sim3d.collisiondetection.CollisionGrid;
 
 
 public class cognateBC extends BC {
+	
 	/**
 	 * A cognateBC is a type of B-cell which
 	 * can bind to antigen. Within an in silico
@@ -22,7 +23,6 @@ public class cognateBC extends BC {
 	 * 
 	 * @author: Jason Cosgrove
 	 */
-	
 	private static final long serialVersionUID = 1L;
 	
 	/**

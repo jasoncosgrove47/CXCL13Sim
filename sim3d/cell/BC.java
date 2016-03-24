@@ -223,7 +223,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 */
 	public void performSavedMovements() {
 
-		Double3D oldLocation = new Double3D(x,y,z);
+		//Double3D oldLocation = new Double3D(x,y,z);
 		
 		for (Double3D d3Movement : m_d3aMovements) {
 
@@ -237,95 +237,19 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		// Remember which way we're now facing
 		m_d3Face = m_d3aMovements.get(m_d3aMovements.size() - 1).normalize();
 		//if space to move then move
-		//TODO pretty sure i would need to update the 
-		// x,y and z from for loop above if i don't move
+
 		if(determineSpaceToMove(x,y,z)){
 			setObjectLocation(new Double3D(x, y, z));
 		}
 		
-		//TODO need to implement this method but needs debugging first
-		// cells seem to be clustering really tightly with it
-	
-		/*
-		Double3D locationToMoveTo = checkFreeSpaceAlongPath(x,y,z,oldLocation);
 		
-		//update these coordinates, does this help anything?
-		x= locationToMoveTo.x;
-		y= locationToMoveTo.y;
-		z= locationToMoveTo.z;
-		
-		//if there is free space available then migrate
-	
-		setObjectLocation(locationToMoveTo);
-		*/
 
 	}
 
-	/**
-	 * Looks at how many cells are in the target location,
-	 * if this is full then it checks halfway along the
-	 * target path
-	 * @return 
-	 */
-	public Double3D checkFreeSpaceAlongPath(double x, double y, double z, Double3D oldLocation){
-		
-		
-		//get the location we want to go to
-		Double3D putativeLocation = new Double3D(x, y, z);
-	
-		// see how many cells are at the putative location
-		Bag cells = BC.bcEnvironment.getNeighborsExactlyWithinDistance(
-				putativeLocation, 0.7);// cell is actually 0.7
-			
 
-		//use this to decide probabilistically whether or not to move
-		int otherCells = cells.numObjs - 1;
-		double pmove = Math.exp(-otherCells);
 
-		double random = Settings.RNG.nextDouble();
-
-		if (random < pmove) {
-			return putativeLocation;
-		}
-		
-		
-		//if not returned at this point we need to determine what the midway point is
-		//between curent and target location and see if htere is space available there
-		double midx = ((oldLocation.x + putativeLocation.x)/2);
-		double midy = ((oldLocation.y + putativeLocation.y)/2);
-		double midz = ((oldLocation.z + putativeLocation.z)/2);
-		
-		Double3D midpoint = new Double3D(midx, midy, midz);
-		
-		
-		// see if there are any cells at the putative location
-		Bag cells_m = BC.bcEnvironment.getNeighborsExactlyWithinDistance(
-						midpoint, 0.7);// cell is actually 0.7
-					
-				// need to do cells minus one as it includes this cell
-		int otherCells_m = cells_m.numObjs - 1;
-
-				//need to account for in
-		double pmove_m = Math.exp(-otherCells_m);
-
-		double random_m = Settings.RNG.nextDouble();
-
-		if (random_m < pmove_m) {
-			return midpoint;
-		}
-				
-		else return oldLocation;
-		
-	}
 	
 	/**
-	 * TODO This stops the cell moving the entire distance
-	 * but why couldnt it move halfway along?
-	 * 
-	 * 
-	 * TODO not fully convinced that this method is correct
-	 * 
-	 * 
 	 * @param x
 	 * @param y
 	 * @param z
@@ -336,27 +260,24 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 		// see if there are any cells at the putative location
 		Bag cells = BC.bcEnvironment.getNeighborsExactlyWithinDistance(
-				putativeLocation, 0.7);// cell is actually 0.7
+				putativeLocation, 0.7);
 		
-	
 		// need to do cells minus one as it includes this cell
 		int otherCells = cells.numObjs - 1;
 
-		
 		//need to account for in
 		double pmove = Math.exp(-otherCells);
 
 		double random = Settings.RNG.nextDouble();
 
 		if (random < pmove) {
-
 			return true;
-		
 		}
 		
 		else return false;
 		
 	}
+
 	
 	/**
 	 * calculate where to move for the next timestep.
@@ -368,24 +289,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		vMovement = getMoveDirection();
 		double vectorMagnitude = vMovement.lengthSq();
 		
-	
-
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
 				
-				
 				// Add some noise to the direction and take the average of our
 				// current direction and the new direction
-
 				// the multiply is to scale the new vector, when we multiply by
 				// 2 we are favouring the new signal more than the old
-				
-				
 				vMovement = m_d3Face.add(Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
 								Settings.BC.DIRECTION_ERROR()).multiply(
 								Settings.BC.PERSISTENCE));
 				
-			
 
 				if (vMovement.lengthSq() > 0) {
 					vMovement = vMovement.normalize();
@@ -417,11 +331,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		// measure of the cell
 		double speedScalar = (Math.log(1 / Settings.BC.PERSISTENCE)) / 3;
 
-	
-		
 
-		
-		
 		// if there is some signalling then the cell increases it's
 		// instantaneous velocity
 		if (vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD) {
@@ -444,6 +354,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 	}
 
+	
 	/**
 	 * How to remove a BC from the schedule:
 	 * 
@@ -482,11 +393,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	}
 
 	/**
-	 * Perform a step for the receptor Euler method with step size 0.1 
+	 * Perform a step for the receptor 
 	 * 
-	 * TODO need to add in term for Koff
+
 	 */
-	private void receptorStepNew() {
+	void receptorStepNew() {
 		double[] iaBoundReceptors = calculateLigandBindingNew();
 
 		//avogadors number - number of molecules in 1 mole
@@ -500,11 +411,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		
 		if(x< 1 || y < 1||z < 1){
 			
-			
 			x = 1;
-			
 		}
-		
 		
 		
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y,
@@ -603,7 +511,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * Updated version for the rungekutta method
 	 * @return
 	 */
-	private double[] calculateLigandBindingNew() {
+	double[] calculateLigandBindingNew() {
 
 		// need to figure out what is sensible to secrete per timestep, might as
 		// well do that in moles. Get the surrounding concentrations
@@ -984,7 +892,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * 
 	 * returns a double, length
 	 */
-	private double updateLength(double length, Double3D ac, Double3D bc,
+	double updateLength(double length, Double3D ac, Double3D bc,
 			double e, double f, Double3D d2) {
 		if (e <= 0) {
 			length = Vector3DHelper.dotProduct(ac, ac);
@@ -1000,10 +908,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		return length;
 	}
 
+	
 	/**
 	 * Helper method that determines the new value of S in collideStromaEdge
 	 */
-	private double calculateSNew(double s, double length, Double3D d1,
+	double calculateSNew(double s, double length, Double3D d1,
 			Double3D d2) {
 		double sNew = s;
 
@@ -1028,7 +937,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * Has lots of parameter inputs but this was the only way to encapsulate
 	 * collision methods
 	 */
-	private List<Double> findClosestPointsBetween(int i, Double3D p1,
+	List<Double> findClosestPointsBetween(int i, Double3D p1,
 			Double3D p2, Double3D d1, Double3D d2, double denom, double s,
 			double t, double a, double b, double c, double e, double f) {
 

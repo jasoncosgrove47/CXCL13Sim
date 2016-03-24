@@ -1,7 +1,7 @@
 /**
  * 
  */
-package acceptanceTests;
+package sim3d.cell;
 
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,9 +19,6 @@ import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim3d.Settings;
-import sim3d.cell.BC;
-import sim3d.cell.FDC;
-import sim3d.cell.StromaEdge;
 import sim3d.diffusion.ParticleMoles;
 import sim3d.util.FRCStromaGenerator;
 import sim3d.util.IO;
