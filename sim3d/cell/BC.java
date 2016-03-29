@@ -160,6 +160,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	public void step(final SimState state)// why is this final here
 	{
 		
+	
+		
 		collisionCounter = 0; // reset the collision counter for this timestep
 		m_i3lCollisionPoints.clear();
 
@@ -189,6 +191,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 */
 	public void step()// why is this final here
 	{
+		
+		
 		
 		collisionCounter = 0; // reset the collision counter for this timestep
 		m_i3lCollisionPoints.clear();
@@ -768,7 +772,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 			double length = Vector3DHelper.dotProduct(c1.subtract(c2),
 					c1.subtract(c2));
 
-			boolean bCollide = false; // what is this variable doing
+			boolean bCollide = false;
 
 			if (length < BC_SE_COLLIDE_DIST_SQ) // if the distance between the B
 												// cell and the stroma is lower
@@ -836,15 +840,25 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	private void updateMovementToAccountForCollision(double length,
 			Double3D d1, Double3D d2, Double3D p1, Double3D p2, double s,
 			double t, int i) {
+		
 		Double3D d3NewDir;
 
-		// Get the approach direction normalised, and in reverse
-		Double3D d3MovementNormal = d1.multiply(-1).normalize();
+
 
 		// We hit bang in the middle so just bounce - unlikely!
 		if (length == 0) {
-			d3NewDir = d3MovementNormal;
+			
+			//The cell bounces back to it's original position so 
+			// no need to updated its coordinates. 
+			
+			
+			
 		} else {
+			
+
+			// Get the approach direction normalised, and in reverse
+			Double3D d3MovementNormal = d1.multiply(-1).normalize();
+			
 			// Calculate the direction from the stroma collision point to the BC
 			// collision point
 			Double3D d3BounceNormal = p1.add(d1.multiply(s))
@@ -856,34 +870,35 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 					d3MovementNormal, d3BounceNormal);
 			d3NewDir = Vector3DHelper.rotateVectorToVector(d3NewDir,
 					d3MovementNormal, d3BounceNormal);
-		}
+		
 
-		// Set the new movement
-		d1 = d1.multiply(s);
+			// Set the new movement
+			d1 = d1.multiply(s);
 
-		if (d1.lengthSq() > 0) {
-			m_d3aMovements.set(i, d1);
-			i++;
-		}
+			if (d1.lengthSq() > 0) {
+				m_d3aMovements.set(i, d1);
+				i++;
+			}
 
-		// We need to add up all vectors after this one
-		// so we can add a new vector of this length
-		double dNewLength = 0;
-		while (m_d3aMovements.size() > i) {
-			dNewLength += m_d3aMovements.get(i).length();
-			m_d3aMovements.remove(i);
-		}
+			// We need to add up all vectors after this one
+			// so we can add a new vector of this length
+			double dNewLength = 0;
+			while (m_d3aMovements.size() > i) {
+				dNewLength += m_d3aMovements.get(i).length();
+				m_d3aMovements.remove(i);
+			}
 
-		// add the remaining length of the current movement
-		dNewLength += d1.length() * (1 - s);
+			// add the remaining length of the current movement
+			dNewLength += d1.length() * (1 - s);
 
-		// slow down based on how fast we changed direction
-		dNewLength *= (2 + Vector3DHelper
+			// slow down based on how fast we changed direction
+			dNewLength *= (2 + Vector3DHelper
 				.dotProduct(d3NewDir, d3MovementNormal)) / 3;
-		d3NewDir = d3NewDir.multiply(dNewLength);
+			d3NewDir = d3NewDir.multiply(dNewLength);
 
-		if (d3NewDir.lengthSq() > 0) {
-			m_d3aMovements.add(d3NewDir);
+			if (d3NewDir.lengthSq() > 0) {
+				m_d3aMovements.add(d3NewDir);
+			}
 		}
 	}
 
