@@ -33,7 +33,7 @@ public class branch extends StromaEdge{
 	
 	public double STROMA_EDGE_RADIUS;
 	
-	private int antigenLevel = 0;
+	//private int antigenLevel;
 	
 	/**
 	 * Constructor for the branch class
@@ -41,17 +41,21 @@ public class branch extends StromaEdge{
 	 * @param d3Point2 the end of the branch
 	 */
 	public branch(Double3D d3Point1, Double3D d3Point2) {
+		
+		
 		super(d3Point1, d3Point2,true);
 		
 		// divide antigen amount by 2 to make sure a BC has to interact with the
 		// correct portion of the edge to acquire antigen. Otherwise a BC could 
 		// interact with one end of the edge but take antigen from the other end
-		this.setAntigenLevel((Settings.FDC.STARTINGANTIGENLEVEL / 4));
-	
+		this.setAntigenLevelLowerHalf((Settings.FDC.STARTINGANTIGENLEVEL / 4));
+		this.setAntigenLevelUpperEdge((Settings.FDC.STARTINGANTIGENLEVEL / 4));
+		
 		this.STROMA_EDGE_RADIUS = 0.1;
 		// TODO Auto-generated constructor stub
 	}
 
+	
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
 		if (transf == null)// add || true to update the stroma visualisation
@@ -104,6 +108,8 @@ public class branch extends StromaEdge{
 	 * The number of antigen that the branch has to express
 	 * @return
 	 */
+	
+	/*
 	public int getAntigenLevel() {
 		return antigenLevel;
 	}
@@ -111,7 +117,8 @@ public class branch extends StromaEdge{
 	public void setAntigenLevel(int antigenLevel) {
 		this.antigenLevel = antigenLevel;
 	}
-
+*/
+	
 	@Override
 	public CLASS getCollisionClass() {
 		return CLASS.BRANCH;

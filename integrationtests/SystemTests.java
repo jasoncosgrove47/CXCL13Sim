@@ -43,12 +43,16 @@ public class SystemTests
     @Test
 	public void testShouldAcquireAntigen()
 	{
+    	
     	long steps = 0;
     	long seed = System.currentTimeMillis();
     	SimulationEnvironment sim = new SimulationEnvironment(seed,IO.openXMLFile("/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml"));
+    	
+    	
     	Settings.BC.COUNT=0;
     	Settings.BC.COGNATECOUNT=100;
-    	
+    	SimulationEnvironment.steadyStateReached = true;
+    	Settings.EXPERIMENTLENGTH= 400;
     	sim.start();
 
 		do
@@ -56,7 +60,7 @@ public class SystemTests
 			steps = sim.schedule.getSteps();		
 			if (!sim.schedule.step(sim))
 			break;	
-		}while(steps < 300);	
+		}while(steps < 400);	
 		
 		Bag cells =  BC.bcEnvironment.allObjects;
 		

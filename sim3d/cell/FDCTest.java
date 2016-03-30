@@ -6,9 +6,11 @@ package sim3d.cell;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+
+import javax.media.j3d.TransformGroup;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +20,10 @@ import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
+import sim.util.Int3D;
 import sim3d.Settings;
+import sim3d.collisiondetection.CollisionGrid;
+import sim3d.collisiondetection.Collidable.CLASS;
 import sim3d.diffusion.ParticleMoles;
 import sim3d.util.FRCStromaGenerator;
 import sim3d.util.IO;
@@ -30,15 +35,12 @@ import sim3d.util.FRCStromaGenerator.FRCCell;
  */
 public class FDCTest {
 	
-
-
 	@Before
 	public void setUp() throws Exception {
 		Settings.RNG = new MersenneTwisterFast();
 		// Initialise the stromal grid
 		Continuous3D fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
 				60, 60, 10);
-		
 		
 	}
 
@@ -60,12 +62,12 @@ public class FDCTest {
 		}
 	}
 
-	
 	/**
 	 * Make sure that the FDC can lose antigen
 	 */
 	@Test
 	public void canLoseAntigen(){
+		
 		
 		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
@@ -83,9 +85,28 @@ public class FDCTest {
 
 	
 	@Test
+	public void testGetModel() {
+		FDC c = new FDC();
+		TransformGroup localTG = c.getModel(c,null);
+		assertNotNull(localTG);
+	}
+	
+	@Test
+	public void testRegisterCollisions() {
+		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
+		Settings.FDC.STROMA_NODE_RADIUS = 1;
+	
+		FDC fdc = new FDC();
+		fdc.registerCollisions(cgGrid);
+		assertEquals(true, cgGrid.getM_i3lCollisionPoints().size() > 0);
+	}
+	
+	
+	/**
+	 * test that the FDC can secrete Antigen
+	 */
+	@Test
 	public void testCXCL13SECRETING() {
-		
-
 		
 		Schedule schedule = new Schedule();
 
@@ -123,8 +144,15 @@ public class FDCTest {
 
 	}
 
-
-
-
+	/**
+	 * Make sure that the FDC can lose antigen
+	 */
+	@Test
+	public void testGetCollisionClass(){
+		
+		FDC fdc = new FDC();
+		assertEquals(fdc.getCollisionClass() ,CLASS.STROMA); 
+	}
+	
 
 }

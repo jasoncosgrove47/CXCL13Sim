@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
+import dataLogger.Controller;
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
@@ -72,7 +73,6 @@ public class BCIntegrationTests {
 				+ "timestep: " + Settings.DIFFUSION_STEPS + "steps: "
 				+ Settings.DIFFUSION_TIMESTEP);
 		
-		
 	}
 
 	@Before
@@ -94,18 +94,17 @@ public class BCIntegrationTests {
 
 	}
 
-
-	
 	/*
 	 * Ensure that the cell can enter a CXCL13 sensitive state
 	 */
 	@Test
 	public void testCXCL13SENSITIVE() {
+		
 		m_pParticle.field[15][15][15] = (50 * Math.pow(10, -9));
 
-		Settings.CXCL13.DECAY_CONSTANT = 0.9999;
+		Settings.CXCL13.DECAY_CONSTANT = 0.001;
 
-		Settings.BC.SIGNAL_THRESHOLD = 0;
+		Settings.BC.SIGNAL_THRESHOLD = 1;
 		Settings.BC.PERSISTENCE = 0.99;
 
 		//Settings.BC.ODE.Ri = 0;
@@ -114,7 +113,7 @@ public class BCIntegrationTests {
 		Settings.DIFFUSION_STEPS = 2;
 		
 		//let the chemokine stabilise a bit
-		for(int i=0;i< 600; i++)
+		for(int i=0;i< 100; i++)
 		{
 			m_pParticle.step(null);
 		}
@@ -130,11 +129,11 @@ public class BCIntegrationTests {
 					Settings.RNG.nextInt(14) + 8));
 		}
 		// Let them move a bit
-		for (int i = 0; i < 900; i++) {
+		for (int i = 0; i < 200; i++) {
 			for (int j = 0; j < 100; j++) {
 				bcCells[j].step(null);
 			}
-			m_pParticle.field[15][15][15] = 50* Math.pow(10, -9);
+			m_pParticle.field[15][15][15] = 50* Math.pow(10, -11);
 			m_pParticle.step(null);
 		}
 
@@ -160,7 +159,6 @@ public class BCIntegrationTests {
 													// here?
 	}
 
-	
 	/*
 	 * This test makes sure that BCs and Stroma collide correctly
 	 */
@@ -175,63 +173,18 @@ public class BCIntegrationTests {
 		
 	}
 	
-	
-
-	/*
-	 * This test makes sure that BCs and Stroma collide correctly
-	 */
 	@Test
-	public void testPRIMED() {
-		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
-		BC.m_cgGrid = cgGrid;
-
-		//tests are developed assuming a cell diameter of 10 microns
-		// doesn't seem to work if we reduce that number
+	public void testPRIMED(){
 		
-		Settings.BC.COLLISION_RADIUS = 0.5;
+		cognateBC cBC = new cognateBC(1);
+		Settings.FDC.STARTINGANTIGENLEVEL = 400;
 		
-		int iEdges = 1000;
-
-		Double3D[] points = Vector3DHelper.getEqDistPointsOnSphere(iEdges);
-
-		Double3D d3Centre = new Double3D(15, 15, 15);
-
-		points[0] = points[0].multiply(3).add(d3Centre); // what is this line
-															// doing
-
-		iEdges--; // what is this line doing
-		for (int i = 0; i < iEdges; i++) {
-			points[i + 1] = points[i + 1].multiply(3).add(d3Centre);
-			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1]);
-			seEdge.registerCollisions(cgGrid);
-		}
-
-		// place 100 BCs in centre
-		cognateBC[] bcCells = new cognateBC[1];
-		for (int i = 0; i < 1; i++) {
-			bcCells[i] = new cognateBC(i);
-
-			bcCells[i].setObjectLocation(d3Centre);
-		}
-
-		// Let them move a bit
-		for (int i = 0; i < 100; i++) {
-			for (int j = 0; j < 1; j++) {
-				bcCells[j].step(null);
-			}
-			cgGrid.step(null);
-		}
-
+		StromaEdge se = new StromaEdge(new Double3D(0,0,0), new Double3D(1,1,1));
+		cBC.acquireAntigen(se);
 		
-		assertEquals(bcCells[0].type, cognateBC.TYPE.PRIMED);
-		
-
-		BC.m_cgGrid = null;
+		assertEquals(cognateBC.TYPE.PRIMED,cBC.type );
 	}
 
-	
-	
-	
 	/*
 	 * This test makes sure that BCs and Stroma collide correctly
 	 */
@@ -303,8 +256,6 @@ public class BCIntegrationTests {
 		BC.m_cgGrid = null;
 	}
 	
-	
-	
 	/**
 	 * Another integration test for BCs and chemokine
 	 * 
@@ -373,7 +324,6 @@ public class BCIntegrationTests {
 		assertEquals("18-24", 50, iaResults[3], 15.0);
 		assertEquals("24-30", 50, iaResults[4], 15.0);
 	}
-	
 	
 	/**
 	 * Another integration test for BCs and chemokine

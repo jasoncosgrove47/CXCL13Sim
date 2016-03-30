@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.media.j3d.TransformGroup;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -29,6 +31,8 @@ import sim3d.util.IO;
 import sim3d.util.Vector3DHelper;
 import ec.util.MersenneTwisterFast;
 
+
+
 public class BCTest {
 
 	BC bc = new BC();
@@ -37,6 +41,9 @@ public class BCTest {
 	private ParticleMoles m_pParticle;
 	public static Document parameters;
 
+	/**
+	 * Initialise the simulation parameters
+	 */
 	private static void loadParameters() {
 
 		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml"; 
@@ -69,6 +76,7 @@ public class BCTest {
 		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
 		
 
+		
 
 		System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT
 				+ "timestep: " + Settings.DIFFUSION_STEPS + "steps: "
@@ -102,14 +110,13 @@ public class BCTest {
 		}	
 	}
 
+	
 	@After
 	public void tearDown() throws Exception {
 		m_pParticle.field = null;
 		m_pParticle = null;
 		ParticleMoles.reset();
 		BC.drawEnvironment = null;
-		
-		
 	}
 
 	/**
@@ -219,6 +226,7 @@ public class BCTest {
 	@Test
 	public void testGetLigandBinding(){
 		
+		
 		m_pParticle.field[(int) bc.x][(int) bc.y][(int) bc.z] = (1.7 * Math.pow(10, -5));
 		m_pParticle.step(null);
 		m_pParticle.step(null);
@@ -244,7 +252,17 @@ public class BCTest {
 		results = bc.calculateLigandBindingNew();
 		assertThat(results[0] , equalTo(0.0)); 
 	}
-	
+
+	/**
+	 * TODO
+	 */
+	@Test
+	public void testGetMoveDirection(){
+		double[] results;
+		results = bc.calculateLigandBindingNew();
+		assertThat(results[0] , equalTo(0.0)); 
+	}
+
 	/**
 	 * TODO need a sensible way of having a collision grid ot detect collisions
 	 */
@@ -288,39 +306,9 @@ public class BCTest {
 		assertEquals(true, cgGrid.getM_i3lCollisionPoints().size() > 0);
 	}
 	
-	@Test
-	public void testHandleCollisions(){
-		// TODO needs some thinking we need a way to initialise the
-		// collision grid
-		// could generate a stromal network 
-		
-		fail("Not yet implemented");
-	}
-	
-	/**
-	 * TODO struggling a bit on these ones
-	 */
-	@Test
-	public void testPerformCollisions(){
-	
-		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
-		BC.m_cgGrid = cgGrid;
 
-		//generate a stromal cage, around the center of the grid
-		int iEdges = 1000;
-		Double3D[] points = Vector3DHelper.getEqDistPointsOnSphere(iEdges);
-		Double3D d3Centre = new Double3D(15, 15, 15);
-		points[0] = points[0].multiply(3).add(d3Centre); 
+	
 
-		iEdges--; // what is this line doing
-		for (int i = 0; i < iEdges; i++) {
-			points[i + 1] = points[i + 1].multiply(3).add(d3Centre);
-			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1]);
-			seEdge.registerCollisions(cgGrid);
-		}
-		
-		
-	}
 	
 	/**
 	 * If a B cell doesn't collide with a stromal grid then it should return a false
@@ -331,31 +319,16 @@ public class BCTest {
 	@Test
 	public void testCollideStromaEdge(){
 
-		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
-		BC.m_cgGrid = cgGrid;
-		
-		//generate a stromal cage, around the center of the grid
-		int iEdges = 1000;
-		Double3D[] points = Vector3DHelper.getEqDistPointsOnSphere(iEdges);
-		Double3D d3Centre = new Double3D(15, 15, 15);
-		points[0] = points[0].multiply(3).add(d3Centre); 
-
-		iEdges--; // what is this line doing
-		for (int i = 0; i < iEdges; i++) {
-			points[i + 1] = points[i + 1].multiply(3).add(d3Centre);
-			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1]);
-			seEdge.registerCollisions(cgGrid);
-		}
-		
-		
-		//returns a true or false depending on if it binds to stroma
-		
-		//BC is far away from the stromal edge so should return a false
-		BC bcTemp = new BC();
-		bcTemp.setObjectLocation(new Double3D(10,10,10));
-		
+		BC bc = new BC();
 	
+		Double3D loc1 = new Double3D(0,0,0);
+		Double3D loc2 = new Double3D(1,1,1);
 		
+		bc.setObjectLocation(loc1);
+		StromaEdge se = new StromaEdge(loc1,loc2);
+		bc.m_d3aMovements.add(new Double3D(loc2));
+		boolean test = bc.collideStromaEdge(se, 1);
+		assertEquals(true, test);	
 	}
 	
 	/**
@@ -386,7 +359,11 @@ public class BCTest {
 		
 		double output = bc.updateLength(length, test, test, e, f, test);
 		
+		fail("Not yet implemented");
+		
 		assertThat(output, equalTo(0.0));
+		
+		
 		
 	}
 	
@@ -396,35 +373,99 @@ public class BCTest {
 	@Test
 	public void testCalculateSNew(){
 
-		double s = 0;
-		double length = 0;
+		double s = 2;
+		double length = 10;
 		Double3D d1 = new Double3D(1,1,1);
-		Double3D d2 = new Double3D(1,1,1);
+		Double3D d2 = new Double3D(2,2,2);
 		
-		double output = bc.calculateSNew(s,length, d1,d2);
-		
+		double output = 0;
+		output = bc.calculateSNew(s,length, d1,d2);
+		assertTrue(output > 0);
 		
 	}
 	
+	//TODO
 	@Test
 	public void testFindClosestPointsBetween(){
 
+		StromaEdge seEdge = new StromaEdge(new Double3D(1,1,1),new Double3D(2,2,2));
 		
-		Double3D d1 = new Double3D(1,1,1);
-		Double3D d2 = new Double3D(1,1,1);
-		Double3D p1 = new Double3D(1,1,1);
-		Double3D p2 = new Double3D(1,1,1);
+		Double3D d1 = new Double3D(2,2,2); //destination where cell wants to go
+		Double3D p1 = new Double3D(1,1,1); // cells current position	
+	
+		Double3D p2 = seEdge.getPoint1();
+		Double3D d2 = seEdge.getPoint2().subtract(p2);
 		
-		List<Double> closestPoints = bc.findClosestPointsBetween(0, p1, p2, d1,d2, 0, 0, 0, 0, 0, 0, 0, 0);
+		double s = 0;
+		double t = 0;
 		
+		Double3D r = p1.subtract(p2); // p1 - p2
+		double a = Vector3DHelper.dotProduct(d1, d1); // squared length of												// segment s1											// always positive
+		double b = Vector3DHelper.dotProduct(d1, d2);
+		double c = Vector3DHelper.dotProduct(d1, r);
+		double e = Vector3DHelper.dotProduct(d2, d2); // squared length of
+														
+		double f = Vector3DHelper.dotProduct(d2, r);
+		double denom = a * e - b * b; // >= 0
+		
+		List<Double> closestPoints = null;
+		closestPoints = bc.findClosestPointsBetween(0, p1, p2, d1,d2, denom, s,t, a,b,c,e,f);
+			
+		assertTrue(closestPoints.size() > 0);
+
 	}
 	
-	/**
-	 * TODO integration test
-	 */
+
+	@Test
+	public void testModelMovements() {
+		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
+		BC.m_cgGrid = cgGrid;
+		BC bc = new BC();
+		TransformGroup localTG = bc.getModel(bc,null);
+			
+		bc.m_d3aCollisions.add(new Double3D(1,1,1));
+		bc.modelMovements(bc.m_d3aCollisions, bc, localTG);
+	
+		assertEquals(2,localTG.numChildren());
+	
+	}
+	
+	@Test
+	public void testModelCollisions() {
+		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
+		BC.m_cgGrid = cgGrid;
+
+	
+		BC bc = new BC();
+		TransformGroup localTG = bc.getModel(bc,null);
+			
+		bc.m_d3aCollisions.add(new Double3D(1,1,1));
+		
+		bc.modelCollisions(bc.m_d3aCollisions, bc, localTG);
+	
+		assertEquals(2,localTG.numChildren());
+	
+	}
+	
+	
+	@Test
+	public void testGetModel() {
+		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
+		BC.m_cgGrid = cgGrid;
+
+	
+		BC bc = new BC();
+		TransformGroup localTG = bc.getModel(bc,null);
+	
+		assertNotNull(localTG);
+	
+	}
+	
+	
 	@Test
 	public void testHandleBounce(){
 
+	
 		
 		fail("Not yet implemented");
 		
@@ -434,12 +475,12 @@ public class BCTest {
 		
 	}
 
-	/*
+	/**
 	 * Test to see if the required guards are met then the BC
 	 * changes to the appropriate state.
 	 */
 	@Test
-	public void testReceptorsDynamic(){
+	public void testReceptorStepDynamic(){
 		
 		m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -9));
 
@@ -468,12 +509,11 @@ public class BCTest {
 		
 	}
 	
-
 	/*
 	 * Make sure that the total number of receptors remains constant
 	 */
 	@Test
-	public void testReceptorConservation() {
+	public void testReceptorStepConservation() {
 		m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -9));
 
 		Settings.BC.ODE.Rf = 1000;

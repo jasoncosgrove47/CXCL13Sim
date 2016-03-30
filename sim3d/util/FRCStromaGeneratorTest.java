@@ -1,17 +1,19 @@
 /**
  * 
  */
-package acceptanceTests;
+package sim3d.util;
 
 import static org.junit.Assert.*;
+
 import java.util.ArrayList;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import ec.util.MersenneTwisterFast;
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.cell.StromaEdge;
-import sim3d.util.FRCStromaGenerator;
 import sim3d.util.FRCStromaGenerator.FRCCell;
 
 /**

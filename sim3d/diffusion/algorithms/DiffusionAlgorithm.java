@@ -62,6 +62,8 @@ public class DiffusionAlgorithm {
 	 * @param pSpace
 	 *            The Particle object to visit
 	 */
+	
+	/*
 	public void diffuse(Particle pSpace) {
 		// A temporary variable containing the previous value of pSpace.field
 		int[][][] ia3Concentrations = new int[m_iWidth][m_iHeight][m_iDepth];
@@ -204,6 +206,9 @@ public class DiffusionAlgorithm {
 			xEdge = -1;
 		}
 	}
+
+*/
+
 
 	/**
 	 * Visitor design pattern - so diffusion and particle grids are separate but

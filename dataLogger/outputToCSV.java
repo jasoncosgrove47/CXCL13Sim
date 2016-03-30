@@ -244,8 +244,8 @@ public final class outputToCSV {
 			processedDataWriter.flush();
 			processedDataWriter.close();
 
-			// rawDataWriter.flush();
-			// rawDataWriter.close();
+			rawDataWriter.flush();
+			rawDataWriter.close();
 
 		} catch (IOException e) {
 			e.printStackTrace();

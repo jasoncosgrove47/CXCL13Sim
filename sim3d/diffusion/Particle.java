@@ -148,15 +148,15 @@ public class Particle extends IntGrid3D implements Steppable
 	private int					m_iDepth;
 	
 	/**
-	 * Height of the particle diffusion space
-	 */
-	private int					m_iHeight;
-
-	/**
 	 * Depth of the particle diffusion space
 	 */
 	private int					m_iWidth;
 	
+	/**
+	 * Height of the particle diffusion space
+	 */
+	private int					m_iHeight;
+
 	/**
 	 * Constructor
 	 * @param schedule The MASON Schedule object
@@ -294,7 +294,7 @@ public class Particle extends IntGrid3D implements Steppable
 		decay();
 		for ( int i = 0; i < Settings.DIFFUSION_STEPS; i++ )
 		{
-			m_daDiffusionAlgorithm.diffuse( this );
+			//m_daDiffusionAlgorithm.diffuse( this );
 		}
 		
 		updateDisplay();

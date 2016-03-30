@@ -159,7 +159,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
-		
 	
 		
 		collisionCounter = 0; // reset the collision counter for this timestep
@@ -171,18 +170,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 			performSavedMovements();
 		}
 
-
-		//System.out.println("nextGaussian is: " + SimulationEnvironment.simulation.random.nextGaussian());
-		
 		calculateWhereToMoveNext();
-
 		handleBounce(); // Check for bounces
-		//receptorStep(); // Step forward the receptor ODE
 		receptorStepNew();
 		registerCollisions(m_cgGrid); // Register the new movement with the grid
 	}
 
-	
 	/**
 	 * Controls what a B cell agent does for each time step Each Bcell registers
 	 * its intended path on the collision grid, once all B cells register the
@@ -192,8 +185,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	public void step()// why is this final here
 	{
 		
-		
-		
 		collisionCounter = 0; // reset the collision counter for this timestep
 		m_i3lCollisionPoints.clear();
 
@@ -203,18 +194,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 			performSavedMovements();
 		}
 
-
-		//System.out.println("nextGaussian is: " + SimulationEnvironment.simulation.random.nextGaussian());
-		
 		calculateWhereToMoveNext();
-
 		handleBounce(); // Check for bounces
-		//receptorStep(); // Step forward the receptor ODE
 		receptorStepNew();
 		registerCollisions(m_cgGrid); // Register the new movement with the grid
 	}
 
-	
 	public Int3D getDiscretizedLocation(Continuous3D grid) {
 		Double3D me = grid.getObjectLocation(this);// obtain coordinates of the
 													// tcell
@@ -226,18 +211,14 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * moves the BC based on the precomputed trajectory from previous timestep
 	 */
 	public void performSavedMovements() {
-
-		//Double3D oldLocation = new Double3D(x,y,z);
-		
+	
 		for (Double3D d3Movement : m_d3aMovements) {
 
-			
 			x += d3Movement.x;
 			y += d3Movement.y;
 			z += d3Movement.z;
 		}
 
-	
 		// Remember which way we're now facing
 		m_d3Face = m_d3aMovements.get(m_d3aMovements.size() - 1).normalize();
 		//if space to move then move
@@ -246,13 +227,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 			setObjectLocation(new Double3D(x, y, z));
 		}
 		
-		
-
 	}
 
-
-
-	
 	/**
 	 * @param x
 	 * @param y
@@ -279,10 +255,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		}
 		
 		else return false;
-		
 	}
 
-	
 	/**
 	 * calculate where to move for the next timestep.
 	 * definitely need to refactor this method
@@ -358,7 +332,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 	}
 
-	
 	/**
 	 * How to remove a BC from the schedule:
 	 * 
@@ -398,8 +371,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 	/**
 	 * Perform a step for the receptor 
-	 * 
-
 	 */
 	void receptorStepNew() {
 		double[] iaBoundReceptors = calculateLigandBindingNew();
@@ -411,8 +382,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		// eg if i took away 10,000 that would be 10,000 moles which is not what
 		// we want!!!
 		//TODO should be encapsulated as consume ligand
-		
-		
 		if(x< 1 || y < 1||z < 1){
 			
 			x = 1;
@@ -489,7 +458,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * @return The new direction for the cell to move
 	 */
 	private Double3D getMoveDirection() {
-		//double[] iaBoundReceptors = calculateLigandBindingMoles();
+		
 		double[] iaBoundReceptors = calculateLigandBindingNew();
 	
 		//the new direction for the cell to move
@@ -515,7 +484,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * Updated version for the rungekutta method
 	 * @return
 	 */
-	double[] calculateLigandBindingNew() {
+	public double[] calculateLigandBindingNew() {
 
 		// need to figure out what is sensible to secrete per timestep, might as
 		// well do that in moles. Get the surrounding concentrations
@@ -702,6 +671,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		for (int i = 0; i < iCollisionMovement; i++) {
 			Double3D d1 = m_d3aMovements.get(i);
 
+			
+			//make sure that d1 has a length
+			if(d1.length() > 0){
+			
 			// The two lines are p1 + s*d1 and p2 + t*d2
 			// We are essentially trying to find the closest point between the
 			// lines because that's an easy problem
@@ -830,6 +803,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 				p1 = p1.add(d1);
 			}
 		}
+		
+		}
+		
 		return false;
 	}
 
@@ -844,20 +820,22 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		Double3D d3NewDir;
 
 
-
+		// Get the approach direction normalised, and in reverse
+		
+		Double3D d3MovementNormal = d1.multiply(-1).normalize();
+		
 		// We hit bang in the middle so just bounce - unlikely!
 		if (length == 0) {
 			
 			//The cell bounces back to it's original position so 
 			// no need to updated its coordinates. 
-			
+			 d3NewDir = d3MovementNormal;
 			
 			
 		} else {
 			
 
-			// Get the approach direction normalised, and in reverse
-			Double3D d3MovementNormal = d1.multiply(-1).normalize();
+		
 			
 			// Calculate the direction from the stroma collision point to the BC
 			// collision point
@@ -871,6 +849,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 			d3NewDir = Vector3DHelper.rotateVectorToVector(d3NewDir,
 					d3MovementNormal, d3BounceNormal);
 		
+		}
 
 			// Set the new movement
 			d1 = d1.multiply(s);
@@ -899,7 +878,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 			if (d3NewDir.lengthSq() > 0) {
 				m_d3aMovements.add(d3NewDir);
 			}
-		}
+		
 	}
 
 	/**
@@ -923,7 +902,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		return length;
 	}
 
-	
 	/**
 	 * Helper method that determines the new value of S in collideStromaEdge
 	 */

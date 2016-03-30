@@ -327,7 +327,17 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 		}
 		
 		
-	//TODO refactor as a method, calcualte total chemokine value
+	
+		
+		updateDisplay();
+		
+
+		
+	}
+
+	
+	public double calculateTotalChemokineLevels(){
+		
 		double totalChemokineValue = 0;
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
@@ -337,21 +347,16 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 			}
 		}
 		
-		System.out.println("total chemokine value is" + totalChemokineValue);
-		
-		updateDisplay2();
-		
-	
-		
-		
-		
+		return totalChemokineValue;
 		
 	}
-
+	
 	/**
 	 * Updates the 2D display
 	 */
+	/*
 	public void updateDisplay2() {
+		
 		
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
@@ -387,12 +392,13 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 		}
 	}
 	
+	*/
+	
 	/**
 	 * Updates the 2D display
 	 */
 	public void updateDisplay() {
 
-		
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
 

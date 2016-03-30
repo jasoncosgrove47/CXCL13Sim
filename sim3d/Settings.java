@@ -110,7 +110,7 @@ public class Settings {
 	 * Calculates the appropriate timestep for diffusion
 	 */
 	static double calculateDIFFUSION_TIMESTEP() {
-		return (Math.pow(GRID_SIZE, 2) / (40.15 * DIFFUSION_COEFFICIENT));
+		return (Math.pow(GRID_SIZE, 2) / (10 * DIFFUSION_COEFFICIENT));
 	}
 	/**
 	 * Divide by 60 as we want to update diffusion in seconds and not minutes

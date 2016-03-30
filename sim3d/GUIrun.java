@@ -77,7 +77,10 @@ public class GUIrun extends GUIState {
 	 * concentration is scaled between 1 and 15 to display the 
 	 * chemokine gradient
 	 */
-	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(1,15, lightred, red);
+	//public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(1,15, lightred, red);
+
+	
+	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(6.5e-12,1e-11, lightred, red);
 
 	/**
 	 * The main display
@@ -175,6 +178,7 @@ public class GUIrun extends GUIState {
 		c.registerFrame(d3DisplayFrame);
 		d3DisplayFrame.setVisible(true);
 
+		
 		// Add the portrayals to the display
 		display3D.attach(fdcPortrayal, "FDC");
 		display3D.attach(bcPortrayal, "BC");

@@ -16,44 +16,26 @@ import sim3d.SimulationEnvironment;
 
 /**
  * @author jc1571
- *
  */
 public class ControllerTest {
 
 	/**
-	 * @throws java.lang.Exception
+	 * Test that when the simulation starts, experimentFinished is set to false
 	 */
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
-	}
-
 	@Test
 	public void testExperimentFinished() {
 	
 		assertEquals("experimentFinished should be false", false, SimulationEnvironment.experimentFinished);
 	}
 	
+	
+	
+
+	
+	
+	/**
+	 * Test that experimentFinished changes to true after experimentLength steps
+	 */
 	@Test
 	public void testExperimentFinishedChanges() {
 		
@@ -61,8 +43,8 @@ public class ControllerTest {
 		Settings.EXPERIMENTLENGTH = 10;
 		Controller controller = new Controller();
 		
-		for(int i =0; i < 12; i++){
-			controller.step();
+		for(int i =0; i < 11; i++){
+			controller.step(null);
 		}
 		
 		assertEquals("experimentFinished should be false", true, SimulationEnvironment.experimentFinished);

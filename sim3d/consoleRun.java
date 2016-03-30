@@ -34,6 +34,7 @@ public class consoleRun {
 	public static void main(String[] args) {
 		
 		
+		
 		// output the start time
 		long starttime = System.currentTimeMillis();
 		SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");

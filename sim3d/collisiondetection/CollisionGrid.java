@@ -69,8 +69,8 @@ public class CollisionGrid implements Steppable {
 	 * @param z
 	 * @param cObject
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void addCollisionPotential(int x, int y, int z, Collidable cObject) {
+	@SuppressWarnings({ "unchecked", "rawtypes" }) 
+	void addCollisionPotential(int x, int y, int z, Collidable cObject) {
 		// Check if we need to initialise the grid space
 		if (m_clGridSpaces[x][y][z] == null) {
 			m_clGridSpaces[x][y][z] = new ArrayList();

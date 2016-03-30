@@ -100,22 +100,7 @@ public class Controller implements Steppable {
 	}
 
 	
-	/**
-	 * Controls the length of an experiment and signals to the main class when
-	 * an experiment is finished
-	 * used for testing
-	 */
-	public void step() {
-		
-		//increment the experiment timer
-		experimentTimer++;
-	
-		// stop the experiment once the counter reaches
-		// lengthOfExperiment
-		if (experimentTimer > lengthOfExperiment) {
-			SimulationEnvironment.experimentFinished = true;
-		}
-	}
+
 	
 	// getters and setters for the controller
 	public static int getPrimedCells() {

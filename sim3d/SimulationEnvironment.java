@@ -50,7 +50,6 @@ public class SimulationEnvironment extends SimState {
 	 */
 	public static int totalNumberOfDendrites = 0;
 	
-	
 	/**
 	 * A static instance of the simulation that only
 	 * get's set here - there may be a better way
@@ -141,192 +140,6 @@ public class SimulationEnvironment extends SimState {
 		Particle.getInstance(Particle.TYPE.CXCL13).updateDisplay();
 	}
 
-	/**
-	 * This is used for high throughput experimentation and allows the system to
-	 * reach a steady state before recording B-cell migration, ensures that
-	 * outputs from parameter sweeps are not due to recording before the system
-	 * reaches steady state
-	 * 
-	 * TODO see if we need this and if so then refactor
-	 * 
-	 * 
-	 */
-	public void Adaptivestart() {
-
-		super.start();
-
-		// Initialise the stromal grid
-		fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
-				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
-		FDC.drawEnvironment = fdcEnvironment;
-		StromaEdge.drawEnvironment = fdcEnvironment;
-
-		// Initialise the B cell grid
-		// better to have it in BC
-		// as can then access it from test cases
-		// without instantiating simulation environment
-		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION,
-				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
-		BC.drawEnvironment = BC.bcEnvironment;
-
-		// Initialise the CollisionGrid
-		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH,
-				Settings.HEIGHT, Settings.DEPTH, 1);
-		schedule.scheduleRepeating(cgGrid, 3, 1);
-
-		// initialise the relevant agents
-		initialiseStroma(cgGrid); // initialise the stromal network
-		particlemoles  = new ParticleMoles(schedule,
-				ParticleMoles.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT,
-				Settings.DEPTH);
-
-		// let chemokine stabilise before adding the other cells
-		//runChemokineUntilSteadyState();
-
-
-		//let chemokine stabilise before adding other cells
-		for (int i = 0; i < 500; i++) {
-			schedule.step(this);
-		}
-		
-		
-		// set the collision grid for B cells
-		BC.m_cgGrid = cgGrid;
-
-		// seed our tracker cells and let them reach steady state before seeding
-		// our non-tracker cells
-		seedCells(CELLTYPE.cB);
-		//runBCellsUntilSteadyState();
-		seedCells(CELLTYPE.B);
-
-		// step a little bit more so the cells have more time to stabilise
-		for (int i = 0; i < 50; i++) {
-			schedule.step(this);
-
-		}
-
-		// now initialise the datalogger
-
-		schedule.scheduleRepeating(Controller.getInstance());
-
-		// set the steady state guard to true so
-		// b cells can begin recording data
-		steadyStateReached = true;
-	}
-
-	/*
-	 *  TODO see if we need this and if so then refactor
-	 * 
-	 * let's chemokine diffuse until a steady state is reached to speed up the
-	 * time taken to run one simulation
-	 */
-	public void runChemokineUntilSteadyState() {
-
-		double totalConc_Tminus10;
-		double totalConc_T;
-		double[][][] ia3Concs;
-
-		// let the chemokine diffuse a little bit
-		for (int i = 0; i < 10; i++) {
-			schedule.step(this);
-			ia3Concs = ParticleMoles
-					.get(ParticleMoles.TYPE.CXCL13, Settings.WIDTH / 2,
-							Settings.HEIGHT / 2, Settings.DEPTH / 2);
-
-			if (i == 0) {
-				totalConc_Tminus10 = ia3Concs[2][1][1] + ia3Concs[0][1][1]
-						+ ia3Concs[1][2][1] + ia3Concs[1][0][1]
-						+ ia3Concs[1][1][2] + ia3Concs[1][1][0];
-			}
-
-			if (i == 9) {
-				totalConc_T = ia3Concs[2][1][1] + ia3Concs[0][1][1]
-						+ ia3Concs[1][2][1] + ia3Concs[1][0][1]
-						+ ia3Concs[1][1][2] + ia3Concs[1][1][0];
-			}
-		}
-
-		// TODO potential here infinite loops, need some additional control to
-		// make sure that this doesn't happen
-		// if chemokine hasn't stabilised at this point, continue to step until
-		// it has
-		do {
-			ia3Concs = ParticleMoles
-					.get(ParticleMoles.TYPE.CXCL13, Settings.WIDTH / 2,
-							Settings.HEIGHT / 2, Settings.DEPTH / 2);
-			totalConc_Tminus10 = ia3Concs[2][1][1] + ia3Concs[0][1][1]
-					+ ia3Concs[1][2][1] + ia3Concs[1][0][1] + ia3Concs[1][1][2]
-					+ ia3Concs[1][1][0];
-
-
-			
-			
-			for (int i = 0; i < 10; i++) {
-				schedule.step(this);
-			}
-
-			ia3Concs = ParticleMoles
-					.get(ParticleMoles.TYPE.CXCL13, Settings.WIDTH / 2,
-							Settings.HEIGHT / 2, Settings.DEPTH / 2);
-			totalConc_T = ia3Concs[2][1][1] + ia3Concs[0][1][1]
-					+ ia3Concs[1][2][1] + ia3Concs[1][0][1] + ia3Concs[1][1][2]
-					+ ia3Concs[1][1][0];
-		}
-
-		while ( (totalConc_Tminus10 - totalConc_T) >0.001);
-		System.out.println("Chemokine has stabilised: "
-				+ this.schedule.getSteps());
-	}
-
-	/**
-	 * Run BCs and track their receptor status to see if it has stabilised
-	 * before recording any data, need to do something for cases where it
-	 * doesn't stabilise
-	 * 
-	 * 
-	 *  TODO see if we need this and if so then refactor
-	 * 
-	 */
-	public void runBCellsUntilSteadyState() {
-
-		cognateBC cbc = new cognateBC(1000000);
-
-		cbc.setObjectLocation(generateCoordinateWithinCircle());
-		scheduleStoppableCell(cbc);
-
-		int LR_Tminus20 = 0;
-		int LR_T = 10000;
-
-		// give the B cells more time to reach steady state
-		for (int i = 0; i < 101; i++) {
-			schedule.step(this);
-			if (i == 10) {
-				LR_Tminus20 = cbc.m_iL_r;
-			}
-			if (i == 50) {
-				LR_T = cbc.m_iL_r;
-			}
-		}
-
-		do {
-			LR_Tminus20 = cbc.m_iL_r; // calculate LR at start of loop
-			for (int i = 0; i < 50; i++) {
-				schedule.step(this);
-			}
-			LR_T = cbc.m_iL_r; // record LR at end of loop
-			
-			
-		//TODO we have set an arbritrary threshold so this needs refining	
-		} while (Math.sqrt(Math.pow((LR_T - LR_Tminus20), 2)) > 1000); 
-		
-
-		System.out.println("B cells have stabilised: "
-				+ this.schedule.getSteps());
-		cbc.removeDeadCell(BC.bcEnvironment); // get rid of these cells as we
-												// don't need them anymore
-
-	}
-
 	/*
 	 * Scheduling a cell returns a stoppable object. we store the stoppable
 	 * object as a variable within the BC class.
@@ -380,13 +193,12 @@ public class SimulationEnvironment extends SimState {
 			
 	}
 
+	/*
+	 * Starts sim from a presaved steady-state
+	 */
 	
 	/*
-	 * Starts sim from a predefined steady state
-	 * TODO regactor
-	 * 
-	 */
-	public void startSS() {
+	public void startFromSteadyState() {
 		// start the simulation
 		super.start();
 
@@ -401,7 +213,6 @@ public class SimulationEnvironment extends SimState {
 		for(Object fdc : FDCs)
 		{
 			
-
 			if(fdc instanceof FDC)
 			{
 			
@@ -438,14 +249,11 @@ public class SimulationEnvironment extends SimState {
 			}
 		}
 
-		
 		//why isnt this working
 		particlemoles = (ParticleMoles) ReadObjects.restoreCXCL13();
 		ParticleMoles.ms_emTypeMap.put(ParticleMoles.TYPE.CXCL13, ParticleMoles.ms_emTypeMap.size());
 		ParticleMoles.ms_pParticles[ParticleMoles.ms_emTypeMap.get(ParticleMoles.TYPE.CXCL13)] = particlemoles;
 		schedule.scheduleRepeating(particlemoles, 3, 1);
-	
-	
 		
 		// Initialise the CollisionGrid
 		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH,
@@ -456,12 +264,10 @@ public class SimulationEnvironment extends SimState {
 		// BCs will need to update their collision profile each
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
-
-		
-		
+	
 	}
 	
-	
+	*/
 	
 	/**
 	 * Tests whether co-ordinates x,y are not in the circle centered at
@@ -531,6 +337,7 @@ public class SimulationEnvironment extends SimState {
 
 	/**
 	 * @return a random Double3D from within the follicle
+	 * TODO should input follicle radius
 	 */
 	public Double3D generateCoordinateWithinCircle() {
 
@@ -550,6 +357,8 @@ public class SimulationEnvironment extends SimState {
 	/*
 	 * Generate and initialise a stromal network
 	 */
+	
+	/*
 	private void initialiseStroma(CollisionGrid cgGrid) {
 
 		// Generate some stroma
@@ -614,13 +423,15 @@ public class SimulationEnvironment extends SimState {
 		totalNumberOfDendrites = sealEdges.size();
 		
 	}
-
+*/
+	
+	
 	/*
 	 * Generate and initialise a stromal network
 	 * 
 	 * TODO same comments as above
 	 */
-	private void initialiseFDC(CollisionGrid cgGrid) {
+	void initialiseFDC(CollisionGrid cgGrid) {
 
 		// Generate some stroma
 		ArrayList<FRCStromaGenerator.FRCCell> frclCellLocations = new ArrayList<FRCStromaGenerator.FRCCell>();
@@ -736,6 +547,8 @@ public class SimulationEnvironment extends SimState {
 	 * Add branches to the stroma to get a more web-like morphology
 	 * @param sealEdges
 	 */
+	
+	/*
 	public void addBranchestoBranches( double distance)
 	{
 		
@@ -775,7 +588,7 @@ public class SimulationEnvironment extends SimState {
 			}
 		}	
 	}
-	
+	*/
 	
 	
 }

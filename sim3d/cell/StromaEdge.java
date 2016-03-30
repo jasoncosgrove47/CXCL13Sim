@@ -110,8 +110,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	}
 
 	/**
-	 * TODO, can we get rid of this?
-	 * 
 	 * @param d3Point1
 	 * @param d3Point2
 	 */
@@ -251,7 +249,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	/*
 	 * Getters and Setters for the class
-	 * @return
+	 * TODO would these be better as member variables?
 	 */
 	public int getAntigenLevelUpperEdge() {
 		return antigenLevelUpperEdge;

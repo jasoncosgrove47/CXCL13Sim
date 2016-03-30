@@ -52,7 +52,7 @@ public class cognateBC extends BC {
 	/**
 	 * The number of unique dendrites visited by a cBC
 	 */
-	private int dendritesVisited = 0; 
+	int dendritesVisited = 0; 
 
 	/**
 	 * Counter used to increment time in a 
@@ -91,7 +91,7 @@ public class cognateBC extends BC {
 			//the experiment runs for 12 hours but only 
 			// need to record migration data for 30 mins
 			if(counter < 30){
-				updatePosition(state);
+				updatePosition();
 			}
 			
 			counter ++;
@@ -103,7 +103,7 @@ public class cognateBC extends BC {
 	 * Updates the cells X,Y and Z coordinates in the XY and Z arraylists and
 	 * the controllers coordinate MAPs so they can be accessed by viewers 
 	 */
-	private void updatePosition(SimState state) {
+	void updatePosition() {
 		positionX.add(this.x);
 		positionY.add(this.y);
 		positionZ.add(this.z);
@@ -221,7 +221,7 @@ public class cognateBC extends BC {
 	 * 
 	 * @param cCell
 	 */
-	private void acquireAntigen(Collidable cCell) {
+	public void acquireAntigen(Collidable cCell) {
 		StromaEdge sEdge = (StromaEdge) cCell;
 
 		
