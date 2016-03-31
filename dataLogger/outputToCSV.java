@@ -21,14 +21,13 @@ public final class outputToCSV {
 
 		FileWriter processedDataWriter;
 
-		
-		//the number of unique dendrites visited
+		// the number of unique dendrites visited
 		double dendritesVisited;
 		// the percentage of the network the B-cell has scanned
 		double networkScanned;
 
 		try {
-			
+
 			processedDataWriter = new FileWriter(processedFileName);
 
 			// set the data headings
@@ -54,7 +53,8 @@ public final class outputToCSV {
 				dendritesVisited = (double) Controller.getInstance()
 						.getDendritesVisited().get(key);
 
-				//divide the number of dendrites visited by the total number of dendrites
+				// divide the number of dendrites visited by the total number of
+				// dendrites
 				networkScanned = (dendritesVisited / SimulationEnvironment.totalNumberOfDendrites);
 
 				// write the data out to the file
@@ -77,26 +77,22 @@ public final class outputToCSV {
 			processedDataWriter.flush();
 			processedDataWriter.close();
 
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Helper method which calculates the speed, motility coefficient 
-	 * and meandering index for each cell
+	 * Helper method which calculates the speed, motility coefficient and
+	 * meandering index for each cell
 	 * 
 	 * @param key
 	 *            for an individual cell
 	 * @return a double array with relevant motility parameters
 	 * @throws IOException
 	 */
-	static double[] processMigrationData(Integer key)
-			throws IOException {
-		
-		
-		
+	static double[] processMigrationData(Integer key) throws IOException {
+
 		// get the cell's x,y and z coordinates for every timestep
 		ArrayList<Double> Xcoords = Controller.getInstance().getX_Coordinates()
 				.get(key);
@@ -105,14 +101,13 @@ public final class outputToCSV {
 		ArrayList<Double> Zcoords = Controller.getInstance().getZ_Coordinates()
 				.get(key);
 
-		
-		
-		Double3D startLocation = null; 		// starting position
-		Double3D endLocation = null; 		// final position
-		Double3D previousLocation = null;	// location at the previous timestep
-		Double3D thisLocation = null; 		// location at this timestep
-		double totalDisplacement = 0.0;     // total path length
-		double netDisplacement = 0.0;       // euclidean distance between start and end points
+		Double3D startLocation = null; // starting position
+		Double3D endLocation = null; // final position
+		Double3D previousLocation = null; // location at the previous timestep
+		Double3D thisLocation = null; // location at this timestep
+		double totalDisplacement = 0.0; // total path length
+		double netDisplacement = 0.0; // euclidean distance between start and
+										// end points
 
 		double x = 0, y = 0, z = 0;
 
@@ -145,23 +140,22 @@ public final class outputToCSV {
 			previousLocation = thisLocation;
 		}
 
-		
-		//calculate the total time
+		// calculate the total time
 		double time = Xcoords.size();
-		
-		//calculate the net displacement travelled
+
+		// calculate the net displacement travelled
 		netDisplacement = startLocation.distance(endLocation);
-		
-		//calculate the meandering Index
+
+		// calculate the meandering Index
 		double meanderingIndex = totalDisplacement / netDisplacement;
-		
-		//calculate the motility Coefficient
+
+		// calculate the motility Coefficient
 		double motilityCoefficient = (Math.pow(netDisplacement, 2) / (6 * time));
-		
-		//calculate the speed
+
+		// calculate the speed
 		double speed = totalDisplacement / time;
 
-		//store all motility parameters in an output array
+		// store all motility parameters in an output array
 		double[] output = { time, motilityCoefficient, meanderingIndex, speed,
 				x, y, z };
 

@@ -8,36 +8,33 @@ import sim3d.diffusion.ParticleMoles;
 
 public class ReadObjects {
 
-	
 	/**
-	 * This class handles reading in objects 
-	 * which were saved from a previous simulation
+	 * This class handles reading in objects which were saved from a previous
+	 * simulation
 	 * 
-	 * facilitates starting simulation from a 
-	 * preloaded steady-state
+	 * facilitates starting simulation from a preloaded steady-state
 	 * 
 	 * 
 	 * @author: Jason Cosgrove, Steph Dyson
 	 * 
 	 * @return
 	 */
-	
-	/////////////// NOTE TO USERS OF THIS CLASS /////////////////
+
+	// ///////////// NOTE TO USERS OF THIS CLASS /////////////////
 	/*
 	 * In the class that you want to write out, use this method (and change
 	 * step== to whenever you want to write it):
 	 * 
-	 * if(step ==1440*20 && !IBDSim.restore){ 
-	 * 	WriteObjects wo= new WriteObjects(); 
-	 *  wo.writeColon(simulation); }
+	 * if(step ==1440*20 && !IBDSim.restore){ WriteObjects wo= new
+	 * WriteObjects(); wo.writeColon(simulation); }
 	 * 
 	 * To restore a grid you just need to use this in your main class:
 	 * colon=(Colon) ReadObjects.restoreColon();
 	 */
-	
-	
+
 	/**
 	 * Restores a pre-saved FDC grid
+	 * 
 	 * @return
 	 */
 	public static Object restoreFDC() {
@@ -46,7 +43,7 @@ public class ReadObjects {
 
 		try {
 			// Open file to read from, named SavedObj.sav.
-			//need to do this once for each class
+			// need to do this once for each class
 			FileInputStream saveFile = new FileInputStream(
 					"/Users/jc1571/Desktop/fdcoutput.sav");
 
@@ -67,9 +64,9 @@ public class ReadObjects {
 		return fdcEnvironment;
 	}
 
-
 	/**
 	 * Restores pre-saved B cell grid
+	 * 
 	 * @return
 	 */
 	public static Object restoreBC() {
@@ -78,7 +75,7 @@ public class ReadObjects {
 
 		try {
 			// Open file to read from, named SavedObj.sav.
-			//need to do this once for each class
+			// need to do this once for each class
 			FileInputStream saveFile = new FileInputStream(
 					"/Users/jc1571/Desktop/bcoutput.sav");
 
@@ -98,9 +95,10 @@ public class ReadObjects {
 
 		return bcEnvironment;
 	}
-	
+
 	/**
 	 * Restores a pre-saved CXCL13 grid
+	 * 
 	 * @return
 	 */
 	public static Object restoreCXCL13() {
@@ -109,7 +107,7 @@ public class ReadObjects {
 
 		try {
 			// Open file to read from, named SavedObj.sav.
-			//need to do this once for each class
+			// need to do this once for each class
 			FileInputStream saveFile = new FileInputStream(
 					"/Users/jc1571/Desktop/cxcl13output.sav");
 

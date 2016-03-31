@@ -69,14 +69,19 @@ public class FDCTest {
 	public void canLoseAntigen(){
 		
 		
-		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
-		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		FRCStromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
-				selEdges);
+		ArrayList<FRCCell> d3lCellLocations2 = new ArrayList<FRCCell>();
+		ArrayList<StromaEdge> selEdges2 = new ArrayList<StromaEdge>();
 		
 		Settings.FDC.STARTINGANTIGENLEVEL = 100;
-		for (StromaEdge seEdge : selEdges) {
-			seEdge.setAntigenLevelLowerHalf(seEdge.getAntigen());
+		
+		FRCStromaGenerator.generateStroma3D(5, 5, 5, 5, d3lCellLocations2,
+				selEdges2);
+		
+		
+		for (StromaEdge seEdge : selEdges2) {
+			
+			//int antigenLevel = seEdge.getAntigen();
+			seEdge.setAntigenLevelLowerHalf(seEdge.getAntigenLevelLowerEdge() - 1);
 			assertThat(seEdge.getAntigen(), lessThan(100));
 		}
 		

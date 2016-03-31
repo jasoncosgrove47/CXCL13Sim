@@ -24,30 +24,29 @@ public class ControllerTest {
 	 */
 	@Test
 	public void testExperimentFinished() {
-	
-		assertEquals("experimentFinished should be false", false, SimulationEnvironment.experimentFinished);
-	}
-	
-	
-	
 
-	
-	
+		//upon starting, experimentFinished should be set to false
+		assertEquals("experimentFinished should be false", false,
+				SimulationEnvironment.experimentFinished);
+	}
+
 	/**
 	 * Test that experimentFinished changes to true after experimentLength steps
 	 */
 	@Test
 	public void testExperimentFinishedChanges() {
-		
-		
+
 		Settings.EXPERIMENTLENGTH = 10;
 		Controller controller = new Controller();
-		
-		for(int i =0; i < 11; i++){
+
+		//step contoller 11 times
+		for (int i = 0; i < Settings.EXPERIMENTLENGTH + 1; i++) {
 			controller.step(null);
 		}
-		
-		assertEquals("experimentFinished should be false", true, SimulationEnvironment.experimentFinished);
+
+		//check that the experiment finished guard has been updated
+		assertEquals("experimentFinished should be false", true,
+				SimulationEnvironment.experimentFinished);
 	}
 
 }

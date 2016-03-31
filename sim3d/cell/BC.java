@@ -834,7 +834,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 			
 		} else {
 			
-
 		
 			
 			// Calculate the direction from the stroma collision point to the BC
@@ -973,7 +972,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * if the B cell gets to the border of the simulation it has to bounce back
 	 * as space is non-toroidal, much trickier in 3D than 2D
 	 */
-	private void handleBounce() {
+	void handleBounce() {
 		boolean bBounce = true;
 
 		// We should in theory only have to check the last step for bounces

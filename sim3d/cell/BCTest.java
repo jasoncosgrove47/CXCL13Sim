@@ -220,6 +220,7 @@ public class BCTest {
 		assertEquals(false, BC.bcEnvironment.exists(bcTemp));
 	}
 	
+	
 	/**
 	 * Test that getLigandBinding can detect chemokine
 	 */
@@ -305,11 +306,7 @@ public class BCTest {
 		}
 		assertEquals(true, cgGrid.getM_i3lCollisionPoints().size() > 0);
 	}
-	
-
-	
-
-	
+		
 	/**
 	 * If a B cell doesn't collide with a stromal grid then it should return a false
 	 * 
@@ -332,12 +329,26 @@ public class BCTest {
 	}
 	
 	/**
-	 * TODO can use the integration test for this one
+	 * =
 	 */
 	@Test
 	public void testUpdateMovementToAccountForCollision(){
 
-		fail("Not yet implemented");
+		BC bc = new BC();
+		
+		Double3D loc1 = new Double3D(0,0,0);
+		Double3D loc2 = new Double3D(1,1,1);
+		
+		bc.setObjectLocation(loc1);
+		StromaEdge se = new StromaEdge(loc1,loc2);
+		bc.m_d3aMovements.add(new Double3D(loc2));
+		
+		assertEquals(loc2,bc.m_d3aMovements.get(0));
+		
+		bc.collideStromaEdge(se, 1);
+		Double3D test = bc.m_d3aMovements.get(0);
+		
+		assertNotEquals(loc2,test);
 		
 	}
 	
@@ -351,19 +362,30 @@ public class BCTest {
 	@Test
 	public void testUpdateLength(){
 
-		
+		// case 1: e <= 0
 		double length = 1;
-		double e = 1;
+		double e = -1;
 		double f =1;
-		Double3D test = new Double3D(1,1,1);
+		Double3D ac = new Double3D(2,2,2);
+		double output = bc.updateLength(length, ac, ac, e, f, ac);
+		double newlength = Vector3DHelper.dotProduct(ac, ac);
+		assertEquals(output, newlength,0.1);
 		
-		double output = bc.updateLength(length, test, test, e, f, test);
-		
-		fail("Not yet implemented");
-		
-		assertThat(output, equalTo(0.0));
-		
-		
+		// case 2: e >= f
+		double e2 = 24;
+		double f2 = Vector3DHelper.dotProduct(ac, ac);
+		Double3D ac2 = new Double3D(1,1,1);
+		double output2 = bc.updateLength(length, ac, ac2, e2, f2, ac);
+		double length2 = Vector3DHelper.dotProduct(ac2, ac2);
+		assertEquals(output2, length2,0.1);
+	
+		// case 3: else
+		double e3 = 1;
+		double f3 = Vector3DHelper.dotProduct(ac, ac);
+		Double3D ac3 = new Double3D(1,1,1);
+		double output3 = bc.updateLength(length, ac, ac3, e3, f3, ac);
+		double length3 = Vector3DHelper.dotProduct(ac, ac) - e3 * e3 / f3;
+		assertEquals(output3, length3,0.1);
 		
 	}
 	
@@ -462,17 +484,24 @@ public class BCTest {
 	}
 	
 	
+	//move the cell beyond the grid and see if handlebounce updates the coordinates correctly
 	@Test
 	public void testHandleBounce(){
 
+		//make a small grid, let the cells migrate around
+		//make sure that none of them are outside of the gridspace
 	
+		BC bc = new BC();
 		
-		fail("Not yet implemented");
+		Double3D loc = new Double3D(32,32,32);
+		bc.m_d3aMovements.add(new Double3D(30,30,30));
+		bc.m_d3aMovements.add(loc);
+		bc.handleBounce();
 		
+		Double3D test = bc.m_d3aMovements.get(1);
 		
-		// move the cell beyond the x axis and make 
-		// sure that it cant go past the border
-		
+		assertNotEquals(loc,test);
+	
 	}
 
 	/**
@@ -508,6 +537,7 @@ public class BCTest {
 		assertThat(bc.m_iL_r , not(equalTo(10000))) ;
 		
 	}
+	
 	
 	/*
 	 * Make sure that the total number of receptors remains constant
