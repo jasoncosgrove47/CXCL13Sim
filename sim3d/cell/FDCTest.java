@@ -30,9 +30,6 @@ import sim3d.util.IO;
 import sim3d.util.FRCStromaGenerator.FRCCell;
 
 
-/**
- * Test some basic functionality of the FDC network
- */
 public class FDCTest {
 	
 	@Before
@@ -77,7 +74,6 @@ public class FDCTest {
 		FRCStromaGenerator.generateStroma3D(5, 5, 5, 5, d3lCellLocations2,
 				selEdges2);
 		
-		
 		for (StromaEdge seEdge : selEdges2) {
 			
 			//int antigenLevel = seEdge.getAntigen();
@@ -88,14 +84,21 @@ public class FDCTest {
 		
 	}
 
-	
+	/**
+	 * Test that getModel returns an object of type 
+	 * TransformGroup
+	 */
 	@Test
 	public void testGetModel() {
 		FDC c = new FDC();
 		TransformGroup localTG = c.getModel(c,null);
-		assertNotNull(localTG);
+		assertTrue(localTG instanceof TransformGroup);
 	}
 	
+	/**
+	 * Test that registerCollisions updates
+	 * m_i3lCollisionPoints
+	 */
 	@Test
 	public void testRegisterCollisions() {
 		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
@@ -106,58 +109,56 @@ public class FDCTest {
 		assertEquals(true, cgGrid.getM_i3lCollisionPoints().size() > 0);
 	}
 	
-	
 	/**
 	 * test that the FDC can secrete Antigen
 	 */
 	@Test
 	public void testCXCL13SECRETING() {
 		
+		//initialise the system
 		Schedule schedule = new Schedule();
-
-
 		Continuous3D fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
 				60, 60, 10);
-		
 		FDC.drawEnvironment = fdcEnvironment;
-	
 		ParticleMoles m_pParticle = new ParticleMoles(schedule, ParticleMoles.TYPE.CXCL13,
 				60, 60, 10);
-		
 		Settings.FDC.CXCL13_EMITTED = 100;
-		
 		FDC fdc = new FDC();
-		
 		fdc.setObjectLocation( new Double3D(15,15, 5 ));
 
+		
+		//assert that there is currently no chemokine on the grid
+		double[][][] chemokinebefore = ParticleMoles.get(ParticleMoles.TYPE.CXCL13,
+				15, 15, 5);
+		assertThat(chemokinebefore[1][1][1], equalTo(0.0));
+		
+		//step the FDC
 		fdc.step(null);
 		fdc.step(null);
 		fdc.step(null);
 		fdc.step(null);
 		fdc.step(null);
 	
-		
+		//assert that there is now chemokine on the grid. 
 		double[][][] chemokine = ParticleMoles.get(ParticleMoles.TYPE.CXCL13,
 				15, 15, 5);
-		
-	
 		assertThat(chemokine[1][1][1], greaterThan(0.0));
 		
-	
 		ParticleMoles.reset();
 		FDC.drawEnvironment = null;
 
 	}
 
 	/**
-	 * Make sure that the FDC can lose antigen
+	 * Make sure that getCollsionClass
+	 * returns the correct enum type
 	 */
 	@Test
-	public void testGetCollisionClass(){
-		
+	public void testGetCollisionClass(){	
 		FDC fdc = new FDC();
 		assertEquals(fdc.getCollisionClass() ,CLASS.STROMA); 
 	}
+	
 	
 
 }

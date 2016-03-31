@@ -457,7 +457,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * 
 	 * @return The new direction for the cell to move
 	 */
-	private Double3D getMoveDirection() {
+	Double3D getMoveDirection() {
+		
 		
 		double[] iaBoundReceptors = calculateLigandBindingNew();
 	

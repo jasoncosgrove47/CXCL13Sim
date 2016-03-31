@@ -125,6 +125,7 @@ public class CollisionGrid implements Steppable {
 			}
 		}
 	}
+	
 
 	/**
 	 * @param iWidth

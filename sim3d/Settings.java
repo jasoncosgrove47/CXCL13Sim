@@ -49,7 +49,6 @@ public class Settings {
 		Node diffusionN = diffusionNL.item(0);
 		DIFFUSION_COEFFICIENT_PREFIX= Double.parseDouble(diffusionN.getTextContent());
 
-		
 		// this must be computed here otherwise these values get set to zero
 		DIFFUSION_COEFFICIENT = scaleDIFFUSION_COEFFICIENT();
 		DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
@@ -57,7 +56,6 @@ public class Settings {
 		
 	}
 
-	
 	/**
 	 * Allows MASON's random variable to be accessed globally
 	 */
@@ -88,6 +86,7 @@ public class Settings {
 	 */
 	public static double DIFFUSION_COEFFICIENT;
 	public static double DIFFUSION_COEFFICIENT_PREFIX;
+	
 	/*
 	 * Scale the diffusion coefficient
 	 */
@@ -96,8 +95,6 @@ public class Settings {
 		return (DIFFUSION_COEFFICIENT_PREFIX * (1e-12));
 	}
 	
-
-
 	/**
 	 * How much time a single iteration of the diffusion process will take us
 	 * forward
@@ -106,12 +103,14 @@ public class Settings {
 	 */
 	public static double DIFFUSION_TIMESTEP;
 	public static int DIFFUSION_STEPS;
+	
 	/*
 	 * Calculates the appropriate timestep for diffusion
 	 */
 	static double calculateDIFFUSION_TIMESTEP() {
 		return (Math.pow(GRID_SIZE, 2) / (10 * DIFFUSION_COEFFICIENT));
 	}
+	
 	/**
 	 * Divide by 60 as we want to update diffusion in seconds and not minutes
 	 * @return
@@ -120,12 +119,11 @@ public class Settings {
 		return (int) (60 / DIFFUSION_TIMESTEP);
 	}
 
-	
-
 	/**
 	 * Subclass containing all the BC parameters
 	 */
 	public static class BC {
+		
 		/**
 		 * This loads the parameters from an XML file for high throughput
 		 * analyses
@@ -212,11 +210,8 @@ public class Settings {
 		 */
 		static double TRAVEL_DISTANCE;
 
-		public static double TRAVEL_DISTANCE() {
-			//nextGaussian() is normal distributed with mean 0 and std-deviance 1
-
-			return TRAVEL_DISTANCE;
-			
+		public static double TRAVEL_DISTANCE() {	
+		return TRAVEL_DISTANCE;
 		}
 
 		/**
@@ -242,7 +237,6 @@ public class Settings {
 		/**
 		 * The colour of BCs we use green as that is the convention for MP
 		 * experiments
-		 * 
 		 * @return
 		 */
 		public static Color DRAW_COLOR() {
@@ -361,8 +355,6 @@ public class Settings {
 
 		}
 	}
-
-
 
 	/**
 	 * Subclass containing all the FDC parameters

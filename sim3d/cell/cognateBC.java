@@ -220,6 +220,7 @@ public class cognateBC extends BC {
 	 * Acquire antigen from a stroma edge or branch
 	 * 
 	 * @param cCell
+	 * 
 	 */
 	public void acquireAntigen(Collidable cCell) {
 		StromaEdge sEdge = (StromaEdge) cCell;
@@ -246,6 +247,8 @@ public class cognateBC extends BC {
 				this.dendritesVisited += 1;
 				Controller.getInstance().getDendritesVisited().put(this.index, this.dendritesVisited);
 			
+				//increment the cBC antigen captured counter
+				this.setAntigenCaptured(this.getAntigenCaptured() + 1); 
 			
 			}
 		} else if(lowerCollision == false){
@@ -257,11 +260,12 @@ public class cognateBC extends BC {
 				sEdge.cellsCollidedWithLowerHalf.add(this.index);
 				this.dendritesVisited +=1;
 				Controller.getInstance().getDendritesVisited().put(this.index, this.dendritesVisited);
+				//increment the cBC antigen captured counter
+				this.setAntigenCaptured(this.getAntigenCaptured() + 1); 
 			}
 		}
 
-		//increment the cBC antigen captured counter
-		this.setAntigenCaptured(this.getAntigenCaptured() + 1); 
+		
 
 		// if the cell is naive then we need to update its status to primed
 		if (this.type == TYPE.NAIVE) {
