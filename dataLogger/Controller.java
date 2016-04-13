@@ -79,9 +79,10 @@ public class Controller implements Steppable {
 	private Map<Integer, ArrayList<Double>> X_Coordinates = new HashMap<Integer, ArrayList<Double>>();
 	private Map<Integer, ArrayList<Double>> Y_Coordinates = new HashMap<Integer, ArrayList<Double>>();
 	private Map<Integer, ArrayList<Double>> Z_Coordinates = new HashMap<Integer, ArrayList<Double>>();
-	
+		
 	//need to initialise this
 	private Map<Integer,Integer> dendritesVisited = new HashMap<Integer, Integer>();
+	private Map<Integer,ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
 
 	/**
 	 * Controls the length of an experiment and signals to the main class when
@@ -98,9 +99,6 @@ public class Controller implements Steppable {
 			SimulationEnvironment.experimentFinished = true;
 		}
 	}
-
-	
-
 	
 	// getters and setters for the controller
 	public static int getPrimedCells() {
@@ -126,5 +124,15 @@ public class Controller implements Steppable {
 	public Map<Integer,Integer> getDendritesVisited() {
 		return dendritesVisited;
 	}
+
+	public Map<Integer,ArrayList<Integer>> getReceptors() {
+		return receptors;
+	}
+
+	public void setReceptors(Map<Integer,ArrayList<Integer>> receptors) {
+		this.receptors = receptors;
+	}
+
+
 
 }

@@ -82,6 +82,7 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable {
 	@Override
 	public void step(final SimState state) {
 	
+		
 		//secrete chemokine
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z,
 				Settings.FDC.CXCL13_EMITTED());

@@ -259,8 +259,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 	/**
 	 * calculate where to move for the next timestep.
-	 * definitely need to refactor this method
-	 * maybe i should check for BC collisions here
 	 */
 	public void calculateWhereToMoveNext() {
 		Double3D vMovement;
@@ -278,23 +276,34 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 								Settings.BC.DIRECTION_ERROR()).multiply(
 								Settings.BC.PERSISTENCE));
 				
-
+				//why do we need this line here?
 				if (vMovement.lengthSq() > 0) {
 					vMovement = vMovement.normalize();
 				}
 			}
 
 			else {
+				
+				//maybe this is where we have to add the persistence
 				vMovement = null;
 			}
-		} else {
+		} 
+		
+		//we detect no chemokine, or at least difference in chemokine
+		else {
 			vMovement = null;
 		}
 
 		if (vMovement == null || vMovement.lengthSq() == 0) {
 			// no data! so do a random turn
 			vMovement = Vector3DHelper.getRandomDirectionInCone(m_d3Face,
-					Settings.BC.RANDOM_TURN_ANGLE());
+				Settings.BC.RANDOM_TURN_ANGLE());
+		
+			//now scale the vector with respect to the previous vector
+			//as this isnt chemotactic the persistence vector should be smaller
+			vMovement = m_d3Face.add(vMovement.multiply(4.0));
+			vMovement = vMovement.normalize();
+
 		}
 
 		// Reset all the movement/collision data
@@ -302,32 +311,46 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		m_d3aMovements = new ArrayList<Double3D>();
 
 		// calculated from maiuri paper in cell 2015
-	
-		//TODO Persistence represents the strength of the new vector with
+		// Persistence represents the strength of the new vector with
 		// respect to where we are now, thus the memory vector is 1/alpha
 		// times stronger than the current vector and we use this as a
 		// measure of the cell
 		double speedScalar = (Math.log(1 / Settings.BC.PERSISTENCE)) / 3;
 
 
+		double travelDistance;
+		//lets make travelDistance a gaussian for a better fit
+		//and constrain it so it cant be too low and give a nonsense value
+		do {
+			travelDistance = Settings.RNG.nextGaussian() * 
+					0.27 + Settings.BC.TRAVEL_DISTANCE();
+	
+			//only sample within oneSD
+			} while (travelDistance <= 0);
+		
+		
+		
+		
 		// if there is some signalling then the cell increases it's
 		// instantaneous velocity
 		if (vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD) {
 
-			m_d3aMovements.add(vMovement.multiply(Settings.BC.TRAVEL_DISTANCE()
-					+ speedScalar));
-			
+			m_d3aMovements.add(vMovement.multiply(travelDistance + speedScalar));
+			//m_d3aMovements.add(vMovement.multiply(travelDistance));
 		//this is also the case if receptors are saturated or equally biased
-		// in each direction, still signalling going on
-		} else if (vectorMagnitude < Settings.BC.SIGNAL_THRESHOLD && m_iL_r > 0) 
+		// in each direction, still signalling going on but must be a minimum threshold
+			
+		} else if (vectorMagnitude < Settings.BC.SIGNAL_THRESHOLD && m_iL_r > Settings.BC.SIGNAL_THRESHOLD) 
 		{
-			// no signalling therefore no increase in instantaneous velocity
-			m_d3aMovements.add(vMovement.multiply(Settings.BC.TRAVEL_DISTANCE()
-					+ speedScalar));
+		
+			//m_d3aMovements.add(vMovement.multiply(travelDistance));
+			m_d3aMovements.add(vMovement.multiply(travelDistance + speedScalar));
+			
+			
 		} else {
 			// no signalling therefore no increase in instantaneous velocity
 			m_d3aMovements
-					.add(vMovement.multiply(Settings.BC.TRAVEL_DISTANCE()));
+					.add(vMovement.multiply(travelDistance));
 		}
 
 	}

@@ -33,6 +33,9 @@ public class cognateBC extends BC {
 	private ArrayList<Double> positionY = new ArrayList<Double>();
 	private ArrayList<Double> positionZ = new ArrayList<Double>();
 
+	private ArrayList<Integer> receptors = new ArrayList<Integer>();
+	
+	
 	/**
 	 * Unique identifier of each cBC
 	 */
@@ -73,8 +76,8 @@ public class cognateBC extends BC {
 		//need to set these to zero for the CXCR5 KO experiment
 		//as we need a functional follicle to form for consistency
 		 //this.m_iL_r = 0;
-		 //this.m_iR_free = 0;
-		 //this.m_iR_i = 0;
+		// this.m_iR_free = 0;
+		// this.m_iR_i = 0;
 	}
 
 	@Override
@@ -87,7 +90,7 @@ public class cognateBC extends BC {
 		// it's position
 		if (SimulationEnvironment.steadyStateReached == true) {
 			
-			
+			updateReceptors();
 			//the experiment runs for 12 hours but only 
 			// need to record migration data for 30 mins
 			if(counter < 30){
@@ -99,6 +102,22 @@ public class cognateBC extends BC {
 		}
 	}
 
+	
+	
+	/**
+	 * Updates the cells surface receptor levels
+	 * in Controller
+	 */
+	void updateReceptors() {
+		receptors.add(this.m_iR_free);
+	
+		Controller.getInstance().getReceptors()
+				.put(this.getIndex(), this.getReceptors());
+
+	}
+	
+	
+
 	/**
 	 * Updates the cells X,Y and Z coordinates in the XY and Z arraylists and
 	 * the controllers coordinate MAPs so they can be accessed by viewers 
@@ -108,8 +127,6 @@ public class cognateBC extends BC {
 		positionY.add(this.y);
 		positionZ.add(this.z);
 		
-		
-
 		Controller.getInstance().getX_Coordinates()
 				.put(this.getIndex(), this.getPositionX());
 		Controller.getInstance().getY_Coordinates()
@@ -191,8 +208,7 @@ public class cognateBC extends BC {
 					
 					iCollisionMovement = m_d3aMovements.size() - 1;
 					bCollision = true;
-					
-					
+						
 					//this guard is here as we don't want the agents to acquire
 					//antigen until controller starts recording
 					if(SimulationEnvironment.steadyStateReached == true)
@@ -200,7 +216,6 @@ public class cognateBC extends BC {
 						acquireAntigen(cCell);
 					}
 				}
-				
 				
 				break;
 			case STROMA:
@@ -338,6 +353,15 @@ public class cognateBC extends BC {
 		return positionZ;
 	}
 
+	public ArrayList<Integer> getReceptors() {
+		return receptors;
+	}
+	
+	public void setReceptors(ArrayList<Integer> receptors) {
+		this.receptors = receptors;
+	}
+	
+	
 	public Integer getIndex() {
 		return index;
 	}

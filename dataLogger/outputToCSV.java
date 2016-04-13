@@ -331,4 +331,53 @@ public final class outputToCSV {
 
 		return output;
 	}
+
+	
+	/**
+	 * Output the receptors to a dataFile
+	 * @param rawFileName
+	 */
+	public static void outputReceptors(String rawFileName){
+		
+		FileWriter rawDataWriter;
+
+		
+
+		try {
+			rawDataWriter = new FileWriter(rawFileName);
+	
+			rawDataWriter.append("TrackID");
+			rawDataWriter.append(',');
+			rawDataWriter.append("Timepoint");
+			rawDataWriter.append(',');
+			rawDataWriter.append("Receptor");
+			rawDataWriter.append('\n');
+			
+			for (Integer key : Controller.getInstance().getReceptors()
+					.keySet()) 
+			{
+				ArrayList<Integer> receptors = Controller.getInstance().getReceptors()
+						.get(key);
+				
+				for (int i = 0; i < receptors.size(); i++)
+				{
+					rawDataWriter.append(Integer.toString(key));
+					rawDataWriter.append(',');
+					rawDataWriter.append(Integer.toString(i));
+					rawDataWriter.append(',');
+					rawDataWriter.append(Integer.toString(receptors.get(i)));
+					rawDataWriter.append('\n');
+				}	
+			}
+			
+			rawDataWriter.flush();
+			rawDataWriter.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
 }

@@ -48,7 +48,7 @@ public class Settings {
 				.getElementsByTagName("DIFFUSION_COEFFICIENT");
 		Node diffusionN = diffusionNL.item(0);
 		DIFFUSION_COEFFICIENT_PREFIX= Double.parseDouble(diffusionN.getTextContent());
-
+		
 		// this must be computed here otherwise these values get set to zero
 		DIFFUSION_COEFFICIENT = scaleDIFFUSION_COEFFICIENT();
 		DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
@@ -164,10 +164,10 @@ public class Settings {
 			Node rtaN = rtaNL.item(0);
 			RANDOM_TURN_ANGLE = Double.parseDouble(rtaN.getTextContent());
 
-			NodeList csNL = paramBCElement
-					.getElementsByTagName("CHEMOKINESIS_SCALAR");
-			Node csN = csNL.item(0);
-			CHEMOKINESIS_SCALAR = Double.parseDouble(csN.getTextContent());
+			//NodeList csNL = paramBCElement
+			//		.getElementsByTagName("CHEMOKINESIS_SCALAR");
+			//Node csN = csNL.item(0);
+			//CHEMOKINESIS_SCALAR = Double.parseDouble(csN.getTextContent());
 
 			NodeList pNL = paramBCElement.getElementsByTagName("PERSISTENCE");
 			Node pN = pNL.item(0);
@@ -182,7 +182,7 @@ public class Settings {
 		/**
 		 * Increase in velocity observed in chemokinesis
 		 */
-		public static double CHEMOKINESIS_SCALAR;
+		//public static double CHEMOKINESIS_SCALAR;
 
 		/**
 		 * Number of BCs to generate
@@ -212,6 +212,7 @@ public class Settings {
 
 		public static double TRAVEL_DISTANCE() {	
 		return TRAVEL_DISTANCE;
+				
 		}
 
 		/**
@@ -222,7 +223,7 @@ public class Settings {
 
 		public static double DIRECTION_ERROR() {
 
-			return 0;
+			return 3.14/6;
 		}
 
 		/**

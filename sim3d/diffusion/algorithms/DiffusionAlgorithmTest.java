@@ -37,6 +37,7 @@ public class DiffusionAlgorithmTest {
 	@Before
 	public void setUp() throws Exception {
 
+		
 		// loadParameters();
 		Settings.RNG = new MersenneTwisterFast();
 		Settings.DIFFUSION_COEFFICIENT = 7.6e-12;
@@ -44,7 +45,7 @@ public class DiffusionAlgorithmTest {
 		Settings.GRID_SIZE = 0.00001;
 
 		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2)
-				/ (40.00 * Settings.DIFFUSION_COEFFICIENT));// was 40.15, 10 gives a near enough value
+				/ (10.00 * Settings.DIFFUSION_COEFFICIENT));// was 40.15, 10 gives a near enough value
 
 		//multiply by 60 as we want to update diffusion in seconds and not minutes
 		//Settings.DIFFUSION_STEPS = (int) (1 / Settings.DIFFUSION_TIMESTEP);
@@ -83,8 +84,8 @@ public class DiffusionAlgorithmTest {
 	@Test
 	public void testConservation() {
 		
-		Settings.DIFFUSION_COEFFICIENT = 7.6e-12;
-		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (40.15 * Settings.DIFFUSION_COEFFICIENT));
+		Settings.DIFFUSION_COEFFICIENT = 0.1e-12;
+		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.15 * Settings.DIFFUSION_COEFFICIENT));
 		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
 		
 		ParticleMoles m_pParticlemoles = new ParticleMoles(schedule, ParticleMoles.TYPE.CXCL13,
@@ -122,7 +123,7 @@ public class DiffusionAlgorithmTest {
 	public void testMeanSquare() {
 
 
-		Settings.DIFFUSION_COEFFICIENT = 7.6e-12;
+		Settings.DIFFUSION_COEFFICIENT = 0.1e-12;
 		Settings.GRID_SIZE = 0.00001;
 		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2)
 				/ (10.00 * Settings.DIFFUSION_COEFFICIENT));// was 40.15, 10 gives a near enough value
