@@ -108,12 +108,10 @@ public class FRCStromaGenerator {
 			// FRCCell frcNextCell = frclUnbranchedCells.get(
 			// Options.RNG.nextInt(frclUnbranchedCells.size()) );
 
-			if (frcNextCell == null) {
-				break;
-			}
+			if (frcNextCell == null) {break;}
 
 			// Calculate the number of edges to make
-			// TODO Magic numbers! These seem to work, though...
+			// Values were fitted to match the FRC paper
 			int iEdges = Math
 					.max(0,
 							Math.min(iRemainingCells,
@@ -404,6 +402,7 @@ public class FRCStromaGenerator {
 			for (int i = 1; i < iCellCount; i++) {
 
 
+				
 				// This distribution... It approximately matches the paper, and
 				// was derived using the divided differences method
 				// http://www.wolframalpha.com/input/?i=0.392281+x-0.342923+x%5E2%2B0.151204+x%5E3-0.0270696+x%5E4%2B0.00180148+x%5E5+between+x+%3D+0+and+5

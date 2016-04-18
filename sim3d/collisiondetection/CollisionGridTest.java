@@ -62,6 +62,9 @@ public class CollisionGridTest {
 		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
 		assertEquals(true,cgGrid.BoxSphereIntersect(5, 5, 5, 3, 5, 5, 5));
 		assertEquals(false,cgGrid.BoxSphereIntersect(5, 5, 5, 3, 20, 20, 20));
+		//TODO designed to test the other if loops etc, need to make sure it makes sense
+		assertEquals(false,cgGrid.BoxSphereIntersect(5, 5, 5, 3, 3, 3, 3));
+		
 	}
 
 	/**

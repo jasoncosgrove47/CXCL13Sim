@@ -28,7 +28,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	/**
 	 * The z-index to display
 	 */
-	private static int m_iDisplayLevel = 1;
+	static int m_iDisplayLevel = 1;
 
 	/**
 	 * Gives each ENUM an array index
@@ -279,6 +279,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 					if (z + t - 1 < 0 || z + t - 1 >= m_iDepth) {
 						continue;
 					}
+					
 					aiReturn[r][s][t] = field[x + r - 1][y + s - 1][z + t - 1];
 				}
 			}

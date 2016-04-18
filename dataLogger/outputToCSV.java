@@ -101,6 +101,7 @@ public final class outputToCSV {
 		ArrayList<Double> Zcoords = Controller.getInstance().getZ_Coordinates()
 				.get(key);
 
+		
 		Double3D startLocation = null; // starting position
 		Double3D endLocation = null; // final position
 		Double3D previousLocation = null; // location at the previous timestep
@@ -147,7 +148,7 @@ public final class outputToCSV {
 		netDisplacement = startLocation.distance(endLocation);
 
 		// calculate the meandering Index
-		double meanderingIndex = totalDisplacement / netDisplacement;
+		double meanderingIndex = (netDisplacement / totalDisplacement) * Math.sqrt(time);
 
 		// calculate the motility Coefficient
 		double motilityCoefficient = (Math.pow(netDisplacement, 2) / (6 * time));

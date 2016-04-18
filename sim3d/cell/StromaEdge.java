@@ -184,6 +184,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 			Color col = Settings.FDC.DRAW_COLOR();
 
+			// uncomment this code for an antigen heatmap
+			/*
 			if (fdc.getAntigen() < 90) {
 				col = blue3;
 			}
@@ -194,6 +196,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 				col = blue0;
 			}
 
+			 */
+			
 			aAppearance.setColoringAttributes(new ColoringAttributes(col
 					.getRed() / 255f, col.getGreen() / 255f,
 					col.getBlue() / 255f, ColoringAttributes.FASTEST));

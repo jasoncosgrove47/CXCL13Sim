@@ -59,6 +59,19 @@ public class FDCTest {
 		}
 	}
 
+	
+	/*
+	 * Assert that the FDC is a static object
+	 */
+	@Test
+	public void isStatic() {
+		
+		FDC c = new FDC();
+		assertTrue(c.isStatic());
+		
+	}
+	
+	
 	/**
 	 * Make sure that the FDC can lose antigen
 	 */

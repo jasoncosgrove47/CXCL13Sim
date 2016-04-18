@@ -75,9 +75,10 @@ public class cognateBC extends BC {
 		
 		//need to set these to zero for the CXCR5 KO experiment
 		//as we need a functional follicle to form for consistency
-		 //this.m_iL_r = 0;
-		// this.m_iR_free = 0;
-		// this.m_iR_i = 0;
+		
+		//this.m_iL_r = 0;
+		//this.m_iR_free = 0;
+		//this.m_iR_i = 0;
 	}
 
 	@Override
@@ -161,6 +162,7 @@ public class cognateBC extends BC {
 		
 		
 		// don't let a b cell collide more than collisionThreshold times
+		// required to avoid getting in an infinite loop
 		int collisionThreshold = 10;
 		if (m_i3lCollisionPoints.size() == 0
 				|| collisionCounter > collisionThreshold) {
@@ -357,9 +359,9 @@ public class cognateBC extends BC {
 		return receptors;
 	}
 	
-	public void setReceptors(ArrayList<Integer> receptors) {
-		this.receptors = receptors;
-	}
+	//public void setReceptors(ArrayList<Integer> receptors) {
+		//this.receptors = receptors;
+	//}
 	
 	
 	public Integer getIndex() {
@@ -370,17 +372,17 @@ public class cognateBC extends BC {
 		this.antigenCaptured = antigenCaptured;
 	}
 
-	public void setPositionX(ArrayList<Double> positionX) {
-		this.positionX = positionX;
-	}
+	//public void setPositionX(ArrayList<Double> positionX) {
+	//	this.positionX = positionX;
+	//}
 
-	public void setPositionY(ArrayList<Double> positionY) {
-		this.positionY = positionY;
-	}
+	//public void setPositionY(ArrayList<Double> positionY) {
+		//this.positionY = positionY;
+	//}
 
-	public void setPositionZ(ArrayList<Double> positionZ) {
-		this.positionZ = positionZ;
-	}
+	//public void setPositionZ(ArrayList<Double> positionZ) {
+		//this.positionZ = positionZ;
+	//}
 
 	public void setIndex(Integer index) {
 		this.index = index;

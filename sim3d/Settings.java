@@ -19,6 +19,7 @@ import ec.util.MersenneTwisterFast;
  */
 public class Settings {
 
+	
 	public static void loadParameters(Document params) {
 		// Simulation Tag
 		Element paramOElement = (Element) params.getElementsByTagName("O")
@@ -154,6 +155,13 @@ public class Settings {
 			TRAVEL_DISTANCE = Double.parseDouble(traveldistanceN
 					.getTextContent());
 
+			NodeList traveldistancesdNL = paramBCElement
+					.getElementsByTagName("TRAVEL_DISTANCE_SD");
+			Node traveldistancesdN = traveldistancesdNL.item(0);
+			TRAVEL_DISTANCE_SD = Double.parseDouble(traveldistancesdN
+					.getTextContent());
+
+			
 			NodeList stNL = paramBCElement
 					.getElementsByTagName("SIGNAL_THRESHOLD");
 			Node stN = stNL.item(0);
@@ -162,27 +170,64 @@ public class Settings {
 			NodeList rtaNL = paramBCElement
 					.getElementsByTagName("RANDOM_TURN_ANGLE");
 			Node rtaN = rtaNL.item(0);
-			RANDOM_TURN_ANGLE = Double.parseDouble(rtaN.getTextContent());
+			RANDOM_TURN_ANGLE_DEGREES = Double.parseDouble(rtaN.getTextContent());
 
-			//NodeList csNL = paramBCElement
-			//		.getElementsByTagName("CHEMOKINESIS_SCALAR");
-			//Node csN = csNL.item(0);
-			//CHEMOKINESIS_SCALAR = Double.parseDouble(csN.getTextContent());
+			NodeList csNL = paramBCElement
+					.getElementsByTagName("DIRECTION_ERROR");
+			Node csN = csNL.item(0);
+			DIRECTION_ERROR_DEGREES = Double.parseDouble(csN.getTextContent());
 
 			NodeList pNL = paramBCElement.getElementsByTagName("PERSISTENCE");
 			Node pN = pNL.item(0);
 			PERSISTENCE = Double.parseDouble(pN.getTextContent());
+			
+			NodeList rpNL = paramBCElement.getElementsByTagName("RANDOM_PERSISTENCE");
+			Node rpN = rpNL.item(0);
+			RANDOM_PERSISTENCE = Double.parseDouble(rpN.getTextContent());
+			
+			NodeList ssNL = paramBCElement.getElementsByTagName("SPEED_SCALAR");
+			Node ssN = ssNL.item(0);
+			SPEED_SCALAR = Double.parseDouble(ssN.getTextContent());
+			
+			
+			convertAnglesToRadians();
+			
 		}
 
+		
+		
+		public static void convertAnglesToRadians(){
+			DIRECTION_ERROR = Math.toRadians(DIRECTION_ERROR_DEGREES);
+			RANDOM_TURN_ANGLE = Math.toRadians(RANDOM_TURN_ANGLE_DEGREES);
+		}
+		
+		
+		/**
+		 * The standard deviation of cell displacement constant
+		 */
+		public static double TRAVEL_DISTANCE_SD;
+		
 		/**
 		 * The bias of the memory vector with respect to the cells orientation
+		 * for a directed walk
 		 */
 		public static double PERSISTENCE;
-
+		
 		/**
-		 * Increase in velocity observed in chemokinesis
+		 * The bias of the memory vector with respect to the cells orientation
+		 * for a random walk
 		 */
-		//public static double CHEMOKINESIS_SCALAR;
+		public static double RANDOM_PERSISTENCE;
+		
+
+		
+		/**
+		 * Used to relate the speed of the cell to its persistence
+		 */
+		public static double SPEED_SCALAR;
+		
+		
+
 
 		/**
 		 * Number of BCs to generate
@@ -220,15 +265,18 @@ public class Settings {
 		 * "perfect" chemotaxis
 		 */
 		static double DIRECTION_ERROR;
-
+		private static double DIRECTION_ERROR_DEGREES;
 		public static double DIRECTION_ERROR() {
 
-			return 3.14/6;
+			//return 3.14/6;
+			return DIRECTION_ERROR;
 		}
 
 		/**
 		 * The max angle to turn when moving randomly
 		 */
+		private static double RANDOM_TURN_ANGLE_DEGREES;
+		
 		static double RANDOM_TURN_ANGLE;
 
 		public static double RANDOM_TURN_ANGLE() {
@@ -294,6 +342,7 @@ public class Settings {
 				Ki = Double.parseDouble(KiN.getTextContent());
 			}
 
+			
 			/**
 			 * ligand bound receptors on cell surface
 			 */
@@ -398,10 +447,26 @@ public class Settings {
 			Node stromaedgeN = stromaedgeNL.item(0);
 			STROMA_EDGE_RADIUS = Double.parseDouble(stromaedgeN
 					.getTextContent());
+			
+			
+			NodeList branchNL = paramFDCElement
+					.getElementsByTagName("BRANCH_RADIUS");
+			Node branchN = branchNL.item(0);
+			BRANCH_RADIUS = Double.parseDouble(branchN
+					.getTextContent());
+			
 
 			CXCL13_EMITTED = scaleEmissionRate(emissionrate);
 		}
 
+		
+		
+		/**
+		 * The radius of the cylinder edge that will collide with things.
+		 */
+		public static double BRANCH_RADIUS;
+		
+		
 		/**
 		 * Number of antigen per FDC at the start of the simulation
 		 */

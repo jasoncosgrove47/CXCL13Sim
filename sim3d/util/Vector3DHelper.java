@@ -186,7 +186,7 @@ public class Vector3DHelper {
 			// We're facing the wrong way! Just negate the coordinates
 			return new Double3D(-d3Point.x, -d3Point.y, -d3Point.z);
 		}
-
+		
 		// math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-b-in-3d/476311#476311
 
 		Double3D d3Cross = crossProduct(d3OldDirection, d3NewDirection);
@@ -242,6 +242,9 @@ public class Vector3DHelper {
 	}
 
 	/**
+	 * 
+	 * http://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
+	 * 
 	 * Rotate a vector about the x axis
 	 * 
 	 * @param d3Vector
@@ -261,6 +264,8 @@ public class Vector3DHelper {
 
 		return new Double3D(x, y, z);
 	}
+
+
 
 	/**
 	 * Rotate a vector about the y axis

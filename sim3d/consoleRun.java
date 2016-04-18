@@ -84,6 +84,7 @@ public class consoleRun {
 				break;
 		} while (SimulationEnvironment.experimentFinished == false); //
 
+		
 		// finish the simulation
 		SimulationEnvironment.simulation.finish();
 		System.out.println("\nSimulation completed successfully!\n\n");

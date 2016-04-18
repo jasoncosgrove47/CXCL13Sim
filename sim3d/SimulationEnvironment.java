@@ -108,10 +108,11 @@ public class SimulationEnvironment extends SimState {
 	 * this working to look at different depths of chemokine, would make a cool
 	 * video!
 	 */
+	/*
 	public Object domDisplayLevel() {
 		return new sim.util.Interval(1, Settings.DEPTH);
 	}
-
+*/
 	/**
 	 * Destroy resources after use
 	 */
@@ -124,7 +125,7 @@ public class SimulationEnvironment extends SimState {
 	 * the diffusion
 	 */
 	public int getDisplayLevel() {
-		return Particle.getDisplayLevel() + 1; // Add 1 so the scale goes from 1
+		return ParticleMoles.getDisplayLevel() + 1; // Add 1 so the scale goes from 1
 												// to 10 and not 0 to 9!
 	}
 
@@ -132,8 +133,8 @@ public class SimulationEnvironment extends SimState {
 	 * Setter for the current display level
 	 */
 	public void setDisplayLevel(int m_iDisplayLevel) {
-		Particle.setDisplayLevel(m_iDisplayLevel - 1);
-		Particle.getInstance(Particle.TYPE.CXCL13).updateDisplay();
+		ParticleMoles.setDisplayLevel(m_iDisplayLevel - 1);
+		ParticleMoles.getInstance(ParticleMoles.TYPE.CXCL13).updateDisplay();
 	}
 
 	/*
@@ -319,6 +320,8 @@ public class SimulationEnvironment extends SimState {
 			z = random.nextInt(Settings.DEPTH - 2) + 1;
 
 			// keep generating new values while they are outside of the circle
+			// the radius of the circle is 13 and it is inside this that we seed
+			// the b cells
 		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1,
 				(Settings.HEIGHT / 2) + 1, 13) == false);
 
@@ -385,6 +388,8 @@ public class SimulationEnvironment extends SimState {
 
 	/*
 	 * Generate and initialise a stromal network
+	 * TODO overly complex, needs breaking up
+	 * 
 	 */
 	void initialiseFDC(CollisionGrid cgGrid) {
 
@@ -426,6 +431,8 @@ public class SimulationEnvironment extends SimState {
 							|| d3Point2.y <= 0
 							|| d3Point2.y >= (Settings.HEIGHT - 2)
 							|| d3Point2.z <= 0 || d3Point2.z >= (Settings.DEPTH - 2))) {
+				
+				//TODO can we get rid of this line of code?
 				int iCat = (int) (5 * (seEdge.getPoint2()
 						.subtract(seEdge.getPoint1()).length() - 1.2));
 

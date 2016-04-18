@@ -204,6 +204,7 @@ public class CollisionGrid implements Steppable {
 
 		// if sphere further along the x-axis than the width of box (add 1
 		// because the width of the box is 1
+		
 		else if (dSphereX > iBoxX + 1) {
 			dSum += (dSphereX - iBoxX + 1) * (dSphereX - iBoxX + 1);
 		}

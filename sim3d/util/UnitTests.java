@@ -24,6 +24,7 @@ public class UnitTests extends AbstractAnalysis {
 		AnalysisLauncher.open(new UnitTests());
 	}
 
+	
 	public void drawLine(ArrayList<Coord3d> points, Coord3d p1, Coord3d p2) {
 		Coord3d diff = p2.sub(p1).mul(0.05f);
 		for (int i = 0; i < 19; i++) {
@@ -31,17 +32,24 @@ public class UnitTests extends AbstractAnalysis {
 		}
 	}
 
+
+
+
 	public void drawLine(ArrayList<Coord3d> points, Double3D d1, Double3D d2) {
 		Coord3d p1 = new Coord3d(d1.x, d1.y, d1.z);
 		Coord3d p2 = new Coord3d(d2.x, d2.y, d2.z);
 
+		
 		Coord3d diff = p2.sub(p1).mul(0.02f);
 		for (int i = 0; i < 50; i++) {
 			points.add(p1.add(diff.mul(i)));
 		}
 	}
 
+	
+
 	public void testRotateVectorToVector() {
+		
 		int lines = 4;
 		Coord3d[] points = new Coord3d[lines * 50];
 		Color[] colors = new Color[lines * 50];
@@ -223,6 +231,7 @@ public class UnitTests extends AbstractAnalysis {
 			}
 		}
 
+		
 		System.out.printf("Mean Square Dist = %f", distance);
 	}
 

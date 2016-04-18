@@ -30,6 +30,7 @@ public class ControllerTest {
 				SimulationEnvironment.experimentFinished);
 	}
 
+	
 	/**
 	 * Test that experimentFinished changes to true after experimentLength steps
 	 */
@@ -48,5 +49,8 @@ public class ControllerTest {
 		assertEquals("experimentFinished should be false", true,
 				SimulationEnvironment.experimentFinished);
 	}
+	
+	
+
 
 }

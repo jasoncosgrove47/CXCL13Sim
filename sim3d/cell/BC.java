@@ -176,29 +176,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		registerCollisions(m_cgGrid); // Register the new movement with the grid
 	}
 
-	/**
-	 * Controls what a B cell agent does for each time step Each Bcell registers
-	 * its intended path on the collision grid, once all B cells register the
-	 * collision grid handles the movement at the next iteration the B cells are
-	 * moved. B cells only collide with stroma
-	 */
-	public void step()// why is this final here
-	{
-		
-		collisionCounter = 0; // reset the collision counter for this timestep
-		m_i3lCollisionPoints.clear();
 
-		//if we have a stored move then execute it
-		if (m_d3aMovements != null && m_d3aMovements.size() > 0) 
-		{
-			performSavedMovements();
-		}
-
-		calculateWhereToMoveNext();
-		handleBounce(); // Check for bounces
-		receptorStepNew();
-		registerCollisions(m_cgGrid); // Register the new movement with the grid
-	}
 
 	public Int3D getDiscretizedLocation(Continuous3D grid) {
 		Double3D me = grid.getObjectLocation(this);// obtain coordinates of the
@@ -239,6 +217,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		Double3D putativeLocation = new Double3D(x, y, z);
 
 		// see if there are any cells at the putative location
+		//0.7 represents the size of a cell 
 		Bag cells = BC.bcEnvironment.getNeighborsExactlyWithinDistance(
 				putativeLocation, 0.7);
 		
@@ -272,7 +251,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 				// current direction and the new direction
 				// the multiply is to scale the new vector, when we multiply by
 				// 2 we are favouring the new signal more than the old
-				vMovement = m_d3Face.add(Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
+				vMovement = m_d3Face.add(Vector3DHelper.getBiasedRandomDirectionInCone(vMovement.normalize(),
 								Settings.BC.DIRECTION_ERROR()).multiply(
 								Settings.BC.PERSISTENCE));
 				
@@ -301,8 +280,10 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		
 			//now scale the vector with respect to the previous vector
 			//as this isnt chemotactic the persistence vector should be smaller
-			vMovement = m_d3Face.add(vMovement.multiply(4.0));
-			vMovement = vMovement.normalize();
+			//vMovement = m_d3Face.add(vMovement.multiply(Settings.BC.RANDOM_PERSISTENCE));
+			//vMovement = vMovement.normalize();
+			
+			
 
 		}
 
@@ -315,22 +296,19 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		// respect to where we are now, thus the memory vector is 1/alpha
 		// times stronger than the current vector and we use this as a
 		// measure of the cell
-		double speedScalar = (Math.log(1 / Settings.BC.PERSISTENCE)) / 3;
-
+		double speedScalar = (Math.log(1 / Settings.BC.PERSISTENCE)) / Settings.BC.SPEED_SCALAR;
 
 		double travelDistance;
 		//lets make travelDistance a gaussian for a better fit
-		//and constrain it so it cant be too low and give a nonsense value
+		//and constrain it so it cant give a value less than zero
 		do {
 			travelDistance = Settings.RNG.nextGaussian() * 
-					0.27 + Settings.BC.TRAVEL_DISTANCE();
+					Settings.BC.TRAVEL_DISTANCE_SD + Settings.BC.TRAVEL_DISTANCE();
 	
 			//only sample within oneSD
 			} while (travelDistance <= 0);
 		
-		
-		
-		
+	
 		// if there is some signalling then the cell increases it's
 		// instantaneous velocity
 		if (vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD) {
@@ -405,10 +383,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		// eg if i took away 10,000 that would be 10,000 moles which is not what
 		// we want!!!
 		//TODO should be encapsulated as consume ligand
-		if(x< 1 || y < 1||z < 1){
+		
+		//TODO this code makes no sense
+		//if(x< 1 || y < 1||z < 1){
 			
-			x = 1;
-		}
+			//x = 1;
+		//}
 		
 		
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y,
@@ -526,7 +506,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 		
 
-		//store how many receptors are bound at each pseudopod
+		//store how many receptors are bound at each
+		// of the 6 pseudopods
 		double[] iaBoundReceptors = new double[6];
 		
 		for (int i = 0; i < 6; i++) // for each pseudopod

@@ -33,7 +33,6 @@ public class branch extends StromaEdge{
 	
 	public double STROMA_EDGE_RADIUS;
 	
-	//private int antigenLevel;
 	
 	/**
 	 * Constructor for the branch class
@@ -51,8 +50,8 @@ public class branch extends StromaEdge{
 		this.setAntigenLevelLowerHalf((Settings.FDC.STARTINGANTIGENLEVEL / 4));
 		this.setAntigenLevelUpperEdge((Settings.FDC.STARTINGANTIGENLEVEL / 4));
 		
-		this.STROMA_EDGE_RADIUS = 0.1;
-		// TODO Auto-generated constructor stub
+		this.STROMA_EDGE_RADIUS = Settings.FDC.BRANCH_RADIUS;
+
 	}
 
 	
@@ -104,20 +103,7 @@ public class branch extends StromaEdge{
 				this.STROMA_EDGE_RADIUS);
 	}
 
-	/**
-	 * The number of antigen that the branch has to express
-	 * @return
-	 */
-	
-	/*
-	public int getAntigenLevel() {
-		return antigenLevel;
-	}
 
-	public void setAntigenLevel(int antigenLevel) {
-		this.antigenLevel = antigenLevel;
-	}
-*/
 	
 	@Override
 	public CLASS getCollisionClass() {

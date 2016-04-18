@@ -14,6 +14,7 @@ public class Controller implements Steppable {
 
 	/**
 	 * 
+	 * 
 	 * All data collection is handled through this singleton class, it has functionality
 	 * to track populations of cell types and single cell tracking experiments.
 	 * 
@@ -28,10 +29,15 @@ public class Controller implements Steppable {
 	 * @author Jason Cosgrove
 	 */
 
+	
+	
+
+	
 	/**
 	 * The single instance of the class
 	 */
 	private static Controller instance = null;
+	
 	
 	/*
 	 * Constructor for the class
@@ -129,9 +135,7 @@ public class Controller implements Steppable {
 		return receptors;
 	}
 
-	public void setReceptors(Map<Integer,ArrayList<Integer>> receptors) {
-		this.receptors = receptors;
-	}
+
 
 
 

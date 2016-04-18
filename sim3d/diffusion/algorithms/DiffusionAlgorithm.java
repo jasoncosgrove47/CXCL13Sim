@@ -44,10 +44,8 @@ public class DiffusionAlgorithm {
 		m_iDepth = iDepth;
 	}
 	
-	//TODO why is this here? singleton???
-	protected DiffusionAlgorithm(){
-		
-	}
+	
+	protected DiffusionAlgorithm(){	}
 
 	/**
 	 * Visitor design pattern - so diffusion and particle grids are separate but

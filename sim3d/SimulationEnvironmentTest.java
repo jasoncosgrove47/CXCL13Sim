@@ -78,7 +78,7 @@ public class SimulationEnvironmentTest {
 		sim.scheduleStoppableCell(bc);
 
 		//this will throw an error if anything is wrong with the method
-		try { bc.step();}
+		try { bc.step(null);}
 		catch (Exception e) {
 		     fail("Exception " + e);
 		}
@@ -101,7 +101,7 @@ public class SimulationEnvironmentTest {
 	public void testSeedCells() {
 
 		Settings.BC.COUNT = 10;
-		Settings.BC.COGNATECOUNT = 0;
+		Settings.BC.COGNATECOUNT = 1;
 		
 		// Initialise the B cell grid
 		BC.bcEnvironment = new Continuous3D(5, 10, 10, 10);
@@ -109,8 +109,27 @@ public class SimulationEnvironmentTest {
 		sim.seedCells(CELLTYPE.B);
 		int numofcells = BC.bcEnvironment.allObjects.numObjs;
 		assertEquals(10, numofcells);
+		sim.seedCells(CELLTYPE.cB);
+		numofcells = BC.bcEnvironment.allObjects.numObjs;
+		assertEquals(11, numofcells);
 	}
 
+	
+	/**
+	 * Test that seed cells adds the correct amount of cells to the grid
+	 */
+	@Test
+	public void testDisplayLevel() {
+
+		ParticleMoles m_pParticle = new ParticleMoles(sim.schedule, ParticleMoles.TYPE.CXCL13,
+				31, 31, 31);
+
+		sim.setDisplayLevel(10);
+		assertEquals(sim.getDisplayLevel(),10 );
+		
+	}
+	
+	
 	/**
 	 * Test that generateCoordinatesWithinCircle doesn't 
 	 * return coordinates outside a circle of radius r
