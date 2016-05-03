@@ -330,6 +330,10 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 		
 		double totalChemokineinMoles = calculateTotalChemokineLevels();
 		
+		//this is the volume of the entire compartment in liters
+		double vol = 7.84e-9;
+		
+		System.out.println("total chemokine (Molar) is: " + totalChemokineinMoles/vol);
 
 	}
 
@@ -343,7 +347,6 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 				for (int z = 0; z < m_iDepth; z++) {
 					
 				
-					System.out.println(this.field[x][y][z]);
 					
 					totalChemokineValue += this.field[x][y][z];
 					

@@ -71,6 +71,7 @@ public class Settings {
 	public static int DEPTH;
 
 	/*
+	 * 
 	 * the length of an experiment, once steady state is reached
 	 */
 	public static int EXPERIMENTLENGTH;
@@ -371,7 +372,7 @@ public class Settings {
 			public static double Ka_PREFIX;
 
 			private static double scaleKa() {
-				return (Ka_PREFIX * 1e+8);
+				return (Ka_PREFIX * 1e+5);
 			}
 
 			public static double Ka;
@@ -489,7 +490,7 @@ public class Settings {
 
 		//how much is secreted in nanomoles (NOT MOLAR)
 		public static double scaleEmissionRate(double emissionrate) {
-			return (emissionrate * 1E-16);
+			return (emissionrate * 1E-18);
 		}
 
 		public static double CXCL13_EMITTED() {

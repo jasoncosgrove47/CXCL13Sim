@@ -172,12 +172,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 		calculateWhereToMoveNext();
 		handleBounce(); // Check for bounces
-		//receptorStepNew();
 		receptorStepNewAccountForMolar();
 		registerCollisions(m_cgGrid); // Register the new movement with the grid
 	}
-
-
 
 	public Int3D getDiscretizedLocation(Continuous3D grid) {
 		Double3D me = grid.getObjectLocation(this);// obtain coordinates of the
@@ -292,6 +289,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		m_d3aCollisions.clear();
 		m_d3aMovements = new ArrayList<Double3D>();
 
+		
 		// calculated from maiuri paper in cell 2015
 		// Persistence represents the strength of the new vector with
 		// respect to where we are now, thus the memory vector is 1/alpha
@@ -371,8 +369,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		stopper.stop();
 	}
 
-	
-	
 	/**
 	 * Perform a step for the receptor 
 	 */
@@ -430,8 +426,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		}
 	}
 	
-	
-	
 	public void consumeLigand(){
 		double[] iaBoundReceptors = calculateLigandBindingNew();
 
@@ -459,8 +453,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 		
 	}
-	
-	
 	
 	/**
 	 * Perform a step for the receptor 
@@ -572,7 +564,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		return vMovement;
 	}
 
-	
 	/**
 	 *  Helper method to calculate the amount of ligand bound to receptor returns
 	 * an int array with the number of bound receptors at each psuedopod
@@ -584,14 +575,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 		// need to figure out what is sensible to secrete per timestep, might as
 		// well do that in moles. Get the surrounding values for moles
-		
-		
+	
 		//TODO this says Molar conc when in fact it is in moles
 		double[][][] ia3Concs = ParticleMoles.get(ParticleMoles.TYPE.CXCL13,
 				(int) x, (int) y, (int) z);
 
-		
-		
 		
 		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
@@ -607,7 +595,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 				ia3Concs[1][1][0] /vol};
 
 		
-		//System.out.println(ia3Concs[2][1][1]/vol);
+		
 		
 
 		//store how many receptors are bound at each
@@ -658,8 +646,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		return iaBoundReceptors;
 	}
 	
-	
-	
 	/**
 	 *  Helper method to calculate the amount of ligand bound to receptor returns
 	 * an int array with the number of bound receptors at each psuedopod
@@ -683,8 +669,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
 
-		//would need to divide by 1e-12 L (vol of one grid space to get molar conc)
-		double vol = 1e-12;//volume of one gridspace
+
 		
 		// get CXCL13 concentrations at each psuedopod
 		// {x+, x-, y+, y-, z+, z-}
