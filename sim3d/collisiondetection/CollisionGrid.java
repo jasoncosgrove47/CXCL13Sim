@@ -69,7 +69,7 @@ public class CollisionGrid implements Steppable {
 	 * @param z
 	 * @param cObject
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" }) 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	void addCollisionPotential(int x, int y, int z, Collidable cObject) {
 		// Check if we need to initialise the grid space
 		if (m_clGridSpaces[x][y][z] == null) {
@@ -125,7 +125,6 @@ public class CollisionGrid implements Steppable {
 			}
 		}
 	}
-	
 
 	/**
 	 * @param iWidth
@@ -204,7 +203,7 @@ public class CollisionGrid implements Steppable {
 
 		// if sphere further along the x-axis than the width of box (add 1
 		// because the width of the box is 1
-		
+
 		else if (dSphereX > iBoxX + 1) {
 			dSum += (dSphereX - iBoxX + 1) * (dSphereX - iBoxX + 1);
 		}

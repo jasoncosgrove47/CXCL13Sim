@@ -19,46 +19,45 @@ import sim3d.Settings;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 
-public class branch extends StromaEdge{
+public class branch extends StromaEdge {
 
 	/**
-	 * A branch is a smaller edge and used to account for
-	 * the web-like morphology of the FDC network, a branch
-	 * can connect to the midpoint of two edges, or the midpoints
-	 * of two branches
+	 * A branch is a smaller edge and used to account for the web-like
+	 * morphology of the FDC network, a branch can connect to the midpoint of
+	 * two edges, or the midpoints of two branches
 	 * 
 	 * @author: Jason Cosgrove
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	public double STROMA_EDGE_RADIUS;
-	
-	
+
 	/**
 	 * Constructor for the branch class
-	 * @param d3Point1 the start of the branch
-	 * @param d3Point2 the end of the branch
+	 * 
+	 * @param d3Point1
+	 *            the start of the branch
+	 * @param d3Point2
+	 *            the end of the branch
 	 */
 	public branch(Double3D d3Point1, Double3D d3Point2) {
-		
-		
-		super(d3Point1, d3Point2,true);
-		
+
+		super(d3Point1, d3Point2, true);
+
 		// divide antigen amount by 2 to make sure a BC has to interact with the
-		// correct portion of the edge to acquire antigen. Otherwise a BC could 
+		// correct portion of the edge to acquire antigen. Otherwise a BC could
 		// interact with one end of the edge but take antigen from the other end
 		this.setAntigenLevelLowerHalf((Settings.FDC.STARTINGANTIGENLEVEL / 4));
 		this.setAntigenLevelUpperEdge((Settings.FDC.STARTINGANTIGENLEVEL / 4));
-		
+
 		this.STROMA_EDGE_RADIUS = Settings.FDC.BRANCH_RADIUS;
 
 	}
 
-	
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
 		if (transf == null)// add || true to update the stroma visualisation
-						
+
 		{
 
 			StromaEdge fdc = (StromaEdge) obj;
@@ -95,7 +94,7 @@ public class branch extends StromaEdge{
 		}
 		return transf;
 	}
-	
+
 	@Override
 	public void registerCollisions(CollisionGrid cgGrid) {
 		cgGrid.addLineToGrid(this, new Double3D(x, y, z), new Double3D(x
@@ -103,11 +102,9 @@ public class branch extends StromaEdge{
 				this.STROMA_EDGE_RADIUS);
 	}
 
-
-	
 	@Override
 	public CLASS getCollisionClass() {
 		return CLASS.BRANCH;
 	}
-	
+
 }

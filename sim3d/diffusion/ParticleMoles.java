@@ -11,13 +11,13 @@ import sim3d.Settings;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
 /**
- * Same as Particle but accounts for Moles not absoloute molecules
- * is just an object of type doubleGrid3D
+ * Same as Particle but accounts for Moles not absoloute molecules is just an
+ * object of type doubleGrid3D
  * 
  * @author Jason Cosgrove, Simon Jarrett
  */
 public class ParticleMoles extends DoubleGrid3D implements Steppable {
-	
+
 	/**
 	 * ENUM for the chemokine types
 	 */
@@ -222,7 +222,6 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 */
 	public void add(int x, int y, int z, double amount) {
 
-		
 		field[x % m_iWidth][y % m_iHeight][z % m_iDepth] = Math.max(0, field[x
 				% m_iWidth][y % m_iHeight][z % m_iDepth]
 				+ amount);
@@ -232,9 +231,9 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 * Simulate decay of the chemokine using the m_dDecayRateInv
 	 */
 	public void decay() {
-		
-		//determine how much is left after decay per timestep
-		//done it this way as it is easier to caompare
+
+		// determine how much is left after decay per timestep
+		// done it this way as it is easier to caompare
 		// to experimental data
 		double amountLeft = 1 - Settings.CXCL13.DECAY_CONSTANT;
 		//
@@ -279,7 +278,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 					if (z + t - 1 < 0 || z + t - 1 >= m_iDepth) {
 						continue;
 					}
-					
+
 					aiReturn[r][s][t] = field[x + r - 1][y + s - 1][z + t - 1];
 				}
 			}
@@ -320,81 +319,66 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 */
 	public void step(final SimState state) {
 
-		//diffuse and decay at a rate diffusion steps per sim timestep
+		// diffuse and decay at a rate diffusion steps per sim timestep
 		for (int i = 0; i < Settings.DIFFUSION_STEPS; i++) {
 			m_daDiffusionAlgorithm.diffuse(this);
 			decay();
 
 		}
-		
-		
-	
-		
+
 		updateDisplay();
 		
-
+		double totalChemokineinMoles = calculateTotalChemokineLevels();
 		
+
 	}
 
-	
-	public double calculateTotalChemokineLevels(){
-		
+	public double calculateTotalChemokineLevels() {
+
 		double totalChemokineValue = 0;
+
+		
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
 				for (int z = 0; z < m_iDepth; z++) {
+					
+				
+					System.out.println(this.field[x][y][z]);
+					
 					totalChemokineValue += this.field[x][y][z];
+					
+					
 				}
 			}
 		}
-		
+
 		return totalChemokineValue;
-		
+
 	}
-	
+
 	/**
 	 * Updates the 2D display
 	 */
 	/*
-	public void updateDisplay2() {
-		
-		
-		for (int x = 0; x < m_iWidth; x++) {
-			for (int y = 0; y < m_iHeight; y++) {
-				
-				double val = field[x][y][m_iDisplayLevel];
-				if(val < 6e-16){
-					m_ig2Display.set(x, y, 0);
-				}
-				else if(val > 6e-16 && val < 5e-15){
-					m_ig2Display.set(x, y, 2);
-				}
-				else if(val > 5e-15 && val < 5e-14){
-					m_ig2Display.set(x, y, 3);
-				}
-			
-				else if(val > 5e-14 && val < 1e-13){
-					m_ig2Display.set(x, y, 4);
-				}
-			
-				else if(val > 1e-13 && val < 5e-13){
-					m_ig2Display.set(x, y,6);
-				}
-				else if(val > 5e-13 && val < 1e-12){
-					m_ig2Display.set(x, y, 9);
-				}
-				else if(val > 1e-12 && val < 2e-12){
-					m_ig2Display.set(x, y, 11);
-				}
-				else if(val > 2e-12){
-					m_ig2Display.set(x, y, 15);
-				}
-			}
-		}
-	}
-	
-	*/
-	
+	 * public void updateDisplay2() {
+	 * 
+	 * 
+	 * for (int x = 0; x < m_iWidth; x++) { for (int y = 0; y < m_iHeight; y++)
+	 * {
+	 * 
+	 * double val = field[x][y][m_iDisplayLevel]; if(val < 6e-16){
+	 * m_ig2Display.set(x, y, 0); } else if(val > 6e-16 && val < 5e-15){
+	 * m_ig2Display.set(x, y, 2); } else if(val > 5e-15 && val < 5e-14){
+	 * m_ig2Display.set(x, y, 3); }
+	 * 
+	 * else if(val > 5e-14 && val < 1e-13){ m_ig2Display.set(x, y, 4); }
+	 * 
+	 * else if(val > 1e-13 && val < 5e-13){ m_ig2Display.set(x, y,6); } else
+	 * if(val > 5e-13 && val < 1e-12){ m_ig2Display.set(x, y, 9); } else if(val
+	 * > 1e-12 && val < 2e-12){ m_ig2Display.set(x, y, 11); } else if(val >
+	 * 2e-12){ m_ig2Display.set(x, y, 15); } } } }
+	 */
+
 	/**
 	 * Updates the 2D display
 	 */

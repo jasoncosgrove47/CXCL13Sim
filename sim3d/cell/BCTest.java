@@ -371,8 +371,8 @@ public class BCTest {
 	}
 
 	/**
-	 * Assert that calculate SNew returns a non-zero output 
-	 * TODO need to make sure that the correct data is being returned
+	 * Assert that calculate SNew returns a non-zero output TODO need to make
+	 * sure that the correct data is being returned
 	 */
 	@Test
 	public void testCalculateSNew() {
@@ -477,7 +477,7 @@ public class BCTest {
 	}
 
 	/**
-	 *  move the cell beyond the grid and see if handlebounce updates the
+	 * move the cell beyond the grid and see if handlebounce updates the
 	 */
 	@Test
 	public void testHandleBounce() {
@@ -487,8 +487,8 @@ public class BCTest {
 		Double3D loc = new Double3D(32, 32, 32);
 		bc.m_d3aMovements.add(new Double3D(30, 30, 30));
 		bc.m_d3aMovements.add(loc);
-		
-		//assert that the cells putative location has been changed 
+
+		// assert that the cells putative location has been changed
 		// from loc
 		bc.handleBounce();
 		Double3D test = bc.m_d3aMovements.get(1);
@@ -528,8 +528,7 @@ public class BCTest {
 	}
 
 	/**
-	 * Assert that the total number of receptors remains constant
-	 * TODO simplify
+	 * Assert that the total number of receptors remains constant TODO simplify
 	 */
 	@Test
 	public void testReceptorStepConservation() {
@@ -541,7 +540,7 @@ public class BCTest {
 		Settings.CXCL13.DECAY_CONSTANT = 0.5;
 		Settings.BC.SIGNAL_THRESHOLD = 10;
 		Settings.DIFFUSION_STEPS = 2;
-		
+
 		// Let's diffuse a little
 		m_pParticle.step(null);
 		m_pParticle.step(null);
@@ -581,5 +580,4 @@ public class BCTest {
 															// condition here?
 	}
 
-	
 }

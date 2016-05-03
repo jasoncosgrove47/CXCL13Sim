@@ -9,7 +9,7 @@ import sim3d.Settings;
  * @author Simon Jarrett (simonjjarrett@gmail.com)
  */
 public class Vector3DHelper {
-	
+
 	/**
 	 * Generates a uniform random point on the unit sphere
 	 * 
@@ -186,7 +186,7 @@ public class Vector3DHelper {
 			// We're facing the wrong way! Just negate the coordinates
 			return new Double3D(-d3Point.x, -d3Point.y, -d3Point.z);
 		}
-		
+
 		// math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-b-in-3d/476311#476311
 
 		Double3D d3Cross = crossProduct(d3OldDirection, d3NewDirection);
@@ -264,8 +264,6 @@ public class Vector3DHelper {
 
 		return new Double3D(x, y, z);
 	}
-
-
 
 	/**
 	 * Rotate a vector about the y axis

@@ -19,7 +19,6 @@ import ec.util.MersenneTwisterFast;
  */
 public class Settings {
 
-	
 	public static void loadParameters(Document params) {
 		// Simulation Tag
 		Element paramOElement = (Element) params.getElementsByTagName("O")
@@ -36,7 +35,7 @@ public class Settings {
 		NodeList depthNL = paramOElement.getElementsByTagName("DEPTH");
 		Node depthN = depthNL.item(0);
 		DEPTH = Integer.parseInt(depthN.getTextContent());
-		
+
 		NodeList elNL = paramOElement.getElementsByTagName("EXPERIMENTLENGTH");
 		Node elN = elNL.item(0);
 		EXPERIMENTLENGTH = Integer.parseInt(elN.getTextContent());
@@ -48,13 +47,14 @@ public class Settings {
 		NodeList diffusionNL = paramOElement
 				.getElementsByTagName("DIFFUSION_COEFFICIENT");
 		Node diffusionN = diffusionNL.item(0);
-		DIFFUSION_COEFFICIENT_PREFIX= Double.parseDouble(diffusionN.getTextContent());
-		
+		DIFFUSION_COEFFICIENT_PREFIX = Double.parseDouble(diffusionN
+				.getTextContent());
+
 		// this must be computed here otherwise these values get set to zero
 		DIFFUSION_COEFFICIENT = scaleDIFFUSION_COEFFICIENT();
 		DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
 		DIFFUSION_STEPS = calculateDIFFUSION_STEPS();
-		
+
 	}
 
 	/**
@@ -69,9 +69,9 @@ public class Settings {
 	public static int WIDTH;
 	public static int HEIGHT;
 	public static int DEPTH;
-	
+
 	/*
-	 *  the length of an experiment, once steady state is reached
+	 * the length of an experiment, once steady state is reached
 	 */
 	public static int EXPERIMENTLENGTH;
 
@@ -81,39 +81,41 @@ public class Settings {
 	public static double GRID_SIZE; // 1E-05 = 10 micron
 
 	/**
-	 * Speed of diffusion, used by DiffusionAlgorithm
-	 * need to specify the units so we know what
-	 * we are dealing with
+	 * Speed of diffusion, used by DiffusionAlgorithm need to specify the units
+	 * so we know what we are dealing with
 	 */
 	public static double DIFFUSION_COEFFICIENT;
 	public static double DIFFUSION_COEFFICIENT_PREFIX;
-	
+
 	/*
 	 * Scale the diffusion coefficient
 	 */
-	static double scaleDIFFUSION_COEFFICIENT(){
-		
+	static double scaleDIFFUSION_COEFFICIENT() {
+
 		return (DIFFUSION_COEFFICIENT_PREFIX * (1e-12));
 	}
-	
+
 	/**
 	 * How much time a single iteration of the diffusion process will take us
 	 * forward
-	 * @see http://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
-	 *      /Notes_Diffusion.pdf    
+	 * 
+	 * @see http
+	 *      ://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
+	 *      /Notes_Diffusion.pdf
 	 */
 	public static double DIFFUSION_TIMESTEP;
 	public static int DIFFUSION_STEPS;
-	
+
 	/*
 	 * Calculates the appropriate timestep for diffusion
 	 */
 	static double calculateDIFFUSION_TIMESTEP() {
 		return (Math.pow(GRID_SIZE, 2) / (10 * DIFFUSION_COEFFICIENT));
 	}
-	
+
 	/**
 	 * Divide by 60 as we want to update diffusion in seconds and not minutes
+	 * 
 	 * @return
 	 */
 	static int calculateDIFFUSION_STEPS() {
@@ -124,7 +126,7 @@ public class Settings {
 	 * Subclass containing all the BC parameters
 	 */
 	public static class BC {
-		
+
 		/**
 		 * This loads the parameters from an XML file for high throughput
 		 * analyses
@@ -161,7 +163,6 @@ public class Settings {
 			TRAVEL_DISTANCE_SD = Double.parseDouble(traveldistancesdN
 					.getTextContent());
 
-			
 			NodeList stNL = paramBCElement
 					.getElementsByTagName("SIGNAL_THRESHOLD");
 			Node stN = stNL.item(0);
@@ -170,7 +171,8 @@ public class Settings {
 			NodeList rtaNL = paramBCElement
 					.getElementsByTagName("RANDOM_TURN_ANGLE");
 			Node rtaN = rtaNL.item(0);
-			RANDOM_TURN_ANGLE_DEGREES = Double.parseDouble(rtaN.getTextContent());
+			RANDOM_TURN_ANGLE_DEGREES = Double.parseDouble(rtaN
+					.getTextContent());
 
 			NodeList csNL = paramBCElement
 					.getElementsByTagName("DIRECTION_ERROR");
@@ -180,54 +182,46 @@ public class Settings {
 			NodeList pNL = paramBCElement.getElementsByTagName("PERSISTENCE");
 			Node pN = pNL.item(0);
 			PERSISTENCE = Double.parseDouble(pN.getTextContent());
-			
-			NodeList rpNL = paramBCElement.getElementsByTagName("RANDOM_PERSISTENCE");
+
+			NodeList rpNL = paramBCElement
+					.getElementsByTagName("RANDOM_PERSISTENCE");
 			Node rpN = rpNL.item(0);
 			RANDOM_PERSISTENCE = Double.parseDouble(rpN.getTextContent());
-			
+
 			NodeList ssNL = paramBCElement.getElementsByTagName("SPEED_SCALAR");
 			Node ssN = ssNL.item(0);
 			SPEED_SCALAR = Double.parseDouble(ssN.getTextContent());
-			
-			
+
 			convertAnglesToRadians();
-			
+
 		}
 
-		
-		
-		public static void convertAnglesToRadians(){
+		public static void convertAnglesToRadians() {
 			DIRECTION_ERROR = Math.toRadians(DIRECTION_ERROR_DEGREES);
 			RANDOM_TURN_ANGLE = Math.toRadians(RANDOM_TURN_ANGLE_DEGREES);
 		}
-		
-		
+
 		/**
 		 * The standard deviation of cell displacement constant
 		 */
 		public static double TRAVEL_DISTANCE_SD;
-		
+
 		/**
 		 * The bias of the memory vector with respect to the cells orientation
 		 * for a directed walk
 		 */
 		public static double PERSISTENCE;
-		
+
 		/**
 		 * The bias of the memory vector with respect to the cells orientation
 		 * for a random walk
 		 */
 		public static double RANDOM_PERSISTENCE;
-		
 
-		
 		/**
 		 * Used to relate the speed of the cell to its persistence
 		 */
 		public static double SPEED_SCALAR;
-		
-		
-
 
 		/**
 		 * Number of BCs to generate
@@ -255,9 +249,9 @@ public class Settings {
 		 */
 		static double TRAVEL_DISTANCE;
 
-		public static double TRAVEL_DISTANCE() {	
-		return TRAVEL_DISTANCE;
-				
+		public static double TRAVEL_DISTANCE() {
+			return TRAVEL_DISTANCE;
+
 		}
 
 		/**
@@ -266,9 +260,10 @@ public class Settings {
 		 */
 		static double DIRECTION_ERROR;
 		private static double DIRECTION_ERROR_DEGREES;
+
 		public static double DIRECTION_ERROR() {
 
-			//return 3.14/6;
+			// return 3.14/6;
 			return DIRECTION_ERROR;
 		}
 
@@ -276,7 +271,7 @@ public class Settings {
 		 * The max angle to turn when moving randomly
 		 */
 		private static double RANDOM_TURN_ANGLE_DEGREES;
-		
+
 		static double RANDOM_TURN_ANGLE;
 
 		public static double RANDOM_TURN_ANGLE() {
@@ -286,6 +281,7 @@ public class Settings {
 		/**
 		 * The colour of BCs we use green as that is the convention for MP
 		 * experiments
+		 * 
 		 * @return
 		 */
 		public static Color DRAW_COLOR() {
@@ -298,7 +294,7 @@ public class Settings {
 		 * 
 		 * code is highly sensitive to changes in this so be very careful!!
 		 */
-		public static double COLLISION_RADIUS = 0.35; 
+		public static double COLLISION_RADIUS = 0.35;
 
 		/**
 		 * Parameterisation of the ODE for the receptors in the BCs
@@ -330,7 +326,7 @@ public class Settings {
 				NodeList KaNL = paramODEElement.getElementsByTagName("Ka");
 				Node KaN = KaNL.item(0);
 				Ka_PREFIX = Double.parseDouble(KaN.getTextContent());
-				
+
 				Ka = scaleKa();
 
 				NodeList KrNL = paramODEElement.getElementsByTagName("Kr");
@@ -342,7 +338,6 @@ public class Settings {
 				Ki = Double.parseDouble(KiN.getTextContent());
 			}
 
-			
 			/**
 			 * ligand bound receptors on cell surface
 			 */
@@ -374,11 +369,11 @@ public class Settings {
 			 * binding constant for receptor-ligand
 			 */
 			public static double Ka_PREFIX;
-			
-			private static double scaleKa(){
+
+			private static double scaleKa() {
 				return (Ka_PREFIX * 1e+8);
 			}
-			
+
 			public static double Ka;
 
 			public static double K_a() {
@@ -447,35 +442,28 @@ public class Settings {
 			Node stromaedgeN = stromaedgeNL.item(0);
 			STROMA_EDGE_RADIUS = Double.parseDouble(stromaedgeN
 					.getTextContent());
-			
-			
+
 			NodeList branchNL = paramFDCElement
 					.getElementsByTagName("BRANCH_RADIUS");
 			Node branchN = branchNL.item(0);
-			BRANCH_RADIUS = Double.parseDouble(branchN
-					.getTextContent());
-			
+			BRANCH_RADIUS = Double.parseDouble(branchN.getTextContent());
 
 			CXCL13_EMITTED = scaleEmissionRate(emissionrate);
 		}
 
-		
-		
 		/**
 		 * The radius of the cylinder edge that will collide with things.
 		 */
 		public static double BRANCH_RADIUS;
-		
-		
+
 		/**
 		 * Number of antigen per FDC at the start of the simulation
 		 */
 		public static int STARTINGANTIGENLEVEL;
-		
+
 		/**
-		 * Number of FDCs to generate
-		 * NOTE: this is just a maximum. If there's no room to fit them all, it
-		 * won't keep trying
+		 * Number of FDCs to generate NOTE: this is just a maximum. If there's
+		 * no room to fit them all, it won't keep trying
 		 */
 		public static int COUNT;
 
@@ -493,14 +481,15 @@ public class Settings {
 		}
 
 		/**
-		 * The amount of chemokine secreted at each time step 
+		 * The amount of chemokine secreted at each time step
 		 */
 		private static double emissionrate;
-		
+
 		public static double CXCL13_EMITTED;
-		
-		public static double scaleEmissionRate(double emissionrate){
-			return (emissionrate * 1E-14);
+
+		//how much is secreted in nanomoles (NOT MOLAR)
+		public static double scaleEmissionRate(double emissionrate) {
+			return (emissionrate * 1E-16);
 		}
 
 		public static double CXCL13_EMITTED() {
@@ -520,7 +509,7 @@ public class Settings {
 	}
 
 	public static class CXCL13 {
-		
+
 		public static void loadParameters(Document params) {
 			// Simulation Tag
 			Element paramCXCL13Element = (Element) params.getElementsByTagName(
@@ -533,7 +522,7 @@ public class Settings {
 		}
 
 		/**
-		 * the rate of protein decay per timestep 
+		 * the rate of protein decay per timestep
 		 */
 		public static double DECAY_CONSTANT;
 	}

@@ -82,13 +82,12 @@ public class BCIntegrationTests {
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
 				31);
 		BC.drawEnvironment = BC.bcEnvironment;
-		
-		
-		//set receptors back to normal levels 
+
+		// set receptors back to normal levels
 		Settings.BC.ODE.LR = 0;
 		Settings.BC.ODE.Rf = 30000;
 		Settings.BC.ODE.Ri = 0;
-		
+
 	}
 
 	@After
@@ -107,21 +106,22 @@ public class BCIntegrationTests {
 	@Test
 	public void testCXCL13SENSITIVE() {
 
+		
 		double test1 = m_pParticle.field[15][15][15];
-		
+
 		System.out.println("test1: " + test1);
-		
-		m_pParticle.field[15][15][15] = (5 * Math.pow(10, -9));
-		
-		//make the BCs highly sensitive to chemokine
-		Settings.CXCL13.DECAY_CONSTANT = 0.001;
+
+		m_pParticle.field[15][15][15] = (1 * Math.pow(10, -16));
+
+		// make the BCs highly sensitive to chemokine
+		Settings.CXCL13.DECAY_CONSTANT = 0.005;
 		Settings.BC.SIGNAL_THRESHOLD = 1;
-		//Settings.BC.ODE.Ka = 10e-10;
-		
-		//Settings.BC.ODE.Rf = 0;
-		//Settings.BC.ODE.LR = 0;
-		//Settings.BC.ODE.Ri = 0;
-		
+		// Settings.BC.ODE.Ka = 10e-10;
+
+		// Settings.BC.ODE.Rf = 0;
+		// Settings.BC.ODE.LR = 0;
+		// Settings.BC.ODE.Ri = 0;
+
 		// Let's diffuse a little
 		Settings.DIFFUSION_STEPS = 2;
 
@@ -143,8 +143,8 @@ public class BCIntegrationTests {
 			for (int j = 0; j < 100; j++) {
 				bcCells[j].step(null);
 			}
-			
-			m_pParticle.field[15][15][15] += 5 * Math.pow(10, -12);
+
+			m_pParticle.field[15][15][15] += 5 * Math.pow(10, -17);
 			m_pParticle.step(null);
 		}
 
@@ -155,16 +155,14 @@ public class BCIntegrationTests {
 			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15,
 					bcCells[i].z - 15); // see how far they are from origin
 
-			
 			avDistance += bcLoc.length();
 		}
 
 		double test = m_pParticle.field[12][12][12];
 		System.out.println("amount of chemokine is: " + test);
-		System.out.println("avdist: " + (avDistance/100));
+		System.out.println("avdist: " + (avDistance / 100));
 		// assert that BCs accumulate at the source of chemokine
 		assertThat(avDistance / 100, lessThan(9.0));
-
 
 	}
 
@@ -246,12 +244,9 @@ public class BCIntegrationTests {
 
 	}
 
-	
-
-	
 	/**
 	 * 
-*	 * We want to test that the cell doesn't perfect go towards the chemokine
+	 * * We want to test that the cell doesn't perfect go towards the chemokine
 	 * gradient, but, for example, moves freely in a large area of medium-high
 	 * concentration of chemokine, i.e. the stromal network
 	 * 
@@ -316,8 +311,7 @@ public class BCIntegrationTests {
 	 * but, for example, moves freely in a large area of medium-high
 	 * concentration of chemokine, i.e. the stromal network
 	 * 
-	 * Can fail on occasion due to chance so needs to be run
-	 * multiple times. 
+	 * Can fail on occasion due to chance so needs to be run multiple times.
 	 */
 	@Test
 	public void testNONCXCR5EXPRESSINGequalsDESENSITISED() {
@@ -325,7 +319,7 @@ public class BCIntegrationTests {
 			m_pParticle.field[15][15][i] = 4000;
 		}
 
-		//get rid of all CXCR5
+		// get rid of all CXCR5
 		Settings.BC.ODE.LR = 0;
 		Settings.BC.ODE.Rf = 0;
 		Settings.BC.ODE.Ri = 0;
@@ -366,7 +360,7 @@ public class BCIntegrationTests {
 			m_pParticle.step(null);
 		}
 
-		//determine where all of the cells are localised
+		// determine where all of the cells are localised
 		int[] iaResults = new int[5];
 		for (int i = 0; i < 250; i++) {
 			iaResults[(int) (5 * (bcCells[i].z - 1) / 29.0)]++;

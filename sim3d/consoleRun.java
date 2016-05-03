@@ -63,7 +63,7 @@ public class consoleRun {
 
 			// run the simulation for 500 steps to allow it to reach
 			// steady-state
-			if (steps == 300) {
+			if (steps == 100) {
 
 				// update the steadyState guard to begin recording data
 				SimulationEnvironment.steadyStateReached = true;
@@ -84,16 +84,16 @@ public class consoleRun {
 				break;
 		} while (SimulationEnvironment.experimentFinished == false); //
 
-		
 		// finish the simulation
 		SimulationEnvironment.simulation.finish();
 		System.out.println("\nSimulation completed successfully!\n\n");
 
 		// write the recorded data and raw data to a .csv file
-		outputToCSV.writeDataToFile(outputPath + outputFileName,"/Users/jc1571/Desktop/raw.csv" );
-		//outputToCSV.writeDataToFile(outputPath + outputFileName);
-		outputToCSV.outputReceptors(outputPath + "/receptors.csv" );
-		
+		 outputToCSV.writeDataToFile(outputPath +
+		 outputFileName,"/Users/jc1571/Desktop/raw.csv" );
+		// outputToCSV.writeDataToFile(outputPath + outputFileName);
+		 outputToCSV.outputReceptors(outputPath + "/receptors.csv" );
+
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
 		Date formattedendtime = new Date(endtime);
@@ -109,13 +109,13 @@ public class consoleRun {
 	/**
 	 * Save the steady state to an output file
 	 */
-	private void saveToSteadyState(){
+	private void saveToSteadyState() {
 		// write the steady state out to file so we can observe it later
 		WriteObjects wo = new WriteObjects();
 		wo.writeFDC(SimulationEnvironment.simulation);
 		wo.writeBC(SimulationEnvironment.simulation);
 		wo.writeCXCL13(SimulationEnvironment.simulation);
-		
+
 	}
-	
+
 }

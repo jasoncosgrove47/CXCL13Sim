@@ -33,7 +33,7 @@ public class FRCStromaGeneratorTest {
 	/**
 	 * Test method for
 	 * {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}
-
+	 * 
 	 * what specifically is this testing - testing to make sure that the edge
 	 * length is as we expect
 	 */
@@ -112,28 +112,24 @@ public class FRCStromaGeneratorTest {
 		assertEquals(350, iCellCount, 100);
 	}
 
-	
 	/**
 	 * Tests that the stromal network is generated even in 2D
 	 */
-	 @Test 
-	 public void testStroma2D() { 
-		 
-		 
-			ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
-			ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-			FRCStromaGenerator.generateStroma3D(50, 50, 1, 10, d3lCellLocations,
-					selEdges);
+	@Test
+	public void testStroma2D() {
 
-			int iCellCount = d3lCellLocations.size();
+		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
+		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
+		FRCStromaGenerator.generateStroma3D(50, 50, 1, 10, d3lCellLocations,
+				selEdges);
 
-			// Value taken from literature
-			assertEquals(10, iCellCount, 10);
-		 
-		
-	 }
-	
-	
+		int iCellCount = d3lCellLocations.size();
+
+		// Value taken from literature
+		assertEquals(10, iCellCount, 10);
+
+	}
+
 	/**
 	 * Test method for
 	 * {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}

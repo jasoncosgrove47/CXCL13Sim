@@ -3,6 +3,7 @@ package dataLogger;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import sim.util.Double3D;
 import sim3d.SimulationEnvironment;
 
@@ -101,7 +102,6 @@ public final class outputToCSV {
 		ArrayList<Double> Zcoords = Controller.getInstance().getZ_Coordinates()
 				.get(key);
 
-		
 		Double3D startLocation = null; // starting position
 		Double3D endLocation = null; // final position
 		Double3D previousLocation = null; // location at the previous timestep
@@ -148,7 +148,8 @@ public final class outputToCSV {
 		netDisplacement = startLocation.distance(endLocation);
 
 		// calculate the meandering Index
-		double meanderingIndex = (netDisplacement / totalDisplacement) * Math.sqrt(time);
+		double meanderingIndex = (netDisplacement / totalDisplacement)
+				* Math.sqrt(time);
 
 		// calculate the motility Coefficient
 		double motilityCoefficient = (Math.pow(netDisplacement, 2) / (6 * time));
@@ -205,6 +206,8 @@ public final class outputToCSV {
 			rawDataWriter.append("CentroidY");
 			rawDataWriter.append(',');
 			rawDataWriter.append("CentroidZ");
+			rawDataWriter.append(',');
+			rawDataWriter.append("Receptor");
 			rawDataWriter.append('\n');
 
 			// for each tracker cell
@@ -266,6 +269,9 @@ public final class outputToCSV {
 		ArrayList<Double> Zcoords = Controller.getInstance().getZ_Coordinates()
 				.get(key);
 
+		ArrayList<Integer> Receptors = Controller.getInstance().getReceptors()
+				.get(key);
+
 		Double3D startLocation = null; // starting position
 		Double3D endLocation = null; // final position
 		Double3D previousLocation = null;// location at the previous timestep
@@ -277,6 +283,7 @@ public final class outputToCSV {
 		double netDisplacement = 0.0;
 
 		double x = 0, y = 0, z = 0;
+		int r = 0;
 
 		// for each timepoint
 		for (int i = 0; i < Xcoords.size(); i++) {
@@ -287,6 +294,7 @@ public final class outputToCSV {
 			x = Xcoords.get(i) * 10;
 			y = Ycoords.get(i) * 10;
 			z = Zcoords.get(i) * 10;
+			r = Receptors.get(i);
 
 			// update raw data file
 
@@ -299,6 +307,8 @@ public final class outputToCSV {
 			rawDataWriter.append(Double.toString(y));
 			rawDataWriter.append(',');
 			rawDataWriter.append(Double.toString(z));
+			rawDataWriter.append(',');
+			rawDataWriter.append(Integer.toString(r));
 			rawDataWriter.append('\n');
 
 			thisLocation = new Double3D(x, y, z);
@@ -333,52 +343,46 @@ public final class outputToCSV {
 		return output;
 	}
 
-	
 	/**
 	 * Output the receptors to a dataFile
+	 * 
 	 * @param rawFileName
 	 */
-	public static void outputReceptors(String rawFileName){
-		
-		FileWriter rawDataWriter;
+	public static void outputReceptors(String rawFileName) {
 
-		
+		FileWriter rawDataWriter;
 
 		try {
 			rawDataWriter = new FileWriter(rawFileName);
-	
+
 			rawDataWriter.append("TrackID");
 			rawDataWriter.append(',');
 			rawDataWriter.append("Timepoint");
 			rawDataWriter.append(',');
 			rawDataWriter.append("Receptor");
 			rawDataWriter.append('\n');
-			
-			for (Integer key : Controller.getInstance().getReceptors()
-					.keySet()) 
-			{
-				ArrayList<Integer> receptors = Controller.getInstance().getReceptors()
-						.get(key);
-				
-				for (int i = 0; i < receptors.size(); i++)
-				{
+
+			for (Integer key : Controller.getInstance().getReceptors().keySet()) {
+				ArrayList<Integer> receptors = Controller.getInstance()
+						.getReceptors().get(key);
+
+				for (int i = 0; i < receptors.size(); i++) {
 					rawDataWriter.append(Integer.toString(key));
 					rawDataWriter.append(',');
 					rawDataWriter.append(Integer.toString(i));
 					rawDataWriter.append(',');
 					rawDataWriter.append(Integer.toString(receptors.get(i)));
 					rawDataWriter.append('\n');
-				}	
+				}
 			}
-			
+
 			rawDataWriter.flush();
 			rawDataWriter.close();
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
 
 }

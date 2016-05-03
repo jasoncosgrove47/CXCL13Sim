@@ -18,9 +18,9 @@ public class WriteObjects {
 	 * @authors: Jason cosgrove, Steph Dyson
 	 */
 
-	
 	/**
 	 * Saves the FDC network so we can load it into another simulation
+	 * 
 	 * @param simulation
 	 */
 	public void writeFDC(SimulationEnvironment simulation) {
@@ -33,7 +33,7 @@ public class WriteObjects {
 			ObjectOutputStream save = new ObjectOutputStream(saveFile);
 
 			save.writeObject(simulation.fdcEnvironment);
-														
+
 			// Close the file.
 			save.close(); // This also closes saveFile.
 		} catch (Exception exc) {
@@ -41,9 +41,10 @@ public class WriteObjects {
 
 		}
 	}
-	
+
 	/**
 	 * Saves the B-cell grid so we can load it into another simulation
+	 * 
 	 * @param simulation
 	 */
 	public void writeBC(SimulationEnvironment simulation) {
@@ -55,7 +56,7 @@ public class WriteObjects {
 			// Create an ObjectOutputStream to put objects into save file.
 			ObjectOutputStream save = new ObjectOutputStream(saveFile);
 			save.writeObject(BC.bcEnvironment);
-														
+
 			// Close the file.
 			save.close(); // This also closes saveFile.
 		} catch (Exception exc) {
@@ -64,9 +65,9 @@ public class WriteObjects {
 		}
 	}
 
-	
 	/**
 	 * Saves the CXCL13 grid so it can be loaded into another simulation.
+	 * 
 	 * @param simulation
 	 */
 	public void writeCXCL13(SimulationEnvironment simulation) {
@@ -77,8 +78,10 @@ public class WriteObjects {
 
 			// Create an ObjectOutputStream to put objects into save file.
 			ObjectOutputStream save = new ObjectOutputStream(saveFile);
-			save.writeObject(SimulationEnvironment.particlemoles);// TODO this needs to be
-														// the particle grid
+			save.writeObject(SimulationEnvironment.particlemoles);// TODO this
+																	// needs to
+																	// be
+			// the particle grid
 			// Close the file.
 			save.close(); // This also closes saveFile.
 		} catch (Exception exc) {
@@ -86,6 +89,5 @@ public class WriteObjects {
 
 		}
 	}
-
 
 }

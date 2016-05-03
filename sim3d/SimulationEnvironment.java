@@ -109,10 +109,9 @@ public class SimulationEnvironment extends SimState {
 	 * video!
 	 */
 	/*
-	public Object domDisplayLevel() {
-		return new sim.util.Interval(1, Settings.DEPTH);
-	}
-*/
+	 * public Object domDisplayLevel() { return new sim.util.Interval(1,
+	 * Settings.DEPTH); }
+	 */
 	/**
 	 * Destroy resources after use
 	 */
@@ -125,8 +124,9 @@ public class SimulationEnvironment extends SimState {
 	 * the diffusion
 	 */
 	public int getDisplayLevel() {
-		return ParticleMoles.getDisplayLevel() + 1; // Add 1 so the scale goes from 1
-												// to 10 and not 0 to 9!
+		return ParticleMoles.getDisplayLevel() + 1; // Add 1 so the scale goes
+													// from 1
+		// to 10 and not 0 to 9!
 	}
 
 	/**
@@ -387,15 +387,13 @@ public class SimulationEnvironment extends SimState {
 	 */
 
 	/*
-	 * Generate and initialise a stromal network
-	 * TODO overly complex, needs breaking up
-	 * 
+	 * Generate and initialise a stromal network TODO overly complex, needs
+	 * breaking up
 	 */
 	void initialiseFDC(CollisionGrid cgGrid) {
 
 		// Generate some stroma
-		ArrayList<FRCStromaGenerator.FRCCell> frclCellLocations = 
-				new ArrayList<FRCStromaGenerator.FRCCell>();
+		ArrayList<FRCStromaGenerator.FRCCell> frclCellLocations = new ArrayList<FRCStromaGenerator.FRCCell>();
 		ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
 
 		FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2,
@@ -431,8 +429,8 @@ public class SimulationEnvironment extends SimState {
 							|| d3Point2.y <= 0
 							|| d3Point2.y >= (Settings.HEIGHT - 2)
 							|| d3Point2.z <= 0 || d3Point2.z >= (Settings.DEPTH - 2))) {
-				
-				//TODO can we get rid of this line of code?
+
+				// TODO can we get rid of this line of code?
 				int iCat = (int) (5 * (seEdge.getPoint2()
 						.subtract(seEdge.getPoint1()).length() - 1.2));
 

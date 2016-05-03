@@ -172,7 +172,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 		calculateWhereToMoveNext();
 		handleBounce(); // Check for bounces
-		receptorStepNew();
+		//receptorStepNew();
+		receptorStepNewAccountForMolar();
 		registerCollisions(m_cgGrid); // Register the new movement with the grid
 	}
 
@@ -370,6 +371,97 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		stopper.stop();
 	}
 
+	
+	
+	/**
+	 * Perform a step for the receptor 
+	 */
+	void receptorStepNewAccountForMolar() {
+		double[] iaBoundReceptors = calculateLigandBindingAccountForMolar();
+
+
+
+		// update the amount of free and bound receptors
+		for (int i = 0; i < 6; i++) {	
+			this.m_iR_free -= iaBoundReceptors[i];
+			this.m_iL_r += iaBoundReceptors[i];
+		}
+
+	
+		int iTimesteps = 60;
+		int iR_i, iL_r;
+		double h = 1; 
+		
+		double Ki = Settings.BC.ODE.K_i();//Ka is already in seconds		
+		double Kr = Settings.BC.ODE.K_r();
+		
+		/**
+		 * Solve the ODE using 4th order Runge Kutta
+		 * timestep j equals 1 second
+		 */
+		
+		for (int i = 0; i < iTimesteps; i++) {
+			
+			iR_i = this.m_iR_i;
+			iL_r = this.m_iL_r;
+			
+			//receptors internalised from surface
+			double LRK1 = h * (Ki*iL_r);
+			double LRK2 = h * ((Ki*iL_r) + LRK1/2) ;
+			double LRK3 = h * ((Ki*iL_r) + LRK2/2) ;
+			double LRK4 = h * ((Ki*iL_r) + LRK3) ;
+			
+			//receptors that are recycled from internal pool
+			double RfK1 = h * (Kr*iR_i);
+			double RfK2 = h * ((Kr*iR_i) + LRK1/2) ;
+			double RfK3 = h * ((Kr*iR_i) + LRK2/2) ;
+			double RfK4 = h * ((Kr*iR_i) + LRK3) ;
+			
+			this.m_iR_free += (int) ((RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+			this.m_iR_i += (int) ((LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6))
+					- (int) ((RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+			this.m_iL_r -= (int)   ((LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6));
+			
+		}
+
+		if (displayODEGraph) {
+			// Grapher.updateODEGraph( m_iL_r ); //this gives an error when run
+												 // on console
+		}
+	}
+	
+	
+	
+	public void consumeLigand(){
+		double[] iaBoundReceptors = calculateLigandBindingNew();
+
+		//avogadors number - number of molecules in 1 mole
+		double avogadro = 6.0221409e+23;
+
+		// this is in moles, not receptors so need to scale it before i remove,
+		// eg if i took away 10,000 that would be 10,000 moles which is not what
+		// we want!!!
+		//TODO should be encapsulated as consume ligand
+		
+	
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y,
+				(int) z, -(iaBoundReceptors[0] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y,
+				(int) z, -(iaBoundReceptors[1] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y + 1,
+				(int) z, -(iaBoundReceptors[2] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y - 1,
+				(int) z, -(iaBoundReceptors[3] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y,
+				(int) z + 1, -(iaBoundReceptors[4] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y,
+				(int) z - 1, -(iaBoundReceptors[5] / avogadro));
+
+		
+	}
+	
+	
+	
 	/**
 	 * Perform a step for the receptor 
 	 */
@@ -384,13 +476,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		// we want!!!
 		//TODO should be encapsulated as consume ligand
 		
-		//TODO this code makes no sense
-		//if(x< 1 || y < 1||z < 1){
-			
-			//x = 1;
-		//}
-		
-		
+	
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y,
 				(int) z, -(iaBoundReceptors[0] / avogadro));
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y,
@@ -403,6 +489,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 				(int) z + 1, -(iaBoundReceptors[4] / avogadro));
 		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y,
 				(int) z - 1, -(iaBoundReceptors[5] / avogadro));
+
+
 
 		// update the amount of free and bound receptors
 		for (int i = 0; i < 6; i++) {	
@@ -463,8 +551,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	Double3D getMoveDirection() {
 		
 		
-		double[] iaBoundReceptors = calculateLigandBindingNew();
+		//double[] iaBoundReceptors = calculateLigandBindingNew();
 	
+		double[] iaBoundReceptors = calculateLigandBindingAccountForMolar();
+		
+		
 		//the new direction for the cell to move
 		Double3D vMovement = new Double3D();
 
@@ -481,6 +572,94 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		return vMovement;
 	}
 
+	
+	/**
+	 *  Helper method to calculate the amount of ligand bound to receptor returns
+	 * an int array with the number of bound receptors at each psuedopod
+	 * 
+	 * Updated version for the rungekutta method
+	 * @return
+	 */
+	public double[] calculateLigandBindingAccountForMolar() {
+
+		// need to figure out what is sensible to secrete per timestep, might as
+		// well do that in moles. Get the surrounding values for moles
+		
+		
+		//TODO this says Molar conc when in fact it is in moles
+		double[][][] ia3Concs = ParticleMoles.get(ParticleMoles.TYPE.CXCL13,
+				(int) x, (int) y, (int) z);
+
+		
+		
+		
+		// Assume the receptors are spread evenly around the cell
+		int iReceptors = m_iR_free / 6;
+
+		//would need to divide by 1e-12 L (vol of one grid space to get molar conc)
+		double vol = 1e-12;//volume of one gridspace
+		
+		// get CXCL13 concentrations at each psuedopod
+		// {x+, x-, y+, y-, z+, z-}
+			
+		double[] iaConcs = { ia3Concs[2][1][1]/vol, ia3Concs[0][1][1]/vol,
+				ia3Concs[1][2][1]/vol, ia3Concs[1][0][1]/vol, ia3Concs[1][1][2]/vol,
+				ia3Concs[1][1][0] /vol};
+
+		
+		//System.out.println(ia3Concs[2][1][1]/vol);
+		
+
+		//store how many receptors are bound at each
+		// of the 6 pseudopods
+		double[] iaBoundReceptors = new double[6];
+		
+		for (int i = 0; i < 6; i++) // for each pseudopod
+		{
+			
+			double proportionToBind = 0;
+
+			
+			for (int j = 0; j < 60;j++)
+			{
+				
+				double h = 1; //want to update the equation every second so use 1 / 60 
+				
+				//Ka = /moles/litre/second
+				double Ka = Settings.BC.ODE.K_a();				
+				
+				double RfK1 = h * (Ka  * iaConcs[i]);
+				double RfK2 = h * ((Ka  * iaConcs[i]) + RfK1/2) ;
+				double RfK3 = h * ((Ka  * iaConcs[i]) + RfK2/2) ;
+				double RfK4 = h * ((Ka  * iaConcs[i]) + RfK3) ;
+				
+				// the total change in bound receptor for this time increment is
+				//given b this equation
+				proportionToBind += ( (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+				
+			}
+
+			// cap the amount of receptors that can be bound
+			if (proportionToBind > 1) {
+				proportionToBind = 1;
+			}
+			if (proportionToBind < 0) {
+				proportionToBind = 0;
+			}
+
+			//not sure about this casting, need to make sure that it is ok
+			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
+			
+
+		}
+		
+		consumeLigand();
+		
+		return iaBoundReceptors;
+	}
+	
+	
+	
 	/**
 	 *  Helper method to calculate the amount of ligand bound to receptor returns
 	 * an int array with the number of bound receptors at each psuedopod
@@ -491,13 +670,22 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	public double[] calculateLigandBindingNew() {
 
 		// need to figure out what is sensible to secrete per timestep, might as
-		// well do that in moles. Get the surrounding concentrations
+		// well do that in moles. Get the surrounding values for moles
+		
+		
+		//TODO this says Molar conc when in fact it is in moles
 		double[][][] ia3Concs = ParticleMoles.get(ParticleMoles.TYPE.CXCL13,
 				(int) x, (int) y, (int) z);
 
+		
+		
+		
 		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
 
+		//would need to divide by 1e-12 L (vol of one grid space to get molar conc)
+		double vol = 1e-12;//volume of one gridspace
+		
 		// get CXCL13 concentrations at each psuedopod
 		// {x+, x-, y+, y-, z+, z-}
 		double[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1],
@@ -521,6 +709,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 				
 				double h = 1; //want to update the equation every second so use 1 / 60 
 				
+				//Ka = /moles/litre/second
 				double Ka = Settings.BC.ODE.K_a();				
 				
 				double RfK1 = h * (Ka  * iaConcs[i]);
