@@ -12,7 +12,7 @@ import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
-import sim3d.diffusion.ParticleMoles;
+import sim3d.diffusion.Chemokine;
 
 /**
  * An FDC agent. Represents the nucleus of the FDC, and handles the secretion of
@@ -83,7 +83,7 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable {
 	public void step(final SimState state) {
 
 		// secrete chemokine
-		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y, (int) z,
+		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
 				Settings.FDC.CXCL13_EMITTED());
 		
 	

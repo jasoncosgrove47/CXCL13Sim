@@ -16,7 +16,7 @@ import sim.engine.Schedule;
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
-import sim3d.diffusion.Particle;
+
 
 public class UnitTests extends AbstractAnalysis {
 

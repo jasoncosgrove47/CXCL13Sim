@@ -11,14 +11,13 @@ import sim.display.*;
 import sim.display3d.Display3D;
 import sim3d.cell.BC;
 import sim3d.cell.FDC;
-import sim3d.diffusion.ParticleMoles;
+import sim3d.diffusion.Chemokine;
 import sim3d.util.IO;
 
 import java.awt.Color;
 
 import javax.swing.*;
 
-import dataLogger.Grapher;
 
 /**
  * Sets up and runs the simulation
@@ -191,25 +190,6 @@ public class GUIrun extends GUIState {
 		chemokineDisplayFrame.setVisible(true);
 
 		ChemokineDisplay.attach(CXCL13PortrayalFast, "CXCL13 Gradient");
-
-		// Load the graphing functionality
-		Grapher.init();
-		Grapher.schedule = state.schedule;
-
-		// ODE graphing
-		chartFrame = Grapher.chart.createFrame();
-		chartFrame.setVisible(true);
-		chartFrame.pack();
-		chartFrame.setLocation(0, 700);
-		c.registerFrame(chartFrame);
-
-		// Antigen graphing
-		chartFrameAntigen = Grapher.chartAntigen.createFrame();
-		chartFrameAntigen.setVisible(true);
-		chartFrameAntigen.pack();
-		chartFrameAntigen.setLocation(0, 700);
-		c.registerFrame(chartFrameAntigen);
-
 	}
 
 	/**
@@ -231,11 +211,6 @@ public class GUIrun extends GUIState {
 		d3DisplayFrame = null;
 		display3D = null;
 
-		Grapher.finish();
-		if (chartFrame != null)
-			chartFrame.dispose();
-		chartFrame = null;
-
 		if (chartFrameAntigen != null)
 			chartFrameAntigen.dispose();
 		chartFrameAntigen = null;
@@ -256,8 +231,8 @@ public class GUIrun extends GUIState {
 		bcPortrayal.setField(BC.drawEnvironment);
 
 		// CXCL13 Portrayals
-		CXCL13PortrayalFast.setField(ParticleMoles
-				.getInstance(ParticleMoles.TYPE.CXCL13).m_ig2Display);
+		CXCL13PortrayalFast.setField(Chemokine
+				.getInstance(Chemokine.TYPE.CXCL13).m_ig2Display);
 		CXCL13PortrayalFast.setMap(CXCL13ColorMap);
 
 		// the display needs to re-register itself with the
@@ -278,7 +253,6 @@ public class GUIrun extends GUIState {
 	public void start() {
 		super.start();
 		setupPortrayals();
-		Grapher.start();
 	}
 
 }

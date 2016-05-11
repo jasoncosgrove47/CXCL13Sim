@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 
 import dataLogger.Controller;
-import dataLogger.WriteObjects;
 import dataLogger.outputToCSV;
 import sim3d.util.IO;
 
@@ -85,14 +84,15 @@ public class consoleRun {
 		} while (SimulationEnvironment.experimentFinished == false); //
 
 		// finish the simulation
+		
 		SimulationEnvironment.simulation.finish();
 		System.out.println("\nSimulation completed successfully!\n\n");
 
 		// write the recorded data and raw data to a .csv file
-		 outputToCSV.writeDataToFile(outputPath +
-		 outputFileName,"/Users/jc1571/Desktop/raw.csv" );
-		// outputToCSV.writeDataToFile(outputPath + outputFileName);
-		 outputToCSV.outputReceptors(outputPath + "/receptors.csv" );
+		 //outputToCSV.writeDataToFile(outputPath +
+		 //outputFileName,"/Users/jc1571/Desktop/raw.csv" );
+		 outputToCSV.writeDataToFile(outputPath + outputFileName);
+		 //outputToCSV.outputReceptors(outputPath + "/receptors.csv" );
 
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
@@ -106,16 +106,6 @@ public class consoleRun {
 		System.exit(0);
 	}
 
-	/**
-	 * Save the steady state to an output file
-	 */
-	private void saveToSteadyState() {
-		// write the steady state out to file so we can observe it later
-		WriteObjects wo = new WriteObjects();
-		wo.writeFDC(SimulationEnvironment.simulation);
-		wo.writeBC(SimulationEnvironment.simulation);
-		wo.writeCXCL13(SimulationEnvironment.simulation);
 
-	}
 
 }

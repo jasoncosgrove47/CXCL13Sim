@@ -2,8 +2,7 @@ package sim3d.diffusion.algorithms;
 
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
-import sim3d.diffusion.Particle;
-import sim3d.diffusion.ParticleMoles;
+import sim3d.diffusion.Chemokine;
 
 /**
  * Generic diffusion algorithm class. Only handles diffusion, not particle
@@ -160,7 +159,7 @@ public class DiffusionAlgorithm {
 	 * @param pSpace
 	 *            The Particle object to visit
 	 */
-	public void diffuse(ParticleMoles pSpace) {
+	public void diffuse(Chemokine pSpace) {
 		// A temporary variable containing the previous value of pSpace.field
 		double[][][] ia3Concentrations = new double[m_iWidth][m_iHeight][m_iDepth];
 

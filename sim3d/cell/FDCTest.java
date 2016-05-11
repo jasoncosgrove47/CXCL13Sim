@@ -23,10 +23,10 @@ import sim.util.Int3D;
 import sim3d.Settings;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
-import sim3d.diffusion.ParticleMoles;
-import sim3d.util.FRCStromaGenerator;
+import sim3d.diffusion.Chemokine;
+import sim3d.util.StromaGenerator;
 import sim3d.util.IO;
-import sim3d.util.FRCStromaGenerator.FRCCell;
+import sim3d.util.StromaGenerator.FRCCell;
 
 public class FDCTest {
 
@@ -47,7 +47,7 @@ public class FDCTest {
 
 		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		FRCStromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
+		StromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
 				selEdges);
 
 		Settings.FDC.STARTINGANTIGENLEVEL = 100;
@@ -79,7 +79,7 @@ public class FDCTest {
 
 		Settings.FDC.STARTINGANTIGENLEVEL = 100;
 
-		FRCStromaGenerator.generateStroma3D(5, 5, 5, 5, d3lCellLocations2,
+		StromaGenerator.generateStroma3D(5, 5, 5, 5, d3lCellLocations2,
 				selEdges2);
 
 		for (StromaEdge seEdge : selEdges2) {
@@ -125,15 +125,15 @@ public class FDCTest {
 		Continuous3D fdcEnvironment = new Continuous3D(
 				Settings.FDC.DISCRETISATION, 60, 60, 10);
 		FDC.drawEnvironment = fdcEnvironment;
-		ParticleMoles m_pParticle = new ParticleMoles(schedule,
-				ParticleMoles.TYPE.CXCL13, 60, 60, 10);
+		Chemokine m_pParticle = new Chemokine(schedule,
+				Chemokine.TYPE.CXCL13, 60, 60, 10);
 		Settings.FDC.CXCL13_EMITTED = 100;
 		FDC fdc = new FDC();
 		fdc.setObjectLocation(new Double3D(15, 15, 5));
 
 		// assert that there is currently no chemokine on the grid
-		double[][][] chemokinebefore = ParticleMoles.get(
-				ParticleMoles.TYPE.CXCL13, 15, 15, 5);
+		double[][][] chemokinebefore = Chemokine.get(
+				Chemokine.TYPE.CXCL13, 15, 15, 5);
 		assertThat(chemokinebefore[1][1][1], equalTo(0.0));
 
 		// step the FDC
@@ -144,11 +144,11 @@ public class FDCTest {
 		fdc.step(null);
 
 		// assert that there is now chemokine on the grid.
-		double[][][] chemokine = ParticleMoles.get(ParticleMoles.TYPE.CXCL13,
+		double[][][] chemokine = Chemokine.get(Chemokine.TYPE.CXCL13,
 				15, 15, 5);
 		assertThat(chemokine[1][1][1], greaterThan(0.0));
 
-		ParticleMoles.reset();
+		Chemokine.reset();
 		FDC.drawEnvironment = null;
 
 	}

@@ -11,7 +11,7 @@ import org.junit.Test;
 import sim.engine.Schedule;
 import sim3d.Settings;
 
-public class ParticleMolesTest {
+public class ChemokineTest {
 
 	/**
 	 * test method for update display
@@ -23,8 +23,8 @@ public class ParticleMolesTest {
 
 		Schedule schedule = new Schedule();
 
-		ParticleMoles m_pParticlemoles = new ParticleMoles(schedule,
-				ParticleMoles.TYPE.CXCL13, 41, 41, 41);
+		Chemokine m_pParticlemoles = new Chemokine(schedule,
+				Chemokine.TYPE.CXCL13, 41, 41, 41);
 
 		m_pParticlemoles.field[20][20][1] = 100;
 
@@ -36,8 +36,8 @@ public class ParticleMolesTest {
 		assertTrue(m_pParticlemoles.m_ig2Display.get(20, 20) > 0);
 
 		// test that the getters and setters for display work as intended
-		ParticleMoles.setDisplayLevel(2);
-		assertEquals(ParticleMoles.m_iDisplayLevel, 2);
+		Chemokine.setDisplayLevel(2);
+		assertEquals(Chemokine.m_iDisplayLevel, 2);
 	}
 
 	/**
@@ -47,8 +47,8 @@ public class ParticleMolesTest {
 	public void testCalculateTotalChemokineLevels() {
 
 		Schedule schedule = new Schedule();
-		ParticleMoles m_pParticlemoles = new ParticleMoles(schedule,
-				ParticleMoles.TYPE.CXCL13, 41, 41, 41);
+		Chemokine m_pParticlemoles = new Chemokine(schedule,
+				Chemokine.TYPE.CXCL13, 41, 41, 41);
 		m_pParticlemoles.field[20][20][1] = 100.0;
 
 		double test = m_pParticlemoles.calculateTotalChemokineLevels();
@@ -63,12 +63,12 @@ public class ParticleMolesTest {
 	public void testScale() {
 
 		Schedule schedule = new Schedule();
-		ParticleMoles m_pParticlemoles = new ParticleMoles(schedule,
-				ParticleMoles.TYPE.CXCL13, 41, 41, 41);
+		Chemokine m_pParticlemoles = new Chemokine(schedule,
+				Chemokine.TYPE.CXCL13, 41, 41, 41);
 
 		m_pParticlemoles.field[1][1][1] = 100.0;
 
-		ParticleMoles.scale(ParticleMoles.TYPE.CXCL13, 1, 1, 1, 2.0);
+		Chemokine.scale(Chemokine.TYPE.CXCL13, 1, 1, 1, 2.0);
 
 		assertEquals(m_pParticlemoles.field[1][1][1], 200, 0.1);
 	}
@@ -81,8 +81,8 @@ public class ParticleMolesTest {
 	public void testGetArea() {
 
 		Schedule schedule = new Schedule();
-		ParticleMoles m_pParticlemoles = new ParticleMoles(schedule,
-				ParticleMoles.TYPE.CXCL13, 11, 11, 11);
+		Chemokine m_pParticlemoles = new Chemokine(schedule,
+				Chemokine.TYPE.CXCL13, 11, 11, 11);
 
 		// check that when no chemokine it returns zero
 		double[][][] aiReturn = m_pParticlemoles.getArea(21, 21, 21);

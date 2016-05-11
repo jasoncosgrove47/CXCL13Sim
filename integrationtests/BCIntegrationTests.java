@@ -22,7 +22,7 @@ import sim3d.cell.StromaEdge;
 import sim3d.cell.cognateBC;
 import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
-import sim3d.diffusion.ParticleMoles;
+import sim3d.diffusion.Chemokine;
 import sim3d.util.IO;
 import sim3d.util.Vector3DHelper;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,7 +35,7 @@ public class BCIntegrationTests {
 
 	// a new schedule to step the tests
 	private Schedule schedule = new Schedule();
-	private ParticleMoles m_pParticle; // an instance of particle moles
+	private Chemokine m_pParticle; // an instance of particle moles
 	public static Document parameters; // parameter file in .xml format
 
 	/**
@@ -75,7 +75,7 @@ public class BCIntegrationTests {
 	public void setUp() throws Exception {
 
 		// instantiate particlemoles
-		m_pParticle = new ParticleMoles(schedule, ParticleMoles.TYPE.CXCL13,
+		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
 
 		// initialise the BC environment
@@ -94,7 +94,7 @@ public class BCIntegrationTests {
 	public void tearDown() {
 		m_pParticle.field = null;
 		m_pParticle = null;
-		ParticleMoles.reset();
+		Chemokine.reset();
 		BC.drawEnvironment = null;
 	}
 

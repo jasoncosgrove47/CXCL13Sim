@@ -20,7 +20,8 @@ import sim3d.SimulationEnvironment;
 public class ControllerTest {
 
 	/**
-	 * Test that when the simulation starts, experimentFinished is set to false
+	 * Test that when the simulation starts
+	 *  experimentFinished is set to false
 	 */
 	@Test
 	public void testExperimentFinished() {

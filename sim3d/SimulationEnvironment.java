@@ -4,18 +4,14 @@ import java.util.ArrayList;
 
 import org.w3c.dom.Document;
 
-import dataLogger.Controller;
-import dataLogger.ReadObjects;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
 import sim3d.cell.*;
 import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
-import sim3d.diffusion.Particle;
-import sim3d.diffusion.ParticleMoles;
-import sim3d.util.FRCStromaGenerator;
-import sim3d.util.FRCStromaGenerator.FRCCell;
+import sim3d.diffusion.Chemokine;
+import sim3d.util.StromaGenerator;
 
 /**
  * This class sets up and runs the simulation absent of any GUI related function
@@ -49,8 +45,7 @@ public class SimulationEnvironment extends SimState {
 	public static int totalNumberOfDendrites = 0;
 
 	/**
-	 * A static instance of the simulation that only get's set here - there may
-	 * be a better way to do this TODO
+	 * A static instance of the simulation that only get's set here
 	 */
 	public static SimulationEnvironment simulation;
 
@@ -60,9 +55,9 @@ public class SimulationEnvironment extends SimState {
 	public Continuous3D fdcEnvironment;
 
 	/**
-	 * Instance of the particle moles class TODO needs to be a singleton
+	 * Instance of the particle moles class
 	 */
-	public static ParticleMoles particlemoles;
+	public static Chemokine particlemoles;
 
 	/*
 	 * Parameter file: XML format
@@ -73,7 +68,7 @@ public class SimulationEnvironment extends SimState {
 	 * ENUM for the cell types
 	 */
 	public enum CELLTYPE {
-		B, cB, T
+		B, cB
 	}
 
 	public TYPE celltype;
@@ -104,19 +99,10 @@ public class SimulationEnvironment extends SimState {
 	}
 
 	/**
-	 * Adds a slider for the display level in the MASON console TODO need to get
-	 * this working to look at different depths of chemokine, would make a cool
-	 * video!
-	 */
-	/*
-	 * public Object domDisplayLevel() { return new sim.util.Interval(1,
-	 * Settings.DEPTH); }
-	 */
-	/**
 	 * Destroy resources after use
 	 */
 	public void finish() {
-		Particle.reset();
+		Chemokine.reset();
 	}
 
 	/**
@@ -124,35 +110,30 @@ public class SimulationEnvironment extends SimState {
 	 * the diffusion
 	 */
 	public int getDisplayLevel() {
-		return ParticleMoles.getDisplayLevel() + 1; // Add 1 so the scale goes
-													// from 1
-		// to 10 and not 0 to 9!
+		// Add 1 so the scale goes from 1-10 and not 9
+		return Chemokine.getDisplayLevel() + 1;
+
 	}
 
 	/**
 	 * Setter for the current display level
 	 */
 	public void setDisplayLevel(int m_iDisplayLevel) {
-		ParticleMoles.setDisplayLevel(m_iDisplayLevel - 1);
-		ParticleMoles.getInstance(ParticleMoles.TYPE.CXCL13).updateDisplay();
+		Chemokine.setDisplayLevel(m_iDisplayLevel - 1);
+		Chemokine.getInstance(Chemokine.TYPE.CXCL13).updateDisplay();
 	}
 
 	/*
-	 * Scheduling a cell returns a stoppable object. we store the stoppable
+	 * Scheduling a cell returns a stoppable object. We store the stoppable
 	 * object as a variable within the BC class.
-	 * 
 	 * Then the BC can access its stopper variable and call the stop method.
-	 * 
-	 * @param
 	 */
-	public void scheduleStoppableCell(BC lymphocyte) {
-
-		lymphocyte.setStopper(schedule.scheduleRepeating(lymphocyte));
+	public void scheduleStoppableCell(BC bc) {
+		bc.setStopper(schedule.scheduleRepeating(bc));
 	}
 
 	/**
-	 * Sets up a simulation run. Initialises the environments, generates a
-	 * stromal network and BCs randomly
+	 * Sets up a simulation run and initialises the environments.
 	 */
 	public void start() {
 		// start the simulation
@@ -170,7 +151,7 @@ public class SimulationEnvironment extends SimState {
 		BC.drawEnvironment = BC.bcEnvironment;
 
 		// initialise the CXCL13 grid
-		particlemoles = new ParticleMoles(schedule, ParticleMoles.TYPE.CXCL13,
+		particlemoles = new Chemokine(schedule, Chemokine.TYPE.CXCL13,
 				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
 
 		// Initialise the CollisionGrid
@@ -191,60 +172,6 @@ public class SimulationEnvironment extends SimState {
 
 	}
 
-	/*
-	 * Starts sim from a presaved steady-state
-	 */
-	/*
-	 * public void startFromSteadyState() { // start the simulation
-	 * super.start();
-	 * 
-	 * fdcEnvironment = (Continuous3D) ReadObjects.restoreFDC();
-	 * FDC.drawEnvironment = fdcEnvironment; StromaEdge.drawEnvironment =
-	 * fdcEnvironment; //need to readd all of the stroma to the schedule
-	 * yo!!don't forget the ordering though
-	 * 
-	 * 
-	 * 
-	 * Bag FDCs = fdcEnvironment.getAllObjects(); for(Object fdc : FDCs) {
-	 * 
-	 * if(fdc instanceof FDC) {
-	 * 
-	 * Double3D loc = fdcEnvironment.getObjectLocation(fdc); ((DrawableCell3D)
-	 * fdc).setObjectLocation(loc); schedule.scheduleRepeating((Steppable) fdc,
-	 * 2, 1); } else if(fdc instanceof StromaEdge) {
-	 * 
-	 * } }
-	 * 
-	 * 
-	 * // Initialise the B cell grid BC.bcEnvironment = (Continuous3D)
-	 * ReadObjects.restoreBC(); BC.drawEnvironment = BC.bcEnvironment;
-	 * 
-	 * 
-	 * Bag BCs = BC.bcEnvironment.getAllObjects(); for(Object bc : BCs) { if(bc
-	 * instanceof BC) { Double3D loc = BC.bcEnvironment.getObjectLocation(bc);
-	 * ((DrawableCell3D) bc).setObjectLocation(loc); scheduleStoppableCell((BC)
-	 * bc); } else if(bc instanceof cognateBC) { Double3D loc =
-	 * BC.bcEnvironment.getObjectLocation(bc); ((DrawableCell3D)
-	 * bc).setObjectLocation(loc); scheduleStoppableCell((cognateBC) bc); } }
-	 * 
-	 * //why isnt this working particlemoles = (ParticleMoles)
-	 * ReadObjects.restoreCXCL13();
-	 * ParticleMoles.ms_emTypeMap.put(ParticleMoles.TYPE.CXCL13,
-	 * ParticleMoles.ms_emTypeMap.size());
-	 * ParticleMoles.ms_pParticles[ParticleMoles
-	 * .ms_emTypeMap.get(ParticleMoles.TYPE.CXCL13)] = particlemoles;
-	 * schedule.scheduleRepeating(particlemoles, 3, 1);
-	 * 
-	 * // Initialise the CollisionGrid CollisionGrid cgGrid = new
-	 * CollisionGrid(Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH, 1);
-	 * schedule.scheduleRepeating(cgGrid, 3, 1);
-	 * 
-	 * 
-	 * // BCs will need to update their collision profile each // step so tell
-	 * them what collision grid to use BC.m_cgGrid = cgGrid;
-	 * 
-	 * }
-	 */
 
 	/**
 	 * Tests whether co-ordinates x,y are not in the circle centered at
@@ -329,7 +256,7 @@ public class SimulationEnvironment extends SimState {
 	}
 
 	/*
-	 * Generate and initialise a stromal network
+	 * Generate and initialise an FRC network
 	 */
 	/*
 	 * private void initialiseStroma(CollisionGrid cgGrid) {
@@ -387,22 +314,21 @@ public class SimulationEnvironment extends SimState {
 	 */
 
 	/*
-	 * Generate and initialise a stromal network TODO overly complex, needs
-	 * breaking up
+	 * Generate and initialise a stromal network 
 	 */
 	void initialiseFDC(CollisionGrid cgGrid) {
 
 		// Generate some stroma
-		ArrayList<FRCStromaGenerator.FRCCell> frclCellLocations = new ArrayList<FRCStromaGenerator.FRCCell>();
+		ArrayList<StromaGenerator.FRCCell> frclCellLocations = new ArrayList<StromaGenerator.FRCCell>();
 		ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
 
-		FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2,
+		StromaGenerator.generateStroma3D(Settings.WIDTH - 2,
 				Settings.HEIGHT - 2, Settings.DEPTH - 2, Settings.FDC.COUNT,
 				frclCellLocations, sealEdges);
 
 		// Create the FDC objects, display them, schedule them, and then put
 		// them on the collision grid
-		for (FRCStromaGenerator.FRCCell frcCell : frclCellLocations) {
+		for (StromaGenerator.FRCCell frcCell : frclCellLocations) {
 
 			FDC fdc = new FDC();
 
@@ -415,13 +341,15 @@ public class SimulationEnvironment extends SimState {
 
 		}
 
+		generateDendrites(cgGrid, sealEdges);
+		
+		/*
 		// Add the stroma edges to the display/CollisionGrid
 		for (StromaEdge seEdge : sealEdges) {
 			Double3D d3Point = seEdge.getPoint1();
 			Double3D d3Point2 = seEdge.getPoint2();
 
 			// Check if it's out of bounds
-
 			if (!(d3Point.x <= 0 || d3Point.x >= (Settings.WIDTH - 2)
 					|| d3Point.y <= 0 || d3Point.y >= (Settings.HEIGHT - 2)
 					|| d3Point.z <= 0 || d3Point.z >= (Settings.DEPTH - 2))
@@ -429,10 +357,6 @@ public class SimulationEnvironment extends SimState {
 							|| d3Point2.y <= 0
 							|| d3Point2.y >= (Settings.HEIGHT - 2)
 							|| d3Point2.z <= 0 || d3Point2.z >= (Settings.DEPTH - 2))) {
-
-				// TODO can we get rid of this line of code?
-				int iCat = (int) (5 * (seEdge.getPoint2()
-						.subtract(seEdge.getPoint1()).length() - 1.2));
 
 			}
 
@@ -496,8 +420,93 @@ public class SimulationEnvironment extends SimState {
 		// scanned measure
 		totalNumberOfDendrites += sealEdges.size();
 
+
+*/
+		
+		
 	}
 
+	
+	
+	public void generateDendrites(CollisionGrid cgGrid,ArrayList<StromaEdge> sealEdges){
+		// Add the stroma edges to the display/CollisionGrid
+				for (StromaEdge seEdge : sealEdges) {
+					Double3D d3Point = seEdge.getPoint1();
+					Double3D d3Point2 = seEdge.getPoint2();
+
+					// Check if it's out of bounds
+					if (!(d3Point.x <= 0 || d3Point.x >= (Settings.WIDTH - 2)
+							|| d3Point.y <= 0 || d3Point.y >= (Settings.HEIGHT - 2)
+							|| d3Point.z <= 0 || d3Point.z >= (Settings.DEPTH - 2))
+							&& !(d3Point2.x <= 0 || d3Point2.x >= (Settings.WIDTH - 2)
+									|| d3Point2.y <= 0
+									|| d3Point2.y >= (Settings.HEIGHT - 2)
+									|| d3Point2.z <= 0 || d3Point2.z >= (Settings.DEPTH - 2))) {
+
+					}
+	
+
+					int branchesAdded = 0;
+
+					// Register with display and CG
+					seEdge.setObjectLocation(new Double3D(seEdge.x + 1, seEdge.y + 1,
+							seEdge.z + 1));
+
+					seEdge.registerCollisions(cgGrid);
+
+					// add bracnhes to neighbouring cells
+					Bag neighbouredges = fdcEnvironment
+							.getNeighborsExactlyWithinDistance(seEdge.midpoint, 2);
+
+					for (int j = 0; j < neighbouredges.size() - 1; j++) {
+						if (neighbouredges.get(j) instanceof StromaEdge) {
+
+							if (branchesAdded < 1) {
+								StromaEdge neighbouredge = (StromaEdge) neighbouredges
+										.get(j);
+								branch b = new branch(seEdge.midpoint,
+										neighbouredge.midpoint);
+								b.setObjectLocation(new Double3D(b.x + 1, b.y + 1,
+										b.z + 1));
+
+								Bag branchedges = fdcEnvironment
+										.getNeighborsExactlyWithinDistance(b.midpoint,
+												2);
+
+								int subbranches = 0;
+
+								for (int k = 0; k < branchedges.size() - 1; k++) {
+
+									if (subbranches < 1) {
+										if (branchedges.get(k) instanceof FDC) {
+											FDC fdc = (FDC) branchedges.get(k);
+											branch b2 = new branch(b.midpoint,
+													new Double3D(fdc.x, fdc.y, fdc.z));
+											b2.setObjectLocation(new Double3D(b2.x + 1,
+													b2.y + 1, b2.z + 1));
+
+											b2.registerCollisions(cgGrid);
+
+											totalNumberOfDendrites += 1;
+										}
+
+										subbranches += 1;
+									}
+								}
+								branchesAdded += 1;
+							}
+						}
+					}
+				}
+
+				// count the entire number of dendrites so we can get a percentage
+				// scanned measure
+				totalNumberOfDendrites += sealEdges.size();
+		
+		
+	}
+	
+	
 	/**
 	 * Add branches to the stroma to get a more web-like morphology
 	 * 

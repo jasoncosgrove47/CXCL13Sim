@@ -14,7 +14,7 @@ import sim3d.cell.StromaEdge;
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
-public class FRCStromaGenerator {
+public class StromaGenerator {
 	/**
 	 * Class to keep track of edges for each cell
 	 */

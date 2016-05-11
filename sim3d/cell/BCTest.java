@@ -26,7 +26,7 @@ import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
-import sim3d.diffusion.ParticleMoles;
+import sim3d.diffusion.Chemokine;
 import sim3d.util.IO;
 import sim3d.util.Vector3DHelper;
 import ec.util.MersenneTwisterFast;
@@ -35,7 +35,7 @@ public class BCTest {
 
 	BC bc = new BC();
 	private Schedule schedule = new Schedule();
-	private ParticleMoles m_pParticle;
+	private Chemokine m_pParticle;
 	public static Document parameters;
 
 	/**
@@ -79,7 +79,7 @@ public class BCTest {
 	@Before
 	public void setUp() throws Exception {
 
-		m_pParticle = new ParticleMoles(schedule, ParticleMoles.TYPE.CXCL13,
+		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
 
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
@@ -100,7 +100,7 @@ public class BCTest {
 	public void tearDown() throws Exception {
 		m_pParticle.field = null;
 		m_pParticle = null;
-		ParticleMoles.reset();
+		Chemokine.reset();
 		BC.drawEnvironment = null;
 	}
 
@@ -121,7 +121,8 @@ public class BCTest {
 	}
 
 	/**
-	 * Test that determinespacetomove() returns true when there is space to move
+	 * Test that determinespacetomove() returns true when 
+	 * there is space to move
 	 */
 	@Test
 	public void testDetermineSpaceToMove() {
@@ -132,8 +133,8 @@ public class BCTest {
 	}
 
 	/**
-	 * Test that determinespacetomove() returns false when there isn't space to
-	 * move
+	 * Test that determinespacetomove() returns false 
+	 * when there isn't space to move
 	 */
 	@Test
 	public void testdetermineSpaceToMove2() {
@@ -145,7 +146,7 @@ public class BCTest {
 			bcTemp.setObjectLocation(location);
 		}
 
-		// should not be any space to move so should return false
+		// no space to move so should return false
 		boolean test = bc.determineSpaceToMove(bc.x + 0.2, bc.y + 0.2,
 				bc.z + 0.2);
 		assertEquals(false, test);
@@ -162,7 +163,7 @@ public class BCTest {
 
 	/**
 	 * Test that calculateWhereToMoveNext can update the m_d3aMovements array.
-	 * Integration tests are used to make sure that the correct data is updated
+	 * TODO this test could definitely be refined
 	 */
 	@Test
 	public void testCalculateWhereToMoveNext() {
@@ -204,6 +205,11 @@ public class BCTest {
 	/**
 	 * Test that getLigandBinding can detect chemokine Integration tests to
 	 * ensure that the method can detect gradients
+	 * 
+	 * TODO refine
+	 * 
+	 * we can calculate how much chemokine is in the surrounding gridspaces
+	 * and make sure that the results reflect that
 	 */
 	@Test
 	public void testGetLigandBinding() {
@@ -235,6 +241,11 @@ public class BCTest {
 	/**
 	 * test that getMoveDirection returns a double3D Integration tests ensure
 	 * that the correct direction is provided
+	 * 
+	 * TODO refine we could put the chemokine north of the cell and see 
+	 * if it orientates towards that direction
+	 * 
+	 * 
 	 */
 	@Test
 	public void testGetMoveDirection() {
@@ -253,6 +264,8 @@ public class BCTest {
 
 	/**
 	 * Tests that register collisions can add data to the collisionGrid
+	 * 
+	 * TODO needs refining
 	 */
 	@Test
 	public void testRegisterCollisions() {
@@ -260,24 +273,25 @@ public class BCTest {
 		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
 		BC.m_cgGrid = cgGrid;
 
+		
+		// generate some coordinates and register collisions
 		BC bc = new BC();
-		Double3D loc1 = new Double3D(0, 0, 0);
-		Double3D loc2 = new Double3D(5, 5, 5);
+		Double3D loc1 = new Double3D(5, 5, 5);
+		Double3D loc2 = new Double3D(6, 6, 6);
 
-		// generate some coordinates and reister collisions
+	
 		bc.m_d3aMovements.add(loc1);
-		bc.m_d3aMovements.add(loc2);
+		//bc.m_d3aMovements.add(loc2);
 		bc.registerCollisions(cgGrid);
 
 		// assert that the collision data is added
 		assertEquals(true, cgGrid.getM_i3lCollisionPoints().size() > 0);
-
+		
 		// assert that the correct data is added
-		Int3D test = cgGrid.getM_i3lCollisionPoints().get(0);
-		Int3D validate = new Int3D(0, 0, 0);
-		assertEquals(test, validate);
-		Int3D validate2 = new Int3D(1, 0, 0);
-		assertNotEquals(test, validate2);
+		Int3D validate = new Int3D(5, 5, 5);
+		assertTrue(cgGrid.getM_i3lCollisionPoints().contains(validate));
+			
+		
 	}
 
 	/**
@@ -308,7 +322,8 @@ public class BCTest {
 	}
 
 	/**
-	 * Assert that the putative movements of the cell are updated if there is a
+	 * Assert that the putative movements of the cell are 
+	 * updated if there is a
 	 * stromal cell in the way
 	 */
 	@Test
@@ -329,8 +344,7 @@ public class BCTest {
 		// assert that movement has been updated because
 		// there is a stroma edge in the way
 		bc.collideStromaEdge(se, 1);
-		Double3D test = bc.m_d3aMovements.get(0);
-		assertNotEquals(loc2, test);
+		assertNotEquals(loc2, bc.m_d3aMovements.get(0));
 
 	}
 

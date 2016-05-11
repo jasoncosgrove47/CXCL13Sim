@@ -15,8 +15,7 @@ import static org.hamcrest.Matchers.*;
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim3d.Settings;
-import sim3d.diffusion.Particle;
-import sim3d.diffusion.ParticleMoles;
+import sim3d.diffusion.Chemokine;
 import sim3d.util.IO;
 
 /**
@@ -91,8 +90,8 @@ public class DiffusionAlgorithmTest {
 		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.15 * Settings.DIFFUSION_COEFFICIENT));
 		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
 
-		ParticleMoles m_pParticlemoles = new ParticleMoles(schedule,
-				ParticleMoles.TYPE.CXCL13, 41, 41, 41);// this should be
+		Chemokine m_pParticlemoles = new Chemokine(schedule,
+				Chemokine.TYPE.CXCL13, 41, 41, 41);// this should be
 														// particle moles
 
 		m_pParticlemoles.field[20][20][20] = 100.0;
@@ -137,8 +136,8 @@ public class DiffusionAlgorithmTest {
 																													// near
 																													// enough
 																													// value
-		ParticleMoles m_pParticlemoles = new ParticleMoles(schedule,
-				ParticleMoles.TYPE.CXCL13, 41, 41, 41);// this should be
+		Chemokine m_pParticlemoles = new Chemokine(schedule,
+				Chemokine.TYPE.CXCL13, 41, 41, 41);// this should be
 														// particle moles
 		Settings.GRID_SIZE = 0.00001;
 		Settings.CXCL13.DECAY_CONSTANT = 0;

@@ -5,22 +5,19 @@ import java.util.EnumMap;
 import sim.engine.Schedule;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import sim.field.grid.IntGrid2D;
-import sim.field.grid.IntGrid3D;
+import sim.field.grid.DoubleGrid2D;
+import sim.field.grid.DoubleGrid3D;
 import sim3d.Settings;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
 /**
- * TODO need to get rid of this when sort branching out
+ * Same as Particle but accounts for Moles not absoloute molecules is just an
+ * object of type doubleGrid3D
  * 
- * Class to keep track of chemokine in the simulation. Extends IntGrid3D which
- * contains the amount of chemokine within each discrete grid space. Handles
- * decay and diffusion (via DiffusionAlgorithm) of chemokines.
- * 
- * 
- * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
+ * @author Jason Cosgrove, Simon Jarrett
  */
-public class Particle extends IntGrid3D implements Steppable {
+public class Chemokine extends DoubleGrid3D implements Steppable {
+
 	/**
 	 * ENUM for the chemokine types
 	 */
@@ -31,18 +28,18 @@ public class Particle extends IntGrid3D implements Steppable {
 	/**
 	 * The z-index to display
 	 */
-	private static int m_iDisplayLevel = 1;
+	static int m_iDisplayLevel = 1;
 
 	/**
 	 * Gives each ENUM an array index
 	 */
-	private static EnumMap<TYPE, Integer> ms_emTypeMap = new EnumMap<TYPE, Integer>(
+	public static EnumMap<TYPE, Integer> ms_emTypeMap = new EnumMap<TYPE, Integer>(
 			TYPE.class);
 
 	/**
 	 * The instances of Particle being handled
 	 */
-	private static Particle[] ms_pParticles = new Particle[4];
+	public static Chemokine[] ms_pParticles = new Chemokine[4];
 
 	private static final long serialVersionUID = 1;
 
@@ -60,9 +57,9 @@ public class Particle extends IntGrid3D implements Steppable {
 	 * @param amount
 	 *            Positive or negative absolute change in particle amount
 	 */
-	public static void add(TYPE ParticleType, int x, int y, int z, int amount) {
+	public static void add(TYPE ParticleType, int x, int y, int z, double amount) {
 		int index = ms_emTypeMap.get(ParticleType);
-		final Particle pTarget = ms_pParticles[index];
+		final Chemokine pTarget = ms_pParticles[index];
 
 		// NB: this function will make sure the amount is always positive in the
 		// grid
@@ -84,9 +81,9 @@ public class Particle extends IntGrid3D implements Steppable {
 	 * @return a 3x3x3 array containing the amount in the neighbouring grid
 	 *         spaces
 	 */
-	public static int[][][] get(TYPE ParticleType, int x, int y, int z) {
+	public static double[][][] get(TYPE ParticleType, int x, int y, int z) {
 		int index = ms_emTypeMap.get(ParticleType);
-		final Particle pTarget = ms_pParticles[index];
+		final Chemokine pTarget = ms_pParticles[index];
 
 		return pTarget.getArea(x, y, z);
 	}
@@ -105,7 +102,7 @@ public class Particle extends IntGrid3D implements Steppable {
 	 *            The ENUM for the type of particle
 	 * @return The Particle object
 	 */
-	public static Particle getInstance(TYPE pType) {
+	public static Chemokine getInstance(TYPE pType) {
 		return ms_pParticles[ms_emTypeMap.get(pType)];
 	}
 
@@ -113,7 +110,7 @@ public class Particle extends IntGrid3D implements Steppable {
 	 * Resets all particle to their initial state
 	 */
 	public static void reset() {
-		ms_pParticles = new Particle[4];
+		ms_pParticles = new Chemokine[4];
 		ms_emTypeMap = new EnumMap<TYPE, Integer>(TYPE.class);
 	}
 
@@ -135,7 +132,7 @@ public class Particle extends IntGrid3D implements Steppable {
 	public static void scale(TYPE ParticleType, int x, int y, int z,
 			double factor) {
 		int index = ms_emTypeMap.get(ParticleType);
-		final Particle pTarget = ms_pParticles[index];
+		final Chemokine pTarget = ms_pParticles[index];
 
 		pTarget.scale(x, y, z, factor);
 	}
@@ -150,7 +147,7 @@ public class Particle extends IntGrid3D implements Steppable {
 	/**
 	 * A 2D grid containing the values using m_iDisplayIndex as the z-index
 	 */
-	public IntGrid2D m_ig2Display;
+	public DoubleGrid2D m_ig2Display;
 
 	/**
 	 * The DiffusionAlgorithm to use
@@ -163,14 +160,14 @@ public class Particle extends IntGrid3D implements Steppable {
 	private int m_iDepth;
 
 	/**
-	 * Depth of the particle diffusion space
-	 */
-	private int m_iWidth;
-
-	/**
 	 * Height of the particle diffusion space
 	 */
 	private int m_iHeight;
+
+	/**
+	 * Depth of the particle diffusion space
+	 */
+	private int m_iWidth;
 
 	/**
 	 * Constructor
@@ -186,11 +183,11 @@ public class Particle extends IntGrid3D implements Steppable {
 	 * @param iDepth
 	 *            Depth of the grid
 	 */
-	public Particle(Schedule schedule, TYPE pType, int iWidth, int iHeight,
-			int iDepth) {
+	public Chemokine(Schedule schedule, TYPE pType, int iWidth,
+			int iHeight, int iDepth) {
 		super(iWidth, iHeight, iDepth);
 
-		m_ig2Display = new IntGrid2D(iWidth, iHeight);
+		m_ig2Display = new DoubleGrid2D(iWidth, iHeight);
 
 		// Register this in the EnumMap
 		ms_emTypeMap.put(pType, ms_emTypeMap.size());
@@ -202,6 +199,7 @@ public class Particle extends IntGrid3D implements Steppable {
 
 		m_daDiffusionAlgorithm = new sim3d.diffusion.algorithms.Grajdeanu(
 				Settings.DIFFUSION_COEFFICIENT, iWidth, iHeight, iDepth);
+		// Settings.DIFFUSION_COEFFICIENT;
 
 		// setup up stepping
 		ms_pParticles[ms_emTypeMap.get(pType)] = this;
@@ -222,7 +220,8 @@ public class Particle extends IntGrid3D implements Steppable {
 	 * @param amount
 	 *            Positive or negative absolute change in particle amount
 	 */
-	public void add(int x, int y, int z, int amount) {
+	public void add(int x, int y, int z, double amount) {
+
 		field[x % m_iWidth][y % m_iHeight][z % m_iDepth] = Math.max(0, field[x
 				% m_iWidth][y % m_iHeight][z % m_iDepth]
 				+ amount);
@@ -232,14 +231,16 @@ public class Particle extends IntGrid3D implements Steppable {
 	 * Simulate decay of the chemokine using the m_dDecayRateInv
 	 */
 	public void decay() {
-		// Adjust for decay
+
+		// determine how much is left after decay per timestep
+		// done it this way as it is easier to caompare
+		// to experimental data
+		double amountLeft = 1 - Settings.CXCL13.DECAY_CONSTANT;
+		//
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
 				for (int z = 0; z < m_iDepth; z++) {
-					// add 0.5 so it rounds (1.6 -> 2) instead of just flooring
-					// the value (1.6 -> 1)
-					field[x][y][z] = (int) (0.5 + field[x][y][z]
-							* Settings.CXCL13.DECAY_CONSTANT);
+					field[x][y][z] = (field[x][y][z] * amountLeft);
 				}
 			}
 		}
@@ -258,8 +259,8 @@ public class Particle extends IntGrid3D implements Steppable {
 	 * @return a 3x3x3 array containing the amount in the neighbouring grid
 	 *         spaces
 	 */
-	public int[][][] getArea(int x, int y, int z) {
-		int[][][] aiReturn = new int[3][3][3];
+	public double[][][] getArea(int x, int y, int z) {
+		double[][][] aiReturn = new double[3][3][3];
 
 		// TODO well isn't this a bit horrible...
 		for (int r = 0; r < 3; r++) {
@@ -277,6 +278,7 @@ public class Particle extends IntGrid3D implements Steppable {
 					if (z + t - 1 < 0 || z + t - 1 >= m_iDepth) {
 						continue;
 					}
+
 					aiReturn[r][s][t] = field[x + r - 1][y + s - 1][z + t - 1];
 				}
 			}
@@ -317,23 +319,81 @@ public class Particle extends IntGrid3D implements Steppable {
 	 */
 	public void step(final SimState state) {
 
-		decay();
+		// diffuse and decay at a rate diffusion steps per sim timestep
 		for (int i = 0; i < Settings.DIFFUSION_STEPS; i++) {
-			// m_daDiffusionAlgorithm.diffuse( this );
+			m_daDiffusionAlgorithm.diffuse(this);
+			decay();
+
 		}
 
 		updateDisplay();
+		
+		double totalChemokineinMoles = calculateTotalChemokineLevels();
+		
+		//this is the volume of the entire compartment in liters
+		double vol = 7.84e-9;
+		
+		System.out.println("total chemokine (Molar) is: " + totalChemokineinMoles/vol);
+
+	}
+
+	public double calculateTotalChemokineLevels() {
+
+		double totalChemokineValue = 0;
+
+		
+		for (int x = 0; x < m_iWidth; x++) {
+			for (int y = 0; y < m_iHeight; y++) {
+				for (int z = 0; z < m_iDepth; z++) {
+					
+				
+					
+					totalChemokineValue += this.field[x][y][z];
+					
+					
+				}
+			}
+		}
+
+		return totalChemokineValue;
+
 	}
 
 	/**
 	 * Updates the 2D display
 	 */
+	/*
+	 * public void updateDisplay2() {
+	 * 
+	 * 
+	 * for (int x = 0; x < m_iWidth; x++) { for (int y = 0; y < m_iHeight; y++)
+	 * {
+	 * 
+	 * double val = field[x][y][m_iDisplayLevel]; if(val < 6e-16){
+	 * m_ig2Display.set(x, y, 0); } else if(val > 6e-16 && val < 5e-15){
+	 * m_ig2Display.set(x, y, 2); } else if(val > 5e-15 && val < 5e-14){
+	 * m_ig2Display.set(x, y, 3); }
+	 * 
+	 * else if(val > 5e-14 && val < 1e-13){ m_ig2Display.set(x, y, 4); }
+	 * 
+	 * else if(val > 1e-13 && val < 5e-13){ m_ig2Display.set(x, y,6); } else
+	 * if(val > 5e-13 && val < 1e-12){ m_ig2Display.set(x, y, 9); } else if(val
+	 * > 1e-12 && val < 2e-12){ m_ig2Display.set(x, y, 11); } else if(val >
+	 * 2e-12){ m_ig2Display.set(x, y, 15); } } } }
+	 */
+
+	/**
+	 * Updates the 2D display
+	 */
 	public void updateDisplay() {
+
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
+
 				m_ig2Display.set(x, y, field[x][y][m_iDisplayLevel]);
 
 			}
 		}
 	}
+
 }

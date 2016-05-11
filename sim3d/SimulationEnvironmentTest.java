@@ -22,7 +22,7 @@ import sim3d.cell.FDC;
 import sim3d.cell.StromaEdge;
 import sim3d.cell.branch;
 import sim3d.collisiondetection.CollisionGrid;
-import sim3d.diffusion.ParticleMoles;
+import sim3d.diffusion.Chemokine;
 import sim3d.util.IO;
 
 
@@ -41,6 +41,11 @@ public class SimulationEnvironmentTest {
 	/*
 	 * test that the parameters are read in by asserting that
 	 * the depth of the grid is greater than zero
+	 * 
+	 * A better test for this would be to put 
+	 * in a specific parameter check that its correct 
+	 * then redo with a different value
+	 * 
 	 */
 	@Test
 	public void testSetUpSimulationParameters() {
@@ -62,7 +67,7 @@ public class SimulationEnvironmentTest {
 		SimulationEnvironment sim = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 		
-		ParticleMoles m_pParticle = new ParticleMoles(sim.schedule, ParticleMoles.TYPE.CXCL13,
+		Chemokine m_pParticle = new Chemokine(sim.schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
 
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
@@ -121,7 +126,7 @@ public class SimulationEnvironmentTest {
 	@Test
 	public void testDisplayLevel() {
 
-		ParticleMoles m_pParticle = new ParticleMoles(sim.schedule, ParticleMoles.TYPE.CXCL13,
+		Chemokine m_pParticle = new Chemokine(sim.schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
 
 		sim.setDisplayLevel(10);
@@ -183,7 +188,7 @@ public class SimulationEnvironmentTest {
 	}
 
 	/**
-	 * Test that we can add branches to braches, to provide a more web like
+	 * Test that we can add branches to branches, to provide a more web like
 	 * morphology for FDCs
 	 */
 	@Test
