@@ -26,6 +26,9 @@ import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
+import sim3d.migration.Algorithm1;
+import sim3d.migration.MigrationAlgorithm;
+import sim3d.migration.MigratoryCell;
 import sim3d.util.ODESolver;
 import sim3d.util.Vector3DHelper;
 
@@ -38,7 +41,7 @@ import sim3d.util.Vector3DHelper;
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
-public class BC extends DrawableCell3D implements Steppable, Collidable {
+public class BC extends DrawableCell3D implements Steppable, Collidable, MigratoryCell {
 	/**
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
@@ -108,7 +111,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	/**
 	 * Points on the collision grid we're intersecting with something
 	 */
-	HashSet<Int3D> m_i3lCollisionPoints = new HashSet<Int3D>();
+	private HashSet<Int3D> m_i3lCollisionPoints = new HashSet<Int3D>();
 
 	/*
 	 * Determines the position of a BC on a stromal edge
@@ -119,7 +122,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * Determines how many collisions a BC has had this timestep necessary to
 	 * prevent infinite collisions
 	 */
-	int collisionCounter = 0;
+	private int collisionCounter = 0;
 
 	@Override
 	public boolean isStatic() {
@@ -134,7 +137,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 */
 	@Override
 	public void addCollisionPoint(Int3D i3Point) {
-		m_i3lCollisionPoints.add(i3Point);
+		getM_i3lCollisionPoints().add(i3Point);
 	}
 
 	/**
@@ -151,6 +154,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	}
 
 	
+	
+	Algorithm1 a1 = new Algorithm1();
+	
 	/**
 	 * Controls what a B cell agent does for each time step Each Bcell registers
 	 * its intended path on the collision grid, once all B cells register the
@@ -161,8 +167,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	public void step(final SimState state)// why is this final here
 	{
 
-		collisionCounter = 0; // reset the collision counter for this timestep
-		m_i3lCollisionPoints.clear();
+		
+		this.migrate(a1);
+		
+		
+		/*
+		setCollisionCounter(0); // reset the collision counter for this timestep
+		getM_i3lCollisionPoints().clear();
 
 		// if we have a stored move then execute it
 		if (getM_d3aMovements() != null && getM_d3aMovements().size() > 0) {
@@ -173,8 +184,23 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		handleBounce(); // Check for bounces
 		receptorStep();
 		registerCollisions(m_cgGrid); // Register the new movement with the grid
+		*/
+		
 	}
 
+	
+	
+	
+	/**
+	 * DO NOT DELETE THIS METHOD
+	 */
+	@Override
+	public void migrate(MigrationAlgorithm algorithm) {
+		// TODO Auto-generated method stub
+		algorithm.performMigration(this);
+	}
+	
+	
 	public Int3D getDiscretizedLocation(Continuous3D grid) {
 		Double3D me = grid.getObjectLocation(this);// obtain coordinates of the
 													// tcell
@@ -624,6 +650,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		return iaBoundReceptors;
 	}
 
+	
+	
+	
+	
+	
+	
 	@Override
 	public void registerCollisions(CollisionGrid cgGrid) {
 		if (cgGrid == null) {
@@ -654,8 +686,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		// otherwise you get in an infinite loop where a B cell continues
 		// bouncing indefinitely
 		int collisionThreshold = 50;
-		if (m_i3lCollisionPoints.size() == 0
-				|| collisionCounter > collisionThreshold) {
+		if (getM_i3lCollisionPoints().size() == 0
+				|| getCollisionCounter() > collisionThreshold) {
 			return;
 		}
 
@@ -663,7 +695,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 		HashSet<Collidable> csCollidables = new HashSet<Collidable>();
 
 		// Add all the cells to the set
-		for (Int3D i3Point : m_i3lCollisionPoints) {
+		for (Int3D i3Point : getM_i3lCollisionPoints()) {
 			for (Collidable cCollidable : cgGrid.getPoints(i3Point)) {
 				csCollidables.add(cCollidable);
 			}
@@ -704,7 +736,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 */
 	protected void performCollision(CollisionGrid cgGrid, int iCollisionMovement) {
 		// increment the number of times a B cell has collided this time step
-		collisionCounter++;
+		setCollisionCounter(getCollisionCounter() + 1);
 		// Add the collision point for visualisation
 		double xPos = 0;
 		double yPos = 0;
@@ -1057,7 +1089,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 	 * if the B cell gets to the border of the simulation it has to bounce back
 	 * as space is non-toroidal, much trickier in 3D than 2D
 	 */
-	void handleBounce() {
+	public void handleBounce() {
 		boolean bBounce = true;
 
 		// We should in theory only have to check the last step for bounces
@@ -1421,6 +1453,22 @@ public class BC extends DrawableCell3D implements Steppable, Collidable {
 
 	public void setM_d3aCollisions(ArrayList<Double3D> m_d3aCollisions) {
 		this.m_d3aCollisions = m_d3aCollisions;
+	}
+
+	public int getCollisionCounter() {
+		return collisionCounter;
+	}
+
+	public void setCollisionCounter(int collisionCounter) {
+		this.collisionCounter = collisionCounter;
+	}
+
+	public HashSet<Int3D> getM_i3lCollisionPoints() {
+		return m_i3lCollisionPoints;
+	}
+
+	public void setM_i3lCollisionPoints(HashSet<Int3D> m_i3lCollisionPoints) {
+		this.m_i3lCollisionPoints = m_i3lCollisionPoints;
 	}
 
 }

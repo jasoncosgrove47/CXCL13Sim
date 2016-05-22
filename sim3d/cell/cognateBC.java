@@ -80,6 +80,7 @@ public class cognateBC extends BC {
 	@Override
 	public void step(final SimState state) {
 
+		
 		super.step(state);
 
 		// once the system has reached steady state the BC can start to record
@@ -155,8 +156,8 @@ public class cognateBC extends BC {
 		// don't let a b cell collide more than collisionThreshold times
 		// required to avoid getting in an infinite loop
 		int collisionThreshold = 10;
-		if (m_i3lCollisionPoints.size() == 0
-				|| collisionCounter > collisionThreshold) {
+		if (getM_i3lCollisionPoints().size() == 0
+				|| getCollisionCounter() > collisionThreshold) {
 			return;
 		}
 
@@ -164,7 +165,7 @@ public class cognateBC extends BC {
 		HashSet<Collidable> csCollidables = new HashSet<Collidable>();
 
 		// Add all the cells to the set
-		for (Int3D i3Point : m_i3lCollisionPoints) {
+		for (Int3D i3Point : getM_i3lCollisionPoints()) {
 			for (Collidable cCollidable : cgGrid.getPoints(i3Point)) {
 				csCollidables.add(cCollidable);
 			}

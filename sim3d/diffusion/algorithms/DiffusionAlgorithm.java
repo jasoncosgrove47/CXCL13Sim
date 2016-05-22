@@ -122,11 +122,17 @@ public class DiffusionAlgorithm {
 				}
 			}
 		}
+		
+		
+		enforceBoundaryCondition(pSpace);
 
 		// TODO should really encapsulate so we can implement different boundary
 		// conditions
 		// Now enforce the boundary condition
 		// Code is a little inefficient, but it's clean at least
+		
+		
+		/**
 		int xEdge = -1, yEdge = -1, zEdge = -1;
 
 		for (int x = 0; x < m_iWidth; x++) {
@@ -192,5 +198,85 @@ public class DiffusionAlgorithm {
 
 			xEdge = -1;
 		}
+		
+		*/
 	}
+	
+	private void enforceBoundaryCondition(Chemokine pSpace){
+		
+		int iWidth = m_iWidth - 1;
+		int iHeight = m_iHeight - 1;
+		int iDepth = m_iDepth - 1;
+		
+		
+		int xEdge = -1, yEdge = -1, zEdge = -1;
+
+		for (int x = 0; x < m_iWidth; x++) {
+			// Check if this is on the x edge
+			// So this will be calculated m_iWidth times in total
+			if (x == 0) {
+				xEdge = 1;
+			} else if (x == iWidth) {
+				xEdge = m_iWidth - 2;
+			}
+
+			for (int y = 0; y < m_iHeight; y++) {
+				// Check if this is on the y edge
+				// So this will be calculated m_iWidth*m_iHeight times in total
+				if (y == 0) {
+					yEdge = 1;
+				} else if (y == iHeight) {
+					yEdge = m_iHeight - 2;
+				}
+				for (int z = 0; z < m_iDepth; z++) {
+					// Check if this is on the z edge
+					// and this will be calculated m_iWidth*m_iHeight*m_iDepth
+					// times in total
+					if (z == 0) {
+						zEdge = 1;
+					} else if (z == iDepth) {
+						zEdge = m_iDepth - 2;
+					}
+
+					if (xEdge != -1 || yEdge != -1 || zEdge != -1) {
+						// just bounce it all back in
+
+						// this is a tertiary operator, bit like quick if
+						// statement
+
+						// chooses the x coordinate, then the y and so on
+						// if the edge is -1 return x, else return xEdge
+						// all of this should be on one line really
+						pSpace.field[(xEdge == -1) ? x : xEdge] // if it's -1,
+																// set it to the
+																// current x val
+						[(yEdge == -1) ? y : yEdge] // etc.
+						[(zEdge == -1) ? z : zEdge] // i.e. this one isn't on
+													// the edge
+						+= pSpace.field[x][y][z];
+
+						// the actual boundary is zero but we are only
+						// interested in boundary -1 in each axis
+						// gives you a buffer zone
+						pSpace.field[x][y][z] = 0;
+
+					} else if (xEdge == -1 && yEdge == -1) {
+						// this will be z = 0 and we skip to the end to save
+						// time
+						z = m_iDepth - 2;
+					}
+
+					zEdge = -1;
+				}
+
+				yEdge = -1;
+			}
+
+			xEdge = -1;
+		}
+		
+	}
+	
+	
+	
 }

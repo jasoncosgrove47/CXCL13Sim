@@ -116,8 +116,8 @@ public class BCTest {
 
 		// assert that the correct collision points have ben added
 		// to the m_i3lCollisionPoints hashset
-		assertEquals(true, bc.m_i3lCollisionPoints.contains(test));
-		assertEquals(false, bc.m_i3lCollisionPoints.contains(test2));
+		assertEquals(true, bc.getM_i3lCollisionPoints().contains(test));
+		assertEquals(false, bc.getM_i3lCollisionPoints().contains(test2));
 	}
 
 	/**

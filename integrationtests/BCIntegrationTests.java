@@ -102,16 +102,20 @@ public class BCIntegrationTests {
 	 * Ensure that the cell can enter a CXCL13 sensitive state sets a chemokine
 	 * point source and checks that after a certain number of steps BCs
 	 * accumulate within certain distance from the source
+	 * 
+	 * NB: This test is highly sensitive to the parameters so if the test 
+	 * fails review what the chemokine levels are in the system.
+	 * 
 	 */
 	@Test
 	public void testCXCL13SENSITIVE() {
 
-		
+
 		double test1 = m_pParticle.field[15][15][15];
 
 		System.out.println("test1: " + test1);
 
-		m_pParticle.field[15][15][15] = (1 * Math.pow(10, -16));
+		m_pParticle.field[15][15][15] = (1 * Math.pow(10, -18));
 
 		// make the BCs highly sensitive to chemokine
 		Settings.CXCL13.DECAY_CONSTANT = 0.005;
@@ -144,7 +148,7 @@ public class BCIntegrationTests {
 				bcCells[j].step(null);
 			}
 
-			m_pParticle.field[15][15][15] += 5 * Math.pow(10, -17);
+			m_pParticle.field[15][15][15] += 5 * Math.pow(10, -19);
 			m_pParticle.step(null);
 		}
 
@@ -311,7 +315,7 @@ public class BCIntegrationTests {
 	 * but, for example, moves freely in a large area of medium-high
 	 * concentration of chemokine, i.e. the stromal network
 	 * 
-	 * Can fail on occasion due to chance so needs to be run multiple times.
+	 * NB: Can fail on occasion due to chance so needs to be run multiple times.
 	 */
 	@Test
 	public void testNONCXCR5EXPRESSINGequalsDESENSITISED() {

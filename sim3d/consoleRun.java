@@ -89,9 +89,8 @@ public class consoleRun {
 		System.out.println("\nSimulation completed successfully!\n\n");
 
 		// write the recorded data and raw data to a .csv file
-		 //outputToCSV.writeDataToFile(outputPath +
-		 //outputFileName,"/Users/jc1571/Desktop/raw.csv" );
-		 outputToCSV.writeDataToFile(outputPath + outputFileName);
+		 outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv" );
+		 outputToCSV.writeProcessedDataToFile(outputPath + outputFileName);
 		 //outputToCSV.outputReceptors(outputPath + "/receptors.csv" );
 
 		// Output the time taken for simulation to run
