@@ -196,6 +196,7 @@ public class Settings {
 			convertAnglesToRadians();
 
 		}
+		
 
 		public static void convertAnglesToRadians() {
 			DIRECTION_ERROR = Math.toRadians(DIRECTION_ERROR_DEGREES);
@@ -337,6 +338,11 @@ public class Settings {
 				NodeList KiNL = paramODEElement.getElementsByTagName("Ki");
 				Node KiN = KiNL.item(0);
 				Ki = Double.parseDouble(KiN.getTextContent());
+				
+				NodeList KoffNL = paramODEElement.getElementsByTagName("Koff");
+				Node KoffN = KoffNL.item(0);
+				Koff = Double.parseDouble(KoffN.getTextContent());
+				
 			}
 
 			/**
@@ -381,6 +387,10 @@ public class Settings {
 				return Ka;
 			}
 
+			
+			public static double Koff;
+			
+			
 			/**
 			 * rate of receptor recycling from an internal pool
 			 */

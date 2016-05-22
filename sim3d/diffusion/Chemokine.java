@@ -262,7 +262,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	public double[][][] getArea(int x, int y, int z) {
 		double[][][] aiReturn = new double[3][3][3];
 
-		// TODO well isn't this a bit horrible...
 		for (int r = 0; r < 3; r++) {
 			// Check if we're out of bounds
 			if (x + r - 1 < 0 || x + r - 1 >= m_iWidth) {

@@ -170,7 +170,7 @@ public class cognateBC extends BC {
 			}
 		}
 
-		int iCollisionMovement = m_d3aMovements.size();
+		int iCollisionMovement = getM_d3aMovements().size();
 		boolean bCollision = false;
 
 		// To keep a track of where we collided - we are only interested in the
@@ -180,7 +180,7 @@ public class cognateBC extends BC {
 			case STROMA_EDGE: // These first two are the more likely hits as
 								// they won't be moving
 				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
-					iCollisionMovement = m_d3aMovements.size() - 1;
+					iCollisionMovement = getM_d3aMovements().size() - 1;
 					bCollision = true;
 
 					// this guard is here as we don't want the agents to acquire
@@ -196,7 +196,7 @@ public class cognateBC extends BC {
 
 				if (collideStromaEdge((branch) cCell, iCollisionMovement)) {
 
-					iCollisionMovement = m_d3aMovements.size() - 1;
+					iCollisionMovement = getM_d3aMovements().size() - 1;
 					bCollision = true;
 
 					// this guard is here as we don't want the agents to acquire
@@ -236,18 +236,11 @@ public class cognateBC extends BC {
 				.contains(this.index);
 
 		// we divide the stroma in two as make it more accurate
-		if (this.getPositionAlongStroma() > 0.5 & upperCollision == false) // if
-																			// on
-																			// the
-																			// upper
-																			// half
-																			// of
-																			// the
-		// stromal edge
+		//if on the upper half of the stroma
+		if (this.getPositionAlongStroma() > 0.5 & upperCollision == false) 
 		{
 
-			if (sEdge.getAntigenLevelUpperEdge() > 0) // if the stroma has
-														// antigen to present
+			if (sEdge.getAntigenLevelUpperEdge() > 0) // if the stroma has antigen to present
 			{
 				// remove antigen from the stromal edge
 				sEdge.setAntigenLevelUpperEdge(sEdge.getAntigenLevelUpperEdge() - 1);
@@ -281,18 +274,9 @@ public class cognateBC extends BC {
 		if (this.type == TYPE.NAIVE) {
 			this.type = TYPE.PRIMED;
 
-			// update the number of primed cells in the simulation
-
-			// TODO why the hell is this happening
-			Controller.getInstance().setPrimedCells(
-					Controller.getInstance().getPrimedCells() + 1);
-
 		}
 
-		if (displayAntigenGraph) {
-			// Grapher.updateAntigenGraph( this.getAntigenCaptured()); //this
-			// gives an error when run on console
-		}
+
 
 	}
 
@@ -317,11 +301,11 @@ public class cognateBC extends BC {
 			transf.addChild(localTG);
 
 			// if we have had any collisions, draw them as red circles
-			modelCollisions(m_d3aCollisions, obj, transf);
+			modelCollisions(getM_d3aCollisions(), obj, transf);
 
 			// If we have any movement, then draw it as white lines telling us
 			// where the cell is orientated
-			modelMovements(m_d3aMovements, obj, transf);
+			modelMovements(getM_d3aMovements(), obj, transf);
 		}
 		return transf;
 	}
@@ -352,9 +336,7 @@ public class cognateBC extends BC {
 		return receptors;
 	}
 
-	// public void setReceptors(ArrayList<Integer> receptors) {
-	// this.receptors = receptors;
-	// }
+
 
 	public Integer getIndex() {
 		return index;
@@ -364,18 +346,8 @@ public class cognateBC extends BC {
 		this.antigenCaptured = antigenCaptured;
 	}
 
-	// public void setPositionX(ArrayList<Double> positionX) {
-	// this.positionX = positionX;
-	// }
 
-	// public void setPositionY(ArrayList<Double> positionY) {
-	// this.positionY = positionY;
-	// }
-
-	// public void setPositionZ(ArrayList<Double> positionZ) {
-	// this.positionZ = positionZ;
-	// }
-
+	
 	public void setIndex(Integer index) {
 		this.index = index;
 	}

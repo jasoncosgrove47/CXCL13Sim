@@ -1,10 +1,7 @@
 package sim3d;
 
 import sim.portrayal.grid.FastHexaValueGridPortrayal2D;
-import sim.portrayal.grid.HexaValueGridPortrayal2D;
-import sim.portrayal.grid.ValueGridPortrayal2D;
 import sim.portrayal3d.continuous.ContinuousPortrayal3D;
-import sim.util.gui.ColorMap;
 import sim.util.gui.SimpleColorMap;
 import sim.engine.*;
 import sim.display.*;

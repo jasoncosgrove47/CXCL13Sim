@@ -74,7 +74,7 @@ public class StromaGenerator {
 	 *            Depth of grid
 	 * @param iCellCount
 	 *            Max number of stromal cells (note: this is a upper bound only)
-	 * @return TODO
+	 * @return 
 	 */
 	public static int generateStroma3D(int iWidth, int iHeight, int iDepth,
 			int iCellCount, ArrayList<FRCCell> frclCellLocations,
@@ -414,7 +414,7 @@ public class StromaGenerator {
 						* Math.pow(length, 4) + 0.151204 * Math.pow(length, 3)
 						- 0.342923 * Math.pow(length, 2) + 0.392281 * length;
 
-				// TODO Yay! More magic numbers
+				// Yay! More magic numbers
 				length = 1.3 + length * 3.5;
 
 				// 2D special case

@@ -11,7 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import dataLogger.Controller;
+
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
@@ -20,7 +20,7 @@ import sim3d.Settings;
 import sim3d.cell.BC;
 import sim3d.cell.StromaEdge;
 import sim3d.cell.cognateBC;
-import sim3d.cell.cognateBC.TYPE;
+
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
 import sim3d.util.IO;

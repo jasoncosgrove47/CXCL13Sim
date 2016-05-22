@@ -167,12 +167,13 @@ public class BCTest {
 	 */
 	@Test
 	public void testCalculateWhereToMoveNext() {
-		bc.m_d3aMovements = new ArrayList<Double3D>();
+		bc.setM_d3aMovements(new ArrayList<Double3D>());
 		bc.calculateWhereToMoveNext();
 		// assert movements list has been updated
-		assertEquals(false, bc.m_d3aMovements.isEmpty());
+		assertEquals(false, bc.getM_d3aMovements().isEmpty());
 	}
 
+	
 	/**
 	 * Test that perform saved movements takes data from m_d3aMovements and
 	 * updates cells location accordingly
@@ -180,8 +181,8 @@ public class BCTest {
 	@Test
 	public void testPerformSavedMovements() {
 
-		bc.m_d3aMovements = new ArrayList<Double3D>();
-		bc.m_d3aMovements.add(new Double3D(1, 1, 1));
+		bc.setM_d3aMovements(new ArrayList<Double3D>());
+		bc.getM_d3aMovements().add(new Double3D(1, 1, 1));
 
 		Double3D targetLocation = new Double3D(bc.x + 1, bc.y + 1, bc.z + 1);
 
@@ -222,7 +223,7 @@ public class BCTest {
 		m_pParticle.step(null);
 
 		double[] results;
-		results = bc.calculateLigandBindingNew();
+		results = bc.calculateLigandBindingMoles();
 
 		assertNotNull(results[0]);
 
@@ -234,7 +235,7 @@ public class BCTest {
 	@Test
 	public void testGetLigandBinding2() {
 		double[] results;
-		results = bc.calculateLigandBindingNew();
+		results = bc.calculateLigandBindingMoles();
 		assertThat(results[0], equalTo(0.0));
 	}
 
@@ -280,7 +281,7 @@ public class BCTest {
 		Double3D loc2 = new Double3D(6, 6, 6);
 
 	
-		bc.m_d3aMovements.add(loc1);
+		bc.getM_d3aMovements().add(loc1);
 		//bc.m_d3aMovements.add(loc2);
 		bc.registerCollisions(cgGrid);
 
@@ -307,7 +308,7 @@ public class BCTest {
 		Double3D loc2 = new Double3D(1, 1, 1);
 		bc.setObjectLocation(loc1);
 		StromaEdge se = new StromaEdge(loc1, loc2);
-		bc.m_d3aMovements.add(new Double3D(loc2));
+		bc.getM_d3aMovements().add(new Double3D(loc2));
 
 		// assert that the stroma and BC collide
 		boolean test = bc.collideStromaEdge(se, 1);
@@ -336,15 +337,15 @@ public class BCTest {
 		// set the BC and SE location
 		bc.setObjectLocation(loc1);
 		StromaEdge se = new StromaEdge(loc1, loc2);
-		bc.m_d3aMovements.add(new Double3D(loc2));
+		bc.getM_d3aMovements().add(new Double3D(loc2));
 
 		// assert that the cell is moving towards loc2
-		assertEquals(loc2, bc.m_d3aMovements.get(0));
+		assertEquals(loc2, bc.getM_d3aMovements().get(0));
 
 		// assert that movement has been updated because
 		// there is a stroma edge in the way
 		bc.collideStromaEdge(se, 1);
-		assertNotEquals(loc2, bc.m_d3aMovements.get(0));
+		assertNotEquals(loc2, bc.getM_d3aMovements().get(0));
 
 	}
 
@@ -449,11 +450,11 @@ public class BCTest {
 		BC.m_cgGrid = cgGrid;
 		BC bc = new BC();
 		TransformGroup localTG = bc.getModel(bc, null);
-		bc.m_d3aCollisions.add(new Double3D(1, 1, 1));
+		bc.getM_d3aCollisions().add(new Double3D(1, 1, 1));
 
 		// assert that the correct number of children
 		// are added to the transformGroup object
-		bc.modelMovements(bc.m_d3aCollisions, bc, localTG);
+		bc.modelMovements(bc.getM_d3aCollisions(), bc, localTG);
 		assertEquals(2, localTG.numChildren());
 
 	}
@@ -469,11 +470,11 @@ public class BCTest {
 		BC.m_cgGrid = cgGrid;
 		BC bc = new BC();
 		TransformGroup localTG = bc.getModel(bc, null);
-		bc.m_d3aCollisions.add(new Double3D(1, 1, 1));
+		bc.getM_d3aCollisions().add(new Double3D(1, 1, 1));
 
 		// assert that the correct number of children
 		// are added to the transformGroup object
-		bc.modelCollisions(bc.m_d3aCollisions, bc, localTG);
+		bc.modelCollisions(bc.getM_d3aCollisions(), bc, localTG);
 		assertEquals(2, localTG.numChildren());
 
 	}
@@ -499,13 +500,13 @@ public class BCTest {
 		// Generate input data
 		BC bc = new BC();
 		Double3D loc = new Double3D(32, 32, 32);
-		bc.m_d3aMovements.add(new Double3D(30, 30, 30));
-		bc.m_d3aMovements.add(loc);
+		bc.getM_d3aMovements().add(new Double3D(30, 30, 30));
+		bc.getM_d3aMovements().add(loc);
 
 		// assert that the cells putative location has been changed
 		// from loc
 		bc.handleBounce();
-		Double3D test = bc.m_d3aMovements.get(1);
+		Double3D test = bc.getM_d3aMovements().get(1);
 		assertNotEquals(loc, test);
 
 	}

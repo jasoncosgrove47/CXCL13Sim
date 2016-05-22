@@ -265,7 +265,7 @@ public class SimulationEnvironment extends SimState {
 	 * ArrayList<FRCCell>(); ArrayList<StromaEdge> sealEdges = new
 	 * ArrayList<StromaEdge>();
 	 * 
-	 * //generate the stromal network //TODO should rename this generator class
+	 * //generate the stromal network 
 	 * but fine for now FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2,
 	 * Settings.HEIGHT - 2, Settings.DEPTH - 2, Settings.FDC.COUNT,
 	 * frclCellLocations, sealEdges);
@@ -342,88 +342,7 @@ public class SimulationEnvironment extends SimState {
 		}
 
 		generateDendrites(cgGrid, sealEdges);
-		
-		/*
-		// Add the stroma edges to the display/CollisionGrid
-		for (StromaEdge seEdge : sealEdges) {
-			Double3D d3Point = seEdge.getPoint1();
-			Double3D d3Point2 = seEdge.getPoint2();
-
-			// Check if it's out of bounds
-			if (!(d3Point.x <= 0 || d3Point.x >= (Settings.WIDTH - 2)
-					|| d3Point.y <= 0 || d3Point.y >= (Settings.HEIGHT - 2)
-					|| d3Point.z <= 0 || d3Point.z >= (Settings.DEPTH - 2))
-					&& !(d3Point2.x <= 0 || d3Point2.x >= (Settings.WIDTH - 2)
-							|| d3Point2.y <= 0
-							|| d3Point2.y >= (Settings.HEIGHT - 2)
-							|| d3Point2.z <= 0 || d3Point2.z >= (Settings.DEPTH - 2))) {
-
-			}
-
-			// TODO encapsulate as its own method and add comments as there are
-			// none yet
-
-			int branchesAdded = 0;
-
-			// Register with display and CG
-			seEdge.setObjectLocation(new Double3D(seEdge.x + 1, seEdge.y + 1,
-					seEdge.z + 1));
-
-			seEdge.registerCollisions(cgGrid);
-
-			// add bracnhes to neighbouring cells
-			Bag neighbouredges = fdcEnvironment
-					.getNeighborsExactlyWithinDistance(seEdge.midpoint, 2);
-
-			for (int j = 0; j < neighbouredges.size() - 1; j++) {
-				if (neighbouredges.get(j) instanceof StromaEdge) {
-
-					if (branchesAdded < 1) {
-						StromaEdge neighbouredge = (StromaEdge) neighbouredges
-								.get(j);
-						branch b = new branch(seEdge.midpoint,
-								neighbouredge.midpoint);
-						b.setObjectLocation(new Double3D(b.x + 1, b.y + 1,
-								b.z + 1));
-
-						Bag branchedges = fdcEnvironment
-								.getNeighborsExactlyWithinDistance(b.midpoint,
-										2);
-
-						int subbranches = 0;
-
-						for (int k = 0; k < branchedges.size() - 1; k++) {
-
-							if (subbranches < 1) {
-								if (branchedges.get(k) instanceof FDC) {
-									FDC fdc = (FDC) branchedges.get(k);
-									branch b2 = new branch(b.midpoint,
-											new Double3D(fdc.x, fdc.y, fdc.z));
-									b2.setObjectLocation(new Double3D(b2.x + 1,
-											b2.y + 1, b2.z + 1));
-
-									b2.registerCollisions(cgGrid);
-
-									totalNumberOfDendrites += 1;
-								}
-
-								subbranches += 1;
-							}
-						}
-						branchesAdded += 1;
-					}
-				}
-			}
-		}
-
-		// count the entire number of dendrites so we can get a percentage
-		// scanned measure
-		totalNumberOfDendrites += sealEdges.size();
-
-
-*/
-		
-		
+			
 	}
 
 	
@@ -443,6 +362,11 @@ public class SimulationEnvironment extends SimState {
 									|| d3Point2.y >= (Settings.HEIGHT - 2)
 									|| d3Point2.z <= 0 || d3Point2.z >= (Settings.DEPTH - 2))) {
 
+						
+						//TODO what is this doing, need to discuss with Simon
+						int iCat = (int) (5 *
+								  (seEdge.getPoint2() .subtract(seEdge.getPoint1()).length() - 1.2));
+						
 					}
 	
 
@@ -507,35 +431,5 @@ public class SimulationEnvironment extends SimState {
 	}
 	
 	
-	/**
-	 * Add branches to the stroma to get a more web-like morphology
-	 * 
-	 * @param sealEdges
-	 */
-	/*
-	 * public void addBranchestoBranches( double distance) {
-	 * 
-	 * Bag Stroma = null; Stroma = fdcEnvironment.getAllObjects(); for(int i=0;
-	 * i <Stroma.size();i++) { if(Stroma.get(i) instanceof branch) { branch se =
-	 * (branch) Stroma.get(i);
-	 * 
-	 * //calculate midpoint and then use this //to see what might be close Bag
-	 * neighbouredges = null; neighbouredges =
-	 * fdcEnvironment.getNeighborsExactlyWithinDistance(se.midpoint, distance);
-	 * 
-	 * int branchesAdded = 0;
-	 * 
-	 * for(int j=0; j <neighbouredges.size() - 1;j++) { if(branchesAdded < 2) {
-	 * 
-	 * if(neighbouredges.get(j) instanceof branch && branchesAdded < 2) {
-	 * 
-	 * branch neighbouredge = (branch) neighbouredges.get(j); branch b = new
-	 * branch(se.midpoint,neighbouredge.midpoint); b.setObjectLocation(new
-	 * Double3D(b.x + 1, b.y + 1, b.z + 1));
-	 * 
-	 * branchesAdded +=1;
-	 * 
-	 * } } } } } }
-	 */
 
 }

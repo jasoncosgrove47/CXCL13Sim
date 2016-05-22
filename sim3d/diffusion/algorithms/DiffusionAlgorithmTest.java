@@ -64,7 +64,7 @@ public class DiffusionAlgorithmTest {
 	 */
 	@Test
 	public void testCourant() {
-		// TODO this test requires a little thinking. We need to work out u and
+		// this test requires a little thinking. We need to work out u and
 		// whether or not it is too high, but this depends on the time step we
 		// use, the
 		// max expected amount of chemokine, and the diffusion coefficient.
