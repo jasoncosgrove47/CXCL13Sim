@@ -262,7 +262,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	public double[][][] getArea(int x, int y, int z) {
 		double[][][] aiReturn = new double[3][3][3];
 
-		// TODO well isn't this a bit horrible...
 		for (int r = 0; r < 3; r++) {
 			// Check if we're out of bounds
 			if (x + r - 1 < 0 || x + r - 1 >= m_iWidth) {
@@ -333,7 +332,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		//this is the volume of the entire compartment in liters
 		double vol = 7.84e-9;
 		
-		System.out.println("total chemokine (Molar) is: " + totalChemokineinMoles/vol);
+		//System.out.println("total chemokine (Molar) is: " + totalChemokineinMoles/vol);
 
 	}
 
@@ -341,16 +340,10 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 
 		double totalChemokineValue = 0;
 
-		
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
 				for (int z = 0; z < m_iDepth; z++) {
-					
-				
-					
 					totalChemokineValue += this.field[x][y][z];
-					
-					
 				}
 			}
 		}
@@ -359,28 +352,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 
 	}
 
-	/**
-	 * Updates the 2D display
-	 */
-	/*
-	 * public void updateDisplay2() {
-	 * 
-	 * 
-	 * for (int x = 0; x < m_iWidth; x++) { for (int y = 0; y < m_iHeight; y++)
-	 * {
-	 * 
-	 * double val = field[x][y][m_iDisplayLevel]; if(val < 6e-16){
-	 * m_ig2Display.set(x, y, 0); } else if(val > 6e-16 && val < 5e-15){
-	 * m_ig2Display.set(x, y, 2); } else if(val > 5e-15 && val < 5e-14){
-	 * m_ig2Display.set(x, y, 3); }
-	 * 
-	 * else if(val > 5e-14 && val < 1e-13){ m_ig2Display.set(x, y, 4); }
-	 * 
-	 * else if(val > 1e-13 && val < 5e-13){ m_ig2Display.set(x, y,6); } else
-	 * if(val > 5e-13 && val < 1e-12){ m_ig2Display.set(x, y, 9); } else if(val
-	 * > 1e-12 && val < 2e-12){ m_ig2Display.set(x, y, 11); } else if(val >
-	 * 2e-12){ m_ig2Display.set(x, y, 15); } } } }
-	 */
+
 
 	/**
 	 * Updates the 2D display

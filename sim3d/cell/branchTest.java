@@ -3,10 +3,6 @@ package sim3d.cell;
 import static org.junit.Assert.*;
 
 import javax.media.j3d.TransformGroup;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -41,7 +37,7 @@ public class branchTest {
 	public void testAntigenLevel() {
 		Settings.FDC.STARTINGANTIGENLEVEL = 400;
 		branch c = new branch(new Double3D(0, 0, 0), new Double3D(1, 1, 1));
-		assertThat(c.getAntigen(), equalTo(200));
+		assertThat(c.getAntigenLevel(), equalTo(400));
 	}
 
 	/**

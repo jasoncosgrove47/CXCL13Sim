@@ -20,7 +20,7 @@ import sim3d.util.StromaGenerator.FRCCell;
  * @author sjj509
  * 
  */
-public class FRCStromaGeneratorTest {
+public class StromaGeneratorTest {
 
 	/**
 	 * @throws java.lang.Exception
@@ -101,6 +101,7 @@ public class FRCStromaGeneratorTest {
 	 */
 	@Test
 	public void testCellCount() {
+		
 		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
 		StromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,

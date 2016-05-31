@@ -11,7 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import dataLogger.Controller;
+
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
@@ -20,7 +20,7 @@ import sim3d.Settings;
 import sim3d.cell.BC;
 import sim3d.cell.StromaEdge;
 import sim3d.cell.cognateBC;
-import sim3d.cell.cognateBC.TYPE;
+
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
 import sim3d.util.IO;
@@ -116,11 +116,7 @@ public class BCIntegrationTests {
 		// make the BCs highly sensitive to chemokine
 		Settings.CXCL13.DECAY_CONSTANT = 0.005;
 		Settings.BC.SIGNAL_THRESHOLD = 1;
-		// Settings.BC.ODE.Ka = 10e-10;
 
-		// Settings.BC.ODE.Rf = 0;
-		// Settings.BC.ODE.LR = 0;
-		// Settings.BC.ODE.Ri = 0;
 
 		// Let's diffuse a little
 		Settings.DIFFUSION_STEPS = 2;
@@ -144,7 +140,7 @@ public class BCIntegrationTests {
 				bcCells[j].step(null);
 			}
 
-			m_pParticle.field[15][15][15] += 5 * Math.pow(10, -17);
+			m_pParticle.field[15][15][15] += 5 * Math.pow(10, -19);
 			m_pParticle.step(null);
 		}
 

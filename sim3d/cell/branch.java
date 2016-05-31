@@ -47,8 +47,10 @@ public class branch extends StromaEdge {
 		// divide antigen amount by 2 to make sure a BC has to interact with the
 		// correct portion of the edge to acquire antigen. Otherwise a BC could
 		// interact with one end of the edge but take antigen from the other end
-		this.setAntigenLevelLowerHalf((Settings.FDC.STARTINGANTIGENLEVEL / 4));
-		this.setAntigenLevelUpperEdge((Settings.FDC.STARTINGANTIGENLEVEL / 4));
+		
+		
+		this.setAntigenLevel((Settings.FDC.STARTINGANTIGENLEVEL));
+		
 
 		this.STROMA_EDGE_RADIUS = Settings.FDC.BRANCH_RADIUS;
 

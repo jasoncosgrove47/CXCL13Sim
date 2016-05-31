@@ -106,14 +106,6 @@ public class Controller implements Steppable {
 		}
 	}
 	
-	// getters and setters for the controller
-	public static int getPrimedCells() {
-		return primedCells;
-	}
-
-	public static void setPrimedCells(int primedCells) {
-		Controller.primedCells = primedCells;
-	}
 
 	public Map<Integer, ArrayList<Double>> getX_Coordinates() {
 		return X_Coordinates;

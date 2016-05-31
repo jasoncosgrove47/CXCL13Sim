@@ -53,21 +53,10 @@ public class StromaEdgeTest {
 		Settings.FDC.STARTINGANTIGENLEVEL = 400;
 		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1,
 				1, 1));
-		assertTrue(se.getAntigen() == 400);
+		assertTrue(se.getAntigenLevel() == 400);
 	}
 
-	/**
-	 * Test that the edge has the correct amount of antigen at the start of a
-	 * simulation
-	 */
-	@Test
-	public void testGetAntigenLowerandUpperHalf() {
-		Settings.FDC.STARTINGANTIGENLEVEL = 400;
-		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1,
-				1, 1));
-		assertTrue(se.getAntigenLevelLowerEdge() == 200);
-		assertTrue(se.getAntigenLevelUpperEdge() == 200);
-	}
+
 
 	/**
 	 * Test that registerCollisions updates m_i3lCollsionPoints

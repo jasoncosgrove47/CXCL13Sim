@@ -16,6 +16,7 @@ import sim.engine.Schedule;
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
+import sim3d.diffusion.Chemokine;
 
 
 public class UnitTests extends AbstractAnalysis {
@@ -203,7 +204,7 @@ public class UnitTests extends AbstractAnalysis {
 
 	public void testParticleDiffusion() {
 		Schedule schedule = new Schedule();
-		Particle p = new Particle(schedule, Particle.TYPE.CCL19, 125, 125, 125);
+		Chemokine p = new Chemokine(schedule, Chemokine.TYPE.CCL19, 125, 125, 125);
 
 		p.add(62, 62, 62, 1);
 		// p.m_dDecayRateInv = 1;

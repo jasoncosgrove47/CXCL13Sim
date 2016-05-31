@@ -116,42 +116,14 @@ public class BCTest {
 
 		// assert that the correct collision points have ben added
 		// to the m_i3lCollisionPoints hashset
-		assertEquals(true, bc.m_i3lCollisionPoints.contains(test));
-		assertEquals(false, bc.m_i3lCollisionPoints.contains(test2));
+		assertEquals(true, bc.getM_i3lCollisionPoints().contains(test));
+		assertEquals(false, bc.getM_i3lCollisionPoints().contains(test2));
 	}
 
-	/**
-	 * Test that determinespacetomove() returns true when 
-	 * there is space to move
-	 */
-	@Test
-	public void testDetermineSpaceToMove() {
-		// no other cells around so should return true
-		boolean test = bc.determineSpaceToMove(bc.x + 0.2, bc.y + 0.2,
-				bc.z + 0.2);
-		assertEquals(true, test);
-	}
+	
+	
 
-	/**
-	 * Test that determinespacetomove() returns false 
-	 * when there isn't space to move
-	 */
-	@Test
-	public void testdetermineSpaceToMove2() {
-		Double3D location = new Double3D(bc.x, bc.y, bc.z);
-
-		// crowd bc with lots of other agents
-		for (int i = 0; i < 30; i++) {
-			BC bcTemp = new BC();
-			bcTemp.setObjectLocation(location);
-		}
-
-		// no space to move so should return false
-		boolean test = bc.determineSpaceToMove(bc.x + 0.2, bc.y + 0.2,
-				bc.z + 0.2);
-		assertEquals(false, test);
-
-	}
+	
 
 	/**
 	 * Test that getCollisionClass returns the correct enum for a B cell
@@ -161,34 +133,8 @@ public class BCTest {
 		assertEquals(bc.getCollisionClass(), CLASS.BC);
 	}
 
-	/**
-	 * Test that calculateWhereToMoveNext can update the m_d3aMovements array.
-	 * TODO this test could definitely be refined
-	 */
-	@Test
-	public void testCalculateWhereToMoveNext() {
-		bc.m_d3aMovements = new ArrayList<Double3D>();
-		bc.calculateWhereToMoveNext();
-		// assert movements list has been updated
-		assertEquals(false, bc.m_d3aMovements.isEmpty());
-	}
 
-	/**
-	 * Test that perform saved movements takes data from m_d3aMovements and
-	 * updates cells location accordingly
-	 */
-	@Test
-	public void testPerformSavedMovements() {
 
-		bc.m_d3aMovements = new ArrayList<Double3D>();
-		bc.m_d3aMovements.add(new Double3D(1, 1, 1));
-
-		Double3D targetLocation = new Double3D(bc.x + 1, bc.y + 1, bc.z + 1);
-
-		bc.performSavedMovements();
-		assertEquals(new Double3D(bc.x, bc.y, bc.z), targetLocation);
-
-	}
 
 	/**
 	 * test that a BC can't be accessed once marked as dead
@@ -202,65 +148,9 @@ public class BCTest {
 		assertEquals(false, BC.bcEnvironment.exists(bcTemp));
 	}
 
-	/**
-	 * Test that getLigandBinding can detect chemokine Integration tests to
-	 * ensure that the method can detect gradients
-	 * 
-	 * TODO refine
-	 * 
-	 * we can calculate how much chemokine is in the surrounding gridspaces
-	 * and make sure that the results reflect that
-	 */
-	@Test
-	public void testGetLigandBinding() {
+	
 
-		m_pParticle.field[(int) bc.x][(int) bc.y][(int) bc.z] = (1.7 * Math
-				.pow(10, -5));
-		m_pParticle.step(null);
-		m_pParticle.step(null);
-		m_pParticle.step(null);
-		m_pParticle.step(null);
 
-		double[] results;
-		results = bc.calculateLigandBindingNew();
-
-		assertNotNull(results[0]);
-
-	}
-
-	/**
-	 * Test that no ligand binds if there is no chemokine there
-	 */
-	@Test
-	public void testGetLigandBinding2() {
-		double[] results;
-		results = bc.calculateLigandBindingNew();
-		assertThat(results[0], equalTo(0.0));
-	}
-
-	/**
-	 * test that getMoveDirection returns a double3D Integration tests ensure
-	 * that the correct direction is provided
-	 * 
-	 * TODO refine we could put the chemokine north of the cell and see 
-	 * if it orientates towards that direction
-	 * 
-	 * 
-	 */
-	@Test
-	public void testGetMoveDirection() {
-
-		m_pParticle.field[(int) bc.x][(int) bc.y][(int) bc.z] = (1.7 * Math
-				.pow(10, -5));
-		m_pParticle.step(null);
-		m_pParticle.step(null);
-		m_pParticle.step(null);
-		m_pParticle.step(null);
-
-		Double3D test = bc.getMoveDirection();
-		assertNotNull(test);
-
-	}
 
 	/**
 	 * Tests that register collisions can add data to the collisionGrid
@@ -280,7 +170,7 @@ public class BCTest {
 		Double3D loc2 = new Double3D(6, 6, 6);
 
 	
-		bc.m_d3aMovements.add(loc1);
+		bc.getM_d3aMovements().add(loc1);
 		//bc.m_d3aMovements.add(loc2);
 		bc.registerCollisions(cgGrid);
 
@@ -307,7 +197,7 @@ public class BCTest {
 		Double3D loc2 = new Double3D(1, 1, 1);
 		bc.setObjectLocation(loc1);
 		StromaEdge se = new StromaEdge(loc1, loc2);
-		bc.m_d3aMovements.add(new Double3D(loc2));
+		bc.getM_d3aMovements().add(new Double3D(loc2));
 
 		// assert that the stroma and BC collide
 		boolean test = bc.collideStromaEdge(se, 1);
@@ -336,15 +226,15 @@ public class BCTest {
 		// set the BC and SE location
 		bc.setObjectLocation(loc1);
 		StromaEdge se = new StromaEdge(loc1, loc2);
-		bc.m_d3aMovements.add(new Double3D(loc2));
+		bc.getM_d3aMovements().add(new Double3D(loc2));
 
 		// assert that the cell is moving towards loc2
-		assertEquals(loc2, bc.m_d3aMovements.get(0));
+		assertEquals(loc2, bc.getM_d3aMovements().get(0));
 
 		// assert that movement has been updated because
 		// there is a stroma edge in the way
 		bc.collideStromaEdge(se, 1);
-		assertNotEquals(loc2, bc.m_d3aMovements.get(0));
+		assertNotEquals(loc2, bc.getM_d3aMovements().get(0));
 
 	}
 
@@ -449,11 +339,11 @@ public class BCTest {
 		BC.m_cgGrid = cgGrid;
 		BC bc = new BC();
 		TransformGroup localTG = bc.getModel(bc, null);
-		bc.m_d3aCollisions.add(new Double3D(1, 1, 1));
+		bc.getM_d3aCollisions().add(new Double3D(1, 1, 1));
 
 		// assert that the correct number of children
 		// are added to the transformGroup object
-		bc.modelMovements(bc.m_d3aCollisions, bc, localTG);
+		bc.modelMovements(bc.getM_d3aCollisions(), bc, localTG);
 		assertEquals(2, localTG.numChildren());
 
 	}
@@ -469,11 +359,11 @@ public class BCTest {
 		BC.m_cgGrid = cgGrid;
 		BC bc = new BC();
 		TransformGroup localTG = bc.getModel(bc, null);
-		bc.m_d3aCollisions.add(new Double3D(1, 1, 1));
+		bc.getM_d3aCollisions().add(new Double3D(1, 1, 1));
 
 		// assert that the correct number of children
 		// are added to the transformGroup object
-		bc.modelCollisions(bc.m_d3aCollisions, bc, localTG);
+		bc.modelCollisions(bc.getM_d3aCollisions(), bc, localTG);
 		assertEquals(2, localTG.numChildren());
 
 	}
@@ -499,13 +389,13 @@ public class BCTest {
 		// Generate input data
 		BC bc = new BC();
 		Double3D loc = new Double3D(32, 32, 32);
-		bc.m_d3aMovements.add(new Double3D(30, 30, 30));
-		bc.m_d3aMovements.add(loc);
+		bc.getM_d3aMovements().add(new Double3D(30, 30, 30));
+		bc.getM_d3aMovements().add(loc);
 
 		// assert that the cells putative location has been changed
 		// from loc
 		bc.handleBounce();
-		Double3D test = bc.m_d3aMovements.get(1);
+		Double3D test = bc.getM_d3aMovements().get(1);
 		assertNotEquals(loc, test);
 
 	}

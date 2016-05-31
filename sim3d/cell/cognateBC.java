@@ -34,6 +34,7 @@ public class cognateBC extends BC {
 
 	private ArrayList<Integer> receptors = new ArrayList<Integer>();
 
+	
 	/**
 	 * Unique identifier of each cBC
 	 */
@@ -72,14 +73,15 @@ public class cognateBC extends BC {
 		// need to set these to zero for the CXCR5 KO experiment
 		// as we need a functional follicle to form for consistency
 
-		// this.m_iL_r = 0;
-		// this.m_iR_free = 0;
-		// this.m_iR_i = 0;
+		 this.m_iL_r = 0;
+		 this.m_iR_free = 0;
+		 this.m_iR_i = 0;
 	}
 
 	@Override
 	public void step(final SimState state) {
 
+		
 		super.step(state);
 
 		// once the system has reached steady state the BC can start to record
@@ -109,6 +111,7 @@ public class cognateBC extends BC {
 
 	}
 
+	
 	/**
 	 * Updates the cells X,Y and Z coordinates in the XY and Z arraylists and
 	 * the controllers coordinate MAPs so they can be accessed by viewers
@@ -155,8 +158,8 @@ public class cognateBC extends BC {
 		// don't let a b cell collide more than collisionThreshold times
 		// required to avoid getting in an infinite loop
 		int collisionThreshold = 10;
-		if (m_i3lCollisionPoints.size() == 0
-				|| collisionCounter > collisionThreshold) {
+		if (getM_i3lCollisionPoints().size() == 0
+				|| getCollisionCounter() > collisionThreshold) {
 			return;
 		}
 
@@ -164,13 +167,13 @@ public class cognateBC extends BC {
 		HashSet<Collidable> csCollidables = new HashSet<Collidable>();
 
 		// Add all the cells to the set
-		for (Int3D i3Point : m_i3lCollisionPoints) {
+		for (Int3D i3Point : getM_i3lCollisionPoints()) {
 			for (Collidable cCollidable : cgGrid.getPoints(i3Point)) {
 				csCollidables.add(cCollidable);
 			}
 		}
 
-		int iCollisionMovement = m_d3aMovements.size();
+		int iCollisionMovement = getM_d3aMovements().size();
 		boolean bCollision = false;
 
 		// To keep a track of where we collided - we are only interested in the
@@ -180,7 +183,7 @@ public class cognateBC extends BC {
 			case STROMA_EDGE: // These first two are the more likely hits as
 								// they won't be moving
 				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
-					iCollisionMovement = m_d3aMovements.size() - 1;
+					iCollisionMovement = getM_d3aMovements().size() - 1;
 					bCollision = true;
 
 					// this guard is here as we don't want the agents to acquire
@@ -196,7 +199,7 @@ public class cognateBC extends BC {
 
 				if (collideStromaEdge((branch) cCell, iCollisionMovement)) {
 
-					iCollisionMovement = m_d3aMovements.size() - 1;
+					iCollisionMovement = getM_d3aMovements().size() - 1;
 					bCollision = true;
 
 					// this guard is here as we don't want the agents to acquire
@@ -220,9 +223,12 @@ public class cognateBC extends BC {
 		}
 	}
 
+	
 	/**
 	 * Acquire antigen from a stroma edge or branch
 	 * 
+	 * 
+	 * TODO think this is what's making it sensitive to calibration
 	 * @param cCell
 	 * 
 	 */
@@ -230,28 +236,20 @@ public class cognateBC extends BC {
 		StromaEdge sEdge = (StromaEdge) cCell;
 
 		// determine if the cell has already grabbed antigen from this dendrite
-		boolean lowerCollision = sEdge.cellsCollidedWithLowerHalf
+		boolean collision = sEdge.cellsCollidedWith
 				.contains(this.index);
-		boolean upperCollision = sEdge.cellsCollidedWithUpperHalf
-				.contains(this.index);
+
 
 		// we divide the stroma in two as make it more accurate
-		if (this.getPositionAlongStroma() > 0.5 & upperCollision == false) // if
-																			// on
-																			// the
-																			// upper
-																			// half
-																			// of
-																			// the
-		// stromal edge
+		//if on the upper half of the stroma
+		if (collision == false) 
 		{
 
-			if (sEdge.getAntigenLevelUpperEdge() > 0) // if the stroma has
-														// antigen to present
+			if (sEdge.getAntigenLevel() > 0) // if the stroma has antigen to present
 			{
 				// remove antigen from the stromal edge
-				sEdge.setAntigenLevelUpperEdge(sEdge.getAntigenLevelUpperEdge() - 1);
-				sEdge.cellsCollidedWithUpperHalf.add(this.index);
+				sEdge.setAntigenLevel(sEdge.getAntigenLevel() - 1);
+				sEdge.cellsCollidedWith.add(this.index);
 
 				// TODO not the prettiest code so should refactor
 				this.dendritesVisited += 1;
@@ -262,39 +260,17 @@ public class cognateBC extends BC {
 				this.setAntigenCaptured(this.getAntigenCaptured() + 1);
 
 			}
-		} else if (lowerCollision == false) {
-			if (sEdge.getAntigenLevelLowerEdge() > 0) // if on the lower half of
-														// the stromal edge
-			{
-				// remove antigen from stromal edge
-				sEdge.setAntigenLevelLowerHalf(sEdge.getAntigenLevelLowerEdge() - 1);
-				sEdge.cellsCollidedWithLowerHalf.add(this.index);
-				this.dendritesVisited += 1;
-				Controller.getInstance().getDendritesVisited()
-						.put(this.index, this.dendritesVisited);
-				// increment the cBC antigen captured counter
-				this.setAntigenCaptured(this.getAntigenCaptured() + 1);
-			}
-		}
+		} 
 
 		// if the cell is naive then we need to update its status to primed
 		if (this.type == TYPE.NAIVE) {
 			this.type = TYPE.PRIMED;
 
-			// update the number of primed cells in the simulation
-
-			// TODO why the hell is this happening
-			Controller.getInstance().setPrimedCells(
-					Controller.getInstance().getPrimedCells() + 1);
-
 		}
-
-		if (displayAntigenGraph) {
-			// Grapher.updateAntigenGraph( this.getAntigenCaptured()); //this
-			// gives an error when run on console
-		}
-
 	}
+	
+	
+
 
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
@@ -317,11 +293,11 @@ public class cognateBC extends BC {
 			transf.addChild(localTG);
 
 			// if we have had any collisions, draw them as red circles
-			modelCollisions(m_d3aCollisions, obj, transf);
+			modelCollisions(getM_d3aCollisions(), obj, transf);
 
 			// If we have any movement, then draw it as white lines telling us
 			// where the cell is orientated
-			modelMovements(m_d3aMovements, obj, transf);
+			modelMovements(getM_d3aMovements(), obj, transf);
 		}
 		return transf;
 	}
@@ -352,10 +328,6 @@ public class cognateBC extends BC {
 		return receptors;
 	}
 
-	// public void setReceptors(ArrayList<Integer> receptors) {
-	// this.receptors = receptors;
-	// }
-
 	public Integer getIndex() {
 		return index;
 	}
@@ -363,19 +335,7 @@ public class cognateBC extends BC {
 	public void setAntigenCaptured(int antigenCaptured) {
 		this.antigenCaptured = antigenCaptured;
 	}
-
-	// public void setPositionX(ArrayList<Double> positionX) {
-	// this.positionX = positionX;
-	// }
-
-	// public void setPositionY(ArrayList<Double> positionY) {
-	// this.positionY = positionY;
-	// }
-
-	// public void setPositionZ(ArrayList<Double> positionZ) {
-	// this.positionZ = positionZ;
-	// }
-
+	
 	public void setIndex(Integer index) {
 		this.index = index;
 	}

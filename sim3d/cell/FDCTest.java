@@ -49,11 +49,12 @@ public class FDCTest {
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
 		StromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
 				selEdges);
+		
 
 		Settings.FDC.STARTINGANTIGENLEVEL = 100;
 		for (StromaEdge seEdge : selEdges) {
-			seEdge.getAntigen();
-			assertThat(seEdge.getAntigen(), greaterThan(0));
+			seEdge.getAntigenLevel();
+			assertThat(seEdge.getAntigenLevel(), greaterThan(0));
 		}
 	}
 
@@ -85,8 +86,8 @@ public class FDCTest {
 		for (StromaEdge seEdge : selEdges2) {
 
 			// int antigenLevel = seEdge.getAntigen();
-			seEdge.setAntigenLevelLowerHalf(seEdge.getAntigenLevelLowerEdge() - 1);
-			assertThat(seEdge.getAntigen(), lessThan(100));
+			seEdge.setAntigenLevel(seEdge.getAntigenLevel() - 1);
+			assertThat(seEdge.getAntigenLevel(), lessThan(100));
 		}
 
 	}

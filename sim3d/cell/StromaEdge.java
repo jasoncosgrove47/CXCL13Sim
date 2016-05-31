@@ -43,8 +43,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 * Records which cells ahve collided with this edge as we want to know the
 	 * number of unique edges and branches visited by a cognate BC
 	 */
-	ArrayList<Integer> cellsCollidedWithUpperHalf = new ArrayList<Integer>();
-	ArrayList<Integer> cellsCollidedWithLowerHalf = new ArrayList<Integer>();
+
+	ArrayList<Integer> cellsCollidedWith = new ArrayList<Integer>();
 
 	/**
 	 * Define colours so that we can add an antigen heatmap later if required.
@@ -70,13 +70,9 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 * Divide each dendrite in two so that a B cell must be at the correct part
 	 * of the dendrite to acquire antigen
 	 */
-	private int antigenLevelUpperEdge;
-
-	/**
-	 * Divide each dendrite in two so that a B cell must be at the correct part
-	 * of the dendrite to acquire antigen
-	 */
-	private int antigenLevelLowerEdge;
+	private int antigenLevel;
+	
+	
 
 	/**
 	 * Constructor for the stromal edge
@@ -136,11 +132,14 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		midpoint = new Double3D((d3Point1.x + d3Point2.x) / 2,
 				(d3Point1.y + d3Point2.y) / 2, (d3Point1.z + d3Point2.z) / 2);
 
+		
 		// divide antigen amount by 2 to make sure a BC has to interact with the
 		// correct portion of the edge to acquire antigen. Otherwise a BC could
 		// interact with one end of the edge but take antigen from the other end
-		setAntigenLevelUpperEdge(Settings.FDC.STARTINGANTIGENLEVEL / 2);
-		setAntigenLevelLowerHalf(Settings.FDC.STARTINGANTIGENLEVEL / 2);
+		//setAntigenLevelUpperEdge(Settings.FDC.STARTINGANTIGENLEVEL / 2);
+		//setAntigenLevelLowerHalf(Settings.FDC.STARTINGANTIGENLEVEL / 2);
+		
+		setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
 	}
 
 	@Override
@@ -245,27 +244,16 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	}
 
 	/*
-	 * Getters and Setters for the class TODO would these be better as member
-	 * variables?
+	 * Getters and Setters for the class 
 	 */
-	public int getAntigenLevelUpperEdge() {
-		return antigenLevelUpperEdge;
+	
+
+	public int getAntigenLevel() {
+		return antigenLevel;
 	}
 
-	public int getAntigenLevelLowerEdge() {
-		return antigenLevelLowerEdge;
-	}
-
-	public int getAntigen() {
-		return antigenLevelLowerEdge + antigenLevelLowerEdge;
-	}
-
-	public void setAntigenLevelUpperEdge(int antigenLevel) {
-		this.antigenLevelUpperEdge = antigenLevel;
-	}
-
-	public void setAntigenLevelLowerHalf(int antigenLevelLowerEdge) {
-		this.antigenLevelLowerEdge = antigenLevelLowerEdge;
+	public void setAntigenLevel(int antigenLevel) {
+		this.antigenLevel = antigenLevel;
 	}
 
 }

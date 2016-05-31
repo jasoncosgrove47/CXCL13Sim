@@ -65,19 +65,14 @@ public class Grajdeanu extends DiffusionAlgorithm implements Serializable {
 					// d is the distance to the neighbouring square, and µ is
 					// the diffusion coefficient d^2 is calculated by squaring
 					// each of the fundamental vector distances (i.e. pythagoras
-					// in 3D!)
-					// this stops anisotropy as accounts for fact that diagonal
-					// neighbours
-					// are further away than lateral ones
+					// in 3D!) this stops anisotropy as accounts for fact that diagonal
+					// neighbours are further away than lateral ones
 
 					// TODO add some value to the center squares diffusion
-					// coefficient
-					// such that more chemokine stays there. Remember that the
-					// algorithm
-					// weights each surrounding gridspace and then normalises it
-					// so we
-					// can increase the weighting at the central space by doing
-					// this
+					// coefficient such that more chemokine stays there. Remember 
+					// that the algorithm weights each surrounding gridspace and 
+					// then normalises it so we can increase the weighting at the 
+					// central space by doing this
 					m_adDiffusionCoefficients[x + 1][y + 1][z + 1] = Math
 							.exp(-(Math.pow(Settings.GRID_SIZE, 2) * (x * x + y
 									* y + z * z))
@@ -90,8 +85,34 @@ public class Grajdeanu extends DiffusionAlgorithm implements Serializable {
 		}
 
 		// need to normalise so that the total amount being diffused is less
-		// than or equal
-		// to the total amount that exists
+		// than or equal to the total amount that exists
+
+		normaliseChemokine(dTotalDistance);
+		
+		/*
+		double dNormalisingCoefficient = 1 / dTotalDistance;
+
+		for (int x = 0; x < 3; x++) {
+			for (int y = 0; y < 3; y++) {
+				for (int z = 0; z < 3; z++) {
+					// Normalise so the sum adds up to one
+					m_adDiffusionCoefficients[x][y][z] *= dNormalisingCoefficient;
+				}
+			}
+		}
+		*/
+		
+	}
+	
+	/*
+	 * Normalise the chemokine so that the
+	 * total amount being diffused is less 
+	 * than or equal to the total amount
+	 * that exists
+	 */
+	private void normaliseChemokine(double dTotalDistance){
+		// need to normalise so that the total amount being diffused is less
+		// than or equal to the total amount that exists
 
 		double dNormalisingCoefficient = 1 / dTotalDistance;
 

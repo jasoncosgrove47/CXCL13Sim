@@ -15,8 +15,8 @@ import ec.util.MersenneTwisterFast;
  * 
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
- * 
  */
+
 public class Settings {
 
 	public static void loadParameters(Document params) {
@@ -180,14 +180,14 @@ public class Settings {
 			Node csN = csNL.item(0);
 			DIRECTION_ERROR_DEGREES = Double.parseDouble(csN.getTextContent());
 
-			NodeList pNL = paramBCElement.getElementsByTagName("PERSISTENCE");
+			NodeList pNL = paramBCElement.getElementsByTagName("POLARITY");
 			Node pN = pNL.item(0);
-			PERSISTENCE = Double.parseDouble(pN.getTextContent());
+			POLARITY = Double.parseDouble(pN.getTextContent());
 
 			NodeList rpNL = paramBCElement
-					.getElementsByTagName("RANDOM_PERSISTENCE");
+					.getElementsByTagName("RANDOM_POLARITY");
 			Node rpN = rpNL.item(0);
-			RANDOM_PERSISTENCE = Double.parseDouble(rpN.getTextContent());
+			RANDOM_POLARITY = Double.parseDouble(rpN.getTextContent());
 
 			NodeList ssNL = paramBCElement.getElementsByTagName("SPEED_SCALAR");
 			Node ssN = ssNL.item(0);
@@ -196,6 +196,7 @@ public class Settings {
 			convertAnglesToRadians();
 
 		}
+		
 
 		public static void convertAnglesToRadians() {
 			DIRECTION_ERROR = Math.toRadians(DIRECTION_ERROR_DEGREES);
@@ -211,13 +212,13 @@ public class Settings {
 		 * The bias of the memory vector with respect to the cells orientation
 		 * for a directed walk
 		 */
-		public static double PERSISTENCE;
+		public static double POLARITY;
 
 		/**
 		 * The bias of the memory vector with respect to the cells orientation
 		 * for a random walk
 		 */
-		public static double RANDOM_PERSISTENCE;
+		public static double RANDOM_POLARITY;
 
 		/**
 		 * Used to relate the speed of the cell to its persistence
@@ -337,6 +338,11 @@ public class Settings {
 				NodeList KiNL = paramODEElement.getElementsByTagName("Ki");
 				Node KiN = KiNL.item(0);
 				Ki = Double.parseDouble(KiN.getTextContent());
+				
+				NodeList KoffNL = paramODEElement.getElementsByTagName("Koff");
+				Node KoffN = KoffNL.item(0);
+				Koff = Double.parseDouble(KoffN.getTextContent());
+				
 			}
 
 			/**
@@ -381,6 +387,10 @@ public class Settings {
 				return Ka;
 			}
 
+			
+			public static double Koff;
+			
+			
 			/**
 			 * rate of receptor recycling from an internal pool
 			 */
