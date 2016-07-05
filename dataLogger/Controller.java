@@ -13,25 +13,19 @@ import sim3d.SimulationEnvironment;
 public class Controller implements Steppable {
 
 	/**
+	 * This class controls an in silico experiments. All data collection is 
+	 * handled through this singleton class, it has functionality to track 
+	 * populations of cell types and single cell tracking experiments.
 	 * 
-	 * 
-	 * All data collection is handled through this singleton class, it has functionality
-	 * to track populations of cell types and single cell tracking experiments.
-	 * 
-	 * MVC design pattern:
-	 * 
-	 * Model: SimulationEnvironment. Each cognate B-cell is responsible for
-	 * maintaining it's own data Controller: DataLogger contains data maps which
-	 * B cells write to (more efficient than iterating through each cell to do
-	 * so) View: GUIrun or consoleRun are responsible for running the model and
-	 * instantiate OutputToCSV or Grapher to display the data
+	 * Uses the MVC design pattern. Model: SimulationEnvironment. Each cognate 
+	 * B-cell is responsible for maintaining it's own data Controller: 
+	 * DataLogger contains data maps which B cells write to (more efficient than 
+	 * iterating through each cell to do so) View: GUIrun or consoleRun are 
+	 * responsible for running the model and instantiate OutputToCSV or Grapher 
+	 * to display the data
 	 * 
 	 * @author Jason Cosgrove
 	 */
-
-	
-	
-
 	
 	/**
 	 * The single instance of the class
@@ -126,9 +120,6 @@ public class Controller implements Steppable {
 	public Map<Integer,ArrayList<Integer>> getReceptors() {
 		return receptors;
 	}
-
-
-
 
 
 }

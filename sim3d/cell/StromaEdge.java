@@ -139,6 +139,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		//setAntigenLevelUpperEdge(Settings.FDC.STARTINGANTIGENLEVEL / 2);
 		//setAntigenLevelLowerHalf(Settings.FDC.STARTINGANTIGENLEVEL / 2);
 		
+		//think this might have funky effects so lets just do one per dendrite...
 		setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
 	}
 

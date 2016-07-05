@@ -2,19 +2,23 @@ package dataLogger;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import sim.util.Double3D;
 import sim3d.SimulationEnvironment;
 
 public final class outputToCSV {
 	/**
-	 * Forms the view component of the MVC (see controller) responsible for 
-	 * exporting in .csv format
+	 * Forms the view component of the MVC (see controller) responsible for
+	 * processing data and exporting in .csv format
+	 * 
 	 * @author jason cosgrove
 	 */
 
 	/**
 	 * processes migration data and sends processed data to csv files
 	 */
-	public static void writeDataToFile(String processedFileName) {
+	public static void writeProcessedDataToFile(String processedFileName) {
 
 		FileWriter processedDataWriter;
 
@@ -26,6 +30,7 @@ public final class outputToCSV {
 		try {
 
 			processedDataWriter = new FileWriter(processedFileName);
+
 			// set the data headings
 			processedDataWriter.append("TrackID");
 			processedDataWriter.append(',');
@@ -78,17 +83,24 @@ public final class outputToCSV {
 		}
 	}
 
+	
+
 	/**
-	 * Writes raw data to csv files
+	 * processes migration data and sends processed and raw data to csv files
+	 * TODO needs refactoring DRY!!!!
 	 */
 	public static void writeRawDataToFile(String rawFileName) {
 
 		FileWriter rawDataWriter;
+	
+
 
 		try {
 
 			rawDataWriter = new FileWriter(rawFileName);
+
 			// set the data headings
+
 			rawDataWriter.append("TrackID");
 			rawDataWriter.append(',');
 			rawDataWriter.append("Timepoint");
@@ -100,15 +112,16 @@ public final class outputToCSV {
 			rawDataWriter.append("CentroidZ");
 			rawDataWriter.append(',');
 			rawDataWriter.append("Receptor");
-			rawDataWriter.append(',');
-			rawDataWriter.append("turningAngle");
 			rawDataWriter.append('\n');
 
 			// for each tracker cell
 			for (Integer key : Controller.getInstance().getX_Coordinates()
 					.keySet()) {
+								
 				ProcessData.processRawData(key, rawDataWriter);
+
 			}
+
 
 			rawDataWriter.flush();
 			rawDataWriter.close();
@@ -118,4 +131,6 @@ public final class outputToCSV {
 		}
 	}
 
+
+		
 }

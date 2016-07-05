@@ -23,6 +23,8 @@ import sim3d.util.StromaGenerator;
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
+
+
 public class SimulationEnvironment extends SimState {
 
 	private static final long serialVersionUID = 1;

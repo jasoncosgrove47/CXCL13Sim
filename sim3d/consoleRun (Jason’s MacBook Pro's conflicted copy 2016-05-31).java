@@ -15,9 +15,6 @@ import sim3d.util.IO;
  * 
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  */
-
-
-
 public class consoleRun {
 
 	/*
@@ -81,7 +78,6 @@ public class consoleRun {
 				System.out.println("The experiment will now begin");
 			}
 
-			
 			if (!SimulationEnvironment.simulation.schedule
 					.step(SimulationEnvironment.simulation))
 				break;
@@ -92,11 +88,10 @@ public class consoleRun {
 		SimulationEnvironment.simulation.finish();
 		System.out.println("\nSimulation completed successfully!\n\n");
 
-		
 		// write the recorded data and raw data to a .csv file
 		 outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv" );
-		 outputToCSV.writeDataToFile(outputPath + outputFileName);
-		
+		 outputToCSV.writeProcessedDataToFile(outputPath + outputFileName);
+		 //outputToCSV.outputReceptors(outputPath + "/receptors.csv" );
 
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();

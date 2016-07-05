@@ -34,7 +34,6 @@ public class cognateBC extends BC {
 
 	private ArrayList<Integer> receptors = new ArrayList<Integer>();
 
-	
 	/**
 	 * Unique identifier of each cBC
 	 */
@@ -111,7 +110,6 @@ public class cognateBC extends BC {
 
 	}
 
-	
 	/**
 	 * Updates the cells X,Y and Z coordinates in the XY and Z arraylists and
 	 * the controllers coordinate MAPs so they can be accessed by viewers
@@ -223,12 +221,9 @@ public class cognateBC extends BC {
 		}
 	}
 
-	
 	/**
 	 * Acquire antigen from a stroma edge or branch
 	 * 
-	 * 
-	 * TODO think this is what's making it sensitive to calibration
 	 * @param cCell
 	 * 
 	 */
@@ -236,20 +231,21 @@ public class cognateBC extends BC {
 		StromaEdge sEdge = (StromaEdge) cCell;
 
 		// determine if the cell has already grabbed antigen from this dendrite
-		boolean collision = sEdge.cellsCollidedWith
+		boolean lowerCollision = sEdge.cellsCollidedWithLowerHalf
 				.contains(this.index);
-
+		boolean upperCollision = sEdge.cellsCollidedWithUpperHalf
+				.contains(this.index);
 
 		// we divide the stroma in two as make it more accurate
 		//if on the upper half of the stroma
-		if (collision == false) 
+		if (this.getPositionAlongStroma() > 0.5 & upperCollision == false) 
 		{
 
-			if (sEdge.getAntigenLevel() > 0) // if the stroma has antigen to present
+			if (sEdge.getAntigenLevelUpperEdge() > 0) // if the stroma has antigen to present
 			{
 				// remove antigen from the stromal edge
-				sEdge.setAntigenLevel(sEdge.getAntigenLevel() - 1);
-				sEdge.cellsCollidedWith.add(this.index);
+				sEdge.setAntigenLevelUpperEdge(sEdge.getAntigenLevelUpperEdge() - 1);
+				sEdge.cellsCollidedWithUpperHalf.add(this.index);
 
 				// TODO not the prettiest code so should refactor
 				this.dendritesVisited += 1;
@@ -260,17 +256,30 @@ public class cognateBC extends BC {
 				this.setAntigenCaptured(this.getAntigenCaptured() + 1);
 
 			}
-		} 
+		} else if (lowerCollision == false) {
+			if (sEdge.getAntigenLevelLowerEdge() > 0) // if on the lower half of
+														// the stromal edge
+			{
+				// remove antigen from stromal edge
+				sEdge.setAntigenLevelLowerHalf(sEdge.getAntigenLevelLowerEdge() - 1);
+				sEdge.cellsCollidedWithLowerHalf.add(this.index);
+				this.dendritesVisited += 1;
+				Controller.getInstance().getDendritesVisited()
+						.put(this.index, this.dendritesVisited);
+				// increment the cBC antigen captured counter
+				this.setAntigenCaptured(this.getAntigenCaptured() + 1);
+			}
+		}
 
 		// if the cell is naive then we need to update its status to primed
 		if (this.type == TYPE.NAIVE) {
 			this.type = TYPE.PRIMED;
 
 		}
-	}
-	
-	
 
+
+
+	}
 
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
@@ -328,6 +337,8 @@ public class cognateBC extends BC {
 		return receptors;
 	}
 
+
+
 	public Integer getIndex() {
 		return index;
 	}
@@ -335,6 +346,8 @@ public class cognateBC extends BC {
 	public void setAntigenCaptured(int antigenCaptured) {
 		this.antigenCaptured = antigenCaptured;
 	}
+
+
 	
 	public void setIndex(Integer index) {
 		this.index = index;
