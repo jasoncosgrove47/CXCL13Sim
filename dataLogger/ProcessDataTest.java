@@ -17,6 +17,8 @@ public class ProcessDataTest {
 	
 	/**
 	 * Tests the calculateTurningAngle method
+	 * in both the clockwise and anticlockwise
+	 * directions
 	 */
 	@Test
 	public void testTurningAngle() {
