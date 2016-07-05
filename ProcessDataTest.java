@@ -40,7 +40,7 @@ public class ProcessDataTest {
 		Double3D p2 = new Double3D (1,0,0); 
 		Double3D p3 = new Double3D (1,1,0);
 		
-		double answer = ProcessData.calculateTurningAngle(p1,p2,p3);
+		double answer = calculateTurningAngle(p1,p2,p3);
 		
 		//TODO need to figure out what the expected value for these inputs is
 		double expectedValue = 45;

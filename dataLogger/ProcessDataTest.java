@@ -31,6 +31,7 @@ public class ProcessDataTest {
 		assertEquals(expectedValue, answer,0.1);
 		
 		
+		
 		//test the clockwise turn
 		Double3D p4 = new Double3D (0,0,0); 
 		Double3D p5 = new Double3D (1,0,0); 
