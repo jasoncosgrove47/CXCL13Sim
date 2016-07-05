@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 
 import dataLogger.Controller;
-import dataLogger.WriteObjects;
 import dataLogger.outputToCSV;
 import sim3d.util.IO;
 
@@ -29,11 +28,10 @@ public class consoleRun {
 	public static String outputFileName;
 
 	/**
-	 * Runs the simulation
+	 * Run the simulation
 	 */
 	public static void main(String[] args) {
-		
-		
+
 		// output the start time
 		long starttime = System.currentTimeMillis();
 		SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
@@ -50,7 +48,6 @@ public class consoleRun {
 		SimulationEnvironment.simulation = new SimulationEnvironment(seed,
 				IO.openXMLFile(paramFile));
 
-		
 		// start the simulation
 		long steps = 0;
 		SimulationEnvironment.simulation.start();
@@ -63,12 +60,13 @@ public class consoleRun {
 			steps = SimulationEnvironment.simulation.schedule.getSteps();
 			System.out.println("Steps: " + steps);
 
-			//run the simulation for 500 steps to allow it to reach steady-state
-			if (steps == 500) {
-				
-				//update the steadyState guard to begin recording data
+			// run the simulation for 500 steps to allow it to reach
+			// steady-state
+			if (steps == 100) {
+
+				// update the steadyState guard to begin recording data
 				SimulationEnvironment.steadyStateReached = true;
-			
+
 				System.out
 						.println("System has a reached a steady state, saving steady state information");
 
@@ -76,16 +74,8 @@ public class consoleRun {
 				// start to record data
 				SimulationEnvironment.simulation.schedule
 						.scheduleRepeating(Controller.getInstance());
-				
 
-				// write the steady state out to file so we can observe it later
-				//WriteObjects wo = new WriteObjects();
-				//wo.writeFDC(SimulationEnvironment.simulation);
-				//wo.writeBC(SimulationEnvironment.simulation);
-				//wo.writeCXCL13(SimulationEnvironment.simulation);
-				
-				System.out
-				.println("The experiment will now begin");
+				System.out.println("The experiment will now begin");
 			}
 
 			if (!SimulationEnvironment.simulation.schedule
@@ -94,13 +84,15 @@ public class consoleRun {
 		} while (SimulationEnvironment.experimentFinished == false); //
 
 		// finish the simulation
+		
 		SimulationEnvironment.simulation.finish();
 		System.out.println("\nSimulation completed successfully!\n\n");
 
-		//write the recorded data to a .csv file
-		outputToCSV.writeDataToFile(outputPath + outputFileName);
-		
-		
+		// write the recorded data and raw data to a .csv file
+		 outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv" );
+		 outputToCSV.writeProcessedDataToFile(outputPath + outputFileName);
+		 //outputToCSV.outputReceptors(outputPath + "/receptors.csv" );
+
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
 		Date formattedendtime = new Date(endtime);
@@ -112,5 +104,7 @@ public class consoleRun {
 
 		System.exit(0);
 	}
+
+
 
 }

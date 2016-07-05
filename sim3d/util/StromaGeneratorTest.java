@@ -1,24 +1,26 @@
 /**
  * 
  */
-package acceptanceTests;
+package sim3d.util;
 
 import static org.junit.Assert.*;
+
 import java.util.ArrayList;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import ec.util.MersenneTwisterFast;
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.cell.StromaEdge;
-import sim3d.util.FRCStromaGenerator;
-import sim3d.util.FRCStromaGenerator.FRCCell;
+import sim3d.util.StromaGenerator.FRCCell;
 
 /**
  * @author sjj509
  * 
  */
-public class FRCStromaGeneratorTest {
+public class StromaGeneratorTest {
 
 	/**
 	 * @throws java.lang.Exception
@@ -30,8 +32,8 @@ public class FRCStromaGeneratorTest {
 
 	/**
 	 * Test method for
-	 * {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}
-
+	 * {@link sim3d.util.StromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}
+	 * 
 	 * what specifically is this testing - testing to make sure that the edge
 	 * length is as we expect
 	 */
@@ -39,7 +41,7 @@ public class FRCStromaGeneratorTest {
 	public void testEdgeLength() {
 		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		FRCStromaGenerator.generateStroma3D(100, 100, 100, 10000,
+		StromaGenerator.generateStroma3D(100, 100, 100, 10000,
 				d3lCellLocations, selEdges);
 
 		double dTotal = 0;
@@ -64,7 +66,7 @@ public class FRCStromaGeneratorTest {
 
 	/**
 	 * Test method for
-	 * {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}
+	 * {@link sim3d.util.StromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}
 	 * 
 	 * Test that the number of edges is as we expect
 	 */
@@ -72,7 +74,7 @@ public class FRCStromaGeneratorTest {
 	public void testEdgeCount() {
 		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		FRCStromaGenerator.generateStroma3D(100, 100, 100, 10000,
+		StromaGenerator.generateStroma3D(100, 100, 100, 10000,
 				d3lCellLocations, selEdges);
 
 		int iCellCount = 0;
@@ -92,22 +94,41 @@ public class FRCStromaGeneratorTest {
 
 	/**
 	 * Test method for
-	 * {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}
+	 * {@link sim3d.util.StromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}
 	 * .
 	 * 
 	 * Test that the cell count is as we expect
 	 */
 	@Test
 	public void testCellCount() {
+		
 		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		FRCStromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
+		StromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
 				selEdges);
 
 		int iCellCount = d3lCellLocations.size();
 
 		// Value taken from literature
 		assertEquals(350, iCellCount, 100);
+	}
+
+	/**
+	 * Tests that the stromal network is generated even in 2D
+	 */
+	@Test
+	public void testStroma2D() {
+
+		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
+		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
+		StromaGenerator.generateStroma3D(50, 50, 1, 10, d3lCellLocations,
+				selEdges);
+
+		int iCellCount = d3lCellLocations.size();
+
+		// Value taken from literature
+		assertEquals(10, iCellCount, 10);
+
 	}
 
 	/**

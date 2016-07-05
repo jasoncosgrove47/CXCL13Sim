@@ -70,7 +70,7 @@ public class CollisionGrid implements Steppable {
 	 * @param cObject
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void addCollisionPotential(int x, int y, int z, Collidable cObject) {
+	void addCollisionPotential(int x, int y, int z, Collidable cObject) {
 		// Check if we need to initialise the grid space
 		if (m_clGridSpaces[x][y][z] == null) {
 			m_clGridSpaces[x][y][z] = new ArrayList();
@@ -96,8 +96,8 @@ public class CollisionGrid implements Steppable {
 		}
 
 		// add to the list of colliding coordinates
-		if (!m_i3lCollisionPoints.contains(new Int3D(x, y, z))) {
-			m_i3lCollisionPoints.add(new Int3D(x, y, z));
+		if (!getM_i3lCollisionPoints().contains(new Int3D(x, y, z))) {
+			getM_i3lCollisionPoints().add(new Int3D(x, y, z));
 		}
 
 		// check if it's already collided
@@ -203,6 +203,7 @@ public class CollisionGrid implements Steppable {
 
 		// if sphere further along the x-axis than the width of box (add 1
 		// because the width of the box is 1
+
 		else if (dSphereX > iBoxX + 1) {
 			dSum += (dSphereX - iBoxX + 1) * (dSphereX - iBoxX + 1);
 		}
@@ -413,9 +414,9 @@ public class CollisionGrid implements Steppable {
 	@Override
 	public void step(SimState state) {
 		// while we still have points to check
-		while (m_i3lCollisionPoints.size() > 0) {
-			Int3D i3CollisionPoint = m_i3lCollisionPoints.get(0);
-			m_i3lCollisionPoints.remove(0);
+		while (getM_i3lCollisionPoints().size() > 0) {
+			Int3D i3CollisionPoint = getM_i3lCollisionPoints().get(0);
+			getM_i3lCollisionPoints().remove(0);
 
 			// List through all the points at this location
 			// Hopefully most will just immediately return!
@@ -429,7 +430,15 @@ public class CollisionGrid implements Steppable {
 			}
 		}
 
-		m_i3lCollisionPoints.clear();
+		getM_i3lCollisionPoints().clear();
 		m_iCurrentStep++;
+	}
+
+	public List<Int3D> getM_i3lCollisionPoints() {
+		return m_i3lCollisionPoints;
+	}
+
+	public void setM_i3lCollisionPoints(List<Int3D> m_i3lCollisionPoints) {
+		this.m_i3lCollisionPoints = m_i3lCollisionPoints;
 	}
 }

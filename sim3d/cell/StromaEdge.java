@@ -71,7 +71,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 * of the dendrite to acquire antigen
 	 */
 	private int antigenLevelUpperEdge;
-	
+
 	/**
 	 * Divide each dendrite in two so that a B cell must be at the correct part
 	 * of the dendrite to acquire antigen
@@ -110,8 +110,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	}
 
 	/**
-	 * TODO, can we get rid of this?
-	 * 
 	 * @param d3Point1
 	 * @param d3Point2
 	 */
@@ -186,15 +184,12 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 			Color col = Settings.FDC.DRAW_COLOR();
 
-			if (fdc.getAntigen() < 90) {
-				col = blue3;
-			}
-			if (fdc.getAntigen() < 85) {
-				col = blueLow;
-			}
-			if (fdc.getAntigen() < 75) {
-				col = blue0;
-			}
+			// uncomment this code for an antigen heatmap
+			/*
+			 * if (fdc.getAntigen() < 90) { col = blue3; } if (fdc.getAntigen()
+			 * < 85) { col = blueLow; } if (fdc.getAntigen() < 75) { col =
+			 * blue0; }
+			 */
 
 			aAppearance.setColoringAttributes(new ColoringAttributes(col
 					.getRed() / 255f, col.getGreen() / 255f,
@@ -250,8 +245,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	}
 
 	/*
-	 * Getters and Setters for the class
-	 * @return
+	 * Getters and Setters for the class TODO would these be better as member
+	 * variables?
 	 */
 	public int getAntigenLevelUpperEdge() {
 		return antigenLevelUpperEdge;

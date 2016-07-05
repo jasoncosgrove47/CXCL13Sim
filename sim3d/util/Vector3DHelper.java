@@ -9,7 +9,7 @@ import sim3d.Settings;
  * @author Simon Jarrett (simonjjarrett@gmail.com)
  */
 public class Vector3DHelper {
-	
+
 	/**
 	 * Generates a uniform random point on the unit sphere
 	 * 
@@ -242,6 +242,9 @@ public class Vector3DHelper {
 	}
 
 	/**
+	 * 
+	 * http://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
+	 * 
 	 * Rotate a vector about the x axis
 	 * 
 	 * @param d3Vector

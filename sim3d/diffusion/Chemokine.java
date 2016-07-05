@@ -11,13 +11,13 @@ import sim3d.Settings;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
 /**
- * Same as Particle but accounts for Moles not absoloute molecules
- * is just an object of type doubleGrid3D
+ * Same as Particle but accounts for Moles not absoloute molecules is just an
+ * object of type doubleGrid3D
  * 
  * @author Jason Cosgrove, Simon Jarrett
  */
-public class ParticleMoles extends DoubleGrid3D implements Steppable {
-	
+public class Chemokine extends DoubleGrid3D implements Steppable {
+
 	/**
 	 * ENUM for the chemokine types
 	 */
@@ -28,7 +28,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	/**
 	 * The z-index to display
 	 */
-	private static int m_iDisplayLevel = 1;
+	static int m_iDisplayLevel = 1;
 
 	/**
 	 * Gives each ENUM an array index
@@ -39,7 +39,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	/**
 	 * The instances of Particle being handled
 	 */
-	public static ParticleMoles[] ms_pParticles = new ParticleMoles[4];
+	public static Chemokine[] ms_pParticles = new Chemokine[4];
 
 	private static final long serialVersionUID = 1;
 
@@ -59,7 +59,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 */
 	public static void add(TYPE ParticleType, int x, int y, int z, double amount) {
 		int index = ms_emTypeMap.get(ParticleType);
-		final ParticleMoles pTarget = ms_pParticles[index];
+		final Chemokine pTarget = ms_pParticles[index];
 
 		// NB: this function will make sure the amount is always positive in the
 		// grid
@@ -83,7 +83,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 */
 	public static double[][][] get(TYPE ParticleType, int x, int y, int z) {
 		int index = ms_emTypeMap.get(ParticleType);
-		final ParticleMoles pTarget = ms_pParticles[index];
+		final Chemokine pTarget = ms_pParticles[index];
 
 		return pTarget.getArea(x, y, z);
 	}
@@ -102,7 +102,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 *            The ENUM for the type of particle
 	 * @return The Particle object
 	 */
-	public static ParticleMoles getInstance(TYPE pType) {
+	public static Chemokine getInstance(TYPE pType) {
 		return ms_pParticles[ms_emTypeMap.get(pType)];
 	}
 
@@ -110,7 +110,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 * Resets all particle to their initial state
 	 */
 	public static void reset() {
-		ms_pParticles = new ParticleMoles[4];
+		ms_pParticles = new Chemokine[4];
 		ms_emTypeMap = new EnumMap<TYPE, Integer>(TYPE.class);
 	}
 
@@ -132,7 +132,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	public static void scale(TYPE ParticleType, int x, int y, int z,
 			double factor) {
 		int index = ms_emTypeMap.get(ParticleType);
-		final ParticleMoles pTarget = ms_pParticles[index];
+		final Chemokine pTarget = ms_pParticles[index];
 
 		pTarget.scale(x, y, z, factor);
 	}
@@ -183,7 +183,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 * @param iDepth
 	 *            Depth of the grid
 	 */
-	public ParticleMoles(Schedule schedule, TYPE pType, int iWidth,
+	public Chemokine(Schedule schedule, TYPE pType, int iWidth,
 			int iHeight, int iDepth) {
 		super(iWidth, iHeight, iDepth);
 
@@ -222,7 +222,6 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 */
 	public void add(int x, int y, int z, double amount) {
 
-		
 		field[x % m_iWidth][y % m_iHeight][z % m_iDepth] = Math.max(0, field[x
 				% m_iWidth][y % m_iHeight][z % m_iDepth]
 				+ amount);
@@ -232,9 +231,9 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 * Simulate decay of the chemokine using the m_dDecayRateInv
 	 */
 	public void decay() {
-		
-		//determine how much is left after decay per timestep
-		//done it this way as it is easier to caompare
+
+		// determine how much is left after decay per timestep
+		// done it this way as it is easier to caompare
 		// to experimental data
 		double amountLeft = 1 - Settings.CXCL13.DECAY_CONSTANT;
 		//
@@ -263,7 +262,6 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	public double[][][] getArea(int x, int y, int z) {
 		double[][][] aiReturn = new double[3][3][3];
 
-		// TODO well isn't this a bit horrible...
 		for (int r = 0; r < 3; r++) {
 			// Check if we're out of bounds
 			if (x + r - 1 < 0 || x + r - 1 >= m_iWidth) {
@@ -279,6 +277,7 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 					if (z + t - 1 < 0 || z + t - 1 >= m_iDepth) {
 						continue;
 					}
+
 					aiReturn[r][s][t] = field[x + r - 1][y + s - 1][z + t - 1];
 				}
 			}
@@ -319,80 +318,74 @@ public class ParticleMoles extends DoubleGrid3D implements Steppable {
 	 */
 	public void step(final SimState state) {
 
-		//diffuse and decay at a rate diffusion steps per sim timestep
+		// diffuse and decay at a rate diffusion steps per sim timestep
 		for (int i = 0; i < Settings.DIFFUSION_STEPS; i++) {
 			m_daDiffusionAlgorithm.diffuse(this);
 			decay();
 
 		}
+
+		updateDisplay();
 		
+		double totalChemokineinMoles = calculateTotalChemokineLevels();
 		
-	//TODO refactor as a method, calcualte total chemokine value
+		//this is the volume of the entire compartment in liters
+		double vol = 7.84e-9;
+		
+		//System.out.println("total chemokine (Molar) is: " + totalChemokineinMoles/vol);
+
+	}
+
+	public double calculateTotalChemokineLevels() {
+
 		double totalChemokineValue = 0;
+
+		
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
 				for (int z = 0; z < m_iDepth; z++) {
+					
+				
+					
 					totalChemokineValue += this.field[x][y][z];
+					
+					
 				}
 			}
 		}
-		
-		System.out.println("total chemokine value is" + totalChemokineValue);
-		
-		updateDisplay2();
-		
-	
-		
-		
-		
-		
+
+		return totalChemokineValue;
+
 	}
 
 	/**
 	 * Updates the 2D display
 	 */
-	public void updateDisplay2() {
-		
-		for (int x = 0; x < m_iWidth; x++) {
-			for (int y = 0; y < m_iHeight; y++) {
-				
-				double val = field[x][y][m_iDisplayLevel];
-				if(val < 6e-16){
-					m_ig2Display.set(x, y, 0);
-				}
-				else if(val > 6e-16 && val < 5e-15){
-					m_ig2Display.set(x, y, 2);
-				}
-				else if(val > 5e-15 && val < 5e-14){
-					m_ig2Display.set(x, y, 3);
-				}
-			
-				else if(val > 5e-14 && val < 1e-13){
-					m_ig2Display.set(x, y, 4);
-				}
-			
-				else if(val > 1e-13 && val < 5e-13){
-					m_ig2Display.set(x, y,6);
-				}
-				else if(val > 5e-13 && val < 1e-12){
-					m_ig2Display.set(x, y, 9);
-				}
-				else if(val > 1e-12 && val < 2e-12){
-					m_ig2Display.set(x, y, 11);
-				}
-				else if(val > 2e-12){
-					m_ig2Display.set(x, y, 15);
-				}
-			}
-		}
-	}
-	
+	/*
+	 * public void updateDisplay2() {
+	 * 
+	 * 
+	 * for (int x = 0; x < m_iWidth; x++) { for (int y = 0; y < m_iHeight; y++)
+	 * {
+	 * 
+	 * double val = field[x][y][m_iDisplayLevel]; if(val < 6e-16){
+	 * m_ig2Display.set(x, y, 0); } else if(val > 6e-16 && val < 5e-15){
+	 * m_ig2Display.set(x, y, 2); } else if(val > 5e-15 && val < 5e-14){
+	 * m_ig2Display.set(x, y, 3); }
+	 * 
+	 * else if(val > 5e-14 && val < 1e-13){ m_ig2Display.set(x, y, 4); }
+	 * 
+	 * else if(val > 1e-13 && val < 5e-13){ m_ig2Display.set(x, y,6); } else
+	 * if(val > 5e-13 && val < 1e-12){ m_ig2Display.set(x, y, 9); } else if(val
+	 * > 1e-12 && val < 2e-12){ m_ig2Display.set(x, y, 11); } else if(val >
+	 * 2e-12){ m_ig2Display.set(x, y, 15); } } } }
+	 */
+
 	/**
 	 * Updates the 2D display
 	 */
 	public void updateDisplay() {
 
-		
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
 
