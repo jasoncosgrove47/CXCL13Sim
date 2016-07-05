@@ -19,16 +19,14 @@ import javax.media.j3d.TransformGroup;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3f;
 
+import dataLogger.Grapher;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
-import sim3d.diffusion.Chemokine;
-import sim3d.migration.Algorithm1;
-import sim3d.migration.MigrationAlgorithm;
-import sim3d.migration.MigratoryCell;
+import sim3d.diffusion.ParticleMoles;
 import sim3d.util.ODESolver;
 import sim3d.util.Vector3DHelper;
 
@@ -41,7 +39,7 @@ import sim3d.util.Vector3DHelper;
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
-public class BC extends DrawableCell3D implements Steppable, Collidable, MigratoryCell {
+public class BC extends DrawableCell3D implements Steppable, Collidable {
 	/**
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
@@ -63,8 +61,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	 * The squared distance between a BC and a stroma edge at the point of
 	 * collision; precomputed to speed up calculations
 	 */
-	private static final double BC_SE_COLLIDE_DIST_SQ = (Settings.BC.COLLISION_RADIUS + 
-			Settings.FDC.STROMA_EDGE_RADIUS)
+	private static final double BC_SE_COLLIDE_DIST_SQ = (Settings.BC.COLLISION_RADIUS + Settings.FDC.STROMA_EDGE_RADIUS)
 			* (Settings.BC.COLLISION_RADIUS + Settings.FDC.STROMA_EDGE_RADIUS);
 
 	/**
@@ -101,17 +98,17 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	/**
 	 * DEBUG used to display collision points
 	 */
-	private ArrayList<Double3D> m_d3aCollisions = new ArrayList<Double3D>();
+	ArrayList<Double3D> m_d3aCollisions = new ArrayList<Double3D>();
 
 	/**
 	 * The movements of the cell; each collision or bounce means a new movement
 	 */
-	private List<Double3D> m_d3aMovements = new ArrayList<Double3D>();
+	List<Double3D> m_d3aMovements = new ArrayList<Double3D>();
 
 	/**
 	 * Points on the collision grid we're intersecting with something
 	 */
-	private HashSet<Int3D> m_i3lCollisionPoints = new HashSet<Int3D>();
+	HashSet<Int3D> m_i3lCollisionPoints = new HashSet<Int3D>();
 
 	/*
 	 * Determines the position of a BC on a stromal edge
@@ -122,7 +119,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	 * Determines how many collisions a BC has had this timestep necessary to
 	 * prevent infinite collisions
 	 */
-	private int collisionCounter = 0;
+	int collisionCounter = 0;
 
 	@Override
 	public boolean isStatic() {
@@ -137,7 +134,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	 */
 	@Override
 	public void addCollisionPoint(Int3D i3Point) {
-		getM_i3lCollisionPoints().add(i3Point);
+		m_i3lCollisionPoints.add(i3Point);
 	}
 
 	/**
@@ -153,10 +150,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 		return drawEnvironment;
 	}
 
-	
-	
-	Algorithm1 a1 = new Algorithm1();
-	
 	/**
 	 * Controls what a B cell agent does for each time step Each Bcell registers
 	 * its intended path on the collision grid, once all B cells register the
@@ -166,40 +159,57 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
+		
+		collisionCounter = 0; // reset the collision counter for this timestep
+		m_i3lCollisionPoints.clear();
 
-		
-		this.migrate(a1);
-		
-		
-		/*
-		setCollisionCounter(0); // reset the collision counter for this timestep
-		getM_i3lCollisionPoints().clear();
-
-		// if we have a stored move then execute it
-		if (getM_d3aMovements() != null && getM_d3aMovements().size() > 0) {
+		//if we have a stored move then execute it
+		if (m_d3aMovements != null && m_d3aMovements.size() > 0) 
+		{
 			performSavedMovements();
 		}
 
-		calculateWhereToMoveNext();
-		handleBounce(); // Check for bounces
-		receptorStep();
-		registerCollisions(m_cgGrid); // Register the new movement with the grid
-		*/
+
+		//System.out.println("nextGaussian is: " + SimulationEnvironment.simulation.random.nextGaussian());
 		
+		calculateWhereToMoveNext();
+
+		handleBounce(); // Check for bounces
+		//receptorStep(); // Step forward the receptor ODE
+		receptorStepNew();
+		registerCollisions(m_cgGrid); // Register the new movement with the grid
 	}
 
 	
-	
-	
 	/**
-	 * DO NOT DELETE THIS METHOD
+	 * Controls what a B cell agent does for each time step Each Bcell registers
+	 * its intended path on the collision grid, once all B cells register the
+	 * collision grid handles the movement at the next iteration the B cells are
+	 * moved. B cells only collide with stroma
 	 */
-	@Override
-	public void migrate(MigrationAlgorithm algorithm) {
-		// TODO Auto-generated method stub
-		algorithm.performMigration(this);
+	public void step()// why is this final here
+	{
+		
+		collisionCounter = 0; // reset the collision counter for this timestep
+		m_i3lCollisionPoints.clear();
+
+		//if we have a stored move then execute it
+		if (m_d3aMovements != null && m_d3aMovements.size() > 0) 
+		{
+			performSavedMovements();
+		}
+
+
+		//System.out.println("nextGaussian is: " + SimulationEnvironment.simulation.random.nextGaussian());
+		
+		calculateWhereToMoveNext();
+
+		handleBounce(); // Check for bounces
+		//receptorStep(); // Step forward the receptor ODE
+		receptorStepNew();
+		registerCollisions(m_cgGrid); // Register the new movement with the grid
 	}
-	
+
 	
 	public Int3D getDiscretizedLocation(Continuous3D grid) {
 		Double3D me = grid.getObjectLocation(this);// obtain coordinates of the
@@ -213,145 +223,223 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	 */
 	public void performSavedMovements() {
 
-		for (Double3D d3Movement : getM_d3aMovements()) {
+		Double3D oldLocation = new Double3D(x,y,z);
+		
+		for (Double3D d3Movement : m_d3aMovements) {
 
+			
 			x += d3Movement.x;
 			y += d3Movement.y;
 			z += d3Movement.z;
 		}
 
+	
 		// Remember which way we're now facing
-		setM_d3Face(getM_d3aMovements().get(getM_d3aMovements().size() - 1).normalize());
-		// if space to move then move
-
-		if (determineSpaceToMove(x, y, z)) {
+		m_d3Face = m_d3aMovements.get(m_d3aMovements.size() - 1).normalize();
+		//if space to move then move
+		//TODO pretty sure i would need to update the 
+		// x,y and z from for loop above if i don't move
+		if(determineSpaceToMove(x,y,z)){
 			setObjectLocation(new Double3D(x, y, z));
 		}
+		
+		//TODO need to implement this method but needs debugging first
+		// cells seem to be clustering really tightly with it
+	
+		/*
+		Double3D locationToMoveTo = checkFreeSpaceAlongPath(x,y,z,oldLocation);
+		
+		//update these coordinates, does this help anything?
+		x= locationToMoveTo.x;
+		y= locationToMoveTo.y;
+		z= locationToMoveTo.z;
+		
+		//if there is free space available then migrate
+	
+		setObjectLocation(locationToMoveTo);
+		*/
 
 	}
 
 	/**
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @return
+	 * Looks at how many cells are in the target location,
+	 * if this is full then it checks halfway along the
+	 * target path
+	 * @return 
 	 */
-	public boolean determineSpaceToMove(double x, double y, double z) {
+	public Double3D checkFreeSpaceAlongPath(double x, double y, double z, Double3D oldLocation){
+		
+		
+		//get the location we want to go to
 		Double3D putativeLocation = new Double3D(x, y, z);
-
-		// see if there are any cells at the putative location
-		// 0.7 represents the size of a cell
+	
+		// see how many cells are at the putative location
 		Bag cells = BC.bcEnvironment.getNeighborsExactlyWithinDistance(
-				putativeLocation, 0.7);
+				putativeLocation, 0.7);// cell is actually 0.7
+			
 
-		// need to do cells minus one as it includes this cell
+		//use this to decide probabilistically whether or not to move
 		int otherCells = cells.numObjs - 1;
-
-		// need to account for in
 		double pmove = Math.exp(-otherCells);
 
 		double random = Settings.RNG.nextDouble();
 
 		if (random < pmove) {
-			return true;
+			return putativeLocation;
 		}
+		
+		
+		//if not returned at this point we need to determine what the midway point is
+		//between curent and target location and see if htere is space available there
+		double midx = ((oldLocation.x + putativeLocation.x)/2);
+		double midy = ((oldLocation.y + putativeLocation.y)/2);
+		double midz = ((oldLocation.z + putativeLocation.z)/2);
+		
+		Double3D midpoint = new Double3D(midx, midy, midz);
+		
+		
+		// see if there are any cells at the putative location
+		Bag cells_m = BC.bcEnvironment.getNeighborsExactlyWithinDistance(
+						midpoint, 0.7);// cell is actually 0.7
+					
+				// need to do cells minus one as it includes this cell
+		int otherCells_m = cells_m.numObjs - 1;
 
-		else
-			return false;
+				//need to account for in
+		double pmove_m = Math.exp(-otherCells_m);
+
+		double random_m = Settings.RNG.nextDouble();
+
+		if (random_m < pmove_m) {
+			return midpoint;
+		}
+				
+		else return oldLocation;
+		
 	}
+	
+	/**
+	 * TODO This stops the cell moving the entire distance
+	 * but why couldnt it move halfway along?
+	 * 
+	 * 
+	 * TODO not fully convinced that this method is correct
+	 * 
+	 * 
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public boolean determineSpaceToMove(double x, double y, double z){
+		Double3D putativeLocation = new Double3D(x, y, z);
 
+		// see if there are any cells at the putative location
+		Bag cells = BC.bcEnvironment.getNeighborsExactlyWithinDistance(
+				putativeLocation, 0.7);// cell is actually 0.7
+		
+	
+		// need to do cells minus one as it includes this cell
+		int otherCells = cells.numObjs - 1;
+
+		
+		//need to account for in
+		double pmove = Math.exp(-otherCells);
+
+		double random = Settings.RNG.nextDouble();
+
+		if (random < pmove) {
+
+			return true;
+		
+		}
+		
+		else return false;
+		
+	}
+	
 	/**
 	 * calculate where to move for the next timestep.
+	 * definitely need to refactor this method
+	 * maybe i should check for BC collisions here
 	 */
 	public void calculateWhereToMoveNext() {
 		Double3D vMovement;
 		vMovement = getMoveDirection();
 		double vectorMagnitude = vMovement.lengthSq();
+		
+	
 
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
-
+				
+				
 				// Add some noise to the direction and take the average of our
 				// current direction and the new direction
+
 				// the multiply is to scale the new vector, when we multiply by
 				// 2 we are favouring the new signal more than the old
-				vMovement = getM_d3Face().add(Vector3DHelper
-						.getBiasedRandomDirectionInCone(vMovement.normalize(),
+				
+				
+				vMovement = m_d3Face.add(Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
 								Settings.BC.DIRECTION_ERROR()).multiply(
 								Settings.BC.PERSISTENCE));
+				
+			
 
-				// why do we need this line here?
 				if (vMovement.lengthSq() > 0) {
 					vMovement = vMovement.normalize();
 				}
 			}
 
 			else {
-
-				// maybe this is where we have to add the persistence
 				vMovement = null;
 			}
-		}
-
-		// we detect no chemokine, or at least difference in chemokine
-		else {
+		} else {
 			vMovement = null;
 		}
 
 		if (vMovement == null || vMovement.lengthSq() == 0) {
 			// no data! so do a random turn
-			vMovement = Vector3DHelper.getRandomDirectionInCone(getM_d3Face(),
+			vMovement = Vector3DHelper.getRandomDirectionInCone(m_d3Face,
 					Settings.BC.RANDOM_TURN_ANGLE());
-
-
-
 		}
 
 		// Reset all the movement/collision data
-		getM_d3aCollisions().clear();
-		setM_d3aMovements(new ArrayList<Double3D>());
+		m_d3aCollisions.clear();
+		m_d3aMovements = new ArrayList<Double3D>();
 
 		// calculated from maiuri paper in cell 2015
-		// Persistence represents the strength of the new vector with
+	
+		//TODO Persistence represents the strength of the new vector with
 		// respect to where we are now, thus the memory vector is 1/alpha
 		// times stronger than the current vector and we use this as a
 		// measure of the cell
-		double speedScalar = (Math.log(1 / Settings.BC.PERSISTENCE))
-				/ Settings.BC.SPEED_SCALAR;
+		double speedScalar = (Math.log(1 / Settings.BC.PERSISTENCE)) / 3;
 
-		double travelDistance;
-		// lets make travelDistance a gaussian for a better fit
-		// and constrain it so it cant give a value less than zero
-		do {
-			travelDistance = Settings.RNG.nextGaussian()
-					* Settings.BC.TRAVEL_DISTANCE_SD
-					+ Settings.BC.TRAVEL_DISTANCE();
+	
+		
 
-			// only sample within oneSD
-		} while (travelDistance <= 0);
-
+		
+		
 		// if there is some signalling then the cell increases it's
 		// instantaneous velocity
 		if (vectorMagnitude > Settings.BC.SIGNAL_THRESHOLD) {
 
-			getM_d3aMovements()
-					.add(vMovement.multiply(travelDistance + speedScalar));
-			// m_d3aMovements.add(vMovement.multiply(travelDistance));
-			// this is also the case if receptors are saturated or equally
-			// biased
-			// in each direction, still signalling going on but must be a
-			// minimum threshold
-
-		} else if (vectorMagnitude < Settings.BC.SIGNAL_THRESHOLD
-				&& m_iL_r > Settings.BC.SIGNAL_THRESHOLD) {
-
-			// m_d3aMovements.add(vMovement.multiply(travelDistance));
-			getM_d3aMovements()
-					.add(vMovement.multiply(travelDistance + speedScalar));
-
+			m_d3aMovements.add(vMovement.multiply(Settings.BC.TRAVEL_DISTANCE()
+					+ speedScalar));
+			
+		//this is also the case if receptors are saturated or equally biased
+		// in each direction, still signalling going on
+		} else if (vectorMagnitude < Settings.BC.SIGNAL_THRESHOLD && m_iL_r > 0) 
+		{
+			// no signalling therefore no increase in instantaneous velocity
+			m_d3aMovements.add(vMovement.multiply(Settings.BC.TRAVEL_DISTANCE()
+					+ speedScalar));
 		} else {
 			// no signalling therefore no increase in instantaneous velocity
-			getM_d3aMovements().add(vMovement.multiply(travelDistance));
+			m_d3aMovements
+					.add(vMovement.multiply(Settings.BC.TRAVEL_DISTANCE()));
 		}
 
 	}
@@ -360,9 +448,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	 * How to remove a BC from the schedule:
 	 * 
 	 * when you schedule the BC it will return a stoppable object we store this
-	 * object so we can access it when we need to stop the object. Then to
-	 * remove the object we simply call stop() on the stopper object the BC can
-	 * then be removed by garbage collection
+	 * object so we can access it when we need to stop the object. Then to remove 
+	 * the object we simply call stop() on the stopper object the BC can then be 
+	 * removed by garbage collection
 	 */
 	public void removeDeadCell(Continuous3D randomSpace) {
 		this.stop();
@@ -394,93 +482,91 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	}
 
 	/**
-	 * Perform a step for the receptor
+	 * Perform a step for the receptor Euler method with step size 0.1 
+	 * 
+	 * TODO need to add in term for Koff
 	 */
-	void receptorStep() {
-		double[] iaBoundReceptors = calculateLigandBindingMolar();
+	private void receptorStepNew() {
+		double[] iaBoundReceptors = calculateLigandBindingNew();
 
-		// update the amount of free and bound receptors
-		for (int i = 0; i < 6; i++) {
-			this.m_iR_free -= iaBoundReceptors[i];
-			this.m_iL_r += iaBoundReceptors[i];
-		}
-
-		int iTimesteps = 60;
-		int iR_i, iL_r;
-		double h = 1; // the parameters are already in seconds so don't need to
-						// scale them
-
-		double Ki = Settings.BC.ODE.K_i();// Ka is already in seconds
-		double Kr = Settings.BC.ODE.K_r();
-
-		/**
-		 * Solve the ODE using 4th order Runge Kutta timestep j equals 1 second
-		 */
-
-		for (int i = 0; i < iTimesteps; i++) {
-
-			iR_i = this.m_iR_i;
-			iL_r = this.m_iL_r;
-
-			// receptors internalised from surface
-			double LRK1 = h * (Ki * iL_r);
-			double LRK2 = h * ((Ki * iL_r) + LRK1 / 2);
-			double LRK3 = h * ((Ki * iL_r) + LRK2 / 2);
-			double LRK4 = h * ((Ki * iL_r) + LRK3);
-
-			// receptors that are recycled from internal pool
-			double RfK1 = h * (Kr * iR_i);
-			double RfK2 = h * ((Kr * iR_i) + RfK1 / 2);
-			double RfK3 = h * ((Kr * iR_i) + RfK2 / 2);
-			double RfK4 = h * ((Kr * iR_i) + RfK3);
-
-			// ligand dissociation from receptor
-			// receptors that are recycled from internal pool
-
-			
-			double Koff = Settings.BC.ODE.Koff;
-			
-			double RdisK1 = h * (Koff * iL_r);
-			double RdisK2 = h * ((Koff * iL_r) + RdisK1 / 2);
-			double RdisK3 = h * ((Koff * iL_r) + RdisK2 / 2);
-			double RdisK4 = h * ((Koff * iL_r) + RdisK3);
-
-			this.m_iR_free += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
-					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
-			this.m_iR_i += (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
-					- (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
-			this.m_iL_r -= (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
-					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
-																						
-
-		}
-
-	}
-
-	public void consumeLigand() {
-		double[] iaBoundReceptors = calculateLigandBindingMoles();
-
-		// avogadors number - number of molecules in 1 mole
+		//avogadors number - number of molecules in 1 mole
 		double avogadro = 6.0221409e+23;
 
 		// this is in moles, not receptors so need to scale it before i remove,
 		// eg if i took away 10,000 that would be 10,000 moles which is not what
 		// we want!!!
+		//TODO should be encapsulated as consume ligand
+		
+		
+		if(x< 1 || y < 1||z < 1){
+			
+			
+			x = 1;
+			
+		}
+		
+		
+		
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x + 1, (int) y,
+				(int) z, -(iaBoundReceptors[0] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x - 1, (int) y,
+				(int) z, -(iaBoundReceptors[1] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y + 1,
+				(int) z, -(iaBoundReceptors[2] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y - 1,
+				(int) z, -(iaBoundReceptors[3] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y,
+				(int) z + 1, -(iaBoundReceptors[4] / avogadro));
+		ParticleMoles.add(ParticleMoles.TYPE.CXCL13, (int) x, (int) y,
+				(int) z - 1, -(iaBoundReceptors[5] / avogadro));
 
+		// update the amount of free and bound receptors
+		for (int i = 0; i < 6; i++) {	
+			this.m_iR_free -= iaBoundReceptors[i];
+			this.m_iL_r += iaBoundReceptors[i];
+		}
 
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x + 1, (int) y, (int) z,
-				-(iaBoundReceptors[0] / avogadro));
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x - 1, (int) y, (int) z,
-				-(iaBoundReceptors[1] / avogadro));
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y + 1, (int) z,
-				-(iaBoundReceptors[2] / avogadro));
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y - 1, (int) z,
-				-(iaBoundReceptors[3] / avogadro));
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z + 1,
-				-(iaBoundReceptors[4] / avogadro));
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z - 1,
-				-(iaBoundReceptors[5] / avogadro));
+	
+		int iTimesteps = 60;
+		int iR_i, iL_r;
+		double h = 1; 
+		
+		double Ki = Settings.BC.ODE.K_i();//Ka is already in seconds		
+		double Kr = Settings.BC.ODE.K_r();
+		
+		/**
+		 * Solve the ODE using 4th order Runge Kutta
+		 * timestep j equals 1 second
+		 */
+		
+		for (int i = 0; i < iTimesteps; i++) {
+			
+			iR_i = this.m_iR_i;
+			iL_r = this.m_iL_r;
+			
+			//receptors internalised from surface
+			double LRK1 = h * (Ki*iL_r);
+			double LRK2 = h * ((Ki*iL_r) + LRK1/2) ;
+			double LRK3 = h * ((Ki*iL_r) + LRK2/2) ;
+			double LRK4 = h * ((Ki*iL_r) + LRK3) ;
+			
+			//receptors that are recycled from internal pool
+			double RfK1 = h * (Kr*iR_i);
+			double RfK2 = h * ((Kr*iR_i) + LRK1/2) ;
+			double RfK3 = h * ((Kr*iR_i) + LRK2/2) ;
+			double RfK4 = h * ((Kr*iR_i) + LRK3) ;
+			
+			this.m_iR_free += (int) ((RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+			this.m_iR_i += (int) ((LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6))
+					- (int) ((RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+			this.m_iL_r -= (int)   ((LRK1/6) + (LRK2/3)  + (LRK3/3) + (LRK4/6));
+			
+		}
 
+		if (displayODEGraph) {
+			// Grapher.updateODEGraph( m_iL_r ); //this gives an error when run
+												 // on console
+		}
 	}
 
 	/**
@@ -490,12 +576,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	 * 
 	 * @return The new direction for the cell to move
 	 */
-	Double3D getMoveDirection() {
-
-
-		double[] iaBoundReceptors = calculateLigandBindingMolar();
-
-		// the new direction for the cell to move
+	private Double3D getMoveDirection() {
+		//double[] iaBoundReceptors = calculateLigandBindingMoles();
+		double[] iaBoundReceptors = calculateLigandBindingNew();
+	
+		//the new direction for the cell to move
 		Double3D vMovement = new Double3D();
 
 		// X
@@ -512,91 +597,18 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	}
 
 	/**
-	 * Helper method to calculate the amount of ligand bound in moles to 
-	 * receptor. Need this because parameter Ka is moles/litre/sec 
-	 * @return an int array with the number of bound receptors at each psuedopod
-	 */
-	public double[] calculateLigandBindingMolar() {
-
-		double[][][] ia3Concs = Chemokine.get(Chemokine.TYPE.CXCL13, (int) x,
-				(int) y, (int) z);
-
-		// Assume the receptors are spread evenly around the cell
-		int iReceptors = m_iR_free / 6;
-
-		// would need to divide by 1e-12 L (vol of one grid space to get molar
-		// conc)
-		double vol = 1e-12;// volume of one gridspace
-
-		// get CXCL13 concentrations at each psuedopod
-		// {x+, x-, y+, y-, z+, z-}
-
-		double[] iaConcs = { ia3Concs[2][1][1] / vol, ia3Concs[0][1][1] / vol,
-				ia3Concs[1][2][1] / vol, ia3Concs[1][0][1] / vol,
-				ia3Concs[1][1][2] / vol, ia3Concs[1][1][0] / vol };
-
-		// store how many receptors are bound at each
-		// of the 6 pseudopods
-		double[] iaBoundReceptors = new double[6];
-
-		for (int i = 0; i < 6; i++) // for each pseudopod
-		{
-
-			double proportionToBind = 0;
-
-			for (int j = 0; j < 60; j++) {
-
-				double h = 1; // want to update the equation every second so use
-								// 1 / 60
-
-				// Ka = /moles/litre/second
-				double Ka = Settings.BC.ODE.K_a();
-
-				double RfK1 = h * (Ka * iaConcs[i]);
-				double RfK2 = h * ((Ka * iaConcs[i]) + RfK1 / 2);
-				double RfK3 = h * ((Ka * iaConcs[i]) + RfK2 / 2);
-				double RfK4 = h * ((Ka * iaConcs[i]) + RfK3);
-
-				// the total change in bound receptor for this time increment is
-				// given b this equation
-				proportionToBind += ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
-
-			}
-
-			// cap the amount of receptors that can be bound
-			if (proportionToBind > 1) {
-				proportionToBind = 1;
-			}
-			if (proportionToBind < 0) {
-				proportionToBind = 0;
-			}
-
-			// not sure about this casting, need to make sure that it is ok
-			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
-
-		}
-
-		consumeLigand();
-
-		return iaBoundReceptors;
-	}
-
-	/**
-	 * Helper method to calculate the amount of ligand bound to receptor returns
+	 *  Helper method to calculate the amount of ligand bound to receptor returns
 	 * an int array with the number of bound receptors at each psuedopod
 	 * 
 	 * Updated version for the rungekutta method
-	 * 
 	 * @return
 	 */
-	public double[] calculateLigandBindingMoles() {
+	private double[] calculateLigandBindingNew() {
 
 		// need to figure out what is sensible to secrete per timestep, might as
-		// well do that in moles. Get the surrounding values for moles
-
-
-		double[][][] ia3Concs = Chemokine.get(Chemokine.TYPE.CXCL13, (int) x,
-				(int) y, (int) z);
+		// well do that in moles. Get the surrounding concentrations
+		double[][][] ia3Concs = ParticleMoles.get(ParticleMoles.TYPE.CXCL13,
+				(int) x, (int) y, (int) z);
 
 		// Assume the receptors are spread evenly around the cell
 		int iReceptors = m_iR_free / 6;
@@ -607,32 +619,33 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 				ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
 				ia3Concs[1][1][0] };
 
-		// store how many receptors are bound at each
-		// of the 6 pseudopods
-		double[] iaBoundReceptors = new double[6];
+		
 
+		//store how many receptors are bound at each pseudopod
+		double[] iaBoundReceptors = new double[6];
+		
 		for (int i = 0; i < 6; i++) // for each pseudopod
 		{
-
+			
 			double proportionToBind = 0;
 
-			for (int j = 0; j < 60; j++) {
-
-				double h = 1; // want to update the equation every second so use
-								// 1 / 60
-
-				// Ka = /moles/litre/second
-				double Ka = Settings.BC.ODE.K_a();
-
-				double RfK1 = h * (Ka * iaConcs[i]);
-				double RfK2 = h * ((Ka * iaConcs[i]) + RfK1 / 2);
-				double RfK3 = h * ((Ka * iaConcs[i]) + RfK2 / 2);
-				double RfK4 = h * ((Ka * iaConcs[i]) + RfK3);
-
+			
+			for (int j = 0; j < 60;j++)
+			{
+				
+				double h = 1; //want to update the equation every second so use 1 / 60 
+				
+				double Ka = Settings.BC.ODE.K_a();				
+				
+				double RfK1 = h * (Ka  * iaConcs[i]);
+				double RfK2 = h * ((Ka  * iaConcs[i]) + RfK1/2) ;
+				double RfK3 = h * ((Ka  * iaConcs[i]) + RfK2/2) ;
+				double RfK4 = h * ((Ka  * iaConcs[i]) + RfK3) ;
+				
 				// the total change in bound receptor for this time increment is
-				// given b this equation
-				proportionToBind += ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
-
+				//given b this equation
+				proportionToBind += ( (RfK1/6) + (RfK2/3)  + (RfK3/3) + (RfK4/6));
+				
 			}
 
 			// cap the amount of receptors that can be bound
@@ -643,18 +656,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 				proportionToBind = 0;
 			}
 
-			// not sure about this casting, need to make sure that it is ok
+			//not sure about this casting, need to make sure that it is ok
 			iaBoundReceptors[i] = (int) (proportionToBind * iReceptors);
+			
 
 		}
 		return iaBoundReceptors;
 	}
-
-	
-	
-	
-	
-	
 	
 	@Override
 	public void registerCollisions(CollisionGrid cgGrid) {
@@ -666,7 +674,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 		double dPosY = y;
 		double dPosZ = z;
 
-		for (Double3D d3Movement : getM_d3aMovements()) {
+		for (Double3D d3Movement : m_d3aMovements) {
 			cgGrid.addLineToGrid(this, new Double3D(dPosX, dPosY, dPosZ),
 					new Double3D(dPosX + d3Movement.x, dPosY + d3Movement.y,
 							dPosZ + d3Movement.z), Settings.BC.COLLISION_RADIUS);
@@ -686,22 +694,23 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 		// otherwise you get in an infinite loop where a B cell continues
 		// bouncing indefinitely
 		int collisionThreshold = 50;
-		if (getM_i3lCollisionPoints().size() == 0
-				|| getCollisionCounter() > collisionThreshold) {
+		if (m_i3lCollisionPoints.size() == 0
+				|| collisionCounter > collisionThreshold) {
 			return;
 		}
 
-		// stores values uniquely in a hashset
-		HashSet<Collidable> csCollidables = new HashSet<Collidable>();
+		
+		//stores values uniquely in a hashset
+		HashSet<Collidable> csCollidables = new HashSet<Collidable>(); 
 
 		// Add all the cells to the set
-		for (Int3D i3Point : getM_i3lCollisionPoints()) {
+		for (Int3D i3Point : m_i3lCollisionPoints) {
 			for (Collidable cCollidable : cgGrid.getPoints(i3Point)) {
 				csCollidables.add(cCollidable);
 			}
 		}
 
-		int iCollisionMovement = getM_d3aMovements().size();
+		int iCollisionMovement = m_d3aMovements.size();
 		boolean bCollision = false;
 
 		// To keep a track of where we collided - we are only interested in the
@@ -709,13 +718,14 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 		for (Collidable cCell : csCollidables) {
 			switch (cCell.getCollisionClass()) {
 			case STROMA_EDGE:
-				// These first two are the more likely hits as
+				// These first two are the more likely hits as	
 				// they won't be moving
-
-				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
-					iCollisionMovement = getM_d3aMovements().size() - 1;
+	
+				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement))
+				{
+					iCollisionMovement = m_d3aMovements.size() - 1;
 					bCollision = true;
-					// acquireAntigen(cCell);
+					//acquireAntigen(cCell);
 				}
 				break;
 			case STROMA:
@@ -726,8 +736,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 		}
 		if (bCollision) // if the cell has collided
 		{
-			// deal with the collision
-			performCollision(cgGrid, iCollisionMovement);
+			//deal with the collision
+			performCollision(cgGrid, iCollisionMovement); 
 		}
 	}
 
@@ -736,19 +746,19 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	 */
 	protected void performCollision(CollisionGrid cgGrid, int iCollisionMovement) {
 		// increment the number of times a B cell has collided this time step
-		setCollisionCounter(getCollisionCounter() + 1);
+		collisionCounter++;
 		// Add the collision point for visualisation
 		double xPos = 0;
 		double yPos = 0;
 		double zPos = 0;
 		for (int i = 0; i < iCollisionMovement; i++) {
-			Double3D d3Movement = getM_d3aMovements().get(i);
+			Double3D d3Movement = m_d3aMovements.get(i);
 			xPos += d3Movement.x;
 			yPos += d3Movement.y;
 			zPos += d3Movement.z;
 		}
 
-		getM_d3aCollisions().add(new Double3D(xPos, yPos, zPos));
+		m_d3aCollisions.add(new Double3D(xPos, yPos, zPos));
 		// Recheck for bounces and reregister with the grid
 		handleBounce();
 		registerCollisions(cgGrid);
@@ -778,156 +788,136 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 		Double3D d2 = seEdge.getPoint2().subtract(p2);
 
 		for (int i = 0; i < iCollisionMovement; i++) {
-			Double3D d1 = getM_d3aMovements().get(i);
+			Double3D d1 = m_d3aMovements.get(i);
 
-			// make sure that d1 has a length
-			if (d1.length() > 0) {
+			// The two lines are p1 + s*d1 and p2 + t*d2
+			// We are essentially trying to find the closest point between the
+			// lines because that's an easy problem
+			// using the fact that the line between them would be orthogonal to
+			// both lines
 
-				// The two lines are p1 + s*d1 and p2 + t*d2
-				// We are essentially trying to find the closest point between
-				// the
-				// lines because that's an easy problem
-				// using the fact that the line between them would be orthogonal
-				// to
-				// both lines
+			double s = 0;
+			double t = 0;
 
-				double s = 0;
-				double t = 0;
+			// This is all vector math explained in the following link. We are
+			// essentially solving a system of linear
+			// equations, and all the details are there.
+			// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
+			// section 5.1.8, 5.1.9 psuedocode p146
+			// see betterexplained trig and also dot product for intuitive
+			// understanding of how formulae are derived
+			//
+			// Given a point S2(t) = P2 +td2 on a line segment, the closest
+			// point on another line is given by
+			// closest point = S2(t) - P1.d1/d1.d1
+			//
+			// take a point on the segment and then draw a vector from the point
+			// to the start point P1 of the line
+			// the dot product is just the projection of that vector onto the
+			// line (remember cos gives you the x-axis
+			// we are just making the line the x-axis).
+			//
 
-				// This is all vector math explained in the following link. We
-				// are
-				// essentially solving a system of linear
-				// equations, and all the details are there.
-				// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
-				// section 5.1.8, 5.1.9 psuedocode p146
-				// see betterexplained trig and also dot product for intuitive
-				// understanding of how formulae are derived
-				//
-				// Given a point S2(t) = P2 +td2 on a line segment, the closest
-				// point on another line is given by
-				// closest point = S2(t) - P1.d1/d1.d1
-				//
-				// take a point on the segment and then draw a vector from the
-				// point
-				// to the start point P1 of the line
-				// the dot product is just the projection of that vector onto
-				// the
-				// line (remember cos gives you the x-axis
-				// we are just making the line the x-axis).
-				//
+			Double3D r = p1.subtract(p2); // p1 - p2
+			double a = Vector3DHelper.dotProduct(d1, d1); // squared length of
+															// segment s1,
+															// always positive
+			double b = Vector3DHelper.dotProduct(d1, d2);
+			double c = Vector3DHelper.dotProduct(d1, r);
+			double e = Vector3DHelper.dotProduct(d2, d2); // squared length of
+															// segment s2,
+															// always positive
+			double f = Vector3DHelper.dotProduct(d2, r);
 
-				Double3D r = p1.subtract(p2); // p1 - p2
-				double a = Vector3DHelper.dotProduct(d1, d1); // squared length
-																// of
-																// segment s1,
-																// always
-																// positive
-				double b = Vector3DHelper.dotProduct(d1, d2);
-				double c = Vector3DHelper.dotProduct(d1, r);
-				double e = Vector3DHelper.dotProduct(d2, d2); // squared length
-																// of
-																// segment s2,
-																// always
-																// positive
-				double f = Vector3DHelper.dotProduct(d2, r);
+			// differing from the link, dealing with lines so dont need to
+			// account for points
+			// we therefore assume that neither are points (zero length)
 
-				// differing from the link, dealing with lines so dont need to
-				// account for points
-				// we therefore assume that neither are points (zero length)
+			// (d1.d1)(d2.d2) - (d1.d2)(d1.d2)
+			double denom = a * e - b * b; // >= 0
 
-				// (d1.d1)(d2.d2) - (d1.d2)(d1.d2)
-				double denom = a * e - b * b; // >= 0
+			// find the points on each line where the vectors are closest
+			List<Double> closestPoints = findClosestPointsBetween(i, p1, p2,
+					d1, d2, denom, s, t, a, b, c, e, f);
 
-				// find the points on each line where the vectors are closest
-				List<Double> closestPoints = findClosestPointsBetween(i, p1,
-						p2, d1, d2, denom, s, t, a, b, c, e, f);
+			s = closestPoints.get(0);
+			t = closestPoints.get(1);
 
-				s = closestPoints.get(0);
-				t = closestPoints.get(1);
+			// update the B cells T variable as this tells us how far along the
+			// stroma the B cell is
 
-				// update the B cells T variable as this tells us how far along
-				// the
-				// stroma the B cell is
+			this.setPositionAlongStroma(closestPoints.get(1));
 
-				this.setPositionAlongStroma(closestPoints.get(1));
+			// So c1 and c2 are the points on the two lines which are closest to
+			// one another
+			// c1 = P1 + s.d1
+			// c2 = P2 + t.d2
+			Double3D c1 = p1.add(d1.multiply(s));
+			Double3D c2 = p2.add(d2.multiply(t));
 
-				// So c1 and c2 are the points on the two lines which are
-				// closest to
-				// one another
-				// c1 = P1 + s.d1
-				// c2 = P2 + t.d2
-				Double3D c1 = p1.add(d1.multiply(s));
-				Double3D c2 = p2.add(d2.multiply(t));
+			// remember that the dot product of a vector times a vector equals
+			// its length squared
+			double length = Vector3DHelper.dotProduct(c1.subtract(c2),
+					c1.subtract(c2));
 
-				// remember that the dot product of a vector times a vector
-				// equals
-				// its length squared
-				double length = Vector3DHelper.dotProduct(c1.subtract(c2),
-						c1.subtract(c2));
+			boolean bCollide = false; // what is this variable doing
 
-				boolean bCollide = false;
+			if (length < BC_SE_COLLIDE_DIST_SQ) // if the distance between the B
+												// cell and the stroma is lower
+												// than a threshold
+			{
+				bCollide = true; // set the collision flag for the B cell to
+									// true
+				double sNew = s;
 
-				if (length < BC_SE_COLLIDE_DIST_SQ) // if the distance between
-													// the B
-													// cell and the stroma is
-													// lower
-													// than a threshold
-				{
-					bCollide = true; // set the collision flag for the B cell to
-										// true
-					double sNew = s;
+				// We want to find the actual point we collide so let's
+				// backtrack a bit. . We don't get the exact point, but this
+				// does add a
+				// little elasticity
+				// Basically repeat the process until we go over
+				//TODO this value can affect the speed of the simulation so really 
+				// need to be careful
+				
+				
+				// we add on the collidedist/10 term because if the BC and stroma are 
+				// the exact distance apart then the BC won't know that it has collided 
+				// so we bring it back just slightly to make sure that it collides in the 
+				// next time step
+				while (length < BC_SE_COLLIDE_DIST_SQ + (BC_SE_COLLIDE_DIST_SQ/10) && s > 0 && s < 1) {
+					sNew = calculateSNew(s, length, d1, d2);
 
-					// We want to find the actual point we collide so let's
-					// backtrack a bit. We don't get the exact point, but this
-					// does add a little elasticity. Basically repeat the process 
-					// until we go over this value can affect the speed of the 
-					// simulation so really need to be careful
+					// Collision Detection p. 130
+					// ab = d2, ac = point - p2, bc = point - seEdge.getPoint2()
+					Double3D ac = p1.add(d1.multiply(sNew)).subtract(p2);
+					Double3D bc = p1.add(d1.multiply(sNew)).subtract(
+							seEdge.getPoint2());
+					e = Vector3DHelper.dotProduct(ac, d2);
 
-					// we add on the collidedist/10 term because if the BC and
-					// stroma are the exact distance apart then the BC won't know 
-					// that it has collided so we bring it back just slightly to 
-					// make sure that it collides in the next time step
-					while (length < BC_SE_COLLIDE_DIST_SQ
-							+ (BC_SE_COLLIDE_DIST_SQ / 10)
-							&& s > 0 && s < 1) {
-						sNew = calculateSNew(s, length, d1, d2);
-
-						// Collision Detection p. 130
-						// ab = d2, ac = point - p2, bc = point -
-						// seEdge.getPoint2()
-						Double3D ac = p1.add(d1.multiply(sNew)).subtract(p2);
-						Double3D bc = p1.add(d1.multiply(sNew)).subtract(
-								seEdge.getPoint2());
-						e = Vector3DHelper.dotProduct(ac, d2);
-
-						length = updateLength(length, ac, bc, e, f, d2);
-						s = sNew;
-					}
-				}
-
-				if (s == 0) {
-					Double3D d3Vec = c1.subtract(c2);
-
-					// we're already moving away!
-					if (Vector3DHelper.dotProduct(d3Vec, d1) > 0) {
-						bCollide = false;
-					}
-				} else if (s == 1) {
-					bCollide = false;
-				}
-
-				if (bCollide) {
-					updateMovementToAccountForCollision(length, d1, d2, p1, p2,
-							s, t, i);
-					return true;
-				} else {
-					// Move the BC location according to full the movement.
-					p1 = p1.add(d1);
+					length = updateLength(length, ac, bc, e, f, d2);
+					s = sNew;
 				}
 			}
 
-		}
+			if (s == 0) {
+				Double3D d3Vec = c1.subtract(c2);
 
+				// we're already moving away!
+				if (Vector3DHelper.dotProduct(d3Vec, d1) > 0) {
+					bCollide = false;
+				}
+			} else if (s == 1) {
+				bCollide = false;
+			}
+
+			if (bCollide) {
+				updateMovementToAccountForCollision(length, d1, d2, p1, p2, s,
+						t, i);
+				return true;
+			} else {
+				// Move the BC location according to full the movement.
+				p1 = p1.add(d1);
+			}
+		}
 		return false;
 	}
 
@@ -938,22 +928,15 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	private void updateMovementToAccountForCollision(double length,
 			Double3D d1, Double3D d2, Double3D p1, Double3D p2, double s,
 			double t, int i) {
-
 		Double3D d3NewDir;
 
 		// Get the approach direction normalised, and in reverse
-
 		Double3D d3MovementNormal = d1.multiply(-1).normalize();
 
 		// We hit bang in the middle so just bounce - unlikely!
 		if (length == 0) {
-
-			// The cell bounces back to it's original position so
-			// no need to updated its coordinates.
 			d3NewDir = d3MovementNormal;
-
 		} else {
-
 			// Calculate the direction from the stroma collision point to the BC
 			// collision point
 			Double3D d3BounceNormal = p1.add(d1.multiply(s))
@@ -965,23 +948,22 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 					d3MovementNormal, d3BounceNormal);
 			d3NewDir = Vector3DHelper.rotateVectorToVector(d3NewDir,
 					d3MovementNormal, d3BounceNormal);
-
 		}
 
 		// Set the new movement
 		d1 = d1.multiply(s);
 
 		if (d1.lengthSq() > 0) {
-			getM_d3aMovements().set(i, d1);
+			m_d3aMovements.set(i, d1);
 			i++;
 		}
 
 		// We need to add up all vectors after this one
 		// so we can add a new vector of this length
 		double dNewLength = 0;
-		while (getM_d3aMovements().size() > i) {
-			dNewLength += getM_d3aMovements().get(i).length();
-			getM_d3aMovements().remove(i);
+		while (m_d3aMovements.size() > i) {
+			dNewLength += m_d3aMovements.get(i).length();
+			m_d3aMovements.remove(i);
 		}
 
 		// add the remaining length of the current movement
@@ -993,9 +975,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 		d3NewDir = d3NewDir.multiply(dNewLength);
 
 		if (d3NewDir.lengthSq() > 0) {
-			getM_d3aMovements().add(d3NewDir);
+			m_d3aMovements.add(d3NewDir);
 		}
-
 	}
 
 	/**
@@ -1003,8 +984,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	 * 
 	 * returns a double, length
 	 */
-	double updateLength(double length, Double3D ac, Double3D bc, double e,
-			double f, Double3D d2) {
+	private double updateLength(double length, Double3D ac, Double3D bc,
+			double e, double f, Double3D d2) {
 		if (e <= 0) {
 			length = Vector3DHelper.dotProduct(ac, ac);
 		} else {
@@ -1022,7 +1003,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	/**
 	 * Helper method that determines the new value of S in collideStromaEdge
 	 */
-	double calculateSNew(double s, double length, Double3D d1, Double3D d2) {
+	private double calculateSNew(double s, double length, Double3D d1,
+			Double3D d2) {
 		double sNew = s;
 
 		// (Options.BC.COLLISION_RADIUS +
@@ -1046,9 +1028,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	 * Has lots of parameter inputs but this was the only way to encapsulate
 	 * collision methods
 	 */
-	List<Double> findClosestPointsBetween(int i, Double3D p1, Double3D p2,
-			Double3D d1, Double3D d2, double denom, double s, double t,
-			double a, double b, double c, double e, double f) {
+	private List<Double> findClosestPointsBetween(int i, Double3D p1,
+			Double3D p2, Double3D d1, Double3D d2, double denom, double s,
+			double t, double a, double b, double c, double e, double f) {
 
 		// if segments not parallel, compute closest point on L1 to L2
 		// and clamp to segment S1. Else pick arbritrary closest point S
@@ -1089,11 +1071,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	 * if the B cell gets to the border of the simulation it has to bounce back
 	 * as space is non-toroidal, much trickier in 3D than 2D
 	 */
-	public void handleBounce() {
+	private void handleBounce() {
 		boolean bBounce = true;
 
 		// We should in theory only have to check the last step for bounces
-		int iMovementIndex = getM_d3aMovements().size() - 1;
+		int iMovementIndex = m_d3aMovements.size() - 1;
 
 		double dPosX = x;
 		double dPosY = y;
@@ -1101,9 +1083,9 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 
 		// add all movement vectors before the last one
 		for (int i = 0; i < iMovementIndex; i++) {
-			dPosX += getM_d3aMovements().get(i).x;
-			dPosY += getM_d3aMovements().get(i).y;
-			dPosZ += getM_d3aMovements().get(i).z;
+			dPosX += m_d3aMovements.get(i).x;
+			dPosY += m_d3aMovements.get(i).y;
+			dPosZ += m_d3aMovements.get(i).z;
 		}
 
 		// multiple bounces may occur, especially with long travel distances
@@ -1115,22 +1097,25 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 			double dNewPosZ = dPosZ;
 
 			// add all movement vectors after the index,
-			for (int i = iMovementIndex; i < getM_d3aMovements().size(); i++) {
-				Double3D d3Movement = getM_d3aMovements().get(i);
+			for (int i = iMovementIndex; i < m_d3aMovements.size(); i++) {
+				Double3D d3Movement = m_d3aMovements.get(i);
 				dNewPosX += d3Movement.x;
 				dNewPosY += d3Movement.y;
 				dNewPosZ += d3Movement.z;
 			}
-			// out of bounds on X axis
-			if (dNewPosX > Settings.WIDTH - 1 || dNewPosX < 1) {
+			//out of bounds on X axis
+			if (dNewPosX > Settings.WIDTH - 1 || dNewPosX < 1) 
+			{
 				bBounce = handleBounceXaxis(dPosX, iMovementIndex);
 			}
-			// out of bounds on Y axis
-			if (dNewPosY > Settings.HEIGHT - 1 || dNewPosY < 1) {
+			//out of bounds on Y axis
+			if (dNewPosY > Settings.HEIGHT - 1 || dNewPosY < 1) 												
+			{
 				bBounce = handleBounceYaxis(dPosY, iMovementIndex);
 			}
-			// out of bounds on Z axis
-			if (dNewPosZ > Settings.DEPTH - 1 || dNewPosZ < 1) {
+			//out of bounds on Z axis
+			if (dNewPosZ > Settings.DEPTH - 1 || dNewPosZ < 1) 												
+			{
 				bBounce = handleBounceZaxis(dPosZ, iMovementIndex);
 			}
 		}
@@ -1146,16 +1131,16 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 		boolean bBounce = false;
 
 		double dTempPosX = dPosX; // what are these variables keeping track of
-
+								
 		boolean bFlipped = false;
 
-		for (int i = iMovementIndex; i < getM_d3aMovements().size(); i++) {
-			Double3D d3Movement = getM_d3aMovements().get(i);
+		for (int i = iMovementIndex; i < m_d3aMovements.size(); i++) {
+			Double3D d3Movement = m_d3aMovements.get(i);
 
 			// if we have already hit the wall, we just flip the x axis
 			// of all the remaining movements
 			if (bFlipped) {
-				getM_d3aMovements().set(i, new Double3D(-d3Movement.x, d3Movement.y,
+				m_d3aMovements.set(i, new Double3D(-d3Movement.x, d3Movement.y,
 						d3Movement.z));
 				continue;
 			}
@@ -1180,13 +1165,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 
 				// Replace the current one, then add the new one after it
 				if (d3TruncMovement.lengthSq() > 0) {
-					getM_d3aMovements().set(i, d3TruncMovement);
-					getM_d3aMovements().add(i + 1, d3Remainder);
+					m_d3aMovements.set(i, d3TruncMovement);
+					m_d3aMovements.add(i + 1, d3Remainder);
 
 					// if we don't increment i, it will get flipped again!
 					i++;
 				} else {
-					getM_d3aMovements().set(i, d3Remainder);
+					m_d3aMovements.set(i, d3Remainder);
 				}
 
 				bFlipped = true;
@@ -1210,13 +1195,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 		double dTempPosY = dPosY;
 		boolean bFlipped = false;
 
-		for (int i = iMovementIndex; i < getM_d3aMovements().size(); i++) {
-			Double3D d3Movement = getM_d3aMovements().get(i);
+		for (int i = iMovementIndex; i < m_d3aMovements.size(); i++) {
+			Double3D d3Movement = m_d3aMovements.get(i);
 
 			// if we have already hit the wall, we just flip the y axis
 			// of all the remaining movements
 			if (bFlipped) {
-				getM_d3aMovements().set(i, new Double3D(d3Movement.x, -d3Movement.y,
+				m_d3aMovements.set(i, new Double3D(d3Movement.x, -d3Movement.y,
 						d3Movement.z));
 				continue;
 			}
@@ -1243,12 +1228,12 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 				// Replace the current one, then add the new one after
 				// it
 				if (d3TruncMovement.lengthSq() > 0) {
-					getM_d3aMovements().set(i, d3TruncMovement);
-					getM_d3aMovements().add(i + 1, d3Remainder);
+					m_d3aMovements.set(i, d3TruncMovement);
+					m_d3aMovements.add(i + 1, d3Remainder);
 					// if we don't increment i, it will get flipped again!
 					i++;
 				} else {
-					getM_d3aMovements().set(i, d3Remainder);
+					m_d3aMovements.set(i, d3Remainder);
 				}
 
 				bFlipped = true;
@@ -1272,13 +1257,13 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 		double dTempPosZ = dPosZ;
 		boolean bFlipped = false;
 
-		for (int i = iMovementIndex; i < getM_d3aMovements().size(); i++) {
-			Double3D d3Movement = getM_d3aMovements().get(i);
+		for (int i = iMovementIndex; i < m_d3aMovements.size(); i++) {
+			Double3D d3Movement = m_d3aMovements.get(i);
 
 			// if we have already hit the wall, we just flip the y axis
 			// of all the movements
 			if (bFlipped) {
-				getM_d3aMovements().set(i, new Double3D(d3Movement.x, d3Movement.y,
+				m_d3aMovements.set(i, new Double3D(d3Movement.x, d3Movement.y,
 						-d3Movement.z));
 				continue;
 			}
@@ -1303,11 +1288,11 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 
 				// Replace the current one, then add the new one after it
 				if (d3TruncMovement.lengthSq() > 0) {
-					getM_d3aMovements().set(i, d3TruncMovement);
-					getM_d3aMovements().add(i + 1, d3Remainder);
+					m_d3aMovements.set(i, d3TruncMovement);
+					m_d3aMovements.add(i + 1, d3Remainder);
 					i++; // if we don't increment i, it will get flipped again!
 				} else {
-					getM_d3aMovements().set(i, d3Remainder);
+					m_d3aMovements.set(i, d3Remainder);
 				}
 				bFlipped = true;
 				bBounce = true;
@@ -1429,46 +1414,6 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 
 	public void setPositionAlongStroma(double positionAlongStroma) {
 		this.positionAlongStroma = positionAlongStroma;
-	}
-
-	public List<Double3D> getM_d3aMovements() {
-		return m_d3aMovements;
-	}
-
-	public void setM_d3aMovements(List<Double3D> m_d3aMovements) {
-		this.m_d3aMovements = m_d3aMovements;
-	}
-
-	public Double3D getM_d3Face() {
-		return m_d3Face;
-	}
-
-	public void setM_d3Face(Double3D m_d3Face) {
-		this.m_d3Face = m_d3Face;
-	}
-
-	public ArrayList<Double3D> getM_d3aCollisions() {
-		return m_d3aCollisions;
-	}
-
-	public void setM_d3aCollisions(ArrayList<Double3D> m_d3aCollisions) {
-		this.m_d3aCollisions = m_d3aCollisions;
-	}
-
-	public int getCollisionCounter() {
-		return collisionCounter;
-	}
-
-	public void setCollisionCounter(int collisionCounter) {
-		this.collisionCounter = collisionCounter;
-	}
-
-	public HashSet<Int3D> getM_i3lCollisionPoints() {
-		return m_i3lCollisionPoints;
-	}
-
-	public void setM_i3lCollisionPoints(HashSet<Int3D> m_i3lCollisionPoints) {
-		this.m_i3lCollisionPoints = m_i3lCollisionPoints;
 	}
 
 }

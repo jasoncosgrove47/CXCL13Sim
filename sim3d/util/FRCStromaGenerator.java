@@ -14,7 +14,7 @@ import sim3d.cell.StromaEdge;
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
-public class StromaGenerator {
+public class FRCStromaGenerator {
 	/**
 	 * Class to keep track of edges for each cell
 	 */
@@ -74,7 +74,7 @@ public class StromaGenerator {
 	 *            Depth of grid
 	 * @param iCellCount
 	 *            Max number of stromal cells (note: this is a upper bound only)
-	 * @return 
+	 * @return TODO
 	 */
 	public static int generateStroma3D(int iWidth, int iHeight, int iDepth,
 			int iCellCount, ArrayList<FRCCell> frclCellLocations,
@@ -113,7 +113,7 @@ public class StromaGenerator {
 			}
 
 			// Calculate the number of edges to make
-			// Values were fitted to match the FRC paper
+			// TODO Magic numbers! These seem to work, though...
 			int iEdges = Math
 					.max(0,
 							Math.min(iRemainingCells,
@@ -403,18 +403,19 @@ public class StromaGenerator {
 
 			for (int i = 1; i < iCellCount; i++) {
 
+
 				// This distribution... It approximately matches the paper, and
 				// was derived using the divided differences method
 				// http://www.wolframalpha.com/input/?i=0.392281+x-0.342923+x%5E2%2B0.151204+x%5E3-0.0270696+x%5E4%2B0.00180148+x%5E5+between+x+%3D+0+and+5
-				// divided differences allows you to interplaote a continuous
+				//divided differences allows you to interplaote a continuous
 				// distribution from discrete data
-				// http://mathforcollege.com/nm/mws/gen/05inp/mws_gen_inp_txt_ndd.pdf
+				//http://mathforcollege.com/nm/mws/gen/05inp/mws_gen_inp_txt_ndd.pdf
 				double length = Settings.RNG.nextDouble() * 2.6;
 				length = 0.00180148 * Math.pow(length, 5) - 0.0270696
 						* Math.pow(length, 4) + 0.151204 * Math.pow(length, 3)
 						- 0.342923 * Math.pow(length, 2) + 0.392281 * length;
 
-				// Yay! More magic numbers
+				// TODO Yay! More magic numbers
 				length = 1.3 + length * 3.5;
 
 				// 2D special case

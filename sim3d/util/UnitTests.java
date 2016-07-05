@@ -16,8 +16,7 @@ import sim.engine.Schedule;
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
-import sim3d.diffusion.Chemokine;
-
+import sim3d.diffusion.Particle;
 
 public class UnitTests extends AbstractAnalysis {
 
@@ -43,7 +42,6 @@ public class UnitTests extends AbstractAnalysis {
 	}
 
 	public void testRotateVectorToVector() {
-
 		int lines = 4;
 		Coord3d[] points = new Coord3d[lines * 50];
 		Color[] colors = new Color[lines * 50];
@@ -204,11 +202,11 @@ public class UnitTests extends AbstractAnalysis {
 
 	public void testParticleDiffusion() {
 		Schedule schedule = new Schedule();
-		Chemokine p = new Chemokine(schedule, Chemokine.TYPE.CCL19, 125, 125, 125);
+		Particle p = new Particle(schedule, Particle.TYPE.CCL19, 125, 125, 125);
 
 		p.add(62, 62, 62, 1);
-		// p.m_dDecayRateInv = 1;
-
+		//p.m_dDecayRateInv = 1;
+		
 		for (int i = 0; i < 60; i++) {
 			p.step(null);
 		}

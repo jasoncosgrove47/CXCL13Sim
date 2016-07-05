@@ -14,7 +14,6 @@ public class Controller implements Steppable {
 
 	/**
 	 * 
-	 * 
 	 * All data collection is handled through this singleton class, it has functionality
 	 * to track populations of cell types and single cell tracking experiments.
 	 * 
@@ -29,15 +28,10 @@ public class Controller implements Steppable {
 	 * @author Jason Cosgrove
 	 */
 
-	
-	
-
-	
 	/**
 	 * The single instance of the class
 	 */
 	private static Controller instance = null;
-	
 	
 	/*
 	 * Constructor for the class
@@ -85,16 +79,33 @@ public class Controller implements Steppable {
 	private Map<Integer, ArrayList<Double>> X_Coordinates = new HashMap<Integer, ArrayList<Double>>();
 	private Map<Integer, ArrayList<Double>> Y_Coordinates = new HashMap<Integer, ArrayList<Double>>();
 	private Map<Integer, ArrayList<Double>> Z_Coordinates = new HashMap<Integer, ArrayList<Double>>();
-		
+	
 	//need to initialise this
 	private Map<Integer,Integer> dendritesVisited = new HashMap<Integer, Integer>();
-	private Map<Integer,ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
 
 	/**
 	 * Controls the length of an experiment and signals to the main class when
 	 * an experiment is finished
 	 */
 	public void step(SimState state) {
+		
+		//increment the experiment timer
+		experimentTimer++;
+	
+		// stop the experiment once the counter reaches
+		// lengthOfExperiment
+		if (experimentTimer > lengthOfExperiment) {
+			SimulationEnvironment.experimentFinished = true;
+		}
+	}
+
+	
+	/**
+	 * Controls the length of an experiment and signals to the main class when
+	 * an experiment is finished
+	 * used for testing
+	 */
+	public void step() {
 		
 		//increment the experiment timer
 		experimentTimer++;
@@ -130,13 +141,5 @@ public class Controller implements Steppable {
 	public Map<Integer,Integer> getDendritesVisited() {
 		return dendritesVisited;
 	}
-
-	public Map<Integer,ArrayList<Integer>> getReceptors() {
-		return receptors;
-	}
-
-
-
-
 
 }

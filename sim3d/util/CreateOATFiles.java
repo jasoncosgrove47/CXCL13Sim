@@ -110,7 +110,7 @@ public class CreateOATFiles {
 		simMeasures.add("Kr");
 		simMeasures.add("Rf");
 		simMeasures.add("TRAVEL_DISTANCE");
-
+		
 		Iterator<String> params = simMeasures.iterator();
 
 		while (params.hasNext()) {
@@ -189,9 +189,8 @@ public class CreateOATFiles {
 								if (!groupVars.item(k).getNodeName()
 										.equals("#text")) {
 									// Write the tag to the new file
-									System.out.println(groupVars.item(k)
-											.getNodeName());
-
+									System.out.println(groupVars.item(k).getNodeName());
+									
 									Element paramName = docWriting
 											.createElement(groupVars.item(k)
 													.getNodeName());
