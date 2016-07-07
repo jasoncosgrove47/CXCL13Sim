@@ -6,6 +6,7 @@ import java.util.Map;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 
@@ -26,6 +27,8 @@ public class Controller implements Steppable {
 	 * 
 	 * @author Jason Cosgrove
 	 */
+	
+	
 	
 	/**
 	 * The single instance of the class
@@ -55,10 +58,7 @@ public class Controller implements Steppable {
 		return instance;
 	}
 	
-	/*
-	 * Counter for the number of antigen primed B cells in the simulation
-	 */
-	private static int primedCells = 0;
+
 
 	/**
 	 * Timer for the experiment, incremented in timesteps of the simulation
@@ -76,10 +76,13 @@ public class Controller implements Steppable {
 	 * Value: An arraylist containing the cells position 
 	 * in a given dimension for a given timestep
 	 */
-	private Map<Integer, ArrayList<Double>> X_Coordinates = new HashMap<Integer, ArrayList<Double>>();
-	private Map<Integer, ArrayList<Double>> Y_Coordinates = new HashMap<Integer, ArrayList<Double>>();
-	private Map<Integer, ArrayList<Double>> Z_Coordinates = new HashMap<Integer, ArrayList<Double>>();
+	
+
 		
+	
+	private Map<Integer, ArrayList<Double3D>> Coordinates = new HashMap<Integer, ArrayList<Double3D>>();
+	
+	
 	//need to initialise this
 	private Map<Integer,Integer> dendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer,ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
@@ -101,17 +104,7 @@ public class Controller implements Steppable {
 	}
 	
 
-	public Map<Integer, ArrayList<Double>> getX_Coordinates() {
-		return X_Coordinates;
-	}
 
-	public Map<Integer, ArrayList<Double>> getY_Coordinates() {
-		return Y_Coordinates;
-	}
-
-	public Map<Integer, ArrayList<Double>> getZ_Coordinates() {
-		return Z_Coordinates;
-	}
 
 	public Map<Integer,Integer> getDendritesVisited() {
 		return dendritesVisited;
@@ -121,5 +114,8 @@ public class Controller implements Steppable {
 		return receptors;
 	}
 
+	public Map<Integer, ArrayList<Double3D>> getCoordinates() {
+		return Coordinates;
+	}
 
 }

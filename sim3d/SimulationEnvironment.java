@@ -199,7 +199,7 @@ public class SimulationEnvironment extends SimState {
 	}
 
 	/**
-	 * Seeds B cells
+	 * Seeds B cells into the FDC network
 	 */
 	public void seedCells(CELLTYPE celltype) {
 		int count = 0; // the number of cells to seed
@@ -251,6 +251,9 @@ public class SimulationEnvironment extends SimState {
 			// keep generating new values while they are outside of the circle
 			// the radius of the circle is 13 and it is inside this that we seed
 			// the b cells
+			
+			//TODO we need to able to alter this value!!!
+			// this is not consistent with our parameter values!!!
 		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1,
 				(Settings.HEIGHT / 2) + 1, 13) == false);
 
@@ -317,9 +320,23 @@ public class SimulationEnvironment extends SimState {
 
 	/*
 	 * Generate and initialise a stromal network 
+	 * an FDC is the same as an FRC network, except
+	 * we add additional branches which connect
+	 * dendrites to give a web-like morphology
+	 * comparable to those observed in the 
+	 * CXCL13 reporter mice.
+	 * 
+	 * 
+	 * TODO I think a visitor design pattern would come in handy
+	 * here so that later on we can implement an FDC or an FRC
+	 * without cluttering up the simulaiton environment class
+	 * 
+
 	 */
 	void initialiseFDC(CollisionGrid cgGrid) {
 
+		
+		//TODO we should really change this or it will get confusing....
 		// Generate some stroma
 		ArrayList<StromaGenerator.FRCCell> frclCellLocations = new ArrayList<StromaGenerator.FRCCell>();
 		
@@ -370,10 +387,6 @@ public class SimulationEnvironment extends SimState {
 									|| d3Point2.z <= 0 || d3Point2.z >= (Settings.DEPTH - 2))) {
 
 						
-						//TODO what is this doing, need to discuss with Simon
-						int iCat = (int) (5 *
-								  (seEdge.getPoint2() .subtract(seEdge.getPoint1()).length() - 1.2));
-						
 					}
 	
 					
@@ -396,7 +409,7 @@ public class SimulationEnvironment extends SimState {
 					for (int j = 0; j < neighbouredges.size() - 1; j++) {
 						if (neighbouredges.get(j) instanceof StromaEdge) {
 
-							//only add one branch for each or it gets crazy
+							//add one branch to each
 							if (branchesAdded < 1) {
 								StromaEdge neighbouredge = (StromaEdge) neighbouredges
 										.get(j);
@@ -435,24 +448,41 @@ public class SimulationEnvironment extends SimState {
 						}
 					}
 				}
-
-				
-				
-				//TODO test case to make sure that this is sensible
-				
-				//now calculate the total number of dendrites
-				Bag stroma = fdcEnvironment.getAllObjects();
-				int FDCcounter = 0;
-				
-				for(int i= 0 ; i < stroma.size(); i++){
-					if(stroma.get(i) instanceof FDC){
-						FDCcounter += 1;
-					}
-				}
-				
-				totalNumberOfDendrites = stroma.size() - FDCcounter;
+				//calculate the total number of dendrites in the network
+				totalNumberOfDendrites = calculateTotalNumberOfDendrites();
+				System.out.println("totalStromaObjects: " + fdcEnvironment.getAllObjects().size());
+				System.out.println("totalNumberOfBranches: " + totalNumberOfDendrites);
 				
 	}
+	
+	
+	
+	/**
+	 * Calculate the number of dendrites in the FDC network
+	 * excluding the FDC nodes
+	 * @return the number of dendrites as an integer value
+	 */
+	private int calculateTotalNumberOfDendrites(){
+		
+		Bag stroma = fdcEnvironment.getAllObjects();
+		int FDCcounter = 0;
+		
+		
+		//we want to count only branches and dendrites so
+		// we need to know how many FDC nodes there are
+		for(int i= 0 ; i < stroma.size(); i++){
+			if(stroma.get(i) instanceof FDC){
+				FDCcounter += 1;
+			}
+		}
+		
+		//subtract number of nodes to get number of edges
+		int number = stroma.size() - FDCcounter;
+		
+		return number;
+		
+	}
+	
 	
 	
 

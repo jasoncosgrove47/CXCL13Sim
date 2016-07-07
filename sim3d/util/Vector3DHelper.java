@@ -286,6 +286,7 @@ public class Vector3DHelper {
 		return new Double3D(x, y, z);
 	}
 
+
 	/**
 	 * Rotate a vector about the z axis
 	 * 

@@ -18,7 +18,19 @@ import sim3d.util.Vector3DHelper;
 public class Algorithm1 implements MigrationAlgorithm{
 
 	
+	/**
+	 * The algorithm which dictates cell migration
+	 * An adaptation of the scheme developed by Lin et al
+	 * 
+	 * Implemented using the visitor design pattern so 
+	 * we can use different migration algorithms if required
+	 * 
+	 * 
+	 * @author Jason Cosgrove
+	 */
+
 	
+
 	@Override
 	public void performMigration(BC bc) {
 		bc.setCollisionCounter(0); // reset the collision counter for this timestep
@@ -53,8 +65,9 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		// Remember which way we're now facing
 		bc.setM_d3Face(bc.getM_d3aMovements().get(bc.getM_d3aMovements().size() - 1).normalize());
+		
+		
 		// if space to move then move
-
 		if (determineSpaceToMove(bc.x, bc.y, bc.z)) {
 			bc.setObjectLocation(new Double3D(bc.x, bc.y, bc.z));
 		}
@@ -62,6 +75,14 @@ public class Algorithm1 implements MigrationAlgorithm{
 	}
 
 	/**
+	 * Determines if there is space to move to a target destination
+	 * at coordinates x,y,z.
+	 * 
+	 * The decision to move is probabilistic with the threshold
+	 * determined by e^-y where y is the number of cells in the
+	 * target gridspace.
+	 * 
+	 * 
 	 * @param x
 	 * @param y
 	 * @param z
@@ -95,6 +116,25 @@ public class Algorithm1 implements MigrationAlgorithm{
 	
 	/**
 	 * calculate where to move for the next timestep.
+	 * The algorithm determines the chemotactic vector
+	 * of the cell using the approach developed by
+	 * Lin et al. If the magnitude of the vector
+	 * (which represents the difference in number of 
+	 * signalling receptors exceeds the signal threshold
+	 * the cell will move chemotactically with respect to
+	 * a persistence vector representing the direction of the
+	 * cell from the previous timestep.
+	 * 
+	 * If the magnitude does not exceed the vector then it undergoes
+	 * a random walk with respect to a persistence vector, which is
+	 * not as strong as when the cell undergoes chemotaxis due to more
+	 * localised actin localisation.
+	 * 
+	 * Once all these calculations have been performed the
+	 * cell updates its movements array (M_d3aMovements) so the movements
+	 * can be performed at the next timestep
+	 * 
+	 * 
 	 */
 	public void calculateWhereToMoveNext(BC bc) {
 		Double3D vMovement = getMoveDirection(bc);
@@ -123,7 +163,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 				//update the direction that the cell is facing
 				vMovement = bc.getM_d3Face().add(newdirection);
 
-				// why do we need this line here?
+				//normalise the vector
 				if (vMovement.lengthSq() > 0) {
 					vMovement = vMovement.normalize();
 				}
@@ -142,10 +182,35 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		if (vMovement == null || vMovement.lengthSq() == 0) {
 			// no data! so do a random turn
+			
+			
+			//TODO from what i remember this was between 0.5-2
+			//was just used to set speed so need to redefine this function...
+			//speaking of which this should be in the model documentation
 			persistence = Settings.BC.RANDOM_POLARITY;
 			
-			vMovement = Vector3DHelper.getRandomDirectionInCone(bc.getM_d3Face(),
+			
+			//this was the old bit of code to do it
+			//vMovement = Vector3DHelper.getRandomDirectionInCone(bc.getM_d3Face(),
+			//		Settings.BC.RANDOM_TURN_ANGLE());
+			
+		//lets try the new way
+			Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(bc.getM_d3Face(),
 					Settings.BC.RANDOM_TURN_ANGLE());
+			
+			
+			newdirection = newdirection.multiply(persistence);
+						
+
+			//update the direction that the cell is facing
+			vMovement = bc.getM_d3Face().add(newdirection);
+
+			//normalise the vector
+			if (vMovement.lengthSq() > 0) {
+				vMovement = vMovement.normalize();
+			}
+			
+			
 		}
 		//update the migration data
 		updateMigrationData(bc, vMovement,vectorMagnitude, persistence);
@@ -158,14 +223,18 @@ public class Algorithm1 implements MigrationAlgorithm{
 		bc.getM_d3aCollisions().clear();
 		bc.setM_d3aMovements(new ArrayList<Double3D>());
 
-		// calculated from maiuri paper in cell 2015
+
 		// We make speed a function of cell polarity
 		// speed scalar will be zero if persistence 
-		// is equal to 1
+		// is equal to 1. calculated from maiuri paper in cell 2015
 		double speedScalar = (Math.log(1 / persistence))
 				/ Settings.BC.SPEED_SCALAR;
 
 		double travelDistance;
+		
+		
+		//TODO this is quite an ugly bit of code, needs some rethinking...
+		
 		// lets make travelDistance a gaussian for a better fit
 		// and constrain it so it cant give a value less than zero
 		do {
@@ -196,7 +265,8 @@ public class Algorithm1 implements MigrationAlgorithm{
 			bc.m_iL_r += iaBoundReceptors[i];
 		}
 
-		int iTimesteps = 60;
+		//sim timestep increments in 1 min intervals so divide by 60 to get it in seconds.
+		int iTimesteps = 60; 
 		int iR_i, iL_r;
 		double h = 1; // the parameters are already in seconds so don't need to
 						// scale them
@@ -305,6 +375,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		return vMovement;
 	}
+	
 
 	/**
 	 * Helper method to calculate the amount of ligand bound in moles to 

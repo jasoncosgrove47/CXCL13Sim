@@ -128,6 +128,7 @@ public class DiffusionAlgorithm {
 		
 	}
 	
+	
 	/**
 	 * Enforce the boundary condition so all of the chemokine would just diffuse out of the space
 	 * @param pSpace

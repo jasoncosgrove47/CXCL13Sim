@@ -24,7 +24,7 @@ public final class outputToCSV {
 		double networkScanned;
 
 		try {
-
+			
 			processedDataWriter = new FileWriter(processedFileName);
 			// set the data headings
 			processedDataWriter.append("TrackID");
@@ -40,8 +40,9 @@ public final class outputToCSV {
 			processedDataWriter.append("dendritesVisited");
 			processedDataWriter.append('\n');
 
+			
 			// for each tracker cell
-			for (Integer key : Controller.getInstance().getX_Coordinates()
+			for (Integer key : Controller.getInstance().getCoordinates()
 					.keySet()) {
 				double[] results = ProcessData.processMigrationData(key);
 
@@ -105,7 +106,7 @@ public final class outputToCSV {
 			rawDataWriter.append('\n');
 
 			// for each tracker cell
-			for (Integer key : Controller.getInstance().getX_Coordinates()
+			for (Integer key : Controller.getInstance().getCoordinates()
 					.keySet()) {
 				ProcessData.processRawData(key, rawDataWriter);
 			}

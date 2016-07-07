@@ -126,6 +126,7 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 
 	
 
+	
 	/*
 	 * Determines how many collisions a BC has had this timestep necessary to
 	 * prevent infinite collisions
@@ -172,26 +173,8 @@ public class BC extends DrawableCell3D implements Steppable, Collidable, Migrato
 	public void step(final SimState state)// why is this final here
 	{
 
-		
-		
-		// TODO make sure that this is working as expected....
 		migrate(a1);
-		/*
-		collisionCounter = 0; // reset the collision counter for this timestep
-		m_i3lCollisionPoints.clear();
-
-		// if we have a stored move then execute it
-		if (m_d3aMovements != null && m_d3aMovements.size() > 0) {
-			performSavedMovements();
-		}
-
-		calculateWhereToMoveNext();
-		handleBounce(); // Check for bounces
-		receptorStep();
-		registerCollisions(m_cgGrid); // Register the new movement with the grid
-		*/
-		
-		
+			
 	}
 
 	

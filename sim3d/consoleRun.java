@@ -83,6 +83,7 @@ public class consoleRun {
 			}
 
 			
+			
 			if (!SimulationEnvironment.simulation.schedule
 					.step(SimulationEnvironment.simulation))
 				break;

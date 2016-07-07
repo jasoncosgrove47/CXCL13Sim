@@ -16,8 +16,7 @@ public class ProcessData {
 	 */
 	
 	
-	
-	
+
 	/**
 	 * Helper method which calculates the speed, motility coefficient and
 	 * meandering index for each cell
@@ -29,14 +28,11 @@ public class ProcessData {
 	 */
 	static double[] processMigrationData(Integer key) throws IOException {
 
-		// get the cells x,y and z coordinates for every timestep
-		ArrayList<Double> Xcoords = Controller.getInstance().getX_Coordinates()
-				.get(key);
-		ArrayList<Double> Ycoords = Controller.getInstance().getY_Coordinates()
-				.get(key);
-		ArrayList<Double> Zcoords = Controller.getInstance().getZ_Coordinates()
-				.get(key);
+	
 
+		ArrayList<Double3D> Coords = Controller.getInstance().getCoordinates().get(key);
+		
+		
 		Double3D startLocation = null; // starting position
 		Double3D endLocation = null; // final position
 		Double3D previousLocation = null; // location at the previous timestep
@@ -48,16 +44,21 @@ public class ProcessData {
 		double x = 0, y = 0, z = 0;
 
 		// for each timepoint
-		for (int i = 0; i < Xcoords.size(); i++) {
+		for (int i = 0; i < Coords.size(); i++) {
 			// get the x,y and z coordinates of each cell
 			// multiply by 10 because each gridspace
 			// equals 10 microns
-			x = Xcoords.get(i) * 10;
-			y = Ycoords.get(i) * 10;
-			z = Zcoords.get(i) * 10;
+			
 
-			thisLocation = new Double3D(x, y, z);
 
+			x = Coords.get(i).x * 10;
+			y = Coords.get(i).y * 10;
+			z = Coords.get(i).z * 10;
+			
+			thisLocation = new Double3D(x,y,z);
+			
+			
+			
 			// for each timepoint
 			if (i == 0) {
 				startLocation = thisLocation;
@@ -71,7 +72,7 @@ public class ProcessData {
 
 				// if this is the last coordinate of the track then we need to
 				// mark it
-				if (i == Xcoords.size() - 1) {
+				if (i == Coords.size() - 1) {
 					endLocation = thisLocation;
 				}
 			}
@@ -82,7 +83,7 @@ public class ProcessData {
 		
 		
 		// calculate the total time
-		double time = Xcoords.size();
+		double time = Coords.size();
 
 		// calculate the net displacement travelled
 		netDisplacement = startLocation.distance(endLocation);
@@ -90,6 +91,7 @@ public class ProcessData {
 		double motilityCoefficient = calculateMotilityCoefficient(netDisplacement,time);
 		double speed = calculateSpeed(totalDisplacement,time);
 	
+		
 		
 		// store all motility parameters in an output array
 		double[] output = { time, motilityCoefficient, meanderingIndex, speed,
@@ -108,37 +110,36 @@ public class ProcessData {
 	 */
 	static void processRawData(Integer key,
 			FileWriter rawDataWriter) throws IOException {
-		// get all of their x,y and z coordinates
-		ArrayList<Double> Xcoords = Controller.getInstance().getX_Coordinates()
-				.get(key);
-		ArrayList<Double> Ycoords = Controller.getInstance().getY_Coordinates()
-				.get(key);
-		ArrayList<Double> Zcoords = Controller.getInstance().getZ_Coordinates()
-				.get(key);
+	
 
 		ArrayList<Integer> Receptors = Controller.getInstance().getReceptors()
 				.get(key);
 
-
+		ArrayList<Double3D> Coords = Controller.getInstance().getCoordinates().get(key);
+		
 		double x = 0, y = 0, z = 0;
 		int r = 0;
 
+		
+		
 		// for each timepoint
-		for (int i = 0; i < Xcoords.size(); i++) {
+		for (int i = 0; i < Coords.size(); i++) {
 			// get the x,y and z coordinates of each cell
 			// multiply by 10 because each gridspace
 			// equals 10 microns, and we want output in microns
 			// and not metres
-			x = Xcoords.get(i) * 10;
-			y = Ycoords.get(i) * 10;
-			z = Zcoords.get(i) * 10;
+			
+			
+			x = Coords.get(i).x * 10;
+			y = Coords.get(i).y * 10;
+			z = Coords.get(i).z * 10;
 			r = Receptors.get(i);
 			
 			
 
 			Double3D thisLocation = new Double3D(x,y,z);
-			Double3D nextLocation = calculateNextLocation(i, Xcoords, Ycoords, Zcoords);
-			Double3D previousLocation = calculatePreviousLocation(i, Xcoords, Ycoords, Zcoords);
+			Double3D nextLocation = calculateNextLocation(i, Coords);
+			Double3D previousLocation = calculatePreviousLocation(i, Coords);
 			
 			//TODO this code is dreadful, need to refactor
 			
@@ -167,7 +168,9 @@ public class ProcessData {
 			rawDataWriter.append(Double.toString(turningAngle));
 			rawDataWriter.append('\n');
 
-		}	
+		}
+		
+	
 	}
 	
 	/**
@@ -180,15 +183,14 @@ public class ProcessData {
 	}
 	
 	
-	
-	private static Double3D calculatePreviousLocation(int i,ArrayList<Double> Xcoords ,
-			ArrayList<Double> Ycoords ,ArrayList<Double> Zcoords ){
+	//TODO refactor using coords
+	private static Double3D calculatePreviousLocation(int i,ArrayList<Double3D> Coords){
 		
 		if(i > 0){
 		
-			double x = Xcoords.get(i-1)*10;
-			double y = Ycoords.get(i-1)*10;
-			double z = Zcoords.get(i-1)*10;
+			double x = Coords.get(i-1).x*10;
+			double y = Coords.get(i-1).y*10;
+			double z = Coords.get(i-1).z*10;
 		
 		
 			return new Double3D(x,y,z);
@@ -198,13 +200,14 @@ public class ProcessData {
 		
 		}
 	
-	private static Double3D calculateNextLocation(int i, ArrayList<Double> Xcoords ,
-			ArrayList<Double> Ycoords ,ArrayList<Double> Zcoords){
+	
+	//TODO refactor using coords
+	private static Double3D calculateNextLocation(int i, ArrayList<Double3D> Coords){
 	 
-		if(i < Xcoords.size()-1){
-			double x = Xcoords.get(i+1)*10;
-			double y = Ycoords.get(i+1)*10;
-			double z = Zcoords.get(i+1)*10;
+		if(i < Coords.size()-1){
+			double x = Coords.get(i+1).x*10;
+			double y = Coords.get(i+1).y*10;
+			double z = Coords.get(i+1).z*10;
 	
 	
 			return new Double3D(x,y,z);

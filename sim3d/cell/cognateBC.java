@@ -3,10 +3,13 @@ package sim3d.cell;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
+
 import javax.media.j3d.TransformGroup;
+
 import dataLogger.Controller;
 import sim.engine.SimState;
 import sim.portrayal3d.simple.SpherePortrayal3D;
+import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
@@ -24,14 +27,15 @@ public class cognateBC extends BC {
 	private static final long serialVersionUID = 1L;
 
 	
+
 	/**
 	 * Used to store the x,y and z coordinates of a BC during a cell tracking
 	 * experiment
 	 */
-	private ArrayList<Double> positionX = new ArrayList<Double>();
-	private ArrayList<Double> positionY = new ArrayList<Double>();
-	private ArrayList<Double> positionZ = new ArrayList<Double>();
-
+	//private ArrayList<Double> positionX = new ArrayList<Double>();
+	//private ArrayList<Double> positionY = new ArrayList<Double>();
+	//private ArrayList<Double> positionZ = new ArrayList<Double>();
+	private ArrayList<Double3D> coordinates = new ArrayList<Double3D>();
 	private ArrayList<Integer> receptors = new ArrayList<Integer>();
 
 	
@@ -73,8 +77,8 @@ public class cognateBC extends BC {
 		// need to set these to zero for the CXCR5 KO experiment
 		// as we need a functional follicle to form for consistency
 
-		// this.m_iL_r = 0;
-		// this.m_iR_free = 0;
+		 //this.m_iL_r = 0;
+		 //this.m_iR_free = 0;
 		// this.m_iR_i = 0;
 	}
 
@@ -100,6 +104,7 @@ public class cognateBC extends BC {
 		}
 	}
 
+	
 	/**
 	 * Updates the cells surface receptor levels in Controller
 	 */
@@ -117,16 +122,12 @@ public class cognateBC extends BC {
 	 * the controllers coordinate MAPs so they can be accessed by viewers
 	 */
 	void updatePosition() {
-		positionX.add(this.x);
-		positionY.add(this.y);
-		positionZ.add(this.z);
 
-		Controller.getInstance().getX_Coordinates()
-				.put(this.getIndex(), this.getPositionX());
-		Controller.getInstance().getY_Coordinates()
-				.put(this.getIndex(), this.getPositionY());
-		Controller.getInstance().getZ_Coordinates()
-				.put(this.getIndex(), this.getPositionZ());
+		coordinates.add(new Double3D(this.x,this.y,this.z));
+
+
+		Controller.getInstance().getCoordinates().put(this.getIndex(), this.getCoordinates());
+		
 	}
 
 	/**
@@ -312,18 +313,12 @@ public class cognateBC extends BC {
 		return antigenCaptured;
 	}
 
-	public ArrayList<Double> getPositionX() {
-		return positionX;
-	}
 
-	public ArrayList<Double> getPositionY() {
-		return positionY;
-	}
 
-	public ArrayList<Double> getPositionZ() {
-		return positionZ;
+	public ArrayList<Double3D> getCoordinates() {
+		return coordinates;
 	}
-
+	
 	public ArrayList<Integer> getReceptors() {
 		return receptors;
 	}

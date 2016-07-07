@@ -56,6 +56,7 @@ public class branch extends StromaEdge {
 
 	}
 
+	
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
 		if (transf == null)// add || true to update the stroma visualisation

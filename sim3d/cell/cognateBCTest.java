@@ -41,7 +41,7 @@ public class cognateBCTest {
 		cBC.setObjectLocation(new Double3D(1,1,1));
 		
 		cBC.updatePosition();
-		boolean test = Controller.getInstance().getX_Coordinates().isEmpty();
+		boolean test = Controller.getInstance().getCoordinates().isEmpty();
 		assertEquals(false, test);
 	}
 	
