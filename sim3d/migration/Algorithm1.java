@@ -146,13 +146,17 @@ public class Algorithm1 implements MigrationAlgorithm{
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
 				
+				
+			
+				//TODO this is very odd but it looks like the initial normalisation step is very important!
+				/*
 				//if there's sufficient directional bias
 				//can affect cell polarity
 				persistence = Settings.BC.POLARITY;
 				
 				// Add some noise to the direction 
 				Double3D newdirection = Vector3DHelper
-						.getBiasedRandomDirectionInCone(vMovement.normalize(),
+						.getRandomDirectionInCone(vMovement.normalize(),
 								Settings.BC.DIRECTION_ERROR());
 					
 				//  scale the new vector with respect to the old vector,
@@ -162,6 +166,34 @@ public class Algorithm1 implements MigrationAlgorithm{
 				
 				//update the direction that the cell is facing
 				vMovement = bc.getM_d3Face().add(newdirection);
+				
+				*/
+				
+				
+				//if there's sufficient directional bias
+				//can affect cell polarity
+				persistence = Settings.BC.POLARITY;
+				
+				// Add some noise to the signal
+				Double3D newdirection = Vector3DHelper
+						.getRandomDirectionInCone(vMovement.normalize(),
+								Math.toRadians(2));
+					
+				//  scale the new vector with respect to the old vector,
+				// values less than 1 favour the old vector, values greater than 1 favour the new vector
+				// this is constrained between 0 and 2
+				newdirection = newdirection.multiply(persistence);
+				
+				//update the direction that the cell is facing
+				vMovement = bc.getM_d3Face().add(newdirection);
+				
+				
+				vMovement = Vector3DHelper
+					.getRandomDirectionInCone(vMovement.normalize(),
+							Settings.BC.DIRECTION_ERROR());
+
+	
+
 
 				//normalise the vector
 				if (vMovement.lengthSq() > 0) {
@@ -194,16 +226,27 @@ public class Algorithm1 implements MigrationAlgorithm{
 			//vMovement = Vector3DHelper.getRandomDirectionInCone(bc.getM_d3Face(),
 			//		Settings.BC.RANDOM_TURN_ANGLE());
 			
+			
+
+			
 		//lets try the new way
 			Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(bc.getM_d3Face(),
 					Settings.BC.RANDOM_TURN_ANGLE());
 			
-			
+		
 			newdirection = newdirection.multiply(persistence);
-						
-
+			
+			
+			
 			//update the direction that the cell is facing
 			vMovement = bc.getM_d3Face().add(newdirection);
+			
+			//TODO review this code, we may not need it...
+			//now add noise to this
+			vMovement = Vector3DHelper
+					.getRandomDirectionInCone(vMovement.normalize(),
+							Settings.BC.DIRECTION_ERROR());
+			
 
 			//normalise the vector
 			if (vMovement.lengthSq() > 0) {
@@ -245,8 +288,11 @@ public class Algorithm1 implements MigrationAlgorithm{
 			// only sample within oneSD
 		} while (travelDistance <= 0);//must be greater than zero
 		
+		
+		//TODO may need to put this back if cant calibrate without the speedscalar
 
-		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
+		//bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
+		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
 			
 	}
 	
