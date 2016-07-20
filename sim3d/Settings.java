@@ -123,6 +123,7 @@ public class Settings {
 		return (int) (60 / DIFFUSION_TIMESTEP);
 	}
 
+	
 	/**
 	 * Subclass containing all the BC parameters
 	 */
@@ -170,9 +171,9 @@ public class Settings {
 			SIGNAL_THRESHOLD = Double.parseDouble(stN.getTextContent());
 
 			NodeList rtaNL = paramBCElement
-					.getElementsByTagName("RANDOM_TURN_ANGLE");
+					.getElementsByTagName("MAX_TURN_ANGLE");
 			Node rtaN = rtaNL.item(0);
-			RANDOM_TURN_ANGLE_DEGREES = Double.parseDouble(rtaN
+			MAX_TURN_ANGLE_DEGREES = Double.parseDouble(rtaN
 					.getTextContent());
 
 			NodeList csNL = paramBCElement
@@ -200,7 +201,7 @@ public class Settings {
 
 		public static void convertAnglesToRadians() {
 			DIRECTION_ERROR = Math.toRadians(DIRECTION_ERROR_DEGREES);
-			RANDOM_TURN_ANGLE = Math.toRadians(RANDOM_TURN_ANGLE_DEGREES);
+			MAX_TURN_ANGLE = Math.toRadians(MAX_TURN_ANGLE_DEGREES);
 		}
 
 		/**
@@ -272,12 +273,12 @@ public class Settings {
 		/**
 		 * The max angle to turn when moving randomly
 		 */
-		private static double RANDOM_TURN_ANGLE_DEGREES;
+		private static double MAX_TURN_ANGLE_DEGREES;
 
-		static double RANDOM_TURN_ANGLE;
+		static double MAX_TURN_ANGLE;
 
-		public static double RANDOM_TURN_ANGLE() {
-			return RANDOM_TURN_ANGLE;
+		public static double MAX_TURN_ANGLE() {
+			return MAX_TURN_ANGLE;
 		}
 
 		/**

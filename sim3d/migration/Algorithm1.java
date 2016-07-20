@@ -187,7 +187,8 @@ public class Algorithm1 implements MigrationAlgorithm{
 				//update the direction that the cell is facing
 				vMovement = bc.getM_d3Face().add(newdirection);
 				
-				
+				//remember that this is half of the amount of noise that you actually want!
+				//TODO - a try catch that the input is less than 90 degrees!! error handling
 				vMovement = Vector3DHelper
 					.getRandomDirectionInCone(vMovement.normalize(),
 							Settings.BC.DIRECTION_ERROR());
@@ -207,7 +208,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 			}
 		}
 
-		// we detect no chemokine, or at least difference in chemokine
+		// we detect no chemokine, or at least difference in chemokine, TODO if no difference in chemokine you still speed up! needs thinking
 		else {
 			vMovement = null;
 		}
@@ -231,7 +232,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 			
 		//lets try the new way
 			Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(bc.getM_d3Face(),
-					Settings.BC.RANDOM_TURN_ANGLE());
+					Settings.BC.MAX_TURN_ANGLE());
 			
 		
 			newdirection = newdirection.multiply(persistence);
@@ -243,9 +244,9 @@ public class Algorithm1 implements MigrationAlgorithm{
 			
 			//TODO review this code, we may not need it...
 			//now add noise to this
-			vMovement = Vector3DHelper
-					.getRandomDirectionInCone(vMovement.normalize(),
-							Settings.BC.DIRECTION_ERROR());
+			//vMovement = Vector3DHelper
+			//		.getRandomDirectionInCone(vMovement.normalize(),
+			//				Settings.BC.DIRECTION_ERROR());
 			
 
 			//normalise the vector
@@ -270,7 +271,8 @@ public class Algorithm1 implements MigrationAlgorithm{
 		// We make speed a function of cell polarity
 		// speed scalar will be zero if persistence 
 		// is equal to 1. calculated from maiuri paper in cell 2015
-		double speedScalar = (Math.log(1 / persistence))
+		// TODO make this a parameter called polarityscalar
+		double speedScalar = (Math.log(Settings.BC.RANDOM_POLARITY / persistence))
 				/ Settings.BC.SPEED_SCALAR;
 
 		double travelDistance;
@@ -291,8 +293,8 @@ public class Algorithm1 implements MigrationAlgorithm{
 		
 		//TODO may need to put this back if cant calibrate without the speedscalar
 
-		//bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
-		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
+		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
+		//bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
 			
 	}
 	

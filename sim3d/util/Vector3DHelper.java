@@ -10,6 +10,7 @@ import sim3d.Settings;
  */
 public class Vector3DHelper {
 
+	
 	/**
 	 * Generates a uniform random point on the unit sphere
 	 * 
@@ -37,7 +38,7 @@ public class Vector3DHelper {
 	 * @param d3Direction
 	 *            The unit vector at the centre of the cone
 	 * @param dConeAngle
-	 *            The total angle of the cone
+	 *            Half of the total angle of the cone
 	 * @return A unit vector for a random direction in the cone
 	 */
 	public static Double3D getRandomDirectionInCone(Double3D d3Direction,

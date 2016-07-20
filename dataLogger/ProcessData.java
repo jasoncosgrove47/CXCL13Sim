@@ -141,7 +141,7 @@ public class ProcessData {
 			Double3D nextLocation = calculateNextLocation(i, Coords);
 			Double3D previousLocation = calculatePreviousLocation(i, Coords);
 			
-			//TODO this code is dreadful, need to refactor
+			//TODO need a test for turningAngle
 			
 			double turningAngle;
 			
@@ -149,7 +149,7 @@ public class ProcessData {
 				
 				turningAngle = calculateTurningAngle(previousLocation, thisLocation,nextLocation);
 			}
-			else turningAngle = 190;
+			else turningAngle = 210;
 			
 
 			// update raw data file
@@ -266,6 +266,7 @@ public class ProcessData {
 	* the cross product then gives you the direction along the Z axis
 	* (the z-component of the Double3D). A positive angle means you are 
 	* going anti-clockwise (right hand rule) so we call this a negative angle
+	* 
 	* 
 	* 
 	*/
