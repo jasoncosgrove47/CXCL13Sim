@@ -130,7 +130,7 @@ public class DiffusionAlgorithm {
 	
 	
 	/**
-	 * Enforce the boundary condition so all of the chemokine would just diffuse out of the space
+	 * Enforce the boundary condition so all of the chemokine will bounce back in...
 	 * @param pSpace
 	 */
 	private void enforceBoundaryCondition(Chemokine pSpace){
@@ -189,8 +189,13 @@ public class DiffusionAlgorithm {
 						[(yEdge == -1) ? y : yEdge] // etc.
 						[(zEdge == -1) ? z : zEdge] // i.e. this one isn't on
 													// the edge
+								
+							
+						//TODO this line bounces it back in so try let it equal to zero	
+						//= 0;	
+						//TODO make the boundary condition a parameter
 						+= pSpace.field[x][y][z];
-
+						
 						// the actual boundary is zero but we are only
 						// interested in boundary -1 in each axis
 						// gives you a buffer zone

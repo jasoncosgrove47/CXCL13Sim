@@ -70,9 +70,9 @@ public class GUIrun extends GUIState {
 
 	/**
 	 * Color map which is used to visualise CXCL13 concentration concentration
-	 * is scaled between 1 and 15 to display the chemokine gradient
+	 * Best to keep range witin one order of magnitude
 	 */
-	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(8e-21, 6.5e-20,
+	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
 			lightred, red);
 
 	/**

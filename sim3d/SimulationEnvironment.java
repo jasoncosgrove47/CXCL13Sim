@@ -89,6 +89,7 @@ public class SimulationEnvironment extends SimState {
 								// Options class so we can access it everywhere
 	}
 
+	
 	/**
 	 * Load parameters from an external xml file to the static Options class
 	 */
@@ -140,6 +141,7 @@ public class SimulationEnvironment extends SimState {
 	public void start() {
 		// start the simulation
 		super.start();
+		
 
 		// Initialise the stromal grid
 		fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,

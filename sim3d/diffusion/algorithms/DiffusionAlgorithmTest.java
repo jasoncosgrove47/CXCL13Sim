@@ -5,6 +5,7 @@ package sim3d.diffusion.algorithms;
 
 import static org.junit.Assert.assertEquals;
 
+
 //import org.hamcrest.number.IsCloseTo;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import static org.hamcrest.Matchers.*;
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.diffusion.Chemokine;
 import sim3d.util.IO;
 
@@ -26,6 +28,9 @@ public class DiffusionAlgorithmTest {
 	private Schedule schedule = new Schedule();
 	public static Document parameters;
 
+
+	//TODO needs to fail if D_Steps is less than 1!!!
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -34,27 +39,17 @@ public class DiffusionAlgorithmTest {
 
 		// loadParameters();
 		Settings.RNG = new MersenneTwisterFast();
-		Settings.DIFFUSION_COEFFICIENT = 7.6e-12;
+		Settings.DIFFUSION_COEFFICIENT = 0.1e-12;
 
 		Settings.GRID_SIZE = 0.00001;
 
-		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.00 * Settings.DIFFUSION_COEFFICIENT));// was
-																													// 40.15,
-																													// 10
-																													// gives
-																													// a
-																													// near
-																													// enough
-																													// value
+		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.00 * Settings.DIFFUSION_COEFFICIENT));
 
-		// multiply by 60 as we want to update diffusion in seconds and not
+		//  by 60 as we want to update diffusion in seconds and not
 		// minutes
-		// Settings.DIFFUSION_STEPS = (int) (1 / Settings.DIFFUSION_TIMESTEP);
-		Settings.DIFFUSION_STEPS = (int) (1 / Settings.DIFFUSION_TIMESTEP);
+	
+		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
 
-		System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT
-				+ "timestep: " + Settings.DIFFUSION_STEPS + "steps: "
-				+ Settings.DIFFUSION_TIMESTEP);
 
 	}
 
@@ -86,10 +81,20 @@ public class DiffusionAlgorithmTest {
 	@Test
 	public void testConservation() {
 
-		Settings.DIFFUSION_COEFFICIENT = 0.1e-12;
-		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.15 * Settings.DIFFUSION_COEFFICIENT));
-		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
+		//need to slow the diffusion constant so stuff doesnt leave the sim
+		Settings.DIFFUSION_COEFFICIENT = 1e-12;
+		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.00 * Settings.DIFFUSION_COEFFICIENT));
+		//double DIFFUSION_STEPS =  (60 / Settings.DIFFUSION_TIMESTEP);
 
+		
+		//System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT
+		//		+ "timestep: " + Settings.DIFFUSION_TIMESTEP + "steps: "
+		//		+ DIFFUSION_STEPS );
+
+		
+		//will make it very slow but you need to make sure chemokine cant leave the sim
+		//another approach is to dynamically change the boundary condition which would probably be 
+		// better
 		Chemokine m_pParticlemoles = new Chemokine(schedule,
 				Chemokine.TYPE.CXCL13, 41, 41, 41);// this should be
 														// particle moles
@@ -114,6 +119,8 @@ public class DiffusionAlgorithmTest {
 		}
 
 		assertEquals(200, iPartSum, 0.01);
+		
+		
 
 	}
 
@@ -123,25 +130,33 @@ public class DiffusionAlgorithmTest {
 	 * Test that the mean squared displacement of the chemokine matches what we
 	 * expect
 	 */
+	/*
 	@Test
+	
 	public void testMeanSquare() {
+		
 
-		Settings.DIFFUSION_COEFFICIENT = 0.1e-12;
+		Settings.DIFFUSION_COEFFICIENT = 1.6e-12;
 		Settings.GRID_SIZE = 0.00001;
-		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.00 * Settings.DIFFUSION_COEFFICIENT));// was
-																													// 40.15,
-																													// 10
-																													// gives
-																													// a
-																													// near
-																													// enough
-																													// value
+
+		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.6* Settings.DIFFUSION_COEFFICIENT));
+		Settings.DIFFUSION_STEPS = 20;
+		
+		
+		//Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
+		
+		
+		//System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT
+		//		+ "timestep: " + Settings.DIFFUSION_TIMESTEP + "steps: "
+		//		+ Settings.DIFFUSION_STEPS );
+
+		
 		Chemokine m_pParticlemoles = new Chemokine(schedule,
 				Chemokine.TYPE.CXCL13, 41, 41, 41);// this should be
 														// particle moles
-		Settings.GRID_SIZE = 0.00001;
+	
 		Settings.CXCL13.DECAY_CONSTANT = 0;
-		Settings.DIFFUSION_STEPS = 20;
+		
 		DiffusionAlgorithm da = new Grajdeanu(Settings.DIFFUSION_COEFFICIENT,
 				41, 41, 41);
 
@@ -149,21 +164,24 @@ public class DiffusionAlgorithmTest {
 		m_pParticlemoles.field[20][20][20] = 1000;
 		double iMeanSquare = 0; // = <x^2> when divided my number of particles
 
-		// calculates the number of times needed to loop
+
+		
+		//TODO why is this 20 is here?
 		int iNumSteps = (int) (20.0 / Settings.DIFFUSION_STEPS)
 				* Settings.DIFFUSION_STEPS;
-
+	
+		
 		for (int i = 0; i < iNumSteps; i++) {
 			m_pParticlemoles.step(null);
 
 			iMeanSquare = 0;
+			
+			System.out.println("iMeanSquareBefore: " + iMeanSquare);
 			for (int x = 0; x < 41; x++) {
 				for (int y = 0; y < 41; y++) {
 					for (int z = 0; z < 41; z++) {
 
 						// squared distance from center space
-						// multiply by 10 because we want the distance in
-						// microns
 						iMeanSquare += m_pParticlemoles.field[x][y][z]
 								* (Math.pow(Settings.GRID_SIZE * (20 - x), 2)
 										+ Math.pow(Settings.GRID_SIZE
@@ -173,17 +191,93 @@ public class DiffusionAlgorithmTest {
 				}
 			}
 
+			System.out.println("iMeanSquareAfter: " + iMeanSquare);
 			// divide the squared distance by num of particles to
 			// get the mean displacement
 			iMeanSquare /= 1000;
 		}
 
+
+		
 		// assert that D = <x^2>/6t
 		assertThat(
-				iMeanSquare
-						/ (6 * iNumSteps * Settings.DIFFUSION_STEPS * Settings.DIFFUSION_TIMESTEP),
-				is(closeTo(Settings.DIFFUSION_COEFFICIENT,
-						Settings.DIFFUSION_COEFFICIENT / 2)));
+					iMeanSquare
+					 	/ (6 * iNumSteps * Settings.DIFFUSION_STEPS * Settings.DIFFUSION_TIMESTEP),
+					is(closeTo(Settings.DIFFUSION_COEFFICIENT,
+							Settings.DIFFUSION_COEFFICIENT / 2)));
+		
+	}
+	*/
+	
+	/**
+	 * Test method for
+	 * {@link sim3d.diffusion.algorithms.DiffusionAlgorithm#diffuse(sim3d.diffusion.Particle)}
+	 * Test that the mean squared displacement of the chemokine matches what we
+	 * expect
+	 * 
+	 * If you increase the diffusion constant then you need ot change the iMunSteps variable as otherwise
+	 * stuff will diffuse out of the sim...
+	 * 
+	 * Best to try a range of diffusion constants and a range of iNumSteps to make sure...
+	 */
+	@Test
+	public void testMeanSquare2() {
+		
+
+		Settings.DIFFUSION_COEFFICIENT = 1.6e-12;
+		Settings.GRID_SIZE = 0.00001;
+		Settings.CXCL13.DECAY_CONSTANT = 0;
+		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10* Settings.DIFFUSION_COEFFICIENT));
+		
+		Chemokine m_pParticlemoles = new Chemokine(schedule,
+				Chemokine.TYPE.CXCL13, 41, 41, 41);
+	
+		DiffusionAlgorithm da = new Grajdeanu(Settings.DIFFUSION_COEFFICIENT,
+				41, 41, 41);
+
+		m_pParticlemoles.setDiffusionAlgorithm(da);
+		m_pParticlemoles.field[20][20][20] = 1000;
+		double iMeanSquare = 0; // = <x^2> when divided my number of particles
+
+
+		int iNumSteps = 30;
+	
+	
+		for (int i = 0; i < iNumSteps; i++) {
+			m_pParticlemoles.step(null);
+		}
+
+		iMeanSquare = 0;
+		for (int x = 0; x < 41; x++) {
+			for (int y = 0; y < 41; y++) {
+				for (int z = 0; z < 41; z++) {
+					// squared distance from center space
+					iMeanSquare += m_pParticlemoles.field[x][y][z]
+							* (Math.pow(Settings.GRID_SIZE * (20 - x), 2)
+									+ Math.pow(Settings.GRID_SIZE
+											* (20 - y), 2) + Math.pow(
+									Settings.GRID_SIZE * (20 - z), 2));
+				}
+			}
+		}
+		
+		
+		
+
+		// divide the squared distance by num of particles to
+		// get the mean displacement
+		iMeanSquare /= 1000;
+		
+		// assert that D = <x^2>/6t
+		// BUT diffusion coefficient is in seconds and not minutes so 
+		// you would need to do a conversion...
+		assertThat(
+				//multiply t by 60 as we want the time in seconds and not minutes
+					iMeanSquare / (6 * m_pParticlemoles.getM_diffTime()*60),
+
+					is(closeTo(Settings.DIFFUSION_COEFFICIENT,
+							Settings.DIFFUSION_COEFFICIENT / 2)));
+		
 	}
 
 }

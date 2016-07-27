@@ -19,6 +19,7 @@ import ec.util.MersenneTwisterFast;
 
 public class Settings {
 
+	
 	public static void loadParameters(Document params) {
 		// Simulation Tag
 		Element paramOElement = (Element) params.getElementsByTagName("O")
@@ -113,9 +114,11 @@ public class Settings {
 	static double calculateDIFFUSION_TIMESTEP() {
 		return (Math.pow(GRID_SIZE, 2) / (10 * DIFFUSION_COEFFICIENT));
 	}
+	
+	// TODO exception handling if D_Steps is less than 1!!!! 
 
 	/**
-	 * Divide by 60 as we want to update diffusion in seconds and not minutes
+	 * multiply by 60 as we want to update diffusion in seconds and not minutes
 	 * 
 	 * @return
 	 */
@@ -342,7 +345,9 @@ public class Settings {
 				
 				NodeList KoffNL = paramODEElement.getElementsByTagName("Koff");
 				Node KoffN = KoffNL.item(0);
-				Koff = Double.parseDouble(KoffN.getTextContent());
+				Koff_PREFIX = Double.parseDouble(KoffN.getTextContent());
+				
+				Koff = scaleKoff();
 				
 			}
 
@@ -390,6 +395,12 @@ public class Settings {
 
 			
 			public static double Koff;
+			
+			public static double Koff_PREFIX;
+			
+			private static double scaleKoff() {
+				return (Koff_PREFIX * 1e-3);
+			}
 			
 			
 			/**

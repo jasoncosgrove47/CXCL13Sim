@@ -59,6 +59,7 @@ public class consoleRun {
 		System.out
 				.println("\nAuthor: Jason Cosgrove, York Computational Immunology Lab");
 
+		
 		// the main loop which controls how long the simulation runs for
 		do {
 			steps = SimulationEnvironment.simulation.schedule.getSteps();
@@ -96,7 +97,7 @@ public class consoleRun {
 
 		
 		// write the recorded data and raw data to a .csv file
-		 outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv" );
+		 //outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv" );
 		 outputToCSV.writeDataToFile(outputPath + outputFileName);
 		
 

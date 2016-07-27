@@ -8,6 +8,7 @@ import sim.engine.Steppable;
 import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.DoubleGrid3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.diffusion.algorithms.DiffusionAlgorithm;
 
 /**
@@ -18,6 +19,9 @@ import sim3d.diffusion.algorithms.DiffusionAlgorithm;
  */
 public class Chemokine extends DoubleGrid3D implements Steppable {
 
+	
+	int stepsCounter = 0;
+	
 	/**
 	 * ENUM for the chemokine types
 	 */
@@ -28,7 +32,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	/**
 	 * The z-index to display
 	 */
-	static int m_iDisplayLevel = 1;
+	static int m_iDisplayLevel = 5 ;
 
 	/**
 	 * Gives each ENUM an array index
@@ -114,6 +118,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		ms_emTypeMap = new EnumMap<TYPE, Integer>(TYPE.class);
 	}
 
+	
 	/**
 	 * Scale the amount of chemokine in a grid space. NB: does not check if this
 	 * value is positive
@@ -141,6 +146,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	 * Setter for m_iDisplayLevel
 	 */
 	public static void setDisplayLevel(int iDisplayLevel) {
+		
 		m_iDisplayLevel = iDisplayLevel;
 	}
 
@@ -163,11 +169,19 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	 * Height of the particle diffusion space
 	 */
 	private int m_iHeight;
+	
+	
+	/**
+	 * Records the diffusion timestep for adative diffusion
+	 */
+	private double m_diffTime;
 
 	/**
 	 * Depth of the particle diffusion space
 	 */
 	private int m_iWidth;
+	
+
 
 	/**
 	 * Constructor
@@ -204,10 +218,14 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		// setup up stepping
 		ms_pParticles[ms_emTypeMap.get(pType)] = this;
 
+
+		
 		// 3 so out of sync with agents
 		schedule.scheduleRepeating(this, 3, 1);
+		
 	}
 
+	
 	/**
 	 * Add or remove chemokine from a grid space
 	 * 
@@ -318,22 +336,31 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	 */
 	public void step(final SimState state) {
 
+
+		
+		/*
 		// diffuse and decay at a rate diffusion steps per sim timestep
 		for (int i = 0; i < Settings.DIFFUSION_STEPS; i++) {
 			m_daDiffusionAlgorithm.diffuse(this);
+			
+			//this is not actually per second but per timstep - need a means of converting this....
+			//for now just do it minute by minute
 			decay();
-
 		}
+		*/
 
+		
+		adaptiveDiffusion();
 		updateDisplay();
 		
-		double totalChemokineinMoles = calculateTotalChemokineLevels();
+		//increment the steps counter- required for adaptive diffusion...
+		stepsCounter +=1;
 		
+		double totalChemokineinMoles = calculateTotalChemokineLevels();
 		//this is the volume of the entire compartment in liters
 		double vol = 7.84e-9;
 		
-		//System.out.println("total chemokine (Molar) is: " + totalChemokineinMoles/vol);
-
+		//System.out.println("total chemokine (Molar) is: " + totalChemokineinMoles/vol);		
 	}
 
 	public double calculateTotalChemokineLevels() {
@@ -353,6 +380,30 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	}
 
 
+	//slow diffusion requires an adaptive timestep
+	// as the slowest you can have is 1 diffusion step
+	// per sim step - you would therefore get errors
+	// if there are 0.5 diffusion steps per sim step
+	public void adaptiveDiffusion(){
+		
+		long simTime = stepsCounter;
+		
+		//adaptively step time for diffusion....
+		while (getM_diffTime() < (simTime+ 1)) {	
+			m_daDiffusionAlgorithm.diffuse(this);
+
+			//number of steps taken per second, if fast diffusion then the timestep is small
+			// if slow then timestep is large, we divide by 60 because the diffusion coefficient
+			// is in seconds...divide by 60 because we want this in seconds.
+			setM_diffTime(getM_diffTime() + Settings.DIFFUSION_TIMESTEP/60); //used to divide by 60
+			decay();	
+		}
+		
+		
+		//System.out.println("mDifftime: " + m_diffTime);
+	}
+	
+	
 
 	/**
 	 * Updates the 2D display
@@ -366,6 +417,14 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 
 			}
 		}
+	}
+
+	public double getM_diffTime() {
+		return m_diffTime;
+	}
+
+	public void setM_diffTime(double m_diffTime) {
+		this.m_diffTime = m_diffTime;
 	}
 
 }

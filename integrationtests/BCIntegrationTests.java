@@ -38,6 +38,7 @@ public class BCIntegrationTests {
 	private Chemokine m_pParticle; // an instance of particle moles
 	public static Document parameters; // parameter file in .xml format
 
+	
 	/**
 	 * Load simulation parameters
 	 */
@@ -52,6 +53,7 @@ public class BCIntegrationTests {
 	@BeforeClass
 	public static void oneTimeSetUp() {
 
+		
 		// load in all of the BC and FDC parameters but overwrite some of the
 		// options parameters to make the tests faster
 		loadParameters();
