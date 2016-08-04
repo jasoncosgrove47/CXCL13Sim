@@ -14,6 +14,10 @@ import sim3d.util.IO;
  * configurations and pass in -Xmx3000m
  * 
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
+ * 
+ * 
+ * random comment to test that git push and commit is working
+ * TODO remove comment above
  */
 
 
