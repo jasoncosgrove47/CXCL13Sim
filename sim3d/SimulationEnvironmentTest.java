@@ -4,22 +4,20 @@ import static org.junit.Assert.*;
 
 import java.util.Iterator;
 
-
 import org.junit.Before;
-
 import org.junit.Test;
 import org.w3c.dom.Document;
-import static org.hamcrest.Matchers.*;
 
+import static org.hamcrest.Matchers.*;
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double3D;
 import sim3d.SimulationEnvironment.CELLTYPE;
 import sim3d.cell.BC;
-import sim3d.cell.FDC;
-import sim3d.cell.StromaEdge;
-import sim3d.cell.branch;
 import sim3d.diffusion.Chemokine;
+import sim3d.stroma.FDC;
+import sim3d.stroma.StromaEdge;
+import sim3d.stroma.branch;
 import sim3d.util.IO;
 
 

@@ -16,6 +16,7 @@ import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
+import sim3d.stroma.StromaEdge;
 import dataLogger.Controller;
 import ec.util.MersenneTwisterFast;
 

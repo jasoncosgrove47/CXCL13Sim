@@ -46,6 +46,9 @@ public final class outputToCSV {
 					.keySet()) {
 				double[] results = ProcessData.processMigrationData(key);
 
+				System.out.println("key is: " + key);
+				
+				
 				// calculate the percentage of the network scanned
 				dendritesVisited = (double) Controller.getInstance()
 						.getDendritesVisited().get(key);

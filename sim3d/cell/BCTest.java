@@ -27,6 +27,7 @@ import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 import sim3d.diffusion.Chemokine;
+import sim3d.stroma.StromaEdge;
 import sim3d.util.IO;
 import sim3d.util.Vector3DHelper;
 import ec.util.MersenneTwisterFast;

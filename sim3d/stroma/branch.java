@@ -1,4 +1,4 @@
-package sim3d.cell;
+package sim3d.stroma;
 
 import java.awt.Color;
 import java.util.Random;

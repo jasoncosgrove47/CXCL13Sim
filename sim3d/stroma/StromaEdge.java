@@ -1,4 +1,4 @@
-package sim3d.cell;
+package sim3d.stroma;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -19,6 +19,7 @@ import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
+import sim3d.cell.DrawableCell3D;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 
@@ -44,7 +45,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 * number of unique edges and branches visited by a cognate BC
 	 */
 
-	ArrayList<Integer> cellsCollidedWith = new ArrayList<Integer>();
+	private ArrayList<Integer> cellsCollidedWith = new ArrayList<Integer>();
 
 	/**
 	 * Define colours so that we can add an antigen heatmap later if required.
@@ -255,6 +256,14 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	public void setAntigenLevel(int antigenLevel) {
 		this.antigenLevel = antigenLevel;
+	}
+
+	public ArrayList<Integer> getCellsCollidedWith() {
+		return cellsCollidedWith;
+	}
+
+	public void setCellsCollidedWith(ArrayList<Integer> cellsCollidedWith) {
+		this.cellsCollidedWith = cellsCollidedWith;
 	}
 
 }

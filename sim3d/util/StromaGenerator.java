@@ -2,9 +2,10 @@ package sim3d.util;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import sim.util.Double3D;
 import sim3d.Settings;
-import sim3d.cell.StromaEdge;
+import sim3d.stroma.StromaEdge;
 
 /**
  * A Singleton class implementing the method of generating stroma proposed by

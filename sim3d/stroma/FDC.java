@@ -1,4 +1,4 @@
-package sim3d.cell;
+package sim3d.stroma;
 
 import sim.engine.*;
 import sim.field.continuous.Continuous3D;
@@ -10,6 +10,7 @@ import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
+import sim3d.cell.DrawableCell3D;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;

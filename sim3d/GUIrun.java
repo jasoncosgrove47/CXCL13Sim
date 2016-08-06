@@ -7,8 +7,8 @@ import sim.engine.*;
 import sim.display.*;
 import sim.display3d.Display3D;
 import sim3d.cell.BC;
-import sim3d.cell.FDC;
 import sim3d.diffusion.Chemokine;
+import sim3d.stroma.FDC;
 import sim3d.util.IO;
 
 import java.awt.Color;

@@ -84,6 +84,7 @@ public class Controller implements Steppable {
 	
 	
 	//need to initialise this
+	//TODO where the hell is this getting initialised
 	private Map<Integer,Integer> dendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer,ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
 

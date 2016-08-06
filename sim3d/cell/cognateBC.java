@@ -15,6 +15,8 @@ import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
+import sim3d.stroma.StromaEdge;
+import sim3d.stroma.branch;
 
 public class cognateBC extends BC {
 
@@ -237,7 +239,7 @@ public class cognateBC extends BC {
 		StromaEdge sEdge = (StromaEdge) cCell;
 
 		// determine if the cell has already grabbed antigen from this dendrite
-		boolean collision = sEdge.cellsCollidedWith
+		boolean collision = sEdge.getCellsCollidedWith()
 				.contains(this.index);
 
 
@@ -250,7 +252,7 @@ public class cognateBC extends BC {
 			{
 				// remove antigen from the stromal edge
 				sEdge.setAntigenLevel(sEdge.getAntigenLevel() - 1);
-				sEdge.cellsCollidedWith.add(this.index);
+				sEdge.getCellsCollidedWith().add(this.index);
 
 				// TODO not the prettiest code so should refactor
 				this.dendritesVisited += 1;

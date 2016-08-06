@@ -10,6 +10,7 @@ import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
 import sim3d.cell.BC;
+import sim3d.cell.Lymphocyte;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
@@ -32,7 +33,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	
 
 	@Override
-	public void performMigration(BC bc) {
+	public void performMigration(Lymphocyte bc) {
 		bc.setCollisionCounter(0); // reset the collision counter for this timestep
 		bc.getM_i3lCollisionPoints().clear();
 
@@ -54,7 +55,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	/*
 	 * moves the BC based on the precomputed trajectory from previous timestep
 	 */
-	public void performSavedMovements(BC bc) {
+	public void performSavedMovements(Lymphocyte  bc) {
 
 		for (Double3D d3Movement : bc.getM_d3aMovements()) {
 
@@ -136,7 +137,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * 
 	 */
-	public void calculateWhereToMoveNext(BC bc) {
+	public void calculateWhereToMoveNext(Lymphocyte  bc) {
 		Double3D vMovement = getMoveDirection(bc);
 		double vectorMagnitude = vMovement.lengthSq();
 		
@@ -261,7 +262,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	}
 	
 	
-	public void updateMigrationData(BC bc, Double3D vMovement, double vectorMagnitude, double persistence){
+	public void updateMigrationData(Lymphocyte  bc, Double3D vMovement, double vectorMagnitude, double persistence){
 		
 		// Reset all the movement/collision data
 		bc.getM_d3aCollisions().clear();
@@ -304,7 +305,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	/**
 	 * Perform a step for the receptor
 	 */
-	void receptorStep(BC bc) {
+	void receptorStep(Lymphocyte  bc) {
 		double[] iaBoundReceptors = calculateLigandBindingMolar(bc);
 
 		// update the amount of free and bound receptors
@@ -366,7 +367,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 	}
 
-	public void consumeLigand(BC bc) {
+	public void consumeLigand(Lymphocyte  bc) {
 		
 		double x = bc.x;
 		double y = bc.y;
@@ -403,7 +404,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * @return The new direction for the cell to move
 	 */
-	Double3D getMoveDirection(BC bc) {
+	Double3D getMoveDirection(Lymphocyte bc) {
 
 
 		double[] iaBoundReceptors = calculateLigandBindingMolar(bc);
@@ -430,7 +431,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * receptor. Need this because parameter Ka is moles/litre/sec 
 	 * @return an int array with the number of bound receptors at each psuedopod
 	 */
-	public double[] calculateLigandBindingMolar(BC bc) {
+	public double[] calculateLigandBindingMolar(Lymphocyte  bc) {
 
 		double[][][] ia3Concs = Chemokine.get(Chemokine.TYPE.CXCL13, (int) bc.x,
 				(int) bc.y, (int) bc.z);
@@ -503,7 +504,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * @return
 	 */
-	public double[] calculateLigandBindingMoles(BC bc) {
+	public double[] calculateLigandBindingMoles(Lymphocyte  bc) {
 
 		// need to figure out what is sensible to secrete per timestep, might as
 		// well do that in moles. Get the surrounding values for moles

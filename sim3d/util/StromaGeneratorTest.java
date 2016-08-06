@@ -13,7 +13,7 @@ import org.junit.Test;
 import ec.util.MersenneTwisterFast;
 import sim.util.Double3D;
 import sim3d.Settings;
-import sim3d.cell.StromaEdge;
+import sim3d.stroma.StromaEdge;
 import sim3d.util.StromaGenerator.FRCCell;
 
 /**

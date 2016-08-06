@@ -11,6 +11,9 @@ import sim3d.cell.*;
 import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
+import sim3d.stroma.FDC;
+import sim3d.stroma.StromaEdge;
+import sim3d.stroma.branch;
 import sim3d.util.StromaGenerator;
 
 /**

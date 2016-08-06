@@ -1,14 +1,16 @@
-package sim3d.cell;
+package sim3d.stroma;
 
 import static org.junit.Assert.*;
 
 import javax.media.j3d.TransformGroup;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
 import sim.util.Double3D;
 import sim3d.Settings;
+import sim3d.cell.BC;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 

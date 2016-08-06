@@ -1,7 +1,7 @@
 /**
  * 
  */
-package sim3d.cell;
+package sim3d.stroma;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;

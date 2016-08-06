@@ -13,6 +13,7 @@ public class ChemokineTest {
 	 * test method for update display
 	 */
 
+	
 	@Test
 	public void testUpdateDisplay() {
 		Settings.DIFFUSION_COEFFICIENT = 0.1e-12;
@@ -27,17 +28,21 @@ public class ChemokineTest {
 		Chemokine m_pParticlemoles = new Chemokine(schedule,
 				Chemokine.TYPE.CXCL13, 41, 41, 41);
 
+		
+		// test that the getters and setters for display work as intended
+		Chemokine.setDisplayLevel(2);
+		assertEquals(Chemokine.m_iDisplayLevel, 2);
+		
+		
 
-		m_pParticlemoles.field[20][20][5] = 100;
+		m_pParticlemoles.field[20][20][2] = 100;
 		m_pParticlemoles.updateDisplay();
 	
 		
 		assertTrue(m_pParticlemoles.m_ig2Display.get(20, 20) > 0);
 
 	
-		// test that the getters and setters for display work as intended
-		Chemokine.setDisplayLevel(2);
-		assertEquals(Chemokine.m_iDisplayLevel, 2);
+		
 	}
 
 
