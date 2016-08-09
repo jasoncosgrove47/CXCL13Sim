@@ -131,7 +131,7 @@ public class BCTest {
 	 */
 	@Test
 	public void testGetCollisionClass() {
-		assertEquals(bc.getCollisionClass(), CLASS.BC);
+		assertEquals(bc.getCollisionClass(), CLASS.LYMPHOCYTE);
 	}
 
 

@@ -5,7 +5,6 @@ import java.util.List;
 
 import sim.util.Double3D;
 import sim3d.Settings;
-import sim3d.stroma.ReticularFiber;
 import sim3d.stroma.StromaEdge;
 
 /**
@@ -16,7 +15,7 @@ import sim3d.stroma.StromaEdge;
  * 
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
-public class StromaGenerator {
+public class StromaGenerator2 {
 	/**
 	 * Class to keep track of edges for each cell
 	 */
@@ -65,7 +64,6 @@ public class StromaGenerator {
 		}
 	}
 
-	
 	/**
 	 * Generates a stromal network and returns the nodes in a 3D boolean array.
 	 * 
@@ -79,137 +77,42 @@ public class StromaGenerator {
 	 *            Max number of stromal cells (note: this is a upper bound only)
 	 * @return 
 	 */
-	public static int generateFRC3D(int iWidth, int iHeight, int iDepth,
-			int iCellCount, ArrayList<StromalCell> frclCellLocations,
-			List<ReticularFiber> selEdges) {
-		// It will be efficient to keep track of cells and locations separately
-		@SuppressWarnings("unchecked")
-		// because it is of an abstract interface
-		ArrayList<StromalCell>[][][] frcla3CellLocations = new ArrayList[iWidth][iHeight][iDepth];
-		ArrayList<StromalCell> frclUnbranchedCells = new ArrayList<StromalCell>();
-
-		for (int x = 0; x < iWidth; x++) {
-			for (int y = 0; y < iHeight; y++) {
-				for (int z = 0; z < iDepth; z++) {
-					frcla3CellLocations[x][y][z] = new ArrayList<StromalCell>();
-				}
-			}
-		}
-
-		// Add one in the centre, TODO input this as a parameter
-		StromalCell frcInitialCell = new StromalCell(iWidth / 2.0, iHeight / 2.0,
-				iDepth / 2.0);
-		frclUnbranchedCells.add(frcInitialCell);
-		frcla3CellLocations[iWidth / 2][iHeight / 2][iDepth / 2]
-				.add(frcInitialCell);
-
-		int iRemainingCells = iCellCount - 1;
-
-		while (iRemainingCells > 0 && frclUnbranchedCells.size() > 0) {
-			StromalCell frcNextCell = pickNextCell(iWidth, iHeight, iDepth,
-					frclUnbranchedCells, frcla3CellLocations);
-			// FRCCell frcNextCell = frclUnbranchedCells.get(
-			// Options.RNG.nextInt(frclUnbranchedCells.size()) );
-
-			if (frcNextCell == null) {
-				break;
-			}
-
-			// Calculate the number of edges to make
-			// Values were fitted to match the FRC paper
-			int iEdges = Math
-					.max(0,
-							Math.min(iRemainingCells,
-									(int) (Math.pow(Settings.RNG.nextDouble(),
-											1.5) * (2.1) + 2.9))
-									- frcNextCell.iEdges);
-
-			// This is the first time so we want at few edges otherwise
-			// generation will break sometimes
-			if (iRemainingCells == iCellCount - 1) {
-				iEdges++;
-			}
-
-			// if we have edges to add
-			if (iEdges > 0) {
-				// Get some directions
-				Double3D[] d3aDirections = generateDirections(iWidth, iHeight,
-						iDepth, frcla3CellLocations, frcNextCell, iEdges);
-
-				// Create some cells at this direction
-				iRemainingCells -= createNewCells(iWidth, iHeight, iDepth,
-						frclUnbranchedCells, frcla3CellLocations, frcNextCell,
-						d3aDirections);
-
-				for (Double3D d3Direction : d3aDirections) {
-					if (d3Direction != null) {
-						// Add the edges
-						selEdges.add(new ReticularFiber(frcNextCell.d3Location,
-								new Double3D(frcNextCell.d3Location.x
-										+ d3Direction.x,
-										frcNextCell.d3Location.y
-												+ d3Direction.y,
-										frcNextCell.d3Location.z
-												+ d3Direction.z)));
-					}
-						
-				}
-			}
-
-			// Move the cell to the locations list
-			frclCellLocations.add(frcNextCell);
-			frclUnbranchedCells.remove(frcNextCell);
-		}
-
-		return iCellCount - iRemainingCells;
-	}
-
-	
-	
-	
-	
-	
-	/**
-	 * Generates a stromal network and returns the nodes in a 3D boolean array.
-	 * 
-	 * @param iWidth
-	 *            Width of grid
-	 * @param iHeight
-	 *            Height of grid
-	 * @param iDepth
-	 *            Depth of grid
-	 * @param iCellCount
-	 *            Max number of stromal cells (note: this is a upper bound only)
-	 * @return 
-	 */
-	public static int generateStroma3D(int iWidth, int iHeight, int iDepth,
+	public static int generateStroma3D(int iWidth_max, int iHeight_max, int iDepth_max,
+			int iWidth_min, int iHeight_min, int iDepth_min,
 			int iCellCount, ArrayList<StromalCell> frclCellLocations,
 			List<StromaEdge> selEdges) {
 		// It will be efficient to keep track of cells and locations separately
 		@SuppressWarnings("unchecked")
 		// because it is of an abstract interface
-		ArrayList<StromalCell>[][][] frcla3CellLocations = new ArrayList[iWidth][iHeight][iDepth];
+		ArrayList<StromalCell>[][][] frcla3CellLocations = new ArrayList[iWidth_max][iHeight_max][iDepth_max];
 		ArrayList<StromalCell> frclUnbranchedCells = new ArrayList<StromalCell>();
 
-		for (int x = 0; x < iWidth; x++) {
-			for (int y = 0; y < iHeight; y++) {
-				for (int z = 0; z < iDepth; z++) {
+		for (int x = 0; x < iWidth_max; x++) {
+			for (int y = 0; y < iHeight_max; y++) {
+				for (int z = 0; z < iDepth_max; z++) {
 					frcla3CellLocations[x][y][z] = new ArrayList<StromalCell>();
 				}
 			}
 		}
+		
+		
+		int center_x = (int) ((iWidth_max - iWidth_min) / 2.0) + iWidth_min;
+		int center_y = (int) ((iHeight_max - iHeight_min) / 2.0) + iHeight_min;
+		int center_z = (int) ((iDepth_max - iDepth_min) / 2.0) + iDepth_min;
+		
 
 		// Add one in the centre, TODO input this as a parameter
-		StromalCell frcInitialCell = new StromalCell(iWidth / 2.0, iHeight / 2.0,
-				iDepth / 2.0);
+		StromalCell frcInitialCell = new StromalCell(center_x, center_y,
+				center_z);
 		frclUnbranchedCells.add(frcInitialCell);
-		frcla3CellLocations[iWidth / 2][iHeight / 2][iDepth / 2]
+		frcla3CellLocations[center_x][center_y][center_z]
 				.add(frcInitialCell);
 
 		int iRemainingCells = iCellCount - 1;
 
 		while (iRemainingCells > 0 && frclUnbranchedCells.size() > 0) {
-			StromalCell frcNextCell = pickNextCell(iWidth, iHeight, iDepth,
+			StromalCell frcNextCell = pickNextCell(iWidth_max, iHeight_max, iDepth_max,
+					iWidth_min, iHeight_min, iDepth_min,
 					frclUnbranchedCells, frcla3CellLocations);
 			// FRCCell frcNextCell = frclUnbranchedCells.get(
 			// Options.RNG.nextInt(frclUnbranchedCells.size()) );
@@ -236,11 +139,12 @@ public class StromaGenerator {
 			// if we have edges to add
 			if (iEdges > 0) {
 				// Get some directions
-				Double3D[] d3aDirections = generateDirections(iWidth, iHeight,
-						iDepth, frcla3CellLocations, frcNextCell, iEdges);
+				Double3D[] d3aDirections = generateDirections(iWidth_max, iHeight_max,
+						iDepth_max, frcla3CellLocations, frcNextCell, iEdges);
 
 				// Create some cells at this direction
-				iRemainingCells -= createNewCells(iWidth, iHeight, iDepth,
+				iRemainingCells -= createNewCells(iWidth_max, iHeight_max, iDepth_max,
+						iWidth_min, iHeight_min, iDepth_min,
 						frclUnbranchedCells, frcla3CellLocations, frcNextCell,
 						d3aDirections);
 
@@ -255,7 +159,6 @@ public class StromaGenerator {
 										frcNextCell.d3Location.z
 												+ d3Direction.z)));
 					}
-						
 				}
 			}
 
@@ -267,15 +170,6 @@ public class StromaGenerator {
 		return iCellCount - iRemainingCells;
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * Get all cells within a certain distance
 	 * 
@@ -380,7 +274,8 @@ public class StromaGenerator {
 	 *            The directions to add cells towards
 	 * @return The number of cells actually created
 	 */
-	protected static int createNewCells(int iWidth, int iHeight, int iDepth,
+	protected static int createNewCells(int iWidth_max, int iHeight_max, int iDepth_max,
+			int iWidth_min, int iHeight_min, int iDepth_min,
 			ArrayList<StromalCell> frclCellLocations,
 			ArrayList<StromalCell>[][][] frcla3CellLocations, StromalCell frcOrigin,
 			Double3D[] d3aDirections) {
@@ -395,31 +290,31 @@ public class StromaGenerator {
 			StromalCell frcNewPoint = new StromalCell(x, y, z);
 
 			// check if out of bounds
-			if (x < 0 || x >= iWidth || y < 0 || y >= iHeight || z < 0
-					|| z >= iDepth) {
+			if (x < iWidth_min || x >= iWidth_max || y < iHeight_min || y >= iHeight_max || z < iDepth_min
+					|| z >= iDepth_max) {
 				double dCoeff = 1;
 				if (x < 0) {
 					dCoeff = Math.min(dCoeff, -frcOrigin.d3Location.x
 							/ d3aDirections[i].x);
-				} else if (x > iWidth) {
-					dCoeff = Math.min(dCoeff, (iWidth - frcOrigin.d3Location.x)
+				} else if (x > iWidth_max) {
+					dCoeff = Math.min(dCoeff, (iWidth_max - frcOrigin.d3Location.x)
 							/ d3aDirections[i].x);
 				}
 
 				if (y < 0) {
 					dCoeff = Math.min(dCoeff, -frcOrigin.d3Location.y
 							/ d3aDirections[i].y);
-				} else if (y > iHeight) {
+				} else if (y > iHeight_max) {
 					dCoeff = Math.min(dCoeff,
-							(iHeight - frcOrigin.d3Location.y)
+							(iHeight_max - frcOrigin.d3Location.y)
 									/ d3aDirections[i].y);
 				}
 
 				if (z < 0) {
 					dCoeff = Math.min(dCoeff, -frcOrigin.d3Location.z
 							/ d3aDirections[i].z);
-				} else if (z > iDepth) {
-					dCoeff = Math.min(dCoeff, (iDepth - frcOrigin.d3Location.z)
+				} else if (z > iDepth_max) {
+					dCoeff = Math.min(dCoeff, (iDepth_max - frcOrigin.d3Location.z)
 							/ d3aDirections[i].z);
 				}
 
@@ -439,8 +334,8 @@ public class StromaGenerator {
 
 			// Check if there already exists a cell within 1.6 grid spaces
 			// If we don't do this, the grid is ridiculously dense
-			ArrayList<StromalCell> d3lAdjacent = getAdjacentCells(iWidth, iHeight,
-					iDepth, frcla3CellLocations, frcNewPoint, 1.6);
+			ArrayList<StromalCell> d3lAdjacent = getAdjacentCells(iWidth_max, iHeight_max,
+					iDepth_max, frcla3CellLocations, frcNewPoint, 1.6);
 
 			// If there is one (and it isn't itself)
 			if (d3lAdjacent.size() > 1
@@ -623,15 +518,20 @@ public class StromaGenerator {
 	 *            3D array of lists of cell locations
 	 * @return
 	 */
-	protected static StromalCell pickNextCell(int iWidth, int iHeight, int iDepth,
+	protected static StromalCell pickNextCell(int iWidth_max, int iHeight_max, int iDepth_max,
+			int iWidth_min, int iHeight_min, int iDepth_min,
 			ArrayList<StromalCell> frclCellLocations,
 			ArrayList<StromalCell>[][][] frcla3CellLocations) {
 		if (frclCellLocations.size() == 0) {
 			return null;
 		}
 
-		StromalCell frcOrigin = new StromalCell(iWidth / 2.0, iHeight / 2.0,
-				iDepth / 2.0);
+		int center_x = (int) ((iWidth_max - iWidth_min) / 2.0) + iWidth_min;
+		int center_y = (int) ((iHeight_max - iHeight_min) / 2.0) + iHeight_min;
+		int center_z = (int) ((iDepth_max - iDepth_min) / 2.0) + iDepth_min;
+		
+		StromalCell frcOrigin = new StromalCell(center_x, center_y,
+				center_z);
 		StromalCell frcClosest = frclCellLocations.get(0);
 		double dDist = calcDistance(frcClosest, frcOrigin);
 

@@ -48,7 +48,7 @@ public interface Collidable {
 	 * ENUM for the types of collidable objects
 	 */
 	public static enum CLASS {
-		BC, STROMA, STROMA_EDGE, BRANCH
+		LYMPHOCYTE, STROMA, STROMA_EDGE, BRANCH
 	}
 
 	/**

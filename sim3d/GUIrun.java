@@ -9,6 +9,7 @@ import sim.display3d.Display3D;
 import sim3d.cell.BC;
 import sim3d.diffusion.Chemokine;
 import sim3d.stroma.FDC;
+import sim3d.stroma.FRC;
 import sim3d.util.IO;
 
 import java.awt.Color;
@@ -104,12 +105,25 @@ public class GUIrun extends GUIState {
 	 * Portrayal for FDCs
 	 */
 	ContinuousPortrayal3D fdcPortrayal = new ContinuousPortrayal3D();
+	
+	
+	/**
+	 * Portrayal for FRCs
+	 */
+	ContinuousPortrayal3D frcPortrayal = new ContinuousPortrayal3D();
 
 	/**
 	 * a 2D portrayal that will show a plane of the particles
 	 */
 	public FastHexaValueGridPortrayal2D CXCL13PortrayalFast = new FastHexaValueGridPortrayal2D();
 
+	
+	
+	/**
+	 * a 2D portrayal that will show a plane of the particles
+	 */
+	public FastHexaValueGridPortrayal2D CCL19PortrayalFast = new FastHexaValueGridPortrayal2D();
+	
 	/*
 	 * Jframe object to display chemokines
 	 */
@@ -174,6 +188,7 @@ public class GUIrun extends GUIState {
 
 		// Add the portrayals to the display
 		display3D.attach(fdcPortrayal, "FDC");
+		display3D.attach(frcPortrayal, "FRC");
 		display3D.attach(bcPortrayal, "BC");
 
 		ChemokineDisplay = new Display2D(600, 600, this);
@@ -187,6 +202,7 @@ public class GUIrun extends GUIState {
 		chemokineDisplayFrame.setVisible(true);
 
 		ChemokineDisplay.attach(CXCL13PortrayalFast, "CXCL13 Gradient");
+		ChemokineDisplay.attach(CCL19PortrayalFast, "CCL19 Gradient");
 	}
 
 	/**
@@ -226,11 +242,16 @@ public class GUIrun extends GUIState {
 		// tell the portrayals what to portray and how to portray them
 		fdcPortrayal.setField(FDC.drawEnvironment);
 		bcPortrayal.setField(BC.drawEnvironment);
-
+		frcPortrayal.setField(FRC.drawEnvironment);
 		// CXCL13 Portrayals
 		CXCL13PortrayalFast.setField(Chemokine
 				.getInstance(Chemokine.TYPE.CXCL13).m_ig2Display);
 		CXCL13PortrayalFast.setMap(CXCL13ColorMap);
+		
+		
+		CCL19PortrayalFast.setField(Chemokine
+				.getInstance(Chemokine.TYPE.CCL19).m_ig2Display);
+		CCL19PortrayalFast.setMap(CXCL13ColorMap);
 
 		// the display needs to re-register itself with the
 		// GUIState after every step

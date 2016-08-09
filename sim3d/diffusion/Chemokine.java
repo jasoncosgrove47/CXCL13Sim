@@ -337,6 +337,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	public void step(final SimState state) {
 
 
+	
 		
 		/*
 		// diffuse and decay at a rate diffusion steps per sim timestep

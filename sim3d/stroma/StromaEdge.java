@@ -27,11 +27,18 @@ import sim3d.collisiondetection.CollisionGrid;
  * An agent representing the edge of stroma. Used to represent the dendrites of
  * the FDCs for the purposes of display and collision.
  * 
+ * 
+ * Should be a subclass of an FDC probably...
+ * 
  * @author Jason Cosgrove, Simon Jarrett
  */
 public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		Collidable {
 
+	
+	
+	
+	
 	private static final long serialVersionUID = 1L;
 
 	/**

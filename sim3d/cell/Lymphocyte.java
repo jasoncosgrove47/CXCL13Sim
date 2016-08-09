@@ -145,12 +145,19 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 
 	/**
 	 * @return the ENUM representing the type of Collidable this cell is (BC)
+	 * 
+	 *TODO this method shouldnt be necessary here should just overwrite in BC
 	 */
 	@Override
 	public CLASS getCollisionClass() {
-		return CLASS.BC;
+		return CLASS.LYMPHOCYTE;
 	}
 
+	/*
+	 * TODO this method shouldnt be necessary here should just overwrite in BC
+	 * (non-Javadoc)
+	 * @see sim3d.cell.DrawableCell3D#getDrawEnvironment()
+	 */
 	@Override
 	public Continuous3D getDrawEnvironment() {
 		return drawEnvironment;
@@ -297,7 +304,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				break;
 			case STROMA:
 				break;
-			case BC:
+			case LYMPHOCYTE:
 				break;
 			}
 		}

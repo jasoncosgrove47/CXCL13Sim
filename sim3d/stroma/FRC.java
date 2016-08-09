@@ -1,27 +1,22 @@
 package sim3d.stroma;
 
-import sim.engine.*;
-import sim.field.continuous.Continuous3D;
 
 import javax.media.j3d.TransformGroup;
 
+import sim.engine.SimState;
+import sim.engine.Steppable;
+import sim.field.continuous.Continuous3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
-import sim3d.SimulationEnvironment;
 import sim3d.cell.DrawableCell3D;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
 
-/**
- * An FDC agent. Represents the nucleus of the FDC, and handles the secretion of
- * chemokine to the particle grid.
- * 
- * @author Jason Cosgrove, Simon Jarrett
- */
-public class FDC extends DrawableCell3D implements Steppable, Collidable {
+public class FRC extends DrawableCell3D implements Steppable, Collidable  {
+
 
 	/**
 	 * The drawing environment that houses this cell; used by
@@ -54,7 +49,7 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable {
 			transf = new TransformGroup();
 
 			SpherePortrayal3D s = new SpherePortrayal3D(
-					Settings.FDC.DRAW_COLOR(),
+					Settings.FRC.DRAW_COLOR(),
 					Settings.FDC.STROMA_NODE_RADIUS * 2, 6);
 			s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 			TransformGroup localTG = s.getModel(obj, null);
@@ -85,9 +80,11 @@ public class FDC extends DrawableCell3D implements Steppable, Collidable {
 	public void step(final SimState state) {
 
 		// secrete chemokine
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
+		Chemokine.add(Chemokine.TYPE.CCL19, (int) x, (int) y, (int) z,
 				Settings.FDC.CXCL13_EMITTED());
 		
+	
 
 	}
+
 }

@@ -215,7 +215,7 @@ public class cognateBC extends BC {
 				break;
 			case STROMA:
 				break;
-			case BC:
+			case LYMPHOCYTE:
 				break;
 			}
 		}

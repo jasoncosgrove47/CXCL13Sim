@@ -531,6 +531,18 @@ public class Settings {
 		public static double STROMA_EDGE_RADIUS;
 	}
 
+	
+	
+	public static class FRC{
+		
+		public static Color DRAW_COLOR() {
+			return new Color(255, 0, 0);
+		}
+
+		
+	}
+	
+	
 	public static class CXCL13 {
 
 		public static void loadParameters(Document params) {

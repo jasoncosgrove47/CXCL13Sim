@@ -26,7 +26,7 @@ import sim3d.collisiondetection.Collidable.CLASS;
 import sim3d.diffusion.Chemokine;
 import sim3d.util.StromaGenerator;
 import sim3d.util.IO;
-import sim3d.util.StromaGenerator.FRCCell;
+import sim3d.util.StromaGenerator.StromalCell;
 
 public class FDCTest {
 
@@ -46,7 +46,7 @@ public class FDCTest {
 	@Test
 	public void canDisplayAntigen() {
 
-		ArrayList<FRCCell> d3lCellLocations = new ArrayList<FRCCell>();
+		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
 		StromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
 				selEdges);
@@ -76,7 +76,7 @@ public class FDCTest {
 	@Test
 	public void canLoseAntigen() {
 
-		ArrayList<FRCCell> d3lCellLocations2 = new ArrayList<FRCCell>();
+		ArrayList<StromalCell> d3lCellLocations2 = new ArrayList<StromalCell>();
 		ArrayList<StromaEdge> selEdges2 = new ArrayList<StromaEdge>();
 
 		Settings.FDC.STARTINGANTIGENLEVEL = 100;
