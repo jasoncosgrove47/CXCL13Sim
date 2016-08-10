@@ -15,12 +15,7 @@ import sim3d.util.IO;
  * 
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  * 
- * 
- * random comment to test that git push and commit is working
- * TODO remove comment above
  */
-
-
 
 
 public class consoleRun {

@@ -14,13 +14,16 @@ import sim3d.cell.BC;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 
+
+
 public class branchTest {
 
-	static branch b;
+	
+	static StromaEdge b;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		b = new branch(new Double3D(0, 0, 0), new Double3D(1, 1, 1));
+		b = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1, 1, 1),StromaEdge.TYPE.FDC_branch);
 	}
 
 	/**
@@ -38,7 +41,7 @@ public class branchTest {
 	@Test
 	public void testAntigenLevel() {
 		Settings.FDC.STARTINGANTIGENLEVEL = 400;
-		branch c = new branch(new Double3D(0, 0, 0), new Double3D(1, 1, 1));
+		StromaEdge c = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1, 1, 1),StromaEdge.TYPE.FDC_branch);
 		assertThat(c.getAntigenLevel(), equalTo(400));
 	}
 
@@ -51,7 +54,7 @@ public class branchTest {
 		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
 		BC.m_cgGrid = cgGrid;
 
-		branch c = new branch(new Double3D(0, 0, 0), new Double3D(1, 1, 1));
+		StromaEdge c = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1, 1, 1),StromaEdge.TYPE.FDC_branch);
 		c.registerCollisions(cgGrid);
 		assertEquals(true, cgGrid.getM_i3lCollisionPoints().size() > 0);
 	}
@@ -64,7 +67,7 @@ public class branchTest {
 		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
 		BC.m_cgGrid = cgGrid;
 
-		branch c = new branch(new Double3D(0, 0, 0), new Double3D(1, 1, 1));
+		StromaEdge c = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1, 1, 1),StromaEdge.TYPE.FDC_branch);
 		TransformGroup localTG = c.getModel(c, null);
 		assertTrue(localTG instanceof TransformGroup);
 

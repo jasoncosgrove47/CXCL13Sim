@@ -11,6 +11,7 @@ import sim.util.Int3D;
 import sim3d.Settings;
 import sim3d.cell.BC;
 import sim3d.cell.Lymphocyte;
+import sim3d.cell.TC;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
@@ -28,24 +29,33 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * 
 	 * @author Jason Cosgrove
+	 * 
+	 * TODO conclusion will need to be updated
 	 */
-
-	
-
 	@Override
-	public void performMigration(Lymphocyte bc) {
-		bc.setCollisionCounter(0); // reset the collision counter for this timestep
-		bc.getM_i3lCollisionPoints().clear();
+	public void performMigration(Lymphocyte lymphocyte) {
+		
+		
+		Chemokine.TYPE chemokine = Chemokine.TYPE.CXCL13;
+		
+		if(lymphocyte instanceof TC){
+
+			chemokine = Chemokine.TYPE.CCL19;
+		}
+		
+		
+		lymphocyte.setCollisionCounter(0); // reset the collision counter for this timestep
+		lymphocyte.getM_i3lCollisionPoints().clear();
 
 		// if we have a stored move then execute it
-		if (bc.getM_d3aMovements() != null && bc.getM_d3aMovements().size() > 0) {
-			performSavedMovements(bc);
+		if (lymphocyte.getM_d3aMovements() != null && lymphocyte.getM_d3aMovements().size() > 0) {
+			performSavedMovements(lymphocyte);
 		}
 
-		calculateWhereToMoveNext(bc);
-		bc.handleBounce(); // Check for bounces
-		receptorStep(bc);
-		bc.registerCollisions(bc.m_cgGrid); // Register the new movement with the grid
+		calculateWhereToMoveNext(lymphocyte, chemokine);
+		lymphocyte.handleBounce(); // Check for bounces
+		receptorStep(lymphocyte, chemokine);
+		lymphocyte.registerCollisions(lymphocyte.m_cgGrid); // Register the new movement with the grid
 		
 	}
 	
@@ -54,6 +64,8 @@ public class Algorithm1 implements MigrationAlgorithm{
 	
 	/*
 	 * moves the BC based on the precomputed trajectory from previous timestep
+	 * 
+	 * TODO shouldnt need to be updated
 	 */
 	public void performSavedMovements(Lymphocyte  bc) {
 
@@ -83,6 +95,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * determined by e^-y where y is the number of cells in the
 	 * target gridspace.
 	 * 
+	 * TODO might need to update
 	 * 
 	 * @param x
 	 * @param y
@@ -116,6 +129,9 @@ public class Algorithm1 implements MigrationAlgorithm{
 	
 	
 	/**
+	 * 
+	 * TODO this will need to be updated substantially
+	 * 
 	 * calculate where to move for the next timestep.
 	 * The algorithm determines the chemotactic vector
 	 * of the cell using the approach developed by
@@ -137,8 +153,8 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * 
 	 */
-	public void calculateWhereToMoveNext(Lymphocyte  bc) {
-		Double3D vMovement = getMoveDirection(bc);
+	public void calculateWhereToMoveNext(Lymphocyte bc,Chemokine.TYPE chemokine) {
+		Double3D vMovement = getMoveDirection(bc, chemokine);
 		double vectorMagnitude = vMovement.lengthSq();
 		
 		//let's fix persistence to 0.5
@@ -147,28 +163,6 @@ public class Algorithm1 implements MigrationAlgorithm{
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
 				
-				
-			
-				//TODO this is very odd but it looks like the initial normalisation step is very important!
-				/*
-				//if there's sufficient directional bias
-				//can affect cell polarity
-				persistence = Settings.BC.POLARITY;
-				
-				// Add some noise to the direction 
-				Double3D newdirection = Vector3DHelper
-						.getRandomDirectionInCone(vMovement.normalize(),
-								Settings.BC.DIRECTION_ERROR());
-					
-				//  scale the new vector with respect to the old vector,
-				// values less than 1 favour the old vector, values greater than 1 favour the new vector
-				// this is constrained between 0 and 2
-				newdirection = newdirection.multiply(persistence);
-				
-				//update the direction that the cell is facing
-				vMovement = bc.getM_d3Face().add(newdirection);
-				
-				*/
 				
 				
 				//if there's sufficient directional bias
@@ -231,7 +225,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 			
 
 			
-		//lets try the new way
+			//lets try the new way
 			Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(bc.getM_d3Face(),
 					Settings.BC.MAX_TURN_ANGLE());
 			
@@ -295,7 +289,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 		//TODO may need to put this back if cant calibrate without the speedscalar
 
 		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
-		//bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
+	
 			
 	}
 	
@@ -305,8 +299,8 @@ public class Algorithm1 implements MigrationAlgorithm{
 	/**
 	 * Perform a step for the receptor
 	 */
-	void receptorStep(Lymphocyte  bc) {
-		double[] iaBoundReceptors = calculateLigandBindingMolar(bc);
+	void receptorStep(Lymphocyte bc, Chemokine.TYPE chemokine) {
+		double[] iaBoundReceptors = calculateLigandBindingMolar(bc,chemokine);
 
 		// update the amount of free and bound receptors
 		for (int i = 0; i < 6; i++) {
@@ -367,13 +361,13 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 	}
 
-	public void consumeLigand(Lymphocyte  bc) {
+	public void consumeLigand(Lymphocyte bc, Chemokine.TYPE chemokine) {
 		
 		double x = bc.x;
 		double y = bc.y;
 		double z = bc.z;
 		
-		double[] iaBoundReceptors = calculateLigandBindingMoles(bc);
+		double[] iaBoundReceptors = calculateLigandBindingMoles(bc, chemokine);
 
 		// avogadors number - number of molecules in 1 mole
 		double avogadro = 6.0221409e+23;
@@ -382,17 +376,17 @@ public class Algorithm1 implements MigrationAlgorithm{
 		// eg if i took away 10,000 that would be 10,000 moles which is not what
 		// we want!!!
 
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x + 1, (int) y, (int) z,
+		Chemokine.add(chemokine, (int) x + 1, (int) y, (int) z,
 				-(iaBoundReceptors[0] / avogadro));
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x - 1, (int) y, (int) z,
+		Chemokine.add(chemokine, (int) x - 1, (int) y, (int) z,
 				-(iaBoundReceptors[1] / avogadro));
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y + 1, (int) z,
+		Chemokine.add(chemokine, (int) x, (int) y + 1, (int) z,
 				-(iaBoundReceptors[2] / avogadro));
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y - 1, (int) z,
+		Chemokine.add(chemokine, (int) x, (int) y - 1, (int) z,
 				-(iaBoundReceptors[3] / avogadro));
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z + 1,
+		Chemokine.add(chemokine, (int) x, (int) y, (int) z + 1,
 				-(iaBoundReceptors[4] / avogadro));
-		Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z - 1,
+		Chemokine.add(chemokine, (int) x, (int) y, (int) z - 1,
 				-(iaBoundReceptors[5] / avogadro));
 
 	}
@@ -404,10 +398,10 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * @return The new direction for the cell to move
 	 */
-	Double3D getMoveDirection(Lymphocyte bc) {
+	Double3D getMoveDirection(Lymphocyte bc,Chemokine.TYPE chemokine) {
 
 
-		double[] iaBoundReceptors = calculateLigandBindingMolar(bc);
+		double[] iaBoundReceptors = calculateLigandBindingMolar(bc, chemokine);
 
 		// the new direction for the cell to move
 		Double3D vMovement = new Double3D();
@@ -431,9 +425,9 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * receptor. Need this because parameter Ka is moles/litre/sec 
 	 * @return an int array with the number of bound receptors at each psuedopod
 	 */
-	public double[] calculateLigandBindingMolar(Lymphocyte  bc) {
+	public double[] calculateLigandBindingMolar(Lymphocyte bc, Chemokine.TYPE chemokine) {
 
-		double[][][] ia3Concs = Chemokine.get(Chemokine.TYPE.CXCL13, (int) bc.x,
+		double[][][] ia3Concs = Chemokine.get(chemokine, (int) bc.x,
 				(int) bc.y, (int) bc.z);
 
 		// Assume the receptors are spread evenly around the cell
@@ -491,7 +485,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		}
 
-		consumeLigand(bc);
+		consumeLigand(bc, chemokine);
 
 		return iaBoundReceptors;
 	}
@@ -504,13 +498,13 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * @return
 	 */
-	public double[] calculateLigandBindingMoles(Lymphocyte  bc) {
+	public double[] calculateLigandBindingMoles(Lymphocyte bc, Chemokine.TYPE chemokine) {
 
 		// need to figure out what is sensible to secrete per timestep, might as
 		// well do that in moles. Get the surrounding values for moles
 
 
-		double[][][] ia3Concs = Chemokine.get(Chemokine.TYPE.CXCL13, (int) bc.x,
+		double[][][] ia3Concs = Chemokine.get(chemokine, (int) bc.x,
 				(int) bc.y, (int) bc.z);
 
 		// Assume the receptors are spread evenly around the cell

@@ -19,7 +19,6 @@ import ec.util.MersenneTwisterFast;
 
 public class Settings {
 
-	
 	public static void loadParameters(Document params) {
 		// Simulation Tag
 		Element paramOElement = (Element) params.getElementsByTagName("O")
@@ -536,7 +535,7 @@ public class Settings {
 	public static class FRC{
 		
 		public static Color DRAW_COLOR() {
-			return new Color(255, 0, 0);
+			return new Color(255, 212, 212);
 		}
 
 		

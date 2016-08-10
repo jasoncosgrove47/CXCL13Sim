@@ -11,13 +11,8 @@ import sim3d.cell.*;
 import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
-import sim3d.stroma.FDC;
-import sim3d.stroma.FRC;
-import sim3d.stroma.LEC;
-import sim3d.stroma.MRC;
-import sim3d.stroma.ReticularFiber;
+import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
-import sim3d.stroma.branch;
 import sim3d.util.StromaGenerator;
 
 
@@ -81,6 +76,12 @@ public class SimulationEnvironment extends SimState {
 	 */
 	public static Chemokine CCL19;
 
+	
+	/**
+	 * Instance of the particle moles class
+	 */
+	public static Chemokine EBI2L;
+	
 	
 	/*
 	 * Parameter file: XML format
@@ -156,12 +157,6 @@ public class SimulationEnvironment extends SimState {
 		bc.setStopper(schedule.scheduleRepeating(bc));
 	}
 	
-	
-	
-
-	
-	
-
 	/**
 	 * Sets up a simulation run and initialises the environments.
 	 */
@@ -174,21 +169,14 @@ public class SimulationEnvironment extends SimState {
 		fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
 				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
 		
-		frcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
-				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
 		
-		FDC.drawEnvironment = fdcEnvironment;
-		//StromaEdge.drawEnvironment = fdcEnvironment;
-		
+		Stroma.drawEnvironment = fdcEnvironment;
+
 		StromaEdge.drawEnvironment = fdcEnvironment;
-		System.out.println("before changing: " + StromaEdge.drawEnvironment.equals(frcEnvironment));
+
+
 		
-		
-		
-		FRC.drawEnvironment = frcEnvironment;
-		ReticularFiber.drawEnvironment = frcEnvironment;
-		
-		System.out.println("after changing: " + StromaEdge.drawEnvironment.equals(frcEnvironment));
+
 		
 		
 		// Initialise the B cell grid
@@ -205,6 +193,11 @@ public class SimulationEnvironment extends SimState {
 				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
 		
 
+		// initialise the CXCL13 grid
+		EBI2L = new Chemokine(schedule, Chemokine.TYPE.EBI2L,
+				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
+		
+		
 		// Initialise the CollisionGrid
 		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH,
 				Settings.HEIGHT, Settings.DEPTH, 1);
@@ -213,35 +206,7 @@ public class SimulationEnvironment extends SimState {
 		// initialiseStroma(cgGrid); // initialise the stromal network
 		initialiseFDC(cgGrid);
 		initialiseFRC(cgGrid);
-		
-		
-	
-		
-		
-		//now seed the LECs
-		//iterate through the X and Z axes keeping Y fixed to seed the SCS
-		for(int x = 0; x < Settings.WIDTH; x ++){
-			for(int z = 0; z < Settings.DEPTH; z ++){
-			LEC flec = new LEC();
-			LEC clec = new LEC();
-			
-			clec.setObjectLocation(new Double3D(x,Settings.HEIGHT,z));
-			flec.setObjectLocation(new Double3D(x,Settings.HEIGHT-2,z));
-			
-			flec.registerCollisions(cgGrid);
-			clec.registerCollisions(cgGrid);
-		
-			}
-		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
+		seedSCS(cgGrid);
 		
 		
 		// BCs will need to update their collision profile each
@@ -251,10 +216,33 @@ public class SimulationEnvironment extends SimState {
 		// seed B-cells within the follicle
 		seedCells(CELLTYPE.B);
 		seedCells(CELLTYPE.cB);
-
+		seedCells(CELLTYPE.T);
 	}
 
-
+	/**
+	 * Seed lymphatic endothelial cells at the
+	 * subcapuslar sinus
+	 * @param cgGrid
+	 */
+	private void seedSCS(CollisionGrid cgGrid){
+		//now seed the LECs
+		//iterate through the X and Z axes keeping Y fixed to seed the SCS
+		for(int x = 0; x < Settings.WIDTH; x ++){
+			for(int z = 1; z < Settings.DEPTH - 1; z ++)
+			{
+				Stroma flec = new Stroma(Stroma.TYPE.LEC);
+				Stroma clec = new Stroma(Stroma.TYPE.LEC);
+			
+				clec.setObjectLocation(new Double3D(x,Settings.HEIGHT,z));
+				flec.setObjectLocation(new Double3D(x,Settings.HEIGHT-2,z));
+			
+				flec.registerCollisions(cgGrid);
+				clec.registerCollisions(cgGrid);
+		
+			}
+		}
+	}
+	
 	/**
 	 * Tests whether co-ordinates x,y are not in the circle centered at
 	 * circleCentreX, circleCentreY with a specified radius
@@ -290,6 +278,9 @@ public class SimulationEnvironment extends SimState {
 		} else if (celltype == CELLTYPE.cB) {
 			count = Settings.BC.COGNATECOUNT;
 		}
+		else if (celltype == CELLTYPE.T) {
+			count = Settings.BC.COGNATECOUNT;
+		}
 
 		// seed the cells
 		for (int i = 0; i < count; i++) {
@@ -309,6 +300,12 @@ public class SimulationEnvironment extends SimState {
 				cognateBC cbc = new cognateBC(i);
 				cbc.setObjectLocation(generateCoordinateWithinCircle());
 				scheduleStoppableCell(cbc);
+				break;
+				
+			case T:
+				TC tc = new TC();
+				tc.setObjectLocation(generateCoordinateWithinCircle());
+				scheduleStoppableCell(tc);
 				break;
 
 			default:
@@ -339,77 +336,18 @@ public class SimulationEnvironment extends SimState {
 
 		return new Double3D(x, y, z);
 	}
-
-	/*
-	 * Generate and initialise an FRC network
-	 */
 	
-	/*
-	  private void initialiseStroma(CollisionGrid cgGrid) {
-	  
-		  // Generate some stroma 
-		  
-		  ArrayList<FRCCell> frclCellLocations = new ArrayList<FRCCell>(); 
-		  ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
-	  
-		  //generate the stromal network 
-		  //but fine for now 
-		  FRCStromaGenerator.generateStroma3D(Settings.WIDTH - 2,
-				  Settings.HEIGHT - 2, Settings.DEPTH - 2, Settings.FDC.COUNT,
-				  frclCellLocations, sealEdges);
-	  
-		  // Create the FDC objects, display them, schedule them, and then put 
-		  //them on the collision grid 
-	  
-		  for (FRCCell frcCell : frclCellLocations) {
-	  
-			  FDC fdc = new FDC();
-	  
-			  // This will register the FDC with the environment/display 
-			  // to account for the border which is one gridspace in width 
-	  
-			  fdc.setObjectLocation(new
-					  Double3D(frcCell.d3Location.x + 1, frcCell.d3Location.y + 1,
-							  frcCell.d3Location.z + 1));
-	  
-			  // Schedule the secretion of chemokine, needs to be ordered so that 
-			  // a chemokine 
-			  // can't diffuse before it is secreted
-			  schedule.scheduleRepeating(fdc, 2, 1);
-	  
-			  // fdc.registerCollisions( cgGrid ); }
-	  
-			  // Add the stroma edges to the display/CollisionGrid 
-	  
-			  for (StromaEdge seEdge : sealEdges) { 
-				  
-				  Double3D d3Point = seEdge.getPoint1(); 
-			  }
-			  
-			  Double3D d3Point2 = seEdge.getPoint2();
-	  
-			  // Check if it's out of bounds 
-			  if (!(d3Point.x <= 0 || d3Point.x >=
-					  (Settings.WIDTH - 2) || d3Point.y <= 0 || d3Point.y >= (Settings.HEIGHT -
-							  2) || d3Point.z <= 0 || d3Point.z >= (Settings.DEPTH - 2)) &&
-							  !(d3Point2.x <= 0 || d3Point2.x >= (Settings.WIDTH - 2) || d3Point2.y <=
-							  0 || d3Point2.y >= (Settings.HEIGHT - 2) || d3Point2.z <= 0 || d3Point2.z
-							  >= (Settings.DEPTH - 2))) {
-	  
-				  //TODO assess whether iCat is needed int iCat = (int) (5 *
-				  (seEdge.getPoint2() .subtract(seEdge.getPoint1()).length() - 1.2));
-	  
-			  } // Register with display and CG seEdge.setObjectLocation(new
-			  Double3D(seEdge.x + 1, seEdge.y + 1, seEdge.z + 1));
-			  seEdge.registerCollisions(cgGrid); }
-	  
-		  	// All the static cells are in, now reset the collision data
-		  	cgGrid.step(null);
-	  
-		  	//count the entire number of dendrites so we can get a percentage scanned measure 
-		  	totalNumberOfDendrites = sealEdges.size();
-	  }
-	*/
+	
+	/**
+	 * TODO refactor the methods below to properly seed the stromal network
+	 */
+	private void initialiseStroma(){
+		
+		
+		
+	}
+	
+	
 
 	/*
 	 * Generate and initialise a stromal network 
@@ -424,39 +362,28 @@ public class SimulationEnvironment extends SimState {
 	 * here so that later on we can implement an FDC or an FRC
 	 * without cluttering up the simulaiton environment class
 	 * 
-
 	 */
 	void initialiseFDC(CollisionGrid cgGrid) {
 
-		
-		//TODO we should really change this or it will get confusing....
+	
 		// Generate some stroma
 		ArrayList<StromaGenerator.StromalCell> frclCellLocations = new ArrayList<StromaGenerator.StromalCell>();
-		
-		//ArrayList<StromaGenerator2.StromalCell> frclCellLocations = new ArrayList<StromaGenerator2.StromalCell>();
 		
 		//this is for the dendrites
 		ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
 
 		
-		//TODO this needs to be though about carefully
-		
-		Double3D center = new Double3D(Settings.WIDTH/2,Settings.HEIGHT/2,Settings.DEPTH/2);
-		
 		StromaGenerator.generateStroma3D(Settings.WIDTH - 2,
 				Settings.HEIGHT - 2, Settings.DEPTH - 2, 225,
 				frclCellLocations, sealEdges);
 		
-		
-		//StromaGenerator2.generateStroma3D(35,
-		//		35, Settings.DEPTH - 2,25,25,0, Settings.FDC.COUNT,
-		//		frclCellLocations, sealEdges);
+	
 
 		// Create the FDC objects, display them, schedule them, and then put
 		// them on the collision grid
 		for (StromaGenerator.StromalCell frcCell : frclCellLocations) {
 
-			FDC fdc = new FDC();
+			Stroma fdc = new Stroma(Stroma.TYPE.FDC);
 
 			// This will register the FDC with the environment/display
 			// to account for the border which is one gridspace in width
@@ -472,18 +399,15 @@ public class SimulationEnvironment extends SimState {
 			
 	}
 
-	
-	
-	
+	/**
+	 * Generate FDC dendrites - need to think of the best way to organise all of this 
+	 * @param cgGrid
+	 * @param sealEdges
+	 */
 	public void generateFDCDendrites(CollisionGrid cgGrid,ArrayList<StromaEdge> sealEdges){
 		// Add the stroma edges to the display/CollisionGrid
 		// for all the dendrites generated by the stroma generator
-				for (StromaEdge seEdge : sealEdges) {
-					Double3D d3Point = seEdge.getPoint1();
-					Double3D d3Point2 = seEdge.getPoint2();
-
-				
-	
+				for (StromaEdge seEdge : sealEdges) {	
 					
 					int branchesAdded = 0;
 					// Register with display and CG
@@ -491,8 +415,6 @@ public class SimulationEnvironment extends SimState {
 							seEdge.z + 1));
 					seEdge.registerCollisions(cgGrid);
 
-					
-					
 					
 					// add branches to neighbouring cells
 					
@@ -508,8 +430,8 @@ public class SimulationEnvironment extends SimState {
 							if (branchesAdded < 1) {
 								StromaEdge neighbouredge = (StromaEdge) neighbouredges
 										.get(j);
-								branch b = new branch(seEdge.midpoint,
-										neighbouredge.midpoint);
+								StromaEdge b = new StromaEdge(seEdge.midpoint,
+										neighbouredge.midpoint, StromaEdge.TYPE.FDC_branch);
 								b.setObjectLocation(new Double3D(b.x + 1, b.y + 1,
 										b.z + 1));
 
@@ -523,15 +445,19 @@ public class SimulationEnvironment extends SimState {
 								for (int k = 0; k < branchedges.size() - 1; k++) {
 
 									if (subbranches < 1) {
-										if (branchedges.get(k) instanceof FDC) {
-											FDC fdc = (FDC) branchedges.get(k);
-											branch b2 = new branch(b.midpoint,
-													new Double3D(fdc.x, fdc.y, fdc.z));
-											b2.setObjectLocation(new Double3D(b2.x + 1,
+										if (branchedges.get(k) instanceof Stroma) {
+											Stroma fdc = (Stroma) branchedges.get(k);
+											if(fdc.getStromatype() == Stroma.TYPE.FDC)
+											{
+												StromaEdge b2 = new StromaEdge(b.midpoint,
+													new Double3D(fdc.x, fdc.y, fdc.z),StromaEdge.TYPE.FDC_branch);
+												
+												
+												b2.setObjectLocation(new Double3D(b2.x + 1,
 													b2.y + 1, b2.z + 1));
 
-											b2.registerCollisions(cgGrid);
-
+												b2.registerCollisions(cgGrid);
+											}
 											
 										}
 
@@ -550,8 +476,6 @@ public class SimulationEnvironment extends SimState {
 				
 	}
 	
-	
-	
 	/**
 	 * Calculate the number of dendrites in the FDC network
 	 * excluding the FDC nodes
@@ -566,8 +490,10 @@ public class SimulationEnvironment extends SimState {
 		//we want to count only branches and dendrites so
 		// we need to know how many FDC nodes there are
 		for(int i= 0 ; i < stroma.size(); i++){
-			if(stroma.get(i) instanceof FDC){
-				FDCcounter += 1;
+			if(stroma.get(i) instanceof Stroma){
+				if(((Stroma) stroma.get(i)).getStromatype() == Stroma.TYPE.FDC){
+					FDCcounter += 1;
+				}
 			}
 		}
 		
@@ -578,8 +504,6 @@ public class SimulationEnvironment extends SimState {
 		
 	}
 	
-	
-	
 	/*
 	 * Generate and initialise a stromal network 
 	 * an FDC is the same as an FRC network, except
@@ -589,9 +513,9 @@ public class SimulationEnvironment extends SimState {
 	 * CXCL13 reporter mice.
 	 * 
 	 * 
-	 * TODO I think a visitor design pattern would come in handy
-	 * here so that later on we can implement an FDC or an FRC
-	 * without cluttering up the simulaiton environment class
+	 * TODO Lots of copied code here we really need to refactor so there is only one
+	 * generate stroma method, maybe hide it away in stroma generator would be cleanest
+	 * not sure.
 	 * 
 
 	 */
@@ -603,7 +527,7 @@ public class SimulationEnvironment extends SimState {
 		ArrayList<StromaGenerator.StromalCell> frclCellLocations = new ArrayList<StromaGenerator.StromalCell>();
 		
 		//this is for the dendrites
-		ArrayList<ReticularFiber> sealEdges = new ArrayList<ReticularFiber>();
+		ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
 
 		//need to set it so it doesnt overlap with the FDCs...
 		StromaGenerator.generateFRC3D(Settings.WIDTH - 2,
@@ -620,9 +544,9 @@ public class SimulationEnvironment extends SimState {
 			//but lets do that later
 			if(!isWithinCircle((int)frcCell.d3Location.x + 1,(int)frcCell.d3Location.y + 1,Settings.WIDTH/2,Settings.HEIGHT/2,15))
 			{	
-				if(frcCell.d3Location.y < Settings.HEIGHT - 10)
+				if(frcCell.d3Location.y < Settings.HEIGHT - 8)
 				{
-					FRC frc = new FRC();
+					Stroma frc = new Stroma(Stroma.TYPE.FRC);
 					// This will register the FDC with the environment/display
 					// to account for the border which is one gridspace in width
 					frc.setObjectLocation(new Double3D(frcCell.d3Location.x + 1,
@@ -631,7 +555,7 @@ public class SimulationEnvironment extends SimState {
 					schedule.scheduleRepeating((Steppable) frc, 2, 1);
 				}	
 				else{
-					MRC mrc = new MRC();
+					Stroma mrc = new Stroma(Stroma.TYPE.MRC);
 					// This will register the FDC with the environment/display
 					// to account for the border which is one gridspace in width
 					mrc.setObjectLocation(new Double3D(frcCell.d3Location.x + 1,
@@ -650,46 +574,30 @@ public class SimulationEnvironment extends SimState {
 				if(!isWithinCircle((int)frcCell.d3Location.x + 1,(int)frcCell.d3Location.y + 1,Settings.WIDTH/2,Settings.HEIGHT/2,10))
 				{
 				
-					MRC mrc = new MRC();
+					Stroma mrc = new Stroma(Stroma.TYPE.MRC);
 					// This will register the FDC with the environment/display
 					// to account for the border which is one gridspace in width
 					mrc.setObjectLocation(new Double3D(frcCell.d3Location.x + 1,
 						frcCell.d3Location.y + 1, frcCell.d3Location.z + 1));
 
 					schedule.scheduleRepeating((Steppable) mrc, 2, 1);
-				}
-				
+				}	
 			}
-			
-			
-
-			
-
 		}
 
 		//now need to generate the actual dendrites
 		generateFRCDendrites(cgGrid, sealEdges);
-			
 	}
 
-	
 	/**
-	 * Diabolical code, needs refactoring
+	 * TODO Diabolical code, needs refactoring
 	 * @param cgGrid
 	 * @param sealEdges
 	 */
-	
-	public void generateFRCDendrites(CollisionGrid cgGrid,ArrayList<ReticularFiber> sealEdges){
+	public void generateFRCDendrites(CollisionGrid cgGrid,ArrayList<StromaEdge> sealEdges){
 		// Add the stroma edges to the display/CollisionGrid
 		// for all the dendrites generated by the stroma generator
-				for (ReticularFiber seEdge : sealEdges) {
-
-
-		
-	
-					
-				
-				
+				for (StromaEdge seEdge : sealEdges) {				
 				if(isWithinCircle((int)seEdge.x,(int)seEdge.y,Settings.WIDTH/2,Settings.HEIGHT/2,15))
 				{
 					
@@ -703,7 +611,8 @@ public class SimulationEnvironment extends SimState {
 					}
 				}
 				
-				else if (seEdge.y < Settings.HEIGHT-9){
+				//if it's an FRC
+				else if (seEdge.y < Settings.HEIGHT-8){
 					seEdge.setM_col(Settings.FRC.DRAW_COLOR());
 					// Register with display and CG
 					seEdge.setObjectLocation(new Double3D(seEdge.x + 1, seEdge.y + 1,
@@ -711,23 +620,18 @@ public class SimulationEnvironment extends SimState {
 					seEdge.registerCollisions(cgGrid);
 					
 				}
-				
+				//if it's an MRC
 				else{
 					seEdge.setM_col(Settings.FDC.DRAW_COLOR());
 					// Register with display and CG
 					seEdge.setObjectLocation(new Double3D(seEdge.x + 1, seEdge.y + 1,
 							seEdge.z + 1));
 					seEdge.registerCollisions(cgGrid);
-					
-					
+						
 				}
 				
-				
-				
 			}
-			
 	}
-	
 	
 	
 

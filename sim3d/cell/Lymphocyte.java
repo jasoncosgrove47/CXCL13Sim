@@ -35,7 +35,6 @@ import sim3d.util.Vector3DHelper;
 
 public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Collidable, MigratoryCell {
 	
-	
 	/**
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
@@ -338,6 +337,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		registerCollisions(cgGrid);
 	}
 
+	
 	/**
 	 * Performs collision detection and handling with Stroma Edges (cylinders).
 	 * 

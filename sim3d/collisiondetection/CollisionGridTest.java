@@ -91,7 +91,7 @@ public class CollisionGridTest {
 		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
 		Double3D loc1 = new Double3D(0,0,0);
 		Double3D loc2 = new Double3D(1,1,1);
-		StromaEdge se = new StromaEdge(loc1,loc2);
+		StromaEdge se = new StromaEdge(loc1,loc2,StromaEdge.TYPE.FDC_edge);
 		
 		cgGrid.addLineToGrid(se, loc1, loc2, 1);
 		assertEquals(false,cgGrid.getM_i3lCollisionPoints().isEmpty());

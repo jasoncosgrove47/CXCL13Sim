@@ -149,6 +149,7 @@ public class Algorithm1Test {
 	}
 
 
+	
 	/**
 	 * Test that calculateWhereToMoveNext can update the m_d3aMovements array.
 	 * TODO this test could definitely be refined
@@ -157,9 +158,10 @@ public class Algorithm1Test {
 	public void testCalculateWhereToMoveNext() {
 		
 		Algorithm1 a1 = new Algorithm1();
+		Chemokine.TYPE chemokine = Chemokine.TYPE.CXCL13;
 		
 		bc.setM_d3aMovements(new ArrayList<Double3D>());
-		a1.calculateWhereToMoveNext(bc);
+		a1.calculateWhereToMoveNext(bc, chemokine);
 		// assert movements list has been updated
 		assertEquals(false, bc.getM_d3aMovements().isEmpty());
 	}
@@ -209,7 +211,7 @@ public class Algorithm1Test {
 	public void testGetLigandBinding() {
 
 		Algorithm1 a1 = new Algorithm1();
-		
+		Chemokine.TYPE chemokine = Chemokine.TYPE.CXCL13;
 		m_pParticle.field[(int) bc.x][(int) bc.y][(int) bc.z] = (1.7 * Math
 				.pow(10, -5));
 		m_pParticle.step(null);
@@ -218,7 +220,7 @@ public class Algorithm1Test {
 		m_pParticle.step(null);
 
 		double[] results;
-		results = a1.calculateLigandBindingMoles(bc);
+		results = a1.calculateLigandBindingMoles(bc, chemokine);
 
 		assertNotNull(results[0]);
 
@@ -230,10 +232,11 @@ public class Algorithm1Test {
 	@Test
 	public void testGetLigandBinding2() {
 		
+		Chemokine.TYPE chemokine = Chemokine.TYPE.CXCL13;
 		Algorithm1 a1 = new Algorithm1();
 		
 		double[] results;
-		results = a1.calculateLigandBindingMoles(bc);
+		results = a1.calculateLigandBindingMoles(bc, chemokine);
 		assertThat(results[0], equalTo(0.0));
 	}
 
@@ -250,7 +253,7 @@ public class Algorithm1Test {
 	public void testGetMoveDirection() {
 
 		Algorithm1 a1 = new Algorithm1();
-		
+		Chemokine.TYPE chemokine = Chemokine.TYPE.CXCL13;
 		m_pParticle.field[(int) bc.x][(int) bc.y][(int) bc.z] = (1.7 * Math
 				.pow(10, -5));
 		m_pParticle.step(null);
@@ -258,7 +261,7 @@ public class Algorithm1Test {
 		m_pParticle.step(null);
 		m_pParticle.step(null);
 
-		Double3D test = a1.getMoveDirection(bc);
+		Double3D test = a1.getMoveDirection(bc,chemokine);
 		assertNotNull(test);
 
 	}

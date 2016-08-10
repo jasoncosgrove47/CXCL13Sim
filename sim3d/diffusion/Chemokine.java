@@ -47,6 +47,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 
 	private static final long serialVersionUID = 1;
 
+	
 	/**
 	 * Add or remove chemokine from a grid space
 	 * 

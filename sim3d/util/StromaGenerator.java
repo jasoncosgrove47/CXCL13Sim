@@ -5,7 +5,7 @@ import java.util.List;
 
 import sim.util.Double3D;
 import sim3d.Settings;
-import sim3d.stroma.ReticularFiber;
+import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
 
 /**
@@ -81,7 +81,7 @@ public class StromaGenerator {
 	 */
 	public static int generateFRC3D(int iWidth, int iHeight, int iDepth,
 			int iCellCount, ArrayList<StromalCell> frclCellLocations,
-			List<ReticularFiber> selEdges) {
+			List<StromaEdge> selEdges) {
 		// It will be efficient to keep track of cells and locations separately
 		@SuppressWarnings("unchecked")
 		// because it is of an abstract interface
@@ -144,13 +144,13 @@ public class StromaGenerator {
 				for (Double3D d3Direction : d3aDirections) {
 					if (d3Direction != null) {
 						// Add the edges
-						selEdges.add(new ReticularFiber(frcNextCell.d3Location,
+						selEdges.add(new StromaEdge(frcNextCell.d3Location,
 								new Double3D(frcNextCell.d3Location.x
 										+ d3Direction.x,
 										frcNextCell.d3Location.y
 												+ d3Direction.y,
 										frcNextCell.d3Location.z
-												+ d3Direction.z)));
+												+ d3Direction.z), StromaEdge.TYPE.RC_edge));
 					}
 						
 				}
@@ -253,7 +253,7 @@ public class StromaGenerator {
 										frcNextCell.d3Location.y
 												+ d3Direction.y,
 										frcNextCell.d3Location.z
-												+ d3Direction.z)));
+												+ d3Direction.z), StromaEdge.TYPE.FDC_edge));
 					}
 						
 				}

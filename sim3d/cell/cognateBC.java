@@ -16,7 +16,7 @@ import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.stroma.StromaEdge;
-import sim3d.stroma.branch;
+
 
 public class cognateBC extends BC {
 
@@ -29,14 +29,11 @@ public class cognateBC extends BC {
 	private static final long serialVersionUID = 1L;
 
 	
-
 	/**
 	 * Used to store the x,y and z coordinates of a BC during a cell tracking
 	 * experiment
 	 */
-	//private ArrayList<Double> positionX = new ArrayList<Double>();
-	//private ArrayList<Double> positionY = new ArrayList<Double>();
-	//private ArrayList<Double> positionZ = new ArrayList<Double>();
+
 	private ArrayList<Double3D> coordinates = new ArrayList<Double3D>();
 	private ArrayList<Integer> receptors = new ArrayList<Integer>();
 
@@ -200,8 +197,10 @@ public class cognateBC extends BC {
 
 			case BRANCH:
 
-				if (collideStromaEdge((branch) cCell, iCollisionMovement)) {
-
+				//TODO this was branch so not sure if this is sensible
+				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
+					
+			
 					iCollisionMovement = getM_d3aMovements().size() - 1;
 					bCollision = true;
 

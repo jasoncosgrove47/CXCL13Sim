@@ -182,7 +182,7 @@ public class BCIntegrationTests {
 		cognateBC cBC = new cognateBC(1);
 		Settings.FDC.STARTINGANTIGENLEVEL = 400;
 		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1,
-				1, 1));
+				1, 1),StromaEdge.TYPE.FDC_edge);
 		cBC.acquireAntigen(se);
 
 		// assert that the BC is now primed
@@ -193,7 +193,7 @@ public class BCIntegrationTests {
 	 * This test makes sure that BCs and Stroma collide correctly
 	 */
 	@Test
-	public void testCOLLISION() {
+	public void testCOLLISION_FDC() {
 		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
 		BC.m_cgGrid = cgGrid;
 
@@ -205,7 +205,7 @@ public class BCIntegrationTests {
 		iEdges--;
 		for (int i = 0; i < iEdges; i++) {
 			points[i + 1] = points[i + 1].multiply(3).add(d3Centre);
-			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1]);
+			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1],StromaEdge.TYPE.FDC_edge);
 			seEdge.registerCollisions(cgGrid);
 		}
 
@@ -240,6 +240,112 @@ public class BCIntegrationTests {
 
 	}
 
+	
+	
+	/*
+	 * This test makes sure that BCs and Reticular Cells collide correctly
+	 */
+	@Test
+	public void testCOLLISION_FDCBranch() {
+		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
+		BC.m_cgGrid = cgGrid;
+
+		// generate a stromal cage, around the center of the grid
+		int iEdges = 1000;
+		Double3D[] points = Vector3DHelper.getEqDistPointsOnSphere(iEdges);
+		Double3D d3Centre = new Double3D(15, 15, 15);
+		points[0] = points[0].multiply(3).add(d3Centre);
+		iEdges--;
+		for (int i = 0; i < iEdges; i++) {
+			points[i + 1] = points[i + 1].multiply(3).add(d3Centre);
+			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1],StromaEdge.TYPE.FDC_branch);
+			seEdge.registerCollisions(cgGrid);
+		}
+
+		// place 100 BCs in centre
+		BC[] bcCells = new BC[100];
+		for (int i = 0; i < 100; i++) {
+			bcCells[i] = new BC();
+			bcCells[i].setObjectLocation(d3Centre);
+		}
+
+		// Let them move a bit
+		for (int i = 0; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+				bcCells[j].step(null);
+			}
+			cgGrid.step(null);
+		}
+
+		// determine the distance of each B cell from
+		// the center of the grid
+		double avDistance = 0;
+
+		for (int i = 0; i < 100; i++) {
+			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15,
+					bcCells[i].z - 15);
+
+			avDistance += bcLoc.length();
+		}
+
+		// assert that no BCs have escaped the stroma cage
+		assertThat(avDistance / 100, lessThan(3.0));
+
+	}
+	
+	
+	/*
+	 * This test makes sure that BCs and Reticular Cells collide correctly
+	 */
+	@Test
+	public void testCOLLISION_RC() {
+		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
+		BC.m_cgGrid = cgGrid;
+
+		// generate a stromal cage, around the center of the grid
+		int iEdges = 1000;
+		Double3D[] points = Vector3DHelper.getEqDistPointsOnSphere(iEdges);
+		Double3D d3Centre = new Double3D(15, 15, 15);
+		points[0] = points[0].multiply(3).add(d3Centre);
+		iEdges--;
+		for (int i = 0; i < iEdges; i++) {
+			points[i + 1] = points[i + 1].multiply(3).add(d3Centre);
+			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1],StromaEdge.TYPE.RC_edge);
+			seEdge.registerCollisions(cgGrid);
+		}
+
+		// place 100 BCs in centre
+		BC[] bcCells = new BC[100];
+		for (int i = 0; i < 100; i++) {
+			bcCells[i] = new BC();
+			bcCells[i].setObjectLocation(d3Centre);
+		}
+
+		// Let them move a bit
+		for (int i = 0; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+				bcCells[j].step(null);
+			}
+			cgGrid.step(null);
+		}
+
+		// determine the distance of each B cell from
+		// the center of the grid
+		double avDistance = 0;
+
+		for (int i = 0; i < 100; i++) {
+			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15,
+					bcCells[i].z - 15);
+
+			avDistance += bcLoc.length();
+		}
+
+		// assert that no BCs have escaped the stroma cage
+		assertThat(avDistance / 100, lessThan(3.0));
+
+	}
+	
+	
 	/**
 	 * 
 	 * * We want to test that the cell doesn't perfect go towards the chemokine

@@ -4,11 +4,14 @@
 package integrationtests;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
+
 import sim.util.Bag;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.cell.BC;
+import sim3d.cell.TC;
 import sim3d.cell.cognateBC;
 import sim3d.cell.cognateBC.TYPE;
 import sim3d.util.IO;
@@ -55,11 +58,17 @@ public class SystemTests {
 
 		// count the number of primed b cells
 		for (int i = 0; i < cells.size(); i++) {
-			cognateBC cBC = (cognateBC) cells.get(i);
+			
+			if(cells.get(i) instanceof cognateBC){
+				cognateBC cBC = (cognateBC) cells.get(i);
 
-			if (cBC.type == TYPE.PRIMED) {
-				primedCount += 1;
+				if (cBC.type == TYPE.PRIMED) {
+					primedCount += 1;
+				}
+				
 			}
+			
+			
 		}
 
 		// assert that at least 20 of the cells have been primed

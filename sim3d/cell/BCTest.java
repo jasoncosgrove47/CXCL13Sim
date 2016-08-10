@@ -197,7 +197,7 @@ public class BCTest {
 		Double3D loc1 = new Double3D(0, 0, 0);
 		Double3D loc2 = new Double3D(1, 1, 1);
 		bc.setObjectLocation(loc1);
-		StromaEdge se = new StromaEdge(loc1, loc2);
+		StromaEdge se = new StromaEdge(loc1, loc2,StromaEdge.TYPE.FDC_edge);
 		bc.getM_d3aMovements().add(new Double3D(loc2));
 
 		// assert that the stroma and BC collide
@@ -226,7 +226,7 @@ public class BCTest {
 
 		// set the BC and SE location
 		bc.setObjectLocation(loc1);
-		StromaEdge se = new StromaEdge(loc1, loc2);
+		StromaEdge se = new StromaEdge(loc1, loc2,StromaEdge.TYPE.FDC_edge);
 		bc.getM_d3aMovements().add(new Double3D(loc2));
 
 		// assert that the cell is moving towards loc2
@@ -303,7 +303,7 @@ public class BCTest {
 	public void testFindClosestPointsBetween() {
 
 		StromaEdge seEdge = new StromaEdge(new Double3D(1, 1, 1), new Double3D(
-				2, 2, 2));
+				2, 2, 2),StromaEdge.TYPE.FDC_edge);
 
 		// generate input data
 		Double3D d1 = new Double3D(2, 2, 2); // destination where cell wants to

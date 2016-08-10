@@ -8,8 +8,7 @@ import sim.display.*;
 import sim.display3d.Display3D;
 import sim3d.cell.BC;
 import sim3d.diffusion.Chemokine;
-import sim3d.stroma.FDC;
-import sim3d.stroma.FRC;
+import sim3d.stroma.Stroma;
 import sim3d.util.IO;
 
 import java.awt.Color;
@@ -61,7 +60,7 @@ public class GUIrun extends GUIState {
 	 * Colours used to display different chemokine concentrations
 	 */
 	public java.awt.Color blue0 = new Color(30, 40, 190, 100);
-	public java.awt.Color blueLow = new Color(30, 40, 190, 30);
+	public java.awt.Color blueLow = new Color(30, 40, 190, 20);
 	public java.awt.Color blue1 = new Color(30, 40, 210, 200);
 	public java.awt.Color blue2 = new Color(200, 40, 230, 220);
 	public java.awt.Color blue3 = new Color(30, 200, 255, 255);
@@ -75,7 +74,25 @@ public class GUIrun extends GUIState {
 	 */
 	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
 			lightred, red);
+	
+	
+	/**
+	 * Color map which is used to visualise CXCL13 concentration concentration
+	 * Best to keep range witin one order of magnitude
+	 */
+	public SimpleColorMap CCL19ColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
+			blueLow, blue1);
+	
 
+	
+	/**
+	 * Color map which is used to visualise CXCL13 concentration concentration
+	 * Best to keep range witin one order of magnitude
+	 */
+	public SimpleColorMap EBI2LColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
+			blueLow, blue2);
+	
+	
 	/**
 	 * The main display
 	 */
@@ -118,6 +135,10 @@ public class GUIrun extends GUIState {
 	public FastHexaValueGridPortrayal2D CXCL13PortrayalFast = new FastHexaValueGridPortrayal2D();
 
 	
+	/**
+	 * a 2D portrayal that will show a plane of the particles
+	 */
+	public FastHexaValueGridPortrayal2D EBI2LPortrayalFast = new FastHexaValueGridPortrayal2D();
 	
 	/**
 	 * a 2D portrayal that will show a plane of the particles
@@ -203,6 +224,7 @@ public class GUIrun extends GUIState {
 
 		ChemokineDisplay.attach(CXCL13PortrayalFast, "CXCL13 Gradient");
 		ChemokineDisplay.attach(CCL19PortrayalFast, "CCL19 Gradient");
+		ChemokineDisplay.attach(EBI2LPortrayalFast, "EBI2L Gradient");
 	}
 
 	/**
@@ -240,9 +262,8 @@ public class GUIrun extends GUIState {
 	 */
 	public void setupPortrayals() {
 		// tell the portrayals what to portray and how to portray them
-		fdcPortrayal.setField(FDC.drawEnvironment);
+		fdcPortrayal.setField(Stroma.drawEnvironment);
 		bcPortrayal.setField(BC.drawEnvironment);
-		frcPortrayal.setField(FRC.drawEnvironment);
 		// CXCL13 Portrayals
 		CXCL13PortrayalFast.setField(Chemokine
 				.getInstance(Chemokine.TYPE.CXCL13).m_ig2Display);
@@ -251,7 +272,12 @@ public class GUIrun extends GUIState {
 		
 		CCL19PortrayalFast.setField(Chemokine
 				.getInstance(Chemokine.TYPE.CCL19).m_ig2Display);
-		CCL19PortrayalFast.setMap(CXCL13ColorMap);
+		CCL19PortrayalFast.setMap(CCL19ColorMap);
+		
+		EBI2LPortrayalFast.setField(Chemokine
+				.getInstance(Chemokine.TYPE.EBI2L).m_ig2Display);
+		EBI2LPortrayalFast.setMap(EBI2LColorMap);
+		
 
 		// the display needs to re-register itself with the
 		// GUIState after every step

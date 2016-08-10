@@ -29,7 +29,7 @@ public class StromaEdgeTest {
 		BC.m_cgGrid = cgGrid;
 
 		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1,
-				1, 1));
+				1, 1), StromaEdge.TYPE.FDC_edge);
 		TransformGroup localTG = se.getModel(se, null);
 		assertTrue(localTG instanceof TransformGroup);
 
@@ -41,7 +41,7 @@ public class StromaEdgeTest {
 	@Test
 	public void testGetCollisionClass() {
 		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1,
-				1, 1));
+				1, 1), StromaEdge.TYPE.FDC_edge);
 		assertEquals(se.getCollisionClass(), CLASS.STROMA_EDGE);
 	}
 
@@ -53,7 +53,7 @@ public class StromaEdgeTest {
 	public void testGetAntigen() {
 		Settings.FDC.STARTINGANTIGENLEVEL = 400;
 		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1,
-				1, 1));
+				1, 1), StromaEdge.TYPE.FDC_edge);
 		assertTrue(se.getAntigenLevel() == 400);
 	}
 
@@ -67,7 +67,7 @@ public class StromaEdgeTest {
 		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
 		BC.m_cgGrid = cgGrid;
 
-		StromaEdge se = new branch(new Double3D(0, 0, 0), new Double3D(1, 1, 1));
+		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1, 1, 1), StromaEdge.TYPE.FDC_branch);
 		se.registerCollisions(cgGrid);
 		assertEquals(true, cgGrid.getM_i3lCollisionPoints().size() > 0);
 	}

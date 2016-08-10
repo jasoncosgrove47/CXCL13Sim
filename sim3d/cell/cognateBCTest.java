@@ -70,7 +70,7 @@ public class cognateBCTest {
 		cognateBC cBC = new cognateBC(1);
 		Settings.FDC.STARTINGANTIGENLEVEL = 400;
 		
-		StromaEdge se = new StromaEdge(new Double3D(0,0,0), new Double3D(1,1,1));
+		StromaEdge se = new StromaEdge(new Double3D(0,0,0), new Double3D(1,1,1),StromaEdge.TYPE.FDC_edge);
 		cBC.acquireAntigen(se);
 		
 		int test = Controller.getInstance().getDendritesVisited().get(cBC.getIndex());

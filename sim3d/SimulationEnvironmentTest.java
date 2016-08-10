@@ -15,9 +15,8 @@ import sim.util.Double3D;
 import sim3d.SimulationEnvironment.CELLTYPE;
 import sim3d.cell.BC;
 import sim3d.diffusion.Chemokine;
-import sim3d.stroma.FDC;
+import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
-import sim3d.stroma.branch;
 import sim3d.util.IO;
 
 
@@ -173,7 +172,8 @@ public class SimulationEnvironmentTest {
 		         if(element instanceof StromaEdge){
 		        	 SEcounter +=1;
 		         }
-		         else if(element instanceof FDC){
+		         else if(element instanceof Stroma){
+		        	 if( ((Stroma) element).getStromatype() == Stroma.TYPE.FDC)
 		        	 FDCcounter +=1;
 		         }
 		      }
@@ -199,8 +199,13 @@ public class SimulationEnvironmentTest {
 		int counter = 0;
 		Bag Stroma = sim.fdcEnvironment.getAllObjects();
 		for (int i = 0; i < Stroma.size(); i++) {
-			if (Stroma.get(i) instanceof branch) {
-				counter += 1;
+			if (Stroma.get(i) instanceof StromaEdge) {
+				StromaEdge se = (StromaEdge) Stroma.get(i);
+				if(se.getStromaedgetype() == StromaEdge.TYPE.FDC_branch){
+					
+					counter += 1;
+				}
+			
 			}
 		}
 		assertThat(counter, greaterThan(0));

@@ -36,7 +36,14 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		Collidable {
 
 	
+	private TYPE stromaedgetype;
 	
+	
+	private Color m_col;
+	
+	public static enum TYPE {
+		FDC_edge,FDC_branch,RC_edge
+	}
 	
 	
 	private static final long serialVersionUID = 1L;
@@ -80,7 +87,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 */
 	private int antigenLevel;
 	
-	
 
 	/**
 	 * Constructor for the stromal edge
@@ -89,6 +95,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 * @param d3Point2
 	 * @param branch
 	 */
+	
+	/**
 	public StromaEdge(Double3D d3Point1, Double3D d3Point2, boolean branch) {
 
 		// makes sure that first point is always lower on the z axis
@@ -113,12 +121,16 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	}
 
+*/
+
 	/**
 	 * @param d3Point1
 	 * @param d3Point2
 	 */
-	public StromaEdge(Double3D d3Point1, Double3D d3Point2) {
+	public StromaEdge(Double3D d3Point1, Double3D d3Point2, TYPE type) {
 
+		this.setStromaedgetype(type);
+		
 		// makes sure that first point is always lower on the z axis
 		// Make sure it's ordered on the z index
 		if (d3Point1.z > d3Point2.z) {
@@ -141,14 +153,24 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 				(d3Point1.y + d3Point2.y) / 2, (d3Point1.z + d3Point2.z) / 2);
 
 		
-		// divide antigen amount by 2 to make sure a BC has to interact with the
-		// correct portion of the edge to acquire antigen. Otherwise a BC could
-		// interact with one end of the edge but take antigen from the other end
-		//setAntigenLevelUpperEdge(Settings.FDC.STARTINGANTIGENLEVEL / 2);
-		//setAntigenLevelLowerHalf(Settings.FDC.STARTINGANTIGENLEVEL / 2);
+		switch (type) {
+		case FDC_edge: 
+			setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
+			setM_col(Settings.FDC.DRAW_COLOR());
+			break;
+		case FDC_branch:
+			setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);	
+			setM_col(Settings.FDC.DRAW_COLOR());
+			break;
+			
+		case RC_edge:
+			setM_col(Settings.FRC.DRAW_COLOR());
+			setAntigenLevel(0);	
+			break;
+			
+		}
 		
-		//think this might have funky effects so lets just do one per dendrite...
-		setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
+	
 	}
 
 	@Override
@@ -178,9 +200,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		if (transf == null)// add || true to update the stroma visualisation
 
 		{
-
-			StromaEdge fdc = (StromaEdge) obj;
-
+			
 			transf = new TransformGroup();
 
 			LineArray lineArr = new LineArray(2, LineArray.COORDINATES);
@@ -189,24 +209,66 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 					m_d3Edge.z));
 
 			Appearance aAppearance = new Appearance();
-
-			Color col = Settings.FDC.DRAW_COLOR();
-
-			// uncomment this code for an antigen heatmap
-			/*
-			 * if (fdc.getAntigen() < 90) { col = blue3; } if (fdc.getAntigen()
-			 * < 85) { col = blueLow; } if (fdc.getAntigen() < 75) { col =
-			 * blue0; }
-			 */
-
-			aAppearance.setColoringAttributes(new ColoringAttributes(col
-					.getRed() / 255f, col.getGreen() / 255f,
-					col.getBlue() / 255f, ColoringAttributes.FASTEST));
-			aAppearance.setTransparencyAttributes(new TransparencyAttributes(
-					TransparencyAttributes.FASTEST, 0.4f));
-
+			
 			LineAttributes la = new LineAttributes();
-			la.setLineWidth((float) Settings.FDC.STROMA_EDGE_RADIUS * 20);
+			
+			//Color fdccol = Settings.FDC.DRAW_COLOR();
+			
+			//Color frccol = Settings.FRC.DRAW_COLOR();
+
+			
+			double fdcEdgeRadius = Settings.FDC.STROMA_EDGE_RADIUS * 20;
+			double fdcBranchRadius = Settings.FDC.BRANCH_RADIUS * 20;
+			double rcEdgeRadius = Settings.FDC.STROMA_EDGE_RADIUS * 20;
+			
+			switch (this.getStromaedgetype()) {
+			case FDC_edge: 
+			
+		
+				// uncomment this code for an antigen heatmap
+				/*
+				 * if (fdc.getAntigen() < 90) { col = blue3; } if (fdc.getAntigen()
+				 * < 85) { col = blueLow; } if (fdc.getAntigen() < 75) { col =
+				 * blue0; }
+				 */
+
+				aAppearance.setColoringAttributes(new ColoringAttributes(getM_col()
+						.getRed() / 255f, getM_col().getGreen() / 255f,
+						getM_col().getBlue() / 255f, ColoringAttributes.FASTEST));
+				aAppearance.setTransparencyAttributes(new TransparencyAttributes(
+						TransparencyAttributes.FASTEST, 0.4f));
+
+				la.setLineWidth((float) fdcEdgeRadius);
+			
+			
+			case FDC_branch:
+			
+				aAppearance.setColoringAttributes(new ColoringAttributes(getM_col()
+						.getRed() / 255f, getM_col().getGreen() / 255f,
+						getM_col().getBlue() / 255f, ColoringAttributes.FASTEST));
+				aAppearance.setTransparencyAttributes(new TransparencyAttributes(
+						TransparencyAttributes.FASTEST, 0.4f));
+
+
+				la.setLineWidth((float) fdcBranchRadius);
+			
+
+			case RC_edge:
+
+				aAppearance.setColoringAttributes(new ColoringAttributes(getM_col()
+						.getRed() / 255f, getM_col().getGreen() / 255f,
+						getM_col().getBlue() / 255f, ColoringAttributes.FASTEST));
+				aAppearance.setTransparencyAttributes(new TransparencyAttributes(
+						TransparencyAttributes.FASTEST, 0.4f));
+
+
+				la.setLineWidth((float) rcEdgeRadius);
+			
+
+			}
+			
+			
+	
 			aAppearance.setLineAttributes(la);
 
 			Shape3D s3Shape = new Shape3D(lineArr, aAppearance);
@@ -217,6 +279,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 			localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 			transf.addChild(localTG);
+
+
 		}
 		return transf;
 	}
@@ -255,8 +319,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	/*
 	 * Getters and Setters for the class 
 	 */
-	
-
 	public int getAntigenLevel() {
 		return antigenLevel;
 	}
@@ -271,6 +333,22 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	public void setCellsCollidedWith(ArrayList<Integer> cellsCollidedWith) {
 		this.cellsCollidedWith = cellsCollidedWith;
+	}
+
+	public Color getM_col() {
+		return m_col;
+	}
+
+	public void setM_col(Color m_col) {
+		this.m_col = m_col;
+	}
+
+	public TYPE getStromaedgetype() {
+		return stromaedgetype;
+	}
+
+	public void setStromaedgetype(TYPE stromaedgetype) {
+		this.stromaedgetype = stromaedgetype;
 	}
 
 }
