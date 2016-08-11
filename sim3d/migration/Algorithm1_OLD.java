@@ -18,7 +18,7 @@ import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
 import sim3d.util.Vector3DHelper;
 
-public class Algorithm1 implements MigrationAlgorithm{
+public class Algorithm1_OLD implements MigrationAlgorithm{
 
 	
 	/**
@@ -302,39 +302,20 @@ public class Algorithm1 implements MigrationAlgorithm{
 	
 	/**
 	 * Perform a step for the receptor
-	 * 
-	 * TODO lots of repetition in this class, need a set receptor method
-	 * 
-	 * 
 	 */
-	void receptorStep(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
-		Integer[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte,chemokine);
+	void receptorStep(Lymphocyte lymphocyte, Chemokine.TYPE chemokine,Lymphocyte.Receptor receptor) {
+		double[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte,chemokine);
 
-		
-		Lymphocyte.Receptor receptor = null;
-		
-		switch (chemokine) {
-		case CXCL13: 
-			receptor = Lymphocyte.Receptor.CXCR5;
-			break;
-		case CCL19:
-			receptor = Lymphocyte.Receptor.CCR7;	
-			break;
-			
-		case EBI2L:
-			receptor = Lymphocyte.Receptor.EBI2;	
-			break;
-		default:
-			break;
-	
-		}
+
+
 		
 		
 		// update the amount of free and bound receptors
 		for (int i = 0; i < 6; i++) {
-			lymphocyte.setM_Rf(receptor,lymphocyte.getM_Rf(receptor) - iaBoundReceptors[i] );
-			lymphocyte.setM_LR(receptor,lymphocyte.getM_LR(receptor) + iaBoundReceptors[i] );
 			
+			
+			lymphocyte.m_iR_free -= iaBoundReceptors[i];
+			lymphocyte.m_iL_r += iaBoundReceptors[i];
 		}
 
 		//sim timestep increments in 1 min intervals so divide by 60 to get it in seconds.
@@ -345,16 +326,15 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		double Ki = Settings.BC.ODE.K_i();// Ka is already in seconds
 		double Kr = Settings.BC.ODE.K_r();
-		double Koff = Settings.BC.ODE.Koff;
+
 		/**
 		 * Solve the ODE using 4th order Runge Kutta timestep j equals 1 second
 		 */
 
 		for (int i = 0; i < iTimesteps; i++) {
 
-			iR_i = lymphocyte.getM_Ri(receptor);
-			iL_r = lymphocyte.getM_LR(receptor);
-			
+			iR_i = lymphocyte.m_iR_i;
+			iL_r = lymphocyte.m_iL_r;
 
 			// receptors internalised from surface
 			double LRK1 = h * (Ki * iL_r);
@@ -372,36 +352,20 @@ public class Algorithm1 implements MigrationAlgorithm{
 			// receptors that are recycled from internal pool
 
 			
-
+			double Koff = Settings.BC.ODE.Koff;
 			
 			double RdisK1 = h * (Koff * iL_r);
 			double RdisK2 = h * ((Koff * iL_r) + RdisK1 / 2);
 			double RdisK3 = h * ((Koff * iL_r) + RdisK2 / 2);
 			double RdisK4 = h * ((Koff * iL_r) + RdisK3);
 
-			
-			lymphocyte.setM_Rf(receptor, lymphocyte.getM_Rf(receptor) + (int) ((RfK1 / 6) 
-							+ (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6)) + (int) ((RdisK1 / 6) 
-							+ (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6)));
-			
-			
-			lymphocyte.setM_Ri(receptor, lymphocyte.getM_Ri(receptor) + (int) ((LRK1 / 6) 
-							+ (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6)) - (int) ((RfK1 / 6) 
-							+ (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6)));
-			
-			
-			lymphocyte.setM_LR(receptor, lymphocyte.getM_Ri(receptor) - (int) ((LRK1 / 6) 
-							+ (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6)) + (int) ((RdisK1 / 6) 
-							+ (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6)));
-			
-			/*
 			lymphocyte.m_iR_free += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
 					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
 			lymphocyte.m_iR_i += (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
 					- (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
 			lymphocyte.m_iL_r -= (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
 					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
-			*/																		
+																						
 
 		}
 
@@ -413,7 +377,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 		double y = lymphocyte.y;
 		double z = lymphocyte.z;
 		
-		Integer[] iaBoundReceptors = calculateLigandBindingMoles(lymphocyte, chemokine);
+		double[] iaBoundReceptors = calculateLigandBindingMoles(lymphocyte, chemokine);
 
 		// avogadors number - number of molecules in 1 mole
 		double avogadro = 6.0221409e+23;
@@ -443,12 +407,11 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * direction.
 	 * 
 	 * @return The new direction for the cell to move
-	 * 
 	 */
 	Double3D getMoveDirection(Lymphocyte lymphocyte,Chemokine.TYPE chemokine) {
 
 
-		Integer[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte, chemokine);
+		double[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte, chemokine);
 
 		// the new direction for the cell to move
 		Double3D vMovement = new Double3D();
@@ -475,17 +438,14 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * direction.
 	 * 
 	 * @return The new direction for the cell to move
-	 * 
-	 * TODO algorithm 1 should be for one chemokine, algorithm 2 inherits from that and the getMoveDirection
-	 * simply gets overrided. but not sure you can ovverride if there are different inputs so maybe just have two methodsin each
 	 */
 	Double3D[] getMoveDirection(Lymphocyte lymphocyte,Chemokine.TYPE chemokine1,Chemokine.TYPE chemokine2) {
 
 
 		Double3D[] output = new Double3D[2];
 		
-		Integer[] iaBoundReceptors1 = calculateLigandBindingMolar(lymphocyte, chemokine1);
-		Integer[] iaBoundReceptors2 = calculateLigandBindingMolar(lymphocyte, chemokine2);
+		double[] iaBoundReceptors1 = calculateLigandBindingMolar(lymphocyte, chemokine1);
+		double[] iaBoundReceptors2 = calculateLigandBindingMolar(lymphocyte, chemokine2);
 
 		// the new direction for the cell to move
 		Double3D vMovement1 = new Double3D();
@@ -527,7 +487,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * receptor. Need this because parameter Ka is moles/litre/sec 
 	 * @return an int array with the number of bound receptors at each psuedopod
 	 */
-	public Integer[] calculateLigandBindingMolar(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
+	public double[] calculateLigandBindingMolar(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
 
 		Lymphocyte.Receptor receptor = null;
 		
@@ -547,7 +507,6 @@ public class Algorithm1 implements MigrationAlgorithm{
 	
 		}
 		
-		
 		double[][][] ia3Concs = Chemokine.get(chemokine, (int) lymphocyte.x,
 				(int) lymphocyte.y, (int) lymphocyte.z);
 
@@ -555,7 +514,6 @@ public class Algorithm1 implements MigrationAlgorithm{
 		//int iReceptors = lymphocyte.m_iR_free / 6;
 
 		int iReceptors = lymphocyte.getM_Rf(receptor)/6;
-		
 		
 		// would need to divide by 1e-12 L (vol of one grid space to get molar
 		// conc)
@@ -570,7 +528,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		// store how many receptors are bound at each
 		// of the 6 pseudopods
-		Integer[] iaBoundReceptors = new Integer[6];
+		double[] iaBoundReceptors = new double[6];
 
 		for (int i = 0; i < 6; i++) // for each pseudopod
 		{
@@ -622,11 +580,10 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * @return
 	 */
-	public Integer[] calculateLigandBindingMoles(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
+	public double[] calculateLigandBindingMoles(Lymphocyte lymphocyte, Chemokine.TYPE chemokine ) {
 
 		// need to figure out what is sensible to secrete per timestep, might as
 		// well do that in moles. Get the surrounding values for moles
-
 		Lymphocyte.Receptor receptor = null;
 		
 		switch (chemokine) {
@@ -646,11 +603,15 @@ public class Algorithm1 implements MigrationAlgorithm{
 		}
 		
 		
+		
 
 		double[][][] ia3Concs = Chemokine.get(chemokine, (int) lymphocyte.x,
 				(int) lymphocyte.y, (int) lymphocyte.z);
 
 		// Assume the receptors are spread evenly around the cell
+		
+		
+		
 		//int iReceptors = lymphocyte.m_iR_free / 6;
 
 		int iReceptors = lymphocyte.getM_Rf(receptor)/6;
@@ -664,7 +625,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		// store how many receptors are bound at each
 		// of the 6 pseudopods
-		Integer[] iaBoundReceptors = new Integer[6];
+		double[] iaBoundReceptors = new double[6];
 
 		for (int i = 0; i < 6; i++) // for each pseudopod
 		{

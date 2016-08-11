@@ -29,7 +29,6 @@ public class Controller implements Steppable {
 	 */
 	
 	
-	
 	/**
 	 * The single instance of the class
 	 */

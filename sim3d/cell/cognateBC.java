@@ -108,8 +108,9 @@ public class cognateBC extends BC {
 	 * Updates the cells surface receptor levels in Controller
 	 */
 	void updateReceptors() {
-		receptors.add(this.m_iR_free);
-
+		//TODO need to check that this is actually Rfree		
+		receptors.add(this.getM_LR(Lymphocyte.Receptor.CXCR5));
+		
 		Controller.getInstance().getReceptors()
 				.put(this.getIndex(), this.getReceptors());
 

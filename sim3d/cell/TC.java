@@ -23,6 +23,7 @@ import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
+import sim3d.cell.Lymphocyte.Receptor;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
@@ -54,7 +55,35 @@ public class TC extends Lymphocyte{
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
-		super.step(state);		
+		super.step(state);	
+
+
+		//System.out.println("TC CCR7: " + this.getM_Rf(Receptor.CCR7));
+		//System.out.println("TC CXCR5: " + this.getM_Rf(Receptor.CXCR5));
+		//System.out.println("TC EBI2: " + this.getM_Rf(Receptor.EBI2));
+		
+		
+	}
+
+
+	
+	public TC(){
+			
+		this.getM_receptorMap().put(Receptor.CCR7, new ArrayList<Integer>(3));
+		this.getM_receptorMap().get(Receptor.CCR7).add(0,Settings.BC.ODE.LR());
+		this.getM_receptorMap().get(Receptor.CCR7).add(1,Settings.BC.ODE.Rf());
+		this.getM_receptorMap().get(Receptor.CCR7).add(2,Settings.BC.ODE.Ri());
+		
+		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(3));
+		this.getM_receptorMap().get(Receptor.CXCR5).add(0,0);
+		this.getM_receptorMap().get(Receptor.CXCR5).add(1,0);
+		this.getM_receptorMap().get(Receptor.CXCR5).add(2,Settings.BC.ODE.Ri());
+		
+		this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(3));
+		this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
+		this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
+		this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
+		
 	}
 
 	

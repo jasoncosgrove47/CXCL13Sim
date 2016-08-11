@@ -22,7 +22,6 @@ import sim3d.diffusion.Chemokine;
 public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 
-
 	private Color m_col;
 	private TYPE stromatype;
 	
@@ -50,13 +49,14 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			break;
 			
 		case MRC:
-			m_CXCL13 = true;	
+			//m_CXCL13 = true;	
 			m_EBI2L  = true;	
 			break;
 			
 		case LEC:
 			break;
 		}
+		
 	}
 	
 	
@@ -106,6 +106,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 				transf.addChild(localTG);
 			}
+			break;
 	
 		case FRC:
 
@@ -121,6 +122,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 					localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 					transf.addChild(localTG);
 				}
+				break;
 				
 		case MRC:
 			

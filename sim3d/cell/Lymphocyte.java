@@ -2,6 +2,7 @@ package sim3d.cell;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import sim3d.Settings;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
+import sim3d.diffusion.Chemokine.TYPE;
 import sim3d.migration.Algorithm1;
 import sim3d.migration.MigrationAlgorithm;
 import sim3d.migration.MigratoryCell;
@@ -41,6 +43,39 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 */
 	public static Continuous3D drawEnvironment;
 
+	/**
+	 * Constructor for lymphocytes, responsible for setting up the receptor maps
+	 * could probably be encapsulated into another method	 
+	 */
+	public Lymphocyte(){
+		
+		//this should all be handled in the getReceptor method!
+		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(3));
+		this.getM_receptorMap().get(Receptor.CXCR5).add(0,Settings.BC.ODE.LR());
+		this.getM_receptorMap().get(Receptor.CXCR5).add(1,Settings.BC.ODE.Rf());
+		this.getM_receptorMap().get(Receptor.CXCR5).add(2,Settings.BC.ODE.Ri());
+		
+		this.getM_receptorMap().put(Receptor.CCR7, new ArrayList<Integer>(3));
+		this.getM_receptorMap().get(Receptor.CCR7).add(0,0);
+		this.getM_receptorMap().get(Receptor.CCR7).add(1,0);
+		this.getM_receptorMap().get(Receptor.CCR7).add(2,0);
+		
+		this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(3));
+		this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
+		this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
+		this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
+	
+	}
+	
+	public static enum Receptor {
+		CXCR5, CCR7, EBI2
+	}
+	
+	/**
+	 * Gives each ENUM an array index
+	 */
+	protected EnumMap<Receptor, List<Integer>> m_receptorMap = new EnumMap<Receptor, List<Integer>>(Receptor.class);
+	
 	/*
 	 * 3D grid where B cells and cBs exist
 	 */
@@ -72,21 +107,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	public boolean displayODEGraph = false;
 
 	/**
-	 * (ODE) Ligand-Receptor Complexes m_ signifies it's a member variable
-	 */
-	public int m_iL_r = Settings.BC.ODE.LR();
-
-	/**
-	 * (ODE) Free Receptors on cell surface
-	 */
-	public int m_iR_free = Settings.BC.ODE.Rf();
-
-	/**
-	 * (ODE) Internalised Receptor
-	 */
-	public int m_iR_i = Settings.BC.ODE.Ri();
-
-	/**
 	 * The direction the cell is facing; used for movement
 	 */
 	private Double3D m_d3Face = Vector3DHelper.getRandomDirection();
@@ -111,15 +131,11 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 */
 	private double positionAlongStroma = 0;
 	
-	
 	/*
 	 * Determines the position of a BC on a stromal edge
 	 */
 	private Algorithm1 a1 = new Algorithm1();
 
-	
-
-	
 	/*
 	 * Determines how many collisions a BC has had this timestep necessary to
 	 * prevent infinite collisions
@@ -152,7 +168,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return CLASS.LYMPHOCYTE;
 	}
 
-	/*
+	/**
 	 * TODO this method shouldnt be necessary here should just overwrite in BC
 	 * (non-Javadoc)
 	 * @see sim3d.cell.DrawableCell3D#getDrawEnvironment()
@@ -162,7 +178,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return drawEnvironment;
 	}
 
-	
 	/**
 	 * Controls what a B cell agent does for each time step Each Bcell registers
 	 * its intended path on the collision grid, once all B cells register the
@@ -172,12 +187,9 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
-
-		migrate(a1);
-			
+		migrate(a1);	
 	}
 
-	
 	/**
 	 * DO NOT DELETE THIS METHOD
 	 */
@@ -195,10 +207,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return meDiscrete;
 	}
 
-	
-
-	
-	
 	/**
 	 * How to remove a BC from the schedule:
 	 * 
@@ -235,10 +243,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	public void stop() {
 		stopper.stop();
 	}
-
-	
-
-	
 
 	@Override
 	public void registerCollisions(CollisionGrid cgGrid) {
@@ -314,7 +318,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		}
 	}
 
-	/*
+	/**
 	 * helper method to perform the actual collision
 	 */
 	protected void performCollision(CollisionGrid cgGrid, int iCollisionMovement) {
@@ -337,7 +341,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		registerCollisions(cgGrid);
 	}
 
-	
 	/**
 	 * Performs collision detection and handling with Stroma Edges (cylinders).
 	 * 
@@ -623,7 +626,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return sNew;
 	}
 
-	/*
+    /**
 	 * Helper function which calculates the closest point between two lines
 	 * called by collideStromaEdge, returns the closest points between two lines
 	 * 
@@ -720,7 +723,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		}
 	}
 
-	/*
+	/**
 	 * Helper method which handles collisions between a B cell and the
 	 * simulation borders along the X-axis
 	 */
@@ -1054,11 +1057,112 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	public void setM_d3aCollisions(ArrayList<Double3D> m_d3aCollisions) {
 		this.m_d3aCollisions = m_d3aCollisions;
 	}
-	
-	
-	
-	
-	
-	
 
+	public EnumMap<Receptor, List<Integer>> getM_receptorMap() {
+		return m_receptorMap;
+	}
+
+	public void setM_receptorMap(EnumMap<Receptor, List<Integer>> m_receptorMap) {
+		this.m_receptorMap = m_receptorMap;
+	}
+	
+	public void setM_LR(Lymphocyte.Receptor receptor, Integer value){
+		switch (receptor) {
+		case CXCR5: 
+			this.getM_receptorMap().get(Receptor.CXCR5).set(0, value);
+			break;
+		case CCR7:
+			this.getM_receptorMap().get(Receptor.CCR7).set(0, value);
+			break;
+		case EBI2:
+			this.getM_receptorMap().get(Receptor.EBI2).set(0, value);
+			break;
+		}
+	}
+	
+	public void setM_Rf(Lymphocyte.Receptor receptor, Integer value){
+		switch (receptor) {
+		case CXCR5: 
+			this.getM_receptorMap().get(Receptor.CXCR5).set(1, value);
+			break;
+		case CCR7:
+			this.getM_receptorMap().get(Receptor.CCR7).set(1, value);
+			break;
+		case EBI2:
+			this.getM_receptorMap().get(Receptor.EBI2).set(1, value);
+			break;
+		}
+	}
+	
+	public void setM_Ri(Lymphocyte.Receptor receptor, Integer value){
+		switch (receptor) {
+		case CXCR5: 
+			this.getM_receptorMap().get(Receptor.CXCR5).set(2, value);
+			break;
+		case CCR7:
+			this.getM_receptorMap().get(Receptor.CCR7).set(2, value);
+			break;
+		case EBI2:
+			this.getM_receptorMap().get(Receptor.EBI2).set(2, value);
+			break;
+		}
+	}
+	
+	public Integer getM_LR(Lymphocyte.Receptor receptor){
+		int output;
+		switch (receptor) {
+		case CXCR5: 
+			output = m_receptorMap.get(Receptor.CXCR5).get(0);
+			break;
+		case CCR7:
+			output = m_receptorMap.get(Receptor.CCR7).get(0);
+			break;
+		case EBI2:
+			output = m_receptorMap.get(Receptor.EBI2).get(0);
+			break;
+		default:
+			output = 0;
+			break;
+		}	
+		return output;
+	}
+	
+	public Integer getM_Rf(Lymphocyte.Receptor receptor){
+		int output;
+		switch (receptor) {
+		case CXCR5: 
+			output = m_receptorMap.get(Receptor.CXCR5).get(1);
+			break;
+		case CCR7:
+			output = m_receptorMap.get(Receptor.CCR7).get(1);
+			break;
+		case EBI2:
+			output = m_receptorMap.get(Receptor.EBI2).get(1);
+			break;
+		default:
+			output = 0;
+			break;
+		}	
+		return output;
+	}
+	
+	public Integer getM_Ri(Lymphocyte.Receptor receptor){
+		int output;
+		switch (receptor) {
+		case CXCR5: 
+			output = m_receptorMap.get(Receptor.CXCR5).get(2);
+			
+		case CCR7:
+			output = m_receptorMap.get(Receptor.CCR7).get(2);
+			
+		case EBI2:
+			output = m_receptorMap.get(Receptor.EBI2).get(2);
+		
+		default:
+			output = 0;
+		}	
+		return output;
+	}
+	
+	
 }

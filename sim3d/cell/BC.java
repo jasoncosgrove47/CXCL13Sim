@@ -23,6 +23,7 @@ import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
+import sim3d.cell.Lymphocyte.Receptor;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
@@ -54,7 +55,12 @@ public class BC extends Lymphocyte{
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
-		super.step(state);		
+		super.step(state);	
+		
+		//System.out.println("BC CCR7: " + this.getM_Rf(Receptor.CCR7));
+		//System.out.println("BC CXCR5: " + this.getM_Rf(Receptor.CXCR5));
+		//System.out.println("BC EBI2: " + this.getM_Rf(Receptor.EBI2));
+
 	}
 
 	

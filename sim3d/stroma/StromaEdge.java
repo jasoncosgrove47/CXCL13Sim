@@ -35,7 +35,6 @@ import sim3d.collisiondetection.CollisionGrid;
 public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		Collidable {
 
-	
 	private TYPE stromaedgetype;
 	
 	
@@ -151,7 +150,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		// the midpoint of the vector
 		midpoint = new Double3D((d3Point1.x + d3Point2.x) / 2,
 				(d3Point1.y + d3Point2.y) / 2, (d3Point1.z + d3Point2.z) / 2);
-
 		
 		switch (type) {
 		case FDC_edge: 
@@ -240,6 +238,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 				la.setLineWidth((float) fdcEdgeRadius);
 			
+				break;
 			
 			case FDC_branch:
 			
@@ -253,6 +252,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 				la.setLineWidth((float) fdcBranchRadius);
 			
 
+				break;
+				
 			case RC_edge:
 
 				aAppearance.setColoringAttributes(new ColoringAttributes(getM_col()
@@ -264,6 +265,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 				la.setLineWidth((float) rcEdgeRadius);
 			
+				break;
 
 			}
 			
