@@ -5,34 +5,31 @@ import sim.engine.*;
 import sim.field.continuous.Continuous3D;
 
 import java.awt.Color;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 
 import javax.media.j3d.Appearance;
+import javax.media.j3d.BranchGroup;
 import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.GeometryArray;
 import javax.media.j3d.LineArray;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
-import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
+import com.sun.j3d.loaders.IncorrectFormatException;
+import com.sun.j3d.loaders.ParsingErrorException;
+import com.sun.j3d.loaders.Scene;
+import com.sun.j3d.loaders.objectfile.ObjectFile;
+
+import sim.portrayal3d.SimplePortrayal3D;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Settings;
-import sim3d.SimulationEnvironment;
-import sim3d.cell.Lymphocyte.Receptor;
-import sim3d.collisiondetection.Collidable;
-import sim3d.collisiondetection.CollisionGrid;
-import sim3d.diffusion.Chemokine;
-import sim3d.migration.Algorithm1;
-import sim3d.migration.MigrationAlgorithm;
-import sim3d.migration.MigratoryCell;
-import sim3d.stroma.StromaEdge;
-import sim3d.util.ODESolver;
-import sim3d.util.Vector3DHelper;
+
 
 /**
  * A B-cell agent. Performs chemotaxis/random movement based on the presence of
@@ -69,6 +66,7 @@ public class TC extends Lymphocyte{
 	
 	public TC(){
 			
+		
 		this.getM_receptorMap().put(Receptor.CCR7, new ArrayList<Integer>(3));
 		this.getM_receptorMap().get(Receptor.CCR7).add(0,Settings.BC.ODE.LR());
 		this.getM_receptorMap().get(Receptor.CCR7).add(1,Settings.BC.ODE.Rf());
@@ -77,13 +75,13 @@ public class TC extends Lymphocyte{
 		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(3));
 		this.getM_receptorMap().get(Receptor.CXCR5).add(0,0);
 		this.getM_receptorMap().get(Receptor.CXCR5).add(1,0);
-		this.getM_receptorMap().get(Receptor.CXCR5).add(2,Settings.BC.ODE.Ri());
+		this.getM_receptorMap().get(Receptor.CXCR5).add(2,0);
 		
 		this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(3));
 		this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
 		this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
 		this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
-		
+	
 	}
 
 	
@@ -100,7 +98,70 @@ public class TC extends Lymphocyte{
 		// changes in each time step.
 		// Removing the movement indicators and removing this true will make the
 		// 3d display a lot faster
+		
+		boolean highres = false;
+		
 		if (transf == null || true) {
+			if(highres ==true){
+			
+				//ObjectFile f = new ObjectFile();
+				ObjectFile f = new ObjectFile(ObjectFile.RESIZE,ObjectFile.STRIPIFY);
+				
+				
+				Scene scene = null;
+				try {
+					scene = f.load("/Users/jc1571/Desktop/lymphocyte.obj");
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IncorrectFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ParsingErrorException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			
+				
+			    Map<String, Shape3D> nameMap = scene.getNamedObjects(); 
+
+			    //for (String name : nameMap.keySet()) {
+			      //  System.out.printf("Name: %s\n", name); 
+			        
+			    //}
+			    /* Obtains a reference to a specific component in the scene */
+				Shape3D lc = nameMap.get("lymphocyte"); 
+
+				/* The graph that still contains a reference to "eyes" */
+				BranchGroup root = scene.getSceneGroup();
+				//root.removeAllChildren();
+				/* Removes "eyes" from this graph */
+				root.removeChild(lc);
+
+					
+					
+				Shape3DPortrayal3D s = new Shape3DPortrayal3D(lc,
+							lc.getAppearance());
+				s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
+				TransformGroup localTG = s.getModel(obj, null);
+				localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+					
+
+				Transform3D t3d = new Transform3D();
+				Vector3d scaleVector = new Vector3d(0.4D, 0.4D, 0.4D);
+				t3d.setScale(scaleVector);
+				/* Apply all transformations */ 
+				localTG.setTransform(t3d);
+					
+					
+
+				transf = new TransformGroup();
+				transf.addChild(localTG);
+					
+		}
+		
+		else{
+			
 			transf = new TransformGroup();
 
 			
@@ -116,12 +177,15 @@ public class TC extends Lymphocyte{
 			localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 			transf.addChild(localTG);
 
+			
 			// if we have had any collisions, draw them as red circles
 			// modelCollisions(m_d3aCollisions,obj, transf);
 
 			// If we have any movement, then draw it as white lines telling us
 			// where the cell is orientated
 			// modelMovements(m_d3aMovements,obj, transf);
+			
+			}
 		}
 		return transf;
 	}

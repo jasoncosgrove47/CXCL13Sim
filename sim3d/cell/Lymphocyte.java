@@ -64,7 +64,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
 		this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
 		this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
-	
+
 	}
 	
 	public static enum Receptor {
@@ -306,6 +306,9 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				}
 				break;
 			case STROMA:
+		
+				
+				
 				break;
 			case LYMPHOCYTE:
 				break;
@@ -712,8 +715,8 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 			if (dNewPosX > Settings.WIDTH - 1 || dNewPosX < 1) {
 				bBounce = handleBounceXaxis(dPosX, iMovementIndex);
 			}
-			// out of bounds on Y axis
-			if (dNewPosY > Settings.HEIGHT - 1 || dNewPosY < 1) {
+			// out of bounds on Y axis, CHANGE SO DOESNT GO PAST LECS
+			if (dNewPosY > Settings.HEIGHT - 2 || dNewPosY < 1) {
 				bBounce = handleBounceYaxis(dPosY, iMovementIndex);
 			}
 			// out of bounds on Z axis
@@ -787,7 +790,8 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 
 	/*
 	 * Helper method which handles collisions between a B cell and the
-	 * simulation borders along the Y-axis
+	 * simulation borders along the Y-axis. TODO THIS SHOULD ACCOUNT FOR THE 
+	 * LECS ALSO needs to be a parameter
 	 */
 	private boolean handleBounceYaxis(double dPosY, int iMovementIndex) {
 		// There might be multiple vectors now, so we need to keep track
@@ -810,13 +814,14 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 
 			// does this sub movement go out of bounds
 			if (dTempPosY + d3Movement.y < 1
-					|| dTempPosY + d3Movement.y > Settings.HEIGHT - 1) {
+					//TODO THIS WAS SET TO HEIGHT -1 NEED TO CHANGE BACK IMMEDIATELY
+					|| dTempPosY + d3Movement.y > Settings.HEIGHT - 2) {
 				// Figure out at which point it goes out
 				double dCutOff = 1;
 				if (dTempPosY + d3Movement.y < 1) {
 					dCutOff = (1 - dTempPosY) / d3Movement.y;
 				} else {
-					dCutOff = ((Settings.HEIGHT - 1) - dTempPosY)
+					dCutOff = ((Settings.HEIGHT - 2) - dTempPosY)
 							/ d3Movement.y;
 				}
 
@@ -1151,13 +1156,14 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		switch (receptor) {
 		case CXCR5: 
 			output = m_receptorMap.get(Receptor.CXCR5).get(2);
-			
+			break;
 		case CCR7:
 			output = m_receptorMap.get(Receptor.CCR7).get(2);
-			
+			break;
 		case EBI2:
 			output = m_receptorMap.get(Receptor.EBI2).get(2);
-		
+			break;
+			
 		default:
 			output = 0;
 		}	

@@ -40,7 +40,6 @@ public class StromaTest {
 	}
 
 	
-	
 	/*
 	 * Make sure that the FDC can display antigen
 	 * TODO make sure that MRCs and the rest of them

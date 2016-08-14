@@ -428,7 +428,7 @@ public class BCTest {
 			m_pParticle.step(null);
 		}
 
-		assertThat(bc.m_iL_r, not(equalTo(10000)));
+		assertThat(bc.getM_LR(Lymphocyte.Receptor.CXCR5), not(equalTo(10000)));
 
 	}
 
@@ -479,7 +479,8 @@ public class BCTest {
 		}
 
 		int totalReceptorParams = (Settings.BC.ODE.Rf + Settings.BC.ODE.Ri + Settings.BC.ODE.LR);
-		int totalReceptorSim = (bcCells[0].m_iL_r + bcCells[0].m_iR_i + bcCells[0].m_iR_free);
+		int totalReceptorSim = (bcCells[0].getM_LR(Lymphocyte.Receptor.CXCR5) + 
+				bcCells[0].getM_Ri(Lymphocyte.Receptor.CXCR5) + bcCells[0].getM_Rf(Lymphocyte.Receptor.CXCR5));
 
 		assertEquals(totalReceptorSim, totalReceptorParams);// why is this
 															// condition here?

@@ -212,8 +212,8 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		m_iHeight = iHeight;
 		m_iDepth = iDepth;
 
-		m_daDiffusionAlgorithm = new sim3d.diffusion.algorithms.Grajdeanu(
-				Settings.DIFFUSION_COEFFICIENT, iWidth, iHeight, iDepth);
+		setM_daDiffusionAlgorithm(new sim3d.diffusion.algorithms.Grajdeanu(
+				Settings.DIFFUSION_COEFFICIENT, iWidth, iHeight, iDepth));
 		// Settings.DIFFUSION_COEFFICIENT;
 
 		// setup up stepping
@@ -328,7 +328,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	 * Setter for m_daDiffusionAlgorithm
 	 */
 	public void setDiffusionAlgorithm(DiffusionAlgorithm daDiffAlg) {
-		m_daDiffusionAlgorithm = daDiffAlg;
+		setM_daDiffusionAlgorithm(daDiffAlg);
 	}
 
 	/**
@@ -350,7 +350,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 			decay();
 		}
 		*/
-
 		
 		adaptiveDiffusion();
 		updateDisplay();
@@ -382,6 +381,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	}
 
 
+
 	//slow diffusion requires an adaptive timestep
 	// as the slowest you can have is 1 diffusion step
 	// per sim step - you would therefore get errors
@@ -392,7 +392,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		
 		//adaptively step time for diffusion....
 		while (getM_diffTime() < (simTime+ 1)) {	
-			m_daDiffusionAlgorithm.diffuse(this);
+			getM_daDiffusionAlgorithm().diffuse(this);
 
 			//number of steps taken per second, if fast diffusion then the timestep is small
 			// if slow then timestep is large, we divide by 60 because the diffusion coefficient
@@ -427,6 +427,14 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 
 	public void setM_diffTime(double m_diffTime) {
 		this.m_diffTime = m_diffTime;
+	}
+
+	public DiffusionAlgorithm getM_daDiffusionAlgorithm() {
+		return m_daDiffusionAlgorithm;
+	}
+
+	public void setM_daDiffusionAlgorithm(DiffusionAlgorithm m_daDiffusionAlgorithm) {
+		this.m_daDiffusionAlgorithm = m_daDiffusionAlgorithm;
 	}
 
 }

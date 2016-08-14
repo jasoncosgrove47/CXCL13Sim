@@ -3,8 +3,19 @@ package sim3d.stroma;
 
 
 import java.awt.Color;
+import java.io.FileNotFoundException;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
+import javax.media.j3d.BranchGroup;
+import javax.media.j3d.Shape3D;
+import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
+
+import com.sun.j3d.loaders.IncorrectFormatException;
+import com.sun.j3d.loaders.ParsingErrorException;
+import com.sun.j3d.loaders.Scene;
+import com.sun.j3d.loaders.objectfile.ObjectFile;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -18,10 +29,22 @@ import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
 
-
+/**
+ * TO do cell profiler analysis of raw image files then neural network classification
+ * can then read the files in directly as an adjacency matrix and need to figure out
+ * how to do a voxel-based reconstruction....
+ * @author jc1571
+ *
+ */
 public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 
+	
+	double FDCsecretionRate_CXCL13 = Settings.FDC.CXCL13_EMITTED();
+	double FRCsecretionRate_CCL19  = Settings.FDC.CXCL13_EMITTED() / 2;
+	double MRCsecretionRate_CXCL13 = Settings.FDC.CXCL13_EMITTED() / 2;
+	double MRCsecretionRate_EBI2L  = Settings.FDC.CXCL13_EMITTED() / 2;
+	
 	private Color m_col;
 	private TYPE stromatype;
 	
@@ -49,7 +72,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			break;
 			
 		case MRC:
-			//m_CXCL13 = true;	
+			m_CXCL13 = true;	
 			m_EBI2L  = true;	
 			break;
 			
@@ -78,6 +101,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	
 	@Override
 	public CLASS getCollisionClass() {
+		
 		return CLASS.STROMA;
 	}
 
@@ -127,6 +151,8 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		case MRC:
 			
 				if (transf == null) {
+					
+
 					transf = new TransformGroup();
 
 					SpherePortrayal3D s = new SpherePortrayal3D(
@@ -137,13 +163,16 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 					localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 					transf.addChild(localTG);
+				
 				}
 		
 			break;
 			
 		case LEC:
 			
+			
 			if (transf == null) {
+			
 				transf = new TransformGroup();
 
 				//TODO this needs to be a rectangle shape and not a sphere!!
@@ -187,17 +216,25 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	public void step(final SimState state) {
 
 		if(m_CXCL13){
-			Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
-					Settings.FDC.CXCL13_EMITTED());
+			
+			if(this.stromatype == Stroma.TYPE.FDC){
+				Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
+						FDCsecretionRate_CXCL13);
+			}
+			else{
+				Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
+						MRCsecretionRate_CXCL13);
+			}
+
 		}
 
 		if(m_CCL19){
 			Chemokine.add(Chemokine.TYPE.CCL19, (int) x, (int) y, (int) z,
-					Settings.FDC.CXCL13_EMITTED());
+					FRCsecretionRate_CCL19);
 		}
 		if(m_EBI2L){
 			Chemokine.add(Chemokine.TYPE.EBI2L, (int) x, (int) y, (int) z,
-					Settings.FDC.CXCL13_EMITTED());
+					MRCsecretionRate_EBI2L);
 		}
 
 	}

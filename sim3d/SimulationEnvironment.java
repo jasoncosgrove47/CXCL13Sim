@@ -190,7 +190,13 @@ public class SimulationEnvironment extends SimState {
 		initialiseStromalCell(cgGrid, Stroma.TYPE.FRC);
 		initialiseStromalCell(cgGrid, Stroma.TYPE.MRC);
 		seedSCS(cgGrid);
+		
+	
 
+
+
+		
+		
 		// BCs will need to update their collision profile each
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
@@ -260,6 +266,7 @@ public class SimulationEnvironment extends SimState {
 			count = Settings.BC.COGNATECOUNT;
 		} else if (celltype == CELLTYPE.T) {
 			count = Settings.BC.COGNATECOUNT;
+		
 		}
 
 		// seed the cells
@@ -284,7 +291,8 @@ public class SimulationEnvironment extends SimState {
 
 			case T:
 				TC tc = new TC();
-				tc.setObjectLocation(generateCoordinateOutsideCircle());
+				//tc.setObjectLocation(generateCoordinateOutsideCircle());
+				tc.setObjectLocation(generateCoordinateWithinCircle());
 				scheduleStoppableCell(tc);
 				break;
 

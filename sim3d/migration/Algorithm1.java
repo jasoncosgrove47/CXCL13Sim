@@ -37,27 +37,41 @@ public class Algorithm1 implements MigrationAlgorithm{
 	public void performMigration(Lymphocyte lymphocyte) {
 		
 		
-		Chemokine.TYPE chemokine = Chemokine.TYPE.CXCL13;
 		
 		if(lymphocyte instanceof TC){
 
-			chemokine = Chemokine.TYPE.CCL19;
-		}
-		
-		
-		lymphocyte.setCollisionCounter(0); // reset the collision counter for this timestep
-		lymphocyte.getM_i3lCollisionPoints().clear();
+			Chemokine.TYPE chemokine = Chemokine.TYPE.CCL19;
+			lymphocyte.setCollisionCounter(0); // reset the collision counter for this timestep
+			lymphocyte.getM_i3lCollisionPoints().clear();
 
-		// if we have a stored move then execute it
-		if (lymphocyte.getM_d3aMovements() != null && lymphocyte.getM_d3aMovements().size() > 0) {
-			performSavedMovements(lymphocyte);
-		}
+			// if we have a stored move then execute it
+			if (lymphocyte.getM_d3aMovements() != null && lymphocyte.getM_d3aMovements().size() > 0) {
+				performSavedMovements(lymphocyte);
+			}
 
-		calculateWhereToMoveNext(lymphocyte, chemokine);
-		lymphocyte.handleBounce(); // Check for bounces
-		receptorStep(lymphocyte, chemokine);
-		lymphocyte.registerCollisions(lymphocyte.m_cgGrid); // Register the new movement with the grid
-		
+			calculateWhereToMoveNext(lymphocyte, chemokine);
+			lymphocyte.handleBounce(); // Check for bounces
+			receptorStep(lymphocyte, chemokine);
+			lymphocyte.registerCollisions(lymphocyte.m_cgGrid); // Register the new movement with the grid
+			
+		}
+		else{
+			Chemokine.TYPE chemokine1 = Chemokine.TYPE.CXCL13;
+			Chemokine.TYPE chemokine2 = Chemokine.TYPE.EBI2L;
+			lymphocyte.setCollisionCounter(0); // reset the collision counter for this timestep
+			lymphocyte.getM_i3lCollisionPoints().clear();
+
+			// if we have a stored move then execute it
+			if (lymphocyte.getM_d3aMovements() != null && lymphocyte.getM_d3aMovements().size() > 0) {
+				performSavedMovements(lymphocyte);
+			}
+
+			calculateWhereToMoveNext(lymphocyte, chemokine1,chemokine2);
+			lymphocyte.handleBounce(); // Check for bounces
+			receptorStep(lymphocyte, chemokine1);
+			receptorStep(lymphocyte, chemokine2);
+			lymphocyte.registerCollisions(lymphocyte.m_cgGrid); // Register the new movement with the grid
+		}
 	}
 	
 	
@@ -153,8 +167,6 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * Once all these calculations have been performed the
 	 * cell updates its movements array (M_d3aMovements) so the movements
 	 * can be performed at the next timestep
-	 * 
-	 * 
 	 */
 	public void calculateWhereToMoveNext(Lymphocyte lymphocyte,Chemokine.TYPE chemokine) {
 		Double3D vMovement = getMoveDirection(lymphocyte, chemokine);
@@ -165,8 +177,6 @@ public class Algorithm1 implements MigrationAlgorithm{
 		
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
-				
-				
 				
 				//if there's sufficient directional bias
 				//can affect cell polarity
@@ -191,17 +201,122 @@ public class Algorithm1 implements MigrationAlgorithm{
 					.getRandomDirectionInCone(vMovement.normalize(),
 							Settings.BC.DIRECTION_ERROR());
 
-	
+				//normalise the vector
+				if (vMovement.lengthSq() > 0) {
+					vMovement = vMovement.normalize();
+				}
+			}
+			else {
+				vMovement = null;
+			}
+		}
+		// we detect no chemokine, or at least difference in chemokine, TODO if no difference in 
+		// chemokine you still speed up! needs thinking
+		else {
+			vMovement = null;
+		}
 
+		if (vMovement == null || vMovement.lengthSq() == 0) {
+			// no data! so do a random turn
+			
+			//TODO from what i remember this was between 0.5-2
+			//was just used to set speed so need to redefine this function...
+			//speaking of which this should be in the model documentation
+			persistence = Settings.BC.RANDOM_POLARITY;
+			
+			//this was the old bit of code to do it
+			//vMovement = Vector3DHelper.getRandomDirectionInCone(bc.getM_d3Face(),
+			//		Settings.BC.RANDOM_TURN_ANGLE());
+			
+			//lets try the new way
+			Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(lymphocyte.getM_d3Face(),
+					Settings.BC.MAX_TURN_ANGLE());
+			
+			newdirection = newdirection.multiply(persistence);
+			
+			//update the direction that the cell is facing
+			vMovement = lymphocyte.getM_d3Face().add(newdirection);
+			
+			//TODO review this code, we may not need it...
+			//now add noise to this
+			//vMovement = Vector3DHelper
+			//		.getRandomDirectionInCone(vMovement.normalize(),
+			//				Settings.BC.DIRECTION_ERROR());
+			//normalise the vector
+			if (vMovement.lengthSq() > 0) {
+				vMovement = vMovement.normalize();
+			}	
+		}
+		//update the migration data
+		updateMigrationData(lymphocyte, vMovement,vectorMagnitude, persistence);
+	}
+	
+	
+	
+	/**
+	 * 
+	 * TODO this will need to be updated substantially
+	 * 
+	 * calculate where to move for the next timestep.
+	 * The algorithm determines the chemotactic vector
+	 * of the cell using the approach developed by
+	 * Lin et al. If the magnitude of the vector
+	 * (which represents the difference in number of 
+	 * signalling receptors exceeds the signal threshold
+	 * the cell will move chemotactically with respect to
+	 * a persistence vector representing the direction of the
+	 * cell from the previous timestep.
+	 * 
+	 * If the magnitude does not exceed the vector then it undergoes
+	 * a random walk with respect to a persistence vector, which is
+	 * not as strong as when the cell undergoes chemotaxis due to more
+	 * localised actin localisation.
+	 * 
+	 * Once all these calculations have been performed the
+	 * cell updates its movements array (M_d3aMovements) so the movements
+	 * can be performed at the next timestep
+	 * 
+	 * 
+	 */
+	public void calculateWhereToMoveNext(Lymphocyte lymphocyte,Chemokine.TYPE chemokine1,Chemokine.TYPE chemokine2 ) {
+		Double3D vMovement = getMoveDirection(lymphocyte, chemokine1,chemokine2);
+		double vectorMagnitude = vMovement.lengthSq();
+		
+		//let's fix persistence to 0.5
+		double persistence = 0;
+		
+		if (vMovement.lengthSq() > 0) {
+			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
+				
+				//if there's sufficient directional bias
+				//can affect cell polarity
+				persistence = Settings.BC.POLARITY;
+				
+				// Add some noise to the signal
+				Double3D newdirection = Vector3DHelper
+						.getRandomDirectionInCone(vMovement.normalize(),
+								Math.toRadians(2));
+					
+				//  scale the new vector with respect to the old vector,
+				// values less than 1 favour the old vector, values greater than 1 favour the new vector
+				// this is constrained between 0 and 2
+				newdirection = newdirection.multiply(persistence);
+				
+				//update the direction that the cell is facing
+				vMovement = lymphocyte.getM_d3Face().add(newdirection);
+				
+				//remember that this is half of the amount of noise that you actually want!
+				//TODO - a try catch that the input is less than 90 degrees!! error handling
+				vMovement = Vector3DHelper
+					.getRandomDirectionInCone(vMovement.normalize(),
+							Settings.BC.DIRECTION_ERROR());
 
 				//normalise the vector
 				if (vMovement.lengthSq() > 0) {
 					vMovement = vMovement.normalize();
 				}
 			}
-
 			else {
-
 				vMovement = null;
 			}
 		}
@@ -215,28 +330,20 @@ public class Algorithm1 implements MigrationAlgorithm{
 		if (vMovement == null || vMovement.lengthSq() == 0) {
 			// no data! so do a random turn
 			
-			
 			//TODO from what i remember this was between 0.5-2
 			//was just used to set speed so need to redefine this function...
 			//speaking of which this should be in the model documentation
 			persistence = Settings.BC.RANDOM_POLARITY;
 			
-			
 			//this was the old bit of code to do it
 			//vMovement = Vector3DHelper.getRandomDirectionInCone(bc.getM_d3Face(),
 			//		Settings.BC.RANDOM_TURN_ANGLE());
-			
-			
-
 			
 			//lets try the new way
 			Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(lymphocyte.getM_d3Face(),
 					Settings.BC.MAX_TURN_ANGLE());
 			
-		
 			newdirection = newdirection.multiply(persistence);
-			
-			
 			
 			//update the direction that the cell is facing
 			vMovement = lymphocyte.getM_d3Face().add(newdirection);
@@ -246,26 +353,21 @@ public class Algorithm1 implements MigrationAlgorithm{
 			//vMovement = Vector3DHelper
 			//		.getRandomDirectionInCone(vMovement.normalize(),
 			//				Settings.BC.DIRECTION_ERROR());
-			
-
+		
 			//normalise the vector
 			if (vMovement.lengthSq() > 0) {
 				vMovement = vMovement.normalize();
-			}
-			
-			
+			}	
 		}
 		//update the migration data
 		updateMigrationData(lymphocyte, vMovement,vectorMagnitude, persistence);
 	}
-	
 	
 	public void updateMigrationData(Lymphocyte  bc, Double3D vMovement, double vectorMagnitude, double persistence){
 		
 		// Reset all the movement/collision data
 		bc.getM_d3aCollisions().clear();
 		bc.setM_d3aMovements(new ArrayList<Double3D>());
-
 
 		// We make speed a function of cell polarity
 		// speed scalar will be zero if persistence 
@@ -308,7 +410,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 */
 	void receptorStep(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
-		Integer[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte,chemokine);
+		double[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte,chemokine);
 
 		
 		Lymphocyte.Receptor receptor = null;
@@ -329,11 +431,11 @@ public class Algorithm1 implements MigrationAlgorithm{
 	
 		}
 		
-		
 		// update the amount of free and bound receptors
 		for (int i = 0; i < 6; i++) {
-			lymphocyte.setM_Rf(receptor,lymphocyte.getM_Rf(receptor) - iaBoundReceptors[i] );
-			lymphocyte.setM_LR(receptor,lymphocyte.getM_LR(receptor) + iaBoundReceptors[i] );
+			
+			lymphocyte.setM_Rf(receptor,lymphocyte.getM_Rf(receptor) - (int) iaBoundReceptors[i] );
+			lymphocyte.setM_LR(receptor,lymphocyte.getM_LR(receptor) + (int)iaBoundReceptors[i] );
 			
 		}
 
@@ -344,6 +446,8 @@ public class Algorithm1 implements MigrationAlgorithm{
 						// scale them
 
 		double Ki = Settings.BC.ODE.K_i();// Ka is already in seconds
+	
+		
 		double Kr = Settings.BC.ODE.K_r();
 		double Koff = Settings.BC.ODE.Koff;
 		/**
@@ -353,9 +457,10 @@ public class Algorithm1 implements MigrationAlgorithm{
 		for (int i = 0; i < iTimesteps; i++) {
 
 			iR_i = lymphocyte.getM_Ri(receptor);
-			iL_r = lymphocyte.getM_LR(receptor);
+			//System.out.println("iR_i: " + iR_i);
 			
-
+			iL_r = lymphocyte.getM_LR(receptor);
+			//System.out.println("iL_r: " + iL_r);
 			// receptors internalised from surface
 			double LRK1 = h * (Ki * iL_r);
 			double LRK2 = h * ((Ki * iL_r) + LRK1 / 2);
@@ -370,39 +475,56 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 			// ligand dissociation from receptor
 			// receptors that are recycled from internal pool
-
-			
-
-			
 			double RdisK1 = h * (Koff * iL_r);
 			double RdisK2 = h * ((Koff * iL_r) + RdisK1 / 2);
 			double RdisK3 = h * ((Koff * iL_r) + RdisK2 / 2);
 			double RdisK4 = h * ((Koff * iL_r) + RdisK3);
 
 			
-			lymphocyte.setM_Rf(receptor, lymphocyte.getM_Rf(receptor) + (int) ((RfK1 / 6) 
-							+ (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6)) + (int) ((RdisK1 / 6) 
-							+ (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6)));
+		
+			//System.out.println("Rf: " + lymphocyte.getM_Rf(receptor));
+			//System.out.println("LR: " + lymphocyte.getM_LR(receptor));
+			//System.out.println("Ri: " + lymphocyte.getM_Ri(receptor));
 			
 			
-			lymphocyte.setM_Ri(receptor, lymphocyte.getM_Ri(receptor) + (int) ((LRK1 / 6) 
-							+ (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6)) - (int) ((RfK1 / 6) 
-							+ (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6)));
+			int d_rf = lymphocyte.getM_Rf(receptor);
+			int d_ri = lymphocyte.getM_Ri(receptor);
+			//System.out.println("d_ri: " + d_ri);
+			
+			int d_lr = lymphocyte.getM_LR(receptor);
 			
 			
-			lymphocyte.setM_LR(receptor, lymphocyte.getM_Ri(receptor) - (int) ((LRK1 / 6) 
-							+ (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6)) + (int) ((RdisK1 / 6) 
-							+ (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6)));
+			d_rf += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
+					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
+			
+			d_ri += (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
+					- (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
+			
+			d_lr -= (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
+					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
+			
+			
+			
+			lymphocyte.setM_Rf(receptor, d_rf);
+			lymphocyte.setM_Ri(receptor, d_ri);
+			lymphocyte.setM_LR(receptor, d_lr);
+			
 			
 			/*
 			lymphocyte.m_iR_free += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
 					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
+					
+					
 			lymphocyte.m_iR_i += (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
 					- (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
+					
 			lymphocyte.m_iL_r -= (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
 					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
 			*/																		
 
+	
+					
+			
 		}
 
 	}
@@ -413,7 +535,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 		double y = lymphocyte.y;
 		double z = lymphocyte.z;
 		
-		Integer[] iaBoundReceptors = calculateLigandBindingMoles(lymphocyte, chemokine);
+		double[] iaBoundReceptors = calculateLigandBindingMoles(lymphocyte, chemokine);
 
 		// avogadors number - number of molecules in 1 mole
 		double avogadro = 6.0221409e+23;
@@ -448,7 +570,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	Double3D getMoveDirection(Lymphocyte lymphocyte,Chemokine.TYPE chemokine) {
 
 
-		Integer[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte, chemokine);
+		double[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte, chemokine);
 
 		// the new direction for the cell to move
 		Double3D vMovement = new Double3D();
@@ -475,17 +597,14 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * direction.
 	 * 
 	 * @return The new direction for the cell to move
-	 * 
-	 * TODO algorithm 1 should be for one chemokine, algorithm 2 inherits from that and the getMoveDirection
-	 * simply gets overrided. but not sure you can ovverride if there are different inputs so maybe just have two methodsin each
 	 */
-	Double3D[] getMoveDirection(Lymphocyte lymphocyte,Chemokine.TYPE chemokine1,Chemokine.TYPE chemokine2) {
+	Double3D getMoveDirection(Lymphocyte lymphocyte,Chemokine.TYPE chemokine1,Chemokine.TYPE chemokine2) {
 
 
 		Double3D[] output = new Double3D[2];
 		
-		Integer[] iaBoundReceptors1 = calculateLigandBindingMolar(lymphocyte, chemokine1);
-		Integer[] iaBoundReceptors2 = calculateLigandBindingMolar(lymphocyte, chemokine2);
+		double[] iaBoundReceptors1 = calculateLigandBindingMolar(lymphocyte, chemokine1);
+		double[] iaBoundReceptors2 = calculateLigandBindingMolar(lymphocyte, chemokine2);
 
 		// the new direction for the cell to move
 		Double3D vMovement1 = new Double3D();
@@ -515,10 +634,12 @@ public class Algorithm1 implements MigrationAlgorithm{
 				.multiply(iaBoundReceptors2[4] - iaBoundReceptors2[5]));
 		
 
-		output[1]= vMovement1;
-		output[2] = vMovement2;
 		
-		return output;
+		vMovement1 = vMovement1.add(vMovement2);
+		
+
+		
+		return vMovement1;
 	}
 	
 	
@@ -527,7 +648,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * receptor. Need this because parameter Ka is moles/litre/sec 
 	 * @return an int array with the number of bound receptors at each psuedopod
 	 */
-	public Integer[] calculateLigandBindingMolar(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
+	public double[] calculateLigandBindingMolar(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
 
 		Lymphocyte.Receptor receptor = null;
 		
@@ -570,7 +691,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		// store how many receptors are bound at each
 		// of the 6 pseudopods
-		Integer[] iaBoundReceptors = new Integer[6];
+		double[] iaBoundReceptors = new double[6];
 
 		for (int i = 0; i < 6; i++) // for each pseudopod
 		{
@@ -622,7 +743,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * @return
 	 */
-	public Integer[] calculateLigandBindingMoles(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
+	public double[] calculateLigandBindingMoles(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
 
 		// need to figure out what is sensible to secrete per timestep, might as
 		// well do that in moles. Get the surrounding values for moles
@@ -642,10 +763,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 			break;
 		default:
 			break;
-	
 		}
-		
-		
 
 		double[][][] ia3Concs = Chemokine.get(chemokine, (int) lymphocyte.x,
 				(int) lymphocyte.y, (int) lymphocyte.z);
@@ -664,7 +782,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		// store how many receptors are bound at each
 		// of the 6 pseudopods
-		Integer[] iaBoundReceptors = new Integer[6];
+		double[] iaBoundReceptors = new double[6];
 
 		for (int i = 0; i < 6; i++) // for each pseudopod
 		{
