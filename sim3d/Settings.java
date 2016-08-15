@@ -534,11 +534,83 @@ public class Settings {
 	
 	public static class FRC{
 		
+		
+	
+		public static void loadParameters(Document params) {
+			// Simulation Tag
+
+			Element paramFRCElement = (Element) params.getElementsByTagName(
+					"FRC").item(0);
+
+			NodeList ccl19NL = paramFRCElement
+					.getElementsByTagName("CCL19_EMITTED");
+			Node ccl19N = ccl19NL.item(0);
+			emissionrate = Double.parseDouble(ccl19N.getTextContent());
+
+			CCL19_EMITTED = FDC.scaleEmissionRate(emissionrate);
+		}
+		
 		public static Color DRAW_COLOR() {
 			return new Color(255, 212, 212);
 		}
 
 		
+		public static double CCL19_EMITTED() {
+			return CCL19_EMITTED;
+		}
+		
+		private static double emissionrate;
+
+		public static double CCL19_EMITTED;
+		
+	}
+	
+	public static class MRC{
+		
+		
+		public static void loadParameters(Document params) {
+			// Simulation Tag
+
+			Element paramMRCElement = (Element) params.getElementsByTagName(
+					"MRC").item(0);
+
+			NodeList ebi2lNL = paramMRCElement
+					.getElementsByTagName("EBI2L_EMITTED");
+			Node ebi2lN = ebi2lNL.item(0);
+			emissionrate_ebi2l = Double.parseDouble(ebi2lN.getTextContent());
+
+			EBI2L_EMITTED = FDC.scaleEmissionRate(emissionrate_ebi2l);
+			
+			
+			NodeList cxcl13NL = paramMRCElement
+					.getElementsByTagName("CXCL13_EMITTED");
+			Node cxcl13N = cxcl13NL.item(0);
+			emissionrate_cxcl13 = Double.parseDouble(cxcl13N.getTextContent());
+
+			CXCL13_EMITTED = FDC.scaleEmissionRate(emissionrate_cxcl13);
+			
+			
+		}
+		
+		public static Color DRAW_COLOR() {
+			return new Color(255, 212, 212);
+		}
+
+		private static double emissionrate_ebi2l;
+		
+		private static double emissionrate_cxcl13;
+
+		public static double EBI2L_EMITTED;
+		public static double CXCL13_EMITTED;
+		
+		
+		public static double CXCL13_EMITTED() {
+			return CXCL13_EMITTED;
+		}
+		
+		public static double EBI2L_EMITTED() {
+			return EBI2L_EMITTED;
+		}
 	}
 	
 	
@@ -546,19 +618,154 @@ public class Settings {
 
 		public static void loadParameters(Document params) {
 			// Simulation Tag
+			
 			Element paramCXCL13Element = (Element) params.getElementsByTagName(
 					"CXCL13").item(0);
+			
+			NodeList diffusionNL = paramCXCL13Element
+					.getElementsByTagName("DIFFUSION_COEFFICIENT");
+			Node diffusionN = diffusionNL.item(0);
+			DIFFUSION_COEFFICIENT_PREFIX = Double.parseDouble(diffusionN
+					.getTextContent());
+
+			// this must be computed here otherwise these values get set to zero
+			DIFFUSION_COEFFICIENT = scaleDIFFUSION_COEFFICIENT();
+			DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
+			DIFFUSION_STEPS = calculateDIFFUSION_STEPS();
+
 
 			NodeList stromaedgeNL = paramCXCL13Element
 					.getElementsByTagName("DECAY_CONSTANT");
 			Node stromaedgeN = stromaedgeNL.item(0);
 			DECAY_CONSTANT = Double.parseDouble(stromaedgeN.getTextContent());
+			
+			
 		}
 
 		/**
 		 * the rate of protein decay per timestep
 		 */
 		public static double DECAY_CONSTANT;
+		
+		
+		/**
+		 * Speed of diffusion, used by DiffusionAlgorithm need to specify the units
+		 * so we know what we are dealing with
+		 */
+		public static double DIFFUSION_COEFFICIENT;
+		public static double DIFFUSION_COEFFICIENT_PREFIX;
+		
+		/**
+		 * How much time a single iteration of the diffusion process will take us
+		 * forward
+		 * 
+		 * @see http
+		 *      ://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
+		 *      /Notes_Diffusion.pdf
+		 */
+		public static double DIFFUSION_TIMESTEP;
+		public static int DIFFUSION_STEPS;
 	}
+	
+	public static class CCL19 {
+
+		public static void loadParameters(Document params) {
+			// Simulation Tag
+			Element paramCCL19Element = (Element) params.getElementsByTagName(
+					"CCL19").item(0);
+
+			NodeList ccl19NL = paramCCL19Element
+					.getElementsByTagName("DECAY_CONSTANT");
+			Node ccl19N = ccl19NL.item(0);
+			DECAY_CONSTANT = Double.parseDouble(ccl19N.getTextContent());
+			
+			NodeList diffusionNL = paramCCL19Element
+					.getElementsByTagName("DIFFUSION_COEFFICIENT");
+			Node diffusionN = diffusionNL.item(0);
+			DIFFUSION_COEFFICIENT_PREFIX = Double.parseDouble(diffusionN
+					.getTextContent());
+
+			// this must be computed here otherwise these values get set to zero
+			DIFFUSION_COEFFICIENT = scaleDIFFUSION_COEFFICIENT();
+			DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
+			DIFFUSION_STEPS = calculateDIFFUSION_STEPS();
+		}
+
+		/**
+		 * the rate of protein decay per timestep
+		 */
+		public static double DECAY_CONSTANT;
+		
+		
+		/**
+		 * Speed of diffusion, used by DiffusionAlgorithm need to specify the units
+		 * so we know what we are dealing with
+		 */
+		public static double DIFFUSION_COEFFICIENT;
+		public static double DIFFUSION_COEFFICIENT_PREFIX;
+		
+		/**
+		 * How much time a single iteration of the diffusion process will take us
+		 * forward
+		 * 
+		 * @see http
+		 *      ://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
+		 *      /Notes_Diffusion.pdf
+		 */
+		public static double DIFFUSION_TIMESTEP;
+		public static int DIFFUSION_STEPS;
+	}
+	
+	public static class EBI2L {
+
+		public static void loadParameters(Document params) {
+			// Simulation Tag
+			Element paramEBI2LElement = (Element) params.getElementsByTagName(
+					"EBI2L").item(0);
+
+			NodeList stromaedgeNL = paramEBI2LElement
+					.getElementsByTagName("DECAY_CONSTANT");
+			Node stromaedgeN = stromaedgeNL.item(0);
+			DECAY_CONSTANT = Double.parseDouble(stromaedgeN.getTextContent());
+			
+			NodeList diffusionNL = paramEBI2LElement
+					.getElementsByTagName("DIFFUSION_COEFFICIENT");
+			Node diffusionN = diffusionNL.item(0);
+			DIFFUSION_COEFFICIENT_PREFIX = Double.parseDouble(diffusionN
+					.getTextContent());
+
+			// this must be computed here otherwise these values get set to zero
+			DIFFUSION_COEFFICIENT = scaleDIFFUSION_COEFFICIENT();
+			DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
+			DIFFUSION_STEPS = calculateDIFFUSION_STEPS();
+			
+		}
+
+		
+		/**
+		 * Speed of diffusion, used by DiffusionAlgorithm need to specify the units
+		 * so we know what we are dealing with
+		 */
+		public static double DIFFUSION_COEFFICIENT;
+		public static double DIFFUSION_COEFFICIENT_PREFIX;
+		
+		/**
+		 * the rate of protein decay per timestep
+		 */
+		public static double DECAY_CONSTANT;
+		
+		/**
+		 * How much time a single iteration of the diffusion process will take us
+		 * forward
+		 * 
+		 * @see http
+		 *      ://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
+		 *      /Notes_Diffusion.pdf
+		 */
+		public static double DIFFUSION_TIMESTEP;
+		public static int DIFFUSION_STEPS;
+	}
+	
+	
 
 }

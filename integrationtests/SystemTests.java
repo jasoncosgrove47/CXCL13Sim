@@ -30,18 +30,25 @@ public class SystemTests {
 	@Test
 	public void testShouldAcquireAntigen() {
 		// set up the simulation
+		
+		
+		
 		long steps = 0;
 		long seed = System.currentTimeMillis();
 		SimulationEnvironment sim = new SimulationEnvironment(
 				seed,
-				IO.openXMLFile("/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml"));
+				IO.openXMLFile("/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml"));
 
 		// set the appropriate parameters
+		BC.setMultipleChemokines(false);
+		
+		
 		Settings.BC.COUNT = 0;
 		Settings.BC.COGNATECOUNT = 100;
 		SimulationEnvironment.steadyStateReached = true;
 		Settings.EXPERIMENTLENGTH = 400;
 		sim.start();
+		
 
 		// run the simulation for 400 steps
 		do {

@@ -69,29 +69,15 @@ public class GUIrun extends GUIState {
 	public java.awt.Color lightred = new Color(255, 212, 212, 25);
 
 	/**
-	 * Color map which is used to visualise CXCL13 concentration concentration
+	 * Color map which is used to visualise chemokine concentration concentration
 	 * Best to keep range witin one order of magnitude
 	 */
 	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
 			lightred, red);
-	
-	
-	/**
-	 * Color map which is used to visualise CXCL13 concentration concentration
-	 * Best to keep range witin one order of magnitude
-	 */
 	public SimpleColorMap CCL19ColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
 			blueLow, blue1);
-	
-
-	
-	/**
-	 * Color map which is used to visualise CXCL13 concentration concentration
-	 * Best to keep range witin one order of magnitude
-	 */
 	public SimpleColorMap EBI2LColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
 			blueLow, blue2);
-	
 	
 	/**
 	 * The main display
@@ -125,16 +111,10 @@ public class GUIrun extends GUIState {
 	
 	
 	/**
-	 * Portrayal for FRCs
-	 */
-	ContinuousPortrayal3D frcPortrayal = new ContinuousPortrayal3D();
-
-	/**
 	 * a 2D portrayal that will show a plane of the particles
 	 */
 	public FastHexaValueGridPortrayal2D CXCL13PortrayalFast = new FastHexaValueGridPortrayal2D();
 
-	
 	/**
 	 * a 2D portrayal that will show a plane of the particles
 	 */
@@ -164,7 +144,6 @@ public class GUIrun extends GUIState {
 
 	/**
 	 * Constructor
-	 * 
 	 * @param state
 	 *            a previously saved state to load
 	 */
@@ -209,7 +188,6 @@ public class GUIrun extends GUIState {
 
 		// Add the portrayals to the display
 		display3D.attach(fdcPortrayal, "FDC");
-		display3D.attach(frcPortrayal, "FRC");
 		display3D.attach(bcPortrayal, "BC");
 
 		ChemokineDisplay = new Display2D(600, 600, this);

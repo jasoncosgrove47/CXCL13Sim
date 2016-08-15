@@ -38,12 +38,13 @@ import sim3d.diffusion.Chemokine;
  */
 public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
-
 	
 	double FDCsecretionRate_CXCL13 = Settings.FDC.CXCL13_EMITTED();
-	double FRCsecretionRate_CCL19  = Settings.FDC.CXCL13_EMITTED() / 2;
-	double MRCsecretionRate_CXCL13 = Settings.FDC.CXCL13_EMITTED() / 2;
-	double MRCsecretionRate_EBI2L  = Settings.FDC.CXCL13_EMITTED() / 2;
+	double FRCsecretionRate_CCL19  = Settings.FRC.CCL19_EMITTED() / 2;
+	double MRCsecretionRate_CXCL13 = Settings.MRC.CXCL13_EMITTED() / 2;
+	double MRCsecretionRate_EBI2L  = Settings.MRC.EBI2L_EMITTED() / 2;
+	
+
 	
 	private Color m_col;
 	private TYPE stromatype;
@@ -225,7 +226,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
 						MRCsecretionRate_CXCL13);
 			}
-
 		}
 
 		if(m_CCL19){

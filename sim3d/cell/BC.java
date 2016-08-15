@@ -28,6 +28,7 @@ import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
 import sim3d.migration.Algorithm1;
+import sim3d.migration.Algorithm2;
 import sim3d.migration.MigrationAlgorithm;
 import sim3d.migration.MigratoryCell;
 import sim3d.stroma.StromaEdge;
@@ -46,6 +47,15 @@ import sim3d.util.Vector3DHelper;
 public class BC extends Lymphocyte{
 	
 
+	
+	private static boolean multipleChemokines = true;
+	
+	/*
+	 * This is the algorithm which controls BC migration
+	 */
+	private Algorithm2 a2 = new Algorithm2();
+	private Algorithm1 a1 = new Algorithm1();
+	
 	/**
 	 * Controls what a B cell agent does for each time step Each Bcell registers
 	 * its intended path on the collision grid, once all B cells register the
@@ -55,12 +65,18 @@ public class BC extends Lymphocyte{
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
-		super.step(state);	
-		
-		//System.out.println("BC CCR7: " + this.getM_Rf(Receptor.CCR7));
-		//System.out.println("BC CXCR5: " + this.getM_Rf(Receptor.CXCR5));
-		//System.out.println("BC EBI2: " + this.getM_Rf(Receptor.EBI2));
+		if(isMultipleChemokines()){migrate(a2);}
+		else{
+			migrate(a1);
+		}
+	}
 
+	public static boolean isMultipleChemokines() {
+		return multipleChemokines;
+	}
+
+	public static void setMultipleChemokines(boolean multipleChemokines) {
+		BC.multipleChemokines = multipleChemokines;
 	}
 
 	

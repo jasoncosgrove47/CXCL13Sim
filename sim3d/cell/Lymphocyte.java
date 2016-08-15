@@ -30,12 +30,15 @@ import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 import sim3d.diffusion.Chemokine.TYPE;
 import sim3d.migration.Algorithm1;
+import sim3d.migration.Algorithm2;
 import sim3d.migration.MigrationAlgorithm;
 import sim3d.migration.MigratoryCell;
 import sim3d.stroma.StromaEdge;
 import sim3d.util.Vector3DHelper;
 
 public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Collidable, MigratoryCell {
+	
+	public int numOfReceptors = 1;
 	
 	/**
 	 * The drawing environment that houses this cell; used by
@@ -64,7 +67,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
 		this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
 		this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
-
 	}
 	
 	public static enum Receptor {
@@ -135,7 +137,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 * Determines the position of a BC on a stromal edge
 	 */
 	private Algorithm1 a1 = new Algorithm1();
-
+	
 	/*
 	 * Determines how many collisions a BC has had this timestep necessary to
 	 * prevent infinite collisions

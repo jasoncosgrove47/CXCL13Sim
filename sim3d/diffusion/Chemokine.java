@@ -212,9 +212,24 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		m_iHeight = iHeight;
 		m_iDepth = iDepth;
 
+		double diffusionconstant = 0;
+		
+		if(pType == Chemokine.TYPE.CXCL13){
+			diffusionconstant = Settings.CXCL13.DIFFUSION_COEFFICIENT;
+		}
+		else if(pType == Chemokine.TYPE.CCL19){
+			diffusionconstant = Settings.CCL19.DIFFUSION_COEFFICIENT;
+		}
+		else if(pType == Chemokine.TYPE.EBI2L){
+			diffusionconstant = Settings.EBI2L.DIFFUSION_COEFFICIENT;
+		}
+
+		
+		//setM_daDiffusionAlgorithm(new sim3d.diffusion.algorithms.Grajdeanu(
+		//		Settings.DIFFUSION_COEFFICIENT, iWidth, iHeight, iDepth));
+		
 		setM_daDiffusionAlgorithm(new sim3d.diffusion.algorithms.Grajdeanu(
-				Settings.DIFFUSION_COEFFICIENT, iWidth, iHeight, iDepth));
-		// Settings.DIFFUSION_COEFFICIENT;
+				diffusionconstant, iWidth, iHeight, iDepth));
 
 		// setup up stepping
 		ms_pParticles[ms_emTypeMap.get(pType)] = this;
@@ -324,6 +339,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 				* factor);
 	}
 
+	
 	/**
 	 * Setter for m_daDiffusionAlgorithm
 	 */

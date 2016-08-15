@@ -36,12 +36,12 @@ public class BCIntegrationTests {
 	private Chemokine m_pParticle; // an instance of particle moles
 	public static Document parameters; // parameter file in .xml format
 
-	
+
 	/**
 	 * Load simulation parameters
 	 */
 	private static void loadParameters() {
-		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
 		Settings.BC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
@@ -87,6 +87,8 @@ public class BCIntegrationTests {
 		Settings.BC.ODE.LR = 0;
 		Settings.BC.ODE.Rf = 30000;
 		Settings.BC.ODE.Ri = 0;
+		
+		BC.setMultipleChemokines(false);
 
 	}
 
@@ -269,6 +271,7 @@ public class BCIntegrationTests {
 			bcCells[i].setObjectLocation(d3Centre);
 		}
 
+		
 		// Let them move a bit
 		for (int i = 0; i < 100; i++) {
 			for (int j = 0; j < 100; j++) {

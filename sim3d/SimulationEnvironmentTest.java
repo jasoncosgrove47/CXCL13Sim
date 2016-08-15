@@ -26,7 +26,7 @@ public class SimulationEnvironmentTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
 		sim = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 		sim.setupSimulationParameters();
@@ -53,7 +53,7 @@ public class SimulationEnvironmentTest {
 	@Test
 	public void testScheduleStoppableCell() {
 
-		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
 		Document parameters = IO.openXMLFile(paramFile);
 		Settings.BC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
@@ -83,6 +83,7 @@ public class SimulationEnvironmentTest {
 		}
 	}
 
+	
 	/**
 	 * Test whether coordinates are within a circle of radius r
 	 */
@@ -135,7 +136,7 @@ public class SimulationEnvironmentTest {
 	 */
 	@Test
 	public void testGenerateCoordinatesWithinCircle() {
-		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
 		SimulationEnvironment sim = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 
@@ -151,7 +152,7 @@ public class SimulationEnvironmentTest {
 	 */
 	@Test
 	public void testInitialiseFDC() {
-		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
 		SimulationEnvironment sim = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 
@@ -188,7 +189,7 @@ public class SimulationEnvironmentTest {
 	 */
 	@Test
 	public void testAddBranchesToBranches() {
-		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
 		SimulationEnvironment sim = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 

@@ -74,6 +74,9 @@ public class BCTest {
 		System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT
 				+ "timestep: " + Settings.DIFFUSION_STEPS + "steps: "
 				+ Settings.DIFFUSION_TIMESTEP);
+		
+		
+		BC.setMultipleChemokines(false);
 
 	}
 

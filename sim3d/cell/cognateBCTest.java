@@ -25,6 +25,7 @@ public class cognateBCTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		Settings.RNG = new MersenneTwisterFast();
+		BC.setMultipleChemokines(false);
 		
 	}
 

@@ -82,24 +82,19 @@ public class consoleRun {
 				System.out.println("The experiment will now begin");
 			}
 
-			
-			
 			if (!SimulationEnvironment.simulation.schedule
 					.step(SimulationEnvironment.simulation))
 				break;
 		} while (SimulationEnvironment.experimentFinished == false); //
 
 		// finish the simulation
-		
 		SimulationEnvironment.simulation.finish();
 		System.out.println("\nSimulation completed successfully!\n\n");
 
-		
 		// write the recorded data and raw data to a .csv file
 		 //outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv" );
 		 outputToCSV.writeDataToFile(outputPath + outputFileName);
-		
-
+	
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
 		Date formattedendtime = new Date(endtime);

@@ -112,8 +112,12 @@ public class SimulationEnvironment extends SimState {
 		Settings.loadParameters(parameters);
 		Settings.BC.loadParameters(parameters);
 		Settings.FDC.loadParameters(parameters);
+		Settings.FRC.loadParameters(parameters);
+		Settings.MRC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
 		Settings.CXCL13.loadParameters(parameters);
+		Settings.CCL19.loadParameters(parameters);
+		Settings.EBI2L.loadParameters(parameters);
 	}
 
 	/**
@@ -190,13 +194,7 @@ public class SimulationEnvironment extends SimState {
 		initialiseStromalCell(cgGrid, Stroma.TYPE.FRC);
 		initialiseStromalCell(cgGrid, Stroma.TYPE.MRC);
 		seedSCS(cgGrid);
-		
-	
-
-
-
-		
-		
+			
 		// BCs will need to update their collision profile each
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
@@ -237,7 +235,7 @@ public class SimulationEnvironment extends SimState {
 	 * @return boolean determining whether inside (false) or outside (true) the
 	 *         circle
 	 */
-	public boolean isWithinCircle(int x, int y, int circleCentreX,
+	boolean isWithinCircle(int x, int y, int circleCentreX,
 			int circleCentreY, int radius) {
 
 		// squared distance from test.x to center.x
@@ -256,7 +254,7 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * Seeds B cells into the FDC network
 	 */
-	public void seedCells(CELLTYPE celltype) {
+	void seedCells(CELLTYPE celltype) {
 		int count = 0; // the number of cells to seed
 
 		// set the number of cells to seed
@@ -305,7 +303,7 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * @return a random Double3D inside a circle
 	 */
-	public Double3D generateCoordinateWithinCircle() {
+	Double3D generateCoordinateWithinCircle() {
 
 		int x, y, z;
 		do {
@@ -329,7 +327,7 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * @return a random Double3D inside a circle
 	 */
-	public Double3D generateCoordinateOutsideCircle() {
+	private Double3D generateCoordinateOutsideCircle() {
 
 		int x, y, z;
 		do {
@@ -416,14 +414,15 @@ public class SimulationEnvironment extends SimState {
 	}
 
 	/**
-	 * Seed FRC cells within the follicle
+	 * Seed FRC cells in the T-zone
 	 * 
 	 * @param sc
 	 */
 	private void seedFRC(StromaGenerator.StromalCell sc) {
 		if (!isWithinCircle((int) sc.d3Location.x + 1,
 				(int) sc.d3Location.y + 1, Settings.WIDTH / 2,
-				Settings.HEIGHT / 2, 15)) {
+				Settings.HEIGHT / 2, 15)) 
+		{
 			if (sc.d3Location.y < Settings.HEIGHT - 8) {
 				Stroma frc = new Stroma(Stroma.TYPE.FRC);
 				// This will register the FDC with the environment/display
@@ -436,8 +435,16 @@ public class SimulationEnvironment extends SimState {
 		}
 	}
 
+	
+	/**
+	 * We are generating two stromal networks the way the current code
+	 * works really need to refactor the code
+	 * @param sc
+	 */
 	private void seedMRC(StromaGenerator.StromalCell sc) {
 
+		
+		//first seed the cells close to the subcapsular sinus
 		if (!isWithinCircle((int) sc.d3Location.x + 1,
 				(int) sc.d3Location.y + 1, Settings.WIDTH / 2,
 				Settings.HEIGHT / 2, 15)) {
@@ -454,11 +461,13 @@ public class SimulationEnvironment extends SimState {
 
 		}
 
-		// also if they are directly under the SCS
+		// now seed the cells at the follicular border
 		else if (isWithinCircle((int) sc.d3Location.x + 1,
 				(int) sc.d3Location.y + 1, Settings.WIDTH / 2,
 				Settings.HEIGHT / 2, 15)) {
 
+			//don't want to seed any cells which are where the FDC network is
+			//this is where the code could do with some refactoring
 			if (!isWithinCircle((int) sc.d3Location.x + 1,
 					(int) sc.d3Location.y + 1, Settings.WIDTH / 2,
 					Settings.HEIGHT / 2, 10)) {
@@ -483,11 +492,15 @@ public class SimulationEnvironment extends SimState {
 
 		if (type == StromaEdge.TYPE.RC_edge) {
 			for (StromaEdge seEdge : sealEdges) {
+				
+				//if within the follicle
 				if (isWithinCircle((int) seEdge.x, (int) seEdge.y,
 						Settings.WIDTH / 2, Settings.HEIGHT / 2, 15)) {
 
+					
+					//if not inside the center circle
 					if (!isWithinCircle((int) seEdge.x, (int) seEdge.y,
-							Settings.WIDTH / 2, Settings.HEIGHT / 2, 10)) {
+							Settings.WIDTH / 2, Settings.HEIGHT / 2, 9)) {
 						seEdge.setM_col(Settings.FDC.DRAW_COLOR());
 						// Register with display and CG
 						seEdge.setObjectLocation(new Double3D(seEdge.x + 1,

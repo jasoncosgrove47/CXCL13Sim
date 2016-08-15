@@ -28,16 +28,13 @@ public class cognateBC extends BC {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	
 	/**
 	 * Used to store the x,y and z coordinates of a BC during a cell tracking
 	 * experiment
 	 */
-
 	private ArrayList<Double3D> coordinates = new ArrayList<Double3D>();
 	private ArrayList<Integer> receptors = new ArrayList<Integer>();
 
-	
 	/**
 	 * Unique identifier of each cBC
 	 */
@@ -72,37 +69,24 @@ public class cognateBC extends BC {
 	public cognateBC(int index) {
 		this.type = TYPE.NAIVE;
 		this.setIndex(index);
-
-		// need to set these to zero for the CXCR5 KO experiment
-		// as we need a functional follicle to form for consistency
-
-		 //this.m_iL_r = 0;
-		 //this.m_iR_free = 0;
-		 //this.m_iR_i = 0;
 	}
 
 	@Override
 	public void step(final SimState state) {
 
-		
 		super.step(state);
-
 		// once the system has reached steady state the BC can start to record
 		// it's position
 		if (SimulationEnvironment.steadyStateReached == true) {
-
 			updateReceptors();
 			// the experiment runs for 12 hours but only
 			// need to record migration data for 30 mins
 			if (counter < 30) {
 				updatePosition();
 			}
-
 			counter++;
-
 		}
 	}
-
 	
 	/**
 	 * Updates the cells surface receptor levels in Controller
@@ -116,7 +100,6 @@ public class cognateBC extends BC {
 
 	}
 
-	
 	/**
 	 * Updates the cells X,Y and Z coordinates in the XY and Z arraylists and
 	 * the controllers coordinate MAPs so they can be accessed by viewers
@@ -226,14 +209,10 @@ public class cognateBC extends BC {
 		}
 	}
 
-	
 	/**
 	 * Acquire antigen from a stroma edge or branch
-	 * 
-	 * 
 	 * TODO think this is what's making it sensitive to calibration
 	 * @param cCell
-	 * 
 	 */
 	public void acquireAntigen(Collidable cCell) {
 		StromaEdge sEdge = (StromaEdge) cCell;
@@ -272,9 +251,6 @@ public class cognateBC extends BC {
 		}
 	}
 	
-	
-
-
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
 		// We choose to always recalculate this model because the movement
@@ -306,16 +282,11 @@ public class cognateBC extends BC {
 	}
 
 	/**
-	 * Getters and setters for key parameters TODO probably more consistent to
-	 * have them as member variables, need to ask Simon
-	 * 
-	 * @return
+	 * Getters and setters
 	 */
 	public int getAntigenCaptured() {
 		return antigenCaptured;
 	}
-
-
 
 	public ArrayList<Double3D> getCoordinates() {
 		return coordinates;

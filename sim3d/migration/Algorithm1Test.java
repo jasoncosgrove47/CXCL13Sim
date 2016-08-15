@@ -51,6 +51,7 @@ public class Algorithm1Test {
 		Settings.BC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
 		Settings.FDC.loadParameters(parameters);
+		
 	}
 
 	@BeforeClass
@@ -77,6 +78,7 @@ public class Algorithm1Test {
 				+ "timestep: " + Settings.DIFFUSION_STEPS + "steps: "
 				+ Settings.DIFFUSION_TIMESTEP);
 
+		BC.setMultipleChemokines(false);
 	}
 
 	
