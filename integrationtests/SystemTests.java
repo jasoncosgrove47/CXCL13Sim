@@ -31,8 +31,6 @@ public class SystemTests {
 	public void testShouldAcquireAntigen() {
 		// set up the simulation
 		
-		
-		
 		long steps = 0;
 		long seed = System.currentTimeMillis();
 		SimulationEnvironment sim = new SimulationEnvironment(
