@@ -1,5 +1,7 @@
 package sim3d.migration;
 
+import java.util.ArrayList;
+
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.cell.Lymphocyte;
@@ -9,10 +11,12 @@ import sim3d.util.Vector3DHelper;
 public class Algorithm2 extends Algorithm1{
 	
 	
+	double signallingBias = 0.5;
+	
 	@Override
 	public void performMigration(Lymphocyte lymphocyte) {
 		
-		
+
 			Chemokine.TYPE chemokine1 = Chemokine.TYPE.CXCL13;
 			Chemokine.TYPE chemokine2 = Chemokine.TYPE.EBI2L;
 			lymphocyte.setCollisionCounter(0); // reset the collision counter for this timestep
@@ -32,8 +36,43 @@ public class Algorithm2 extends Algorithm1{
 	}
 	
 	
+	@Override
+	public void updateMigrationData(Lymphocyte  bc, Double3D vMovement, double vectorMagnitude, double persistence){
+		
+		// Reset all the movement/collision data
+		bc.getM_d3aCollisions().clear();
+		bc.setM_d3aMovements(new ArrayList<Double3D>());
+
+		// We make speed a function of cell polarity
+		// speed scalar will be zero if persistence 
+		// is equal to 1. calculated from maiuri paper in cell 2015
+		// TODO make this a parameter called polarityscalar
+		double speedScalar = (Math.log(Settings.BC.RANDOM_POLARITY / persistence))
+				/ Settings.BC.SPEED_SCALAR;
+
 	
+		double travelDistance;
+		
+		
+		//TODO this is quite an ugly bit of code, needs some rethinking...
+		
+		// lets make travelDistance a gaussian for a better fit
+		// and constrain it so it cant give a value less than zero
+		do {
+			travelDistance = Settings.RNG.nextGaussian()
+					* Settings.BC.TRAVEL_DISTANCE_SD
+					+ Settings.BC.TRAVEL_DISTANCE();
+
+			// only sample within oneSD
+		} while (travelDistance <= 0);//must be greater than zero
+		
+		
+		//TODO may need to put this back if cant calibrate without the speedscalar
+
+		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
 	
+			
+	}
 	
 	/**
 	 * 
@@ -78,8 +117,10 @@ public class Algorithm2 extends Algorithm1{
 				.multiply(iaBoundReceptors2[4] - iaBoundReceptors2[5]));
 		
 
+		//lets make cxcl13 more potent that ebi2 for the lawls
+		Double3D ebi2Scaled = vMovement2.multiply(signallingBias);
 		
-		vMovement1 = vMovement1.add(vMovement2);
+		vMovement1 = vMovement1.add(ebi2Scaled);
 		
 
 		

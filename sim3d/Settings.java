@@ -18,6 +18,7 @@ import ec.util.MersenneTwisterFast;
  */
 
 public class Settings {
+	
 
 	public static void loadParameters(Document params) {
 		// Simulation Tag
@@ -125,6 +126,32 @@ public class Settings {
 		return (int) (60 / DIFFUSION_TIMESTEP);
 	}
 
+	
+	public static class TC{
+		/**
+		 * This loads the parameters from an XML file for high throughput
+		 * analyses
+		 * 
+		 * @param params
+		 */
+		public static void loadParameters(Document params) {
+			Element paramTCElement = (Element) params
+					.getElementsByTagName("TC").item(0);
+
+			NodeList countNL = paramTCElement.getElementsByTagName("COUNT");
+			Node countN = countNL.item(0);
+			COUNT = Integer.parseInt(countN.getTextContent());
+
+	
+
+		}
+		/**
+		 * Number of BCs to generate
+		 */
+		public static int COUNT;
+		
+	}
+	
 	
 	/**
 	 * Subclass containing all the BC parameters
@@ -551,8 +578,12 @@ public class Settings {
 		}
 		
 		public static Color DRAW_COLOR() {
-			return new Color(255, 212, 212);
+			return new Color(180, 110, 80);
 		}
+		
+		//public static Color DRAW_COLOR() {
+		//	return new Color(255, 212, 212);
+		//}
 
 		
 		public static double CCL19_EMITTED() {

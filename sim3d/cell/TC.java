@@ -91,7 +91,7 @@ public class TC extends Lymphocyte{
 		// Removing the movement indicators and removing this true will make the
 		// 3d display a lot faster
 		
-		boolean highres = true;
+		boolean highres = false;
 		
 		if (transf == null || true) {
 			if(highres ==true){

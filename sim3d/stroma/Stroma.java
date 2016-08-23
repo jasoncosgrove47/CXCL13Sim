@@ -7,7 +7,9 @@ import java.io.FileNotFoundException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.media.j3d.Appearance;
 import javax.media.j3d.BranchGroup;
+import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
@@ -20,6 +22,9 @@ import com.sun.j3d.loaders.objectfile.ObjectFile;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.continuous.Continuous3D;
+import sim.portrayal3d.SimplePortrayal3D;
+import sim.portrayal3d.simple.CubePortrayal3D;
+import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
@@ -79,6 +84,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			
 		case LEC:
 			break;
+			
 		}
 		
 	}
@@ -133,6 +139,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			}
 			break;
 	
+			
 		case FRC:
 
 				if (transf == null) {
@@ -176,10 +183,23 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			
 				transf = new TransformGroup();
 
+				
+				//Appearance aAppearance = new Appearance();
+				//Color col = Color.white;
+				//aAppearance.setColoringAttributes(new ColoringAttributes(col
+				//		.getRed() / 255f, col.getGreen() / 255f,
+				//		col.getBlue() / 255f, ColoringAttributes.FASTEST));
+				
+				
+
+				Color col =  new Color(200, 130, 40);
+				
+
+				CubePortrayal3D s = new CubePortrayal3D(col,0.75);
 				//TODO this needs to be a rectangle shape and not a sphere!!
-				SpherePortrayal3D s = new SpherePortrayal3D(
-						Settings.FDC.DRAW_COLOR(),
-						Settings.FDC.STROMA_NODE_RADIUS * 4, 6);
+				//SpherePortrayal3D s = new SpherePortrayal3D(
+				//		Settings.FDC.DRAW_COLOR(),
+				//		Settings.FDC.STROMA_NODE_RADIUS * 4, 6);
 				s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 				TransformGroup localTG = s.getModel(obj, null);
 

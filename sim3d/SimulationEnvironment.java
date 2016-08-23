@@ -111,6 +111,7 @@ public class SimulationEnvironment extends SimState {
 	public void setupSimulationParameters() {
 		Settings.loadParameters(parameters);
 		Settings.BC.loadParameters(parameters);
+		Settings.TC.loadParameters(parameters);
 		Settings.FDC.loadParameters(parameters);
 		Settings.FRC.loadParameters(parameters);
 		Settings.MRC.loadParameters(parameters);
@@ -263,7 +264,7 @@ public class SimulationEnvironment extends SimState {
 		} else if (celltype == CELLTYPE.cB) {
 			count = Settings.BC.COGNATECOUNT;
 		} else if (celltype == CELLTYPE.T) {
-			count = Settings.BC.COGNATECOUNT;
+			count = Settings.TC.COUNT;
 		
 		}
 

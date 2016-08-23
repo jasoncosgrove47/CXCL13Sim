@@ -81,7 +81,6 @@ public class ProcessData {
 
 	
 		
-		
 		// calculate the total time
 		double time = Coords.size();
 

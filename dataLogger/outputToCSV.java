@@ -40,13 +40,11 @@ public final class outputToCSV {
 			processedDataWriter.append("dendritesVisited");
 			processedDataWriter.append('\n');
 
-			
 			// for each tracker cell
 			for (Integer key : Controller.getInstance().getCoordinates()
 					.keySet()) {
 				double[] results = ProcessData.processMigrationData(key);
 
-				System.out.println("key is: " + key);
 				
 				
 				// calculate the percentage of the network scanned

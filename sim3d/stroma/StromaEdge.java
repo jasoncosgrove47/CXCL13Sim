@@ -162,7 +162,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			break;
 			
 		case RC_edge:
-			setM_col(Settings.FRC.DRAW_COLOR());
+			setM_col(Settings.FDC.DRAW_COLOR());
 			setAntigenLevel(0);	
 			break;
 			

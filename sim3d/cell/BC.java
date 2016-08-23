@@ -67,7 +67,7 @@ public class BC extends Lymphocyte{
 	{
 		if(isMultipleChemokines()){migrate(a2);}
 		else{
-			migrate(a1);
+			migrate(a2);
 		}
 	}
 

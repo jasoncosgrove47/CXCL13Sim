@@ -36,7 +36,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	@Override
 	public void performMigration(Lymphocyte lymphocyte) {
 		
-		
+
 
 			Chemokine.TYPE chemokine = Chemokine.TYPE.CXCL13;
 			
@@ -235,6 +235,8 @@ public class Algorithm1 implements MigrationAlgorithm{
 				vMovement = vMovement.normalize();
 			}	
 		}
+		
+		
 		//update the migration data
 		updateMigrationData(lymphocyte, vMovement,vectorMagnitude, persistence);
 	}
@@ -252,10 +254,15 @@ public class Algorithm1 implements MigrationAlgorithm{
 		// speed scalar will be zero if persistence 
 		// is equal to 1. calculated from maiuri paper in cell 2015
 		// TODO make this a parameter called polarityscalar
+	
+		
+
+	
 		double speedScalar = (Math.log(Settings.BC.RANDOM_POLARITY / persistence))
 				/ Settings.BC.SPEED_SCALAR;
 
 		double travelDistance;
+		
 		
 		
 		//TODO this is quite an ugly bit of code, needs some rethinking...
