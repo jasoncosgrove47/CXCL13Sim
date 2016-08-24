@@ -22,6 +22,9 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	
 	int stepsCounter = 0;
 	
+	double decayrate;
+	
+	
 	/**
 	 * ENUM for the chemokine types
 	 */
@@ -216,12 +219,15 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		
 		if(pType == Chemokine.TYPE.CXCL13){
 			diffusionconstant = Settings.CXCL13.DIFFUSION_COEFFICIENT;
+			decayrate = Settings.CXCL13.DECAY_CONSTANT;
 		}
 		else if(pType == Chemokine.TYPE.CCL19){
 			diffusionconstant = Settings.CCL19.DIFFUSION_COEFFICIENT;
+			decayrate = Settings.CCL19.DECAY_CONSTANT;
 		}
 		else if(pType == Chemokine.TYPE.EBI2L){
 			diffusionconstant = Settings.EBI2L.DIFFUSION_COEFFICIENT;
+			decayrate = Settings.EBI2L.DECAY_CONSTANT;
 		}
 
 		
@@ -269,7 +275,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		// determine how much is left after decay per timestep
 		// done it this way as it is easier to caompare
 		// to experimental data
-		double amountLeft = 1 - Settings.CXCL13.DECAY_CONSTANT;
+		double amountLeft = 1 - this.decayrate;
 		//
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
