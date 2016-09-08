@@ -9,7 +9,7 @@ import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.DoubleGrid3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
-import sim3d.diffusion.algorithms.DiffusionAlgorithm;
+import sim3d.diffusion.algorithms.DiffusionAlgorithmMultiThread;
 
 /**
  * Same as Particle but accounts for Moles not absoloute molecules is just an
@@ -19,7 +19,6 @@ import sim3d.diffusion.algorithms.DiffusionAlgorithm;
  */
 public class Chemokine extends DoubleGrid3D implements Steppable {
 
-	
 	int stepsCounter = 0;
 	
 	double decayrate;
@@ -162,7 +161,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	/**
 	 * The DiffusionAlgorithm to use
 	 */
-	private DiffusionAlgorithm m_daDiffusionAlgorithm;
+	private DiffusionAlgorithmMultiThread m_daDiffusionAlgorithm;
 
 	/**
 	 * Width of the particle diffusion space
@@ -349,7 +348,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	/**
 	 * Setter for m_daDiffusionAlgorithm
 	 */
-	public void setDiffusionAlgorithm(DiffusionAlgorithm daDiffAlg) {
+	public void setDiffusionAlgorithm(DiffusionAlgorithmMultiThread daDiffAlg) {
 		setM_daDiffusionAlgorithm(daDiffAlg);
 	}
 
@@ -451,11 +450,11 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		this.m_diffTime = m_diffTime;
 	}
 
-	public DiffusionAlgorithm getM_daDiffusionAlgorithm() {
+	public DiffusionAlgorithmMultiThread getM_daDiffusionAlgorithm() {
 		return m_daDiffusionAlgorithm;
 	}
 
-	public void setM_daDiffusionAlgorithm(DiffusionAlgorithm m_daDiffusionAlgorithm) {
+	public void setM_daDiffusionAlgorithm(DiffusionAlgorithmMultiThread m_daDiffusionAlgorithm) {
 		this.m_daDiffusionAlgorithm = m_daDiffusionAlgorithm;
 	}
 

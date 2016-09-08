@@ -47,7 +47,6 @@ import sim3d.util.Vector3DHelper;
 public class BC extends Lymphocyte{
 	
 
-	
 	private static boolean multipleChemokines = true;
 	
 	/*
@@ -62,12 +61,13 @@ public class BC extends Lymphocyte{
 	 * collision grid handles the movement at the next iteration the B cells are
 	 * moved. B cells only collide with stroma
 	 */
+	
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
 		if(isMultipleChemokines()){migrate(a2);}
 		else{
-			migrate(a2);
+			migrate(a1);
 		}
 	}
 

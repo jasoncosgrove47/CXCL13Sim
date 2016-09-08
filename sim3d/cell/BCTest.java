@@ -32,6 +32,7 @@ import sim3d.util.IO;
 import sim3d.util.Vector3DHelper;
 import ec.util.MersenneTwisterFast;
 
+
 public class BCTest {
 
 	BC bc = new BC();

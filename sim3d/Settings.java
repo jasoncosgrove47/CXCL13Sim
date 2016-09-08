@@ -58,6 +58,7 @@ public class Settings {
 
 	}
 
+	
 	/**
 	 * Allows MASON's random variable to be accessed globally
 	 */

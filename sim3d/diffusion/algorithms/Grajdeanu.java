@@ -12,7 +12,7 @@ import sim3d.Settings;
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  * @see https://cs.gmu.edu/~tr-admin/papers/GMU-CS-TR-2007-1.pdf
  */
-public class Grajdeanu extends DiffusionAlgorithm implements Serializable {
+public class Grajdeanu extends DiffusionAlgorithmMultiThread implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

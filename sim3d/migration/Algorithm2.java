@@ -11,6 +11,7 @@ import sim3d.util.Vector3DHelper;
 public class Algorithm2 extends Algorithm1{
 	
 	
+	
 	double signallingBias = 0.5;
 	
 	@Override

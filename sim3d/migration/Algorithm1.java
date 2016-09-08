@@ -65,6 +65,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	}
 	
 	
+	
 	/*
 	 * moves the BC based on the precomputed trajectory from previous timestep
 	 * 
