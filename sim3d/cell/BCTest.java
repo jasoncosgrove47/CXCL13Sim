@@ -45,7 +45,7 @@ public class BCTest {
 	 */
 	private static void loadParameters() {
 
-		String paramFile = "/Users/jc1571/Dropbox/LymphSim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
 		Settings.BC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
@@ -63,18 +63,18 @@ public class BCTest {
 		Settings.HEIGHT = 31;
 		Settings.DEPTH = 31;
 
-		Settings.DIFFUSION_COEFFICIENT = 0.0000000000076;
+		Settings.CXCL13.DIFFUSION_COEFFICIENT = 0.0000000000076;
 		Settings.GRID_SIZE = 0.00001;
 
 		// NEED TO DIVIDE THE WHOLE THING BY 60 AS DIFFUSION UPDATES
 		// EVERY SECOND BUT CELLS EVERY 1 MIN
-		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (40.15 * Settings.DIFFUSION_COEFFICIENT));// need
+		Settings.CXCL13.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (40.15 * Settings.CXCL13.DIFFUSION_COEFFICIENT));// need
 																													// to
-		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
+		Settings.CXCL13.DIFFUSION_STEPS = (int) (60 / Settings.CXCL13.DIFFUSION_TIMESTEP);
 
-		System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT
-				+ "timestep: " + Settings.DIFFUSION_STEPS + "steps: "
-				+ Settings.DIFFUSION_TIMESTEP);
+		System.out.println("coefficient: " + Settings.CXCL13.DIFFUSION_COEFFICIENT
+				+ "timestep: " + Settings.CXCL13.DIFFUSION_STEPS + "steps: "
+				+ Settings.CXCL13.DIFFUSION_TIMESTEP);
 		
 		
 		BC.setMultipleChemokines(false);
@@ -448,7 +448,7 @@ public class BCTest {
 		Settings.BC.ODE.LR = 1000;
 		Settings.CXCL13.DECAY_CONSTANT = 0.5;
 		Settings.BC.SIGNAL_THRESHOLD = 10;
-		Settings.DIFFUSION_STEPS = 2;
+		Settings.CXCL13.DIFFUSION_STEPS = 2;
 
 		// Let's diffuse a little
 		m_pParticle.step(null);

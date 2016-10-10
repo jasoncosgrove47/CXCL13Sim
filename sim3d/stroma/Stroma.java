@@ -189,9 +189,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				//aAppearance.setColoringAttributes(new ColoringAttributes(col
 				//		.getRed() / 255f, col.getGreen() / 255f,
 				//		col.getBlue() / 255f, ColoringAttributes.FASTEST));
-				
-				
-
 				Color col =  new Color(200, 130, 40);
 				
 
@@ -249,10 +246,10 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		}
 
 		//for now we dont care about CCL19
-		//if(m_CCL19){
-		//	Chemokine.add(Chemokine.TYPE.CCL19, (int) x, (int) y, (int) z,
-		//			FRCsecretionRate_CCL19);
-		//}
+		if(m_CCL19){
+			Chemokine.add(Chemokine.TYPE.CCL19, (int) x, (int) y, (int) z,
+					FRCsecretionRate_CCL19);
+		}
 		if(m_EBI2L){
 			Chemokine.add(Chemokine.TYPE.EBI2L, (int) x, (int) y, (int) z,
 					MRCsecretionRate_EBI2L);

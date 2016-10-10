@@ -185,6 +185,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	private int m_iWidth;
 	
 
+	double m_diffusionTimestep;
 
 	/**
 	 * Constructor
@@ -215,26 +216,32 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		m_iDepth = iDepth;
 
 		double diffusionconstant = 0;
+
 		
 		if(pType == Chemokine.TYPE.CXCL13){
 			diffusionconstant = Settings.CXCL13.DIFFUSION_COEFFICIENT;
 			decayrate = Settings.CXCL13.DECAY_CONSTANT;
+			m_diffusionTimestep = Settings.CXCL13.DIFFUSION_TIMESTEP;
+			
 		}
 		else if(pType == Chemokine.TYPE.CCL19){
 			diffusionconstant = Settings.CCL19.DIFFUSION_COEFFICIENT;
 			decayrate = Settings.CCL19.DECAY_CONSTANT;
+			m_diffusionTimestep = Settings.CCL19.DIFFUSION_TIMESTEP;
 		}
 		else if(pType == Chemokine.TYPE.EBI2L){
 			diffusionconstant = Settings.EBI2L.DIFFUSION_COEFFICIENT;
 			decayrate = Settings.EBI2L.DECAY_CONSTANT;
+			m_diffusionTimestep = Settings.EBI2L.DIFFUSION_TIMESTEP;
 		}
 
+		
 		
 		//setM_daDiffusionAlgorithm(new sim3d.diffusion.algorithms.Grajdeanu(
 		//		Settings.DIFFUSION_COEFFICIENT, iWidth, iHeight, iDepth));
 		
 		setM_daDiffusionAlgorithm(new sim3d.diffusion.algorithms.Grajdeanu(
-				diffusionconstant, iWidth, iHeight, iDepth));
+				diffusionconstant, iWidth, iHeight, iDepth,Settings.NUM_THREADS,m_diffusionTimestep));
 
 		// setup up stepping
 		ms_pParticles[ms_emTypeMap.get(pType)] = this;
@@ -418,7 +425,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 			//number of steps taken per second, if fast diffusion then the timestep is small
 			// if slow then timestep is large, we divide by 60 because the diffusion coefficient
 			// is in seconds...divide by 60 because we want this in seconds.
-			setM_diffTime(getM_diffTime() + Settings.DIFFUSION_TIMESTEP/60); //used to divide by 60
+			setM_diffTime(getM_diffTime() + m_diffusionTimestep/60); //used to divide by 60
 			decay();	
 		}
 		

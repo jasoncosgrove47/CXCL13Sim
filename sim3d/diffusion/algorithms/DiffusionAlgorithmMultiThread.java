@@ -38,6 +38,7 @@ public class DiffusionAlgorithmMultiThread
 	 */
 	private int m_iThreads;
 	
+	
 	/**
 	 * store the threads so we don't have to keep updating them
 	 */
@@ -53,13 +54,13 @@ public class DiffusionAlgorithmMultiThread
 	 * @param iDepth
 	 *            Depth of space
 	 */
-	protected DiffusionAlgorithmMultiThread( int iWidth, int iHeight, int iDepth )
+	protected DiffusionAlgorithmMultiThread( int iWidth, int iHeight, int iDepth , int numThreads)
 	{
 		m_iWidth = iWidth;
 		m_iHeight = iHeight;
 		m_iDepth = iDepth;
 		
-		m_iThreads =8;
+		m_iThreads =numThreads;
 		
 		if ( m_iThreads > 1 )
 		{
@@ -133,78 +134,7 @@ public class DiffusionAlgorithmMultiThread
 		
 		
 			enforceBoundaryCondition(pSpace);
-		/*
-		// Now enforce the boundary condition
-				// Code is a little inefficient, but it's clean at least
-				int xEdge = -1, yEdge = -1, zEdge = -1;
-				
-				for ( int x = 0; x < m_iWidth; x++ )
-				{
-					// Check if this is on the x edge
-					// So this will be calculated m_iWidth times in total
-					if ( x == 0 )
-					{
-						xEdge = 1;
-					}
-					else if ( x == m_iWidth - 1 )
-					{
-						xEdge = m_iWidth - 2;
-					}
-					
-					for ( int y = 0; y < m_iHeight; y++ )
-					{
-						// Check if this is on the y edge
-						// So this will be calculated m_iWidth*m_iHeight times in total
-						if ( y == 0 )
-						{
-							yEdge = 1;
-						}
-						else if ( y == m_iHeight - 1 )
-						{
-							yEdge = m_iHeight - 2;
-						}
-						for ( int z = 0; z < m_iDepth; z++ )
-						{
-							// Check if this is on the z edge
-							// and this will be calculated m_iWidth*m_iHeight*m_iDepth
-							// times in total
-							if ( z == 0 )
-							{
-								zEdge = 1;
-							}
-							else if ( z == m_iDepth-1 )
-							{
-								zEdge = m_iDepth - 2;
-							}
-							
-							if ( xEdge != -1 || yEdge != -1 || zEdge != -1 )
-							{
-								// just bounce it all back in
-								pSpace.field[(xEdge == -1) ? x : xEdge] // if it's -1,
-																		// set it to the
-																		// current x val
-								[(yEdge == -1) ? y : yEdge] // etc.
-								[(zEdge == -1) ? z : zEdge] // i.e. this one isn't on
-															// the edge
-								+= pSpace.field[x][y][z];
-								pSpace.field[x][y][z] = 0;
-							}
-							else if ( xEdge == -1 && yEdge == -1 )
-							{
-								// this will be z = 0 and we skip to the end to save
-								// time
-								z = m_iDepth - 2;
-							}
-							
-							zEdge = -1;
-						}
-						
-						yEdge = -1;
-					}
-					
-					xEdge = -1;
-				}
-				*/
+		
 	}
 	
 	/**

@@ -16,10 +16,10 @@ public class ChemokineTest {
 	
 	@Test
 	public void testUpdateDisplay() {
-		Settings.DIFFUSION_COEFFICIENT = 0.1e-12;
+		Settings.CXCL13.DIFFUSION_COEFFICIENT = 0.1e-12;
 		Settings.GRID_SIZE = 0.00001;
-		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (1.00 * Settings.DIFFUSION_COEFFICIENT));
-		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
+		Settings.CXCL13.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (1.00 * Settings.CXCL13.DIFFUSION_COEFFICIENT));
+		Settings.CXCL13.DIFFUSION_STEPS = (int) (60 / Settings.CXCL13.DIFFUSION_TIMESTEP);
 		Settings.DEPTH = 10;
 		Settings.CXCL13.DECAY_CONSTANT = 0.001;
 

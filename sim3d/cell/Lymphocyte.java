@@ -52,8 +52,13 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 */
 	public Lymphocyte(){
 		
-		
-		
+		initialiseReceptors();
+	}
+	
+	
+	
+	
+	public void initialiseReceptors(){
 		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(3));
 		this.getM_receptorMap().get(Receptor.CXCR5).add(0,Settings.BC.ODE.LR());
 		this.getM_receptorMap().get(Receptor.CXCR5).add(1,Settings.BC.ODE.Rf());
@@ -73,7 +78,20 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		this.getM_receptorMap().get(Receptor.EBI2).add(0,Settings.BC.ODE.LR());
 		this.getM_receptorMap().get(Receptor.EBI2).add(1,Settings.BC.ODE.Rf());
 		this.getM_receptorMap().get(Receptor.EBI2).add(2,Settings.BC.ODE.Ri());
+		
+		//this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(3));
+		//this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
+		//this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
+		//this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
+		
+		
+		
 	}
+	
+	
+	
+	
+	
 	
 	public static enum Receptor {
 		CXCR5, CCR7, EBI2
@@ -329,6 +347,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		}
 	}
 
+	
 	/**
 	 * helper method to perform the actual collision
 	 */

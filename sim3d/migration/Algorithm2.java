@@ -12,7 +12,9 @@ public class Algorithm2 extends Algorithm1{
 	
 	
 	
-	double signallingBias = 0.5;
+	//TODO need to comment on how this works and determine what the best model is
+	//less than 1 favours CXCL13, greater than one favours EBI2L
+	double signallingBias = Settings.SIGNALLING_BIAS;
 	
 	@Override
 	public void performMigration(Lymphocyte lymphocyte) {
@@ -47,16 +49,13 @@ public class Algorithm2 extends Algorithm1{
 		// We make speed a function of cell polarity
 		// speed scalar will be zero if persistence 
 		// is equal to 1. calculated from maiuri paper in cell 2015
-		// TODO make this a parameter called polarityscalar
 		double speedScalar = (Math.log(Settings.BC.RANDOM_POLARITY / persistence))
 				/ Settings.BC.SPEED_SCALAR;
 
 	
 		double travelDistance;
 		
-		
-		//TODO this is quite an ugly bit of code, needs some rethinking...
-		
+
 		// lets make travelDistance a gaussian for a better fit
 		// and constrain it so it cant give a value less than zero
 		do {
@@ -68,9 +67,8 @@ public class Algorithm2 extends Algorithm1{
 		} while (travelDistance <= 0);//must be greater than zero
 		
 		
-		//TODO may need to put this back if cant calibrate without the speedscalar
-
-		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
+	
+		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
 	
 			
 	}

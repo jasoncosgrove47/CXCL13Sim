@@ -75,15 +75,7 @@ public class Controller implements Steppable {
 	 * Value: An arraylist containing the cells position 
 	 * in a given dimension for a given timestep
 	 */
-	
-
-		
-	
 	private Map<Integer, ArrayList<Double3D>> Coordinates = new HashMap<Integer, ArrayList<Double3D>>();
-	
-	
-	//need to initialise this
-	//TODO where the hell is this getting initialised
 	private Map<Integer,Integer> dendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer,ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
 
@@ -103,7 +95,6 @@ public class Controller implements Steppable {
 		}
 	}
 	
-
 
 
 	public Map<Integer,Integer> getDendritesVisited() {

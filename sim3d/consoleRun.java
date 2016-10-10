@@ -14,7 +14,7 @@ import sim3d.util.IO;
  * configurations and pass in -Xmx3000m
  * 
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
- * 
+
  */
 
 
@@ -54,7 +54,7 @@ public class consoleRun {
 		// start the simulation
 		long steps = 0;
 		SimulationEnvironment.simulation.start();
-		System.out.println("StromaSim v1.0 - Console Version");
+		System.out.println("EBI2Sim v1.0 - Console Version");
 		System.out
 				.println("\nAuthor: Jason Cosgrove, York Computational Immunology Lab");
 

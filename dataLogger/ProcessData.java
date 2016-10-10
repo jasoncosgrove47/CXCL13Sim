@@ -28,10 +28,7 @@ public class ProcessData {
 	 */
 	static double[] processMigrationData(Integer key) throws IOException {
 
-	
-
 		ArrayList<Double3D> Coords = Controller.getInstance().getCoordinates().get(key);
-		
 		
 		Double3D startLocation = null; // starting position
 		Double3D endLocation = null; // final position
@@ -45,19 +42,15 @@ public class ProcessData {
 
 		// for each timepoint
 		for (int i = 0; i < Coords.size(); i++) {
+			
 			// get the x,y and z coordinates of each cell
 			// multiply by 10 because each gridspace
 			// equals 10 microns
-			
-
-
 			x = Coords.get(i).x * 10;
 			y = Coords.get(i).y * 10;
 			z = Coords.get(i).z * 10;
 			
 			thisLocation = new Double3D(x,y,z);
-			
-			
 			
 			// for each timepoint
 			if (i == 0) {
@@ -65,7 +58,6 @@ public class ProcessData {
 				previousLocation = thisLocation;
 			} else {
 				
-			
 				// calculate the displacement between this
 				// timestep and the last one
 				totalDisplacement += previousLocation.distance(thisLocation);
@@ -80,7 +72,6 @@ public class ProcessData {
 		}
 
 	
-		
 		// calculate the total time
 		double time = Coords.size();
 
@@ -90,8 +81,7 @@ public class ProcessData {
 		double motilityCoefficient = calculateMotilityCoefficient(netDisplacement,time);
 		double speed = calculateSpeed(totalDisplacement,time);
 	
-		
-		
+	
 		// store all motility parameters in an output array
 		double[] output = { time, motilityCoefficient, meanderingIndex, speed,
 				x, y, z };
@@ -119,23 +109,18 @@ public class ProcessData {
 		double x = 0, y = 0, z = 0;
 		int r = 0;
 
-		
-		
+	
 		// for each timepoint
 		for (int i = 0; i < Coords.size(); i++) {
 			// get the x,y and z coordinates of each cell
 			// multiply by 10 because each gridspace
 			// equals 10 microns, and we want output in microns
 			// and not metres
-			
-			
 			x = Coords.get(i).x * 10;
 			y = Coords.get(i).y * 10;
 			z = Coords.get(i).z * 10;
 			r = Receptors.get(i);
 			
-			
-
 			Double3D thisLocation = new Double3D(x,y,z);
 			Double3D nextLocation = calculateNextLocation(i, Coords);
 			Double3D previousLocation = calculatePreviousLocation(i, Coords);
@@ -150,7 +135,6 @@ public class ProcessData {
 			}
 			else turningAngle = 210;
 			
-
 			// update raw data file
 			rawDataWriter.append(Integer.toString(key));
 			rawDataWriter.append(',');
@@ -168,8 +152,6 @@ public class ProcessData {
 			rawDataWriter.append('\n');
 
 		}
-		
-	
 	}
 	
 	/**
@@ -215,9 +197,6 @@ public class ProcessData {
 		else return null;
 		
 	}
-	
-	
-	
 	
 	
 	/**

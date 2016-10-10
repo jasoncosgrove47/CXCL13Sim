@@ -72,8 +72,6 @@ public class SystemTests {
 				}
 				
 			}
-			
-			
 		}
 
 		// assert that at least 20 of the cells have been primed

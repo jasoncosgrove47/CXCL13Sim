@@ -59,15 +59,15 @@ public class BCIntegrationTests {
 		Settings.WIDTH = 31;
 		Settings.HEIGHT = 31;
 		Settings.DEPTH = 31;
-		Settings.DIFFUSION_COEFFICIENT = 0.0000000000076;
+		Settings.CXCL13.DIFFUSION_COEFFICIENT = 0.0000000000076;
 		Settings.GRID_SIZE = 0.00001;
-		Settings.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.00 * Settings.DIFFUSION_COEFFICIENT));
-		Settings.DIFFUSION_STEPS = (int) (60 / Settings.DIFFUSION_TIMESTEP);
+		Settings.CXCL13.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.00 * Settings.CXCL13.DIFFUSION_COEFFICIENT));
+		Settings.CXCL13.DIFFUSION_STEPS = (int) (60 / Settings.CXCL13.DIFFUSION_TIMESTEP);
 
 		// useful for debugging to know what these values are
-		System.out.println("coefficient: " + Settings.DIFFUSION_COEFFICIENT
-				+ "timestep: " + Settings.DIFFUSION_STEPS + "steps: "
-				+ Settings.DIFFUSION_TIMESTEP);
+		System.out.println("coefficient: " + Settings.CXCL13.DIFFUSION_COEFFICIENT
+				+ "timestep: " + Settings.CXCL13.DIFFUSION_STEPS + "steps: "
+				+ Settings.CXCL13.DIFFUSION_TIMESTEP);
 
 	}
 
@@ -121,7 +121,7 @@ public class BCIntegrationTests {
 
 
 		// Let's diffuse a little
-		Settings.DIFFUSION_STEPS = 2;
+		Settings.CXCL13.DIFFUSION_STEPS = 2;
 
 		// let the chemokine stabilise a bit
 		for (int i = 0; i < 10; i++) {
@@ -365,7 +365,7 @@ public class BCIntegrationTests {
 		}
 
 		// Let's diffuse a little
-		Settings.DIFFUSION_STEPS = 2;
+		Settings.CXCL13.DIFFUSION_STEPS = 2;
 		m_pParticle.step(null);
 		m_pParticle.step(null);
 		m_pParticle.step(null);
@@ -430,7 +430,7 @@ public class BCIntegrationTests {
 		Settings.BC.ODE.Ri = 0;
 
 		// Let's diffuse a little
-		Settings.DIFFUSION_STEPS = 2;
+		Settings.CXCL13.DIFFUSION_STEPS = 2;
 		m_pParticle.step(null);
 		m_pParticle.step(null);
 		m_pParticle.step(null);

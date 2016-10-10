@@ -58,8 +58,13 @@ public class TC extends Lymphocyte{
 
 	
 	public TC(){
-			
-		
+		initialiseReceptors();
+	}
+	
+	
+	
+	
+	public void initialiseReceptors(){
 		this.getM_receptorMap().put(Receptor.CCR7, new ArrayList<Integer>(3));
 		this.getM_receptorMap().get(Receptor.CCR7).add(0,Settings.BC.ODE.LR());
 		this.getM_receptorMap().get(Receptor.CCR7).add(1,Settings.BC.ODE.Rf());
@@ -74,8 +79,12 @@ public class TC extends Lymphocyte{
 		this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
 		this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
 		this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
-	
+		
+		
 	}
+	
+	
+	
 	
 	/*
 	 * This is the 3D model of the B cell. Overrides JAVA 3D so we never
@@ -84,6 +93,9 @@ public class TC extends Lymphocyte{
 	 * @see sim.portrayal3d.SimplePortrayal3D#getModel(java.lang.Object,
 	 * javax.media.j3d.TransformGroup)
 	 */
+	
+
+	
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
 		// We choose to always recalculate this model because the movement
@@ -91,7 +103,7 @@ public class TC extends Lymphocyte{
 		// Removing the movement indicators and removing this true will make the
 		// 3d display a lot faster
 		
-		boolean highres = false;
+		boolean highres = true;
 		
 		if (transf == null || true) {
 			if(highres ==true){
@@ -103,7 +115,7 @@ public class TC extends Lymphocyte{
 				
 				Scene scene = null;
 				try {
-					scene = f.load("/Users/jc1571/Desktop/wolf.obj");
+					scene = f.load("/Users/jc1571/Desktop/Lymphocyte.obj");
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -122,13 +134,13 @@ public class TC extends Lymphocyte{
 			        //System.out.printf("Name: %s\n", name); 
 			        
 			    }
-			    /* Obtains a reference to a specific component in the scene */
-				Shape3D lc = nameMap.get("wolfyskle_wolf"); 
+			    // Obtains a reference to a specific component in the scene 
+				Shape3D lc = nameMap.get("lymphocyte"); 
 
-				/* The graph that still contains a reference to "eyes" */
+				//The graph that still contains a reference to "eyes" 
 				BranchGroup root = scene.getSceneGroup();
 				//root.removeAllChildren();
-				/* Removes "eyes" from this graph */
+				// Removes "eyes" from this graph //
 				root.removeChild(lc);
 
 					
@@ -141,10 +153,10 @@ public class TC extends Lymphocyte{
 					
 
 				Transform3D t3d = new Transform3D();
-				//Vector3d scaleVector = new Vector3d(0.4D, 0.4D, 0.4D);
-				Vector3d scaleVector = new Vector3d(2D, 2D, 2D);
+				Vector3d scaleVector = new Vector3d(0.4D, 0.4D, 0.4D);
+				//Vector3d scaleVector = new Vector3d(2D, 2D, 2D);
 				t3d.setScale(scaleVector);
-				/* Apply all transformations */ 
+				// Apply all transformations 
 				localTG.setTransform(t3d);
 					
 					
