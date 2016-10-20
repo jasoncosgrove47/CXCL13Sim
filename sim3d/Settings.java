@@ -379,9 +379,15 @@ public class Settings {
 				NodeList KaNL = paramODEElement.getElementsByTagName("Ka");
 				Node KaN = KaNL.item(0);
 				Ka_PREFIX = Double.parseDouble(KaN.getTextContent());
-
+				
 				Ka = scaleKa();
 
+				
+				NodeList KaENL = paramODEElement.getElementsByTagName("Ka_EBI2");
+				Node KaEN = KaENL.item(0);
+				Ka_EBI2 = Double.parseDouble(KaEN.getTextContent());
+				
+				
 				NodeList KrNL = paramODEElement.getElementsByTagName("Kr");
 				Node KrN = KrNL.item(0);
 				Kr = Double.parseDouble(KrN.getTextContent());
@@ -425,6 +431,9 @@ public class Settings {
 				return Ri;
 			}
 
+			
+			public static double Ka_EBI2;
+			
 			/**
 			 * binding constant for receptor-ligand
 			 */

@@ -75,9 +75,9 @@ public class GUIrun extends GUIState {
 	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
 			lightred, red);
 	public SimpleColorMap CCL19ColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
-			blueLow, blue1);
-	public SimpleColorMap EBI2LColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
 			blueLow, blue2);
+	public SimpleColorMap EBI2LColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
+			blueLow, blue1);
 	
 	/**
 	 * The main display

@@ -59,6 +59,11 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	
 	
 	public void initialiseReceptors(){
+		
+		
+
+		//need to have a chat with simon about this one
+		Algorithm2.multipleChemokines = true;
 		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(3));
 		this.getM_receptorMap().get(Receptor.CXCR5).add(0,Settings.BC.ODE.LR());
 		this.getM_receptorMap().get(Receptor.CXCR5).add(1,Settings.BC.ODE.Rf());

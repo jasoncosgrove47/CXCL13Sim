@@ -489,6 +489,9 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		Lymphocyte.Receptor receptor = null;
 		
+		
+		double Ka = Settings.BC.ODE.K_a();
+		
 		switch (chemokine) {
 		case CXCL13: 
 			receptor = Lymphocyte.Receptor.CXCR5;
@@ -499,6 +502,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 			
 		case EBI2L:
 			receptor = Lymphocyte.Receptor.EBI2;	
+			Ka = Settings.BC.ODE.Ka_EBI2;
 			break;
 		default:
 			break;
@@ -541,7 +545,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 								// 1 / 60
 
 				// Ka = /moles/litre/second
-				double Ka = Settings.BC.ODE.K_a();
+				//double Ka = Settings.BC.ODE.K_a();
 
 				double RfK1 = h * (Ka * iaConcs[i]);
 				double RfK2 = h * ((Ka * iaConcs[i]) + RfK1 / 2);

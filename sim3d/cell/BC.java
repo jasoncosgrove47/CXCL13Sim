@@ -47,7 +47,7 @@ import sim3d.util.Vector3DHelper;
 public class BC extends Lymphocyte{
 	
 
-	private static boolean multipleChemokines = true;
+	public static boolean multipleChemokines = true;
 	
 	/*
 	 * This is the algorithm which controls BC migration
@@ -67,7 +67,7 @@ public class BC extends Lymphocyte{
 	{
 		if(isMultipleChemokines()){migrate(a2);}
 		else{
-			migrate(a1);
+			//migrate(a1);
 		}
 	}
 

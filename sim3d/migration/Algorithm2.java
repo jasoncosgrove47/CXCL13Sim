@@ -16,6 +16,9 @@ public class Algorithm2 extends Algorithm1{
 	//less than 1 favours CXCL13, greater than one favours EBI2L
 	double signallingBias = Settings.SIGNALLING_BIAS;
 	
+	public static boolean multipleChemokines = true;
+	
+	
 	@Override
 	public void performMigration(Lymphocyte lymphocyte) {
 		
@@ -30,13 +33,52 @@ public class Algorithm2 extends Algorithm1{
 				performSavedMovements(lymphocyte);
 			}
 
-			calculateWhereToMoveNext(lymphocyte, chemokine1,chemokine2);
+			calculateWhereToMoveNext2(lymphocyte, chemokine1,chemokine2);
 			lymphocyte.handleBounce(); // Check for bounces
 			receptorStep(lymphocyte, chemokine1);
 			receptorStep(lymphocyte, chemokine2);
 			lymphocyte.registerCollisions(lymphocyte.m_cgGrid); // Register the new movement with the grid
 		
 	}
+	
+
+	
+
+	public void updateMigrationData2(Lymphocyte  bc, Double3D vMovement, double vectorMagnitude, double persistence, double scalar){
+		
+		// Reset all the movement/collision data
+		bc.getM_d3aCollisions().clear();
+		bc.setM_d3aMovements(new ArrayList<Double3D>());
+
+		// We make speed a function of cell polarity
+		// speed scalar will be zero if persistence 
+		// is equal to 1. calculated from maiuri paper in cell 2015
+		double speedScalar = (Math.log(Settings.BC.RANDOM_POLARITY / persistence))
+				/ scalar;
+
+	
+		
+		double travelDistance;
+		
+
+		// lets make travelDistance a gaussian for a better fit
+		// and constrain it so it cant give a value less than zero
+		do {
+			travelDistance = Settings.RNG.nextGaussian()
+					* Settings.BC.TRAVEL_DISTANCE_SD
+					+ Settings.BC.TRAVEL_DISTANCE();
+
+			// only sample within oneSD
+		} while (travelDistance <= 0);//must be greater than zero
+		
+		
+	
+		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
+	
+			
+	}
+	
+	
 	
 	
 	@Override
@@ -53,6 +95,7 @@ public class Algorithm2 extends Algorithm1{
 				/ Settings.BC.SPEED_SCALAR;
 
 	
+		
 		double travelDistance;
 		
 
@@ -79,11 +122,13 @@ public class Algorithm2 extends Algorithm1{
 	 * direction.
 	 * 
 	 * @return The new direction for the cell to move
+	 * 
+	 * TODO need to account for the different KOs...
+	 * 
+	 * 
 	 */
 	Double3D getMoveDirection(Lymphocyte lymphocyte,Chemokine.TYPE chemokine1,Chemokine.TYPE chemokine2) {
 
-
-		Double3D[] output = new Double3D[2];
 		
 		double[] iaBoundReceptors1 = calculateLigandBindingMolar(lymphocyte, chemokine1);
 		double[] iaBoundReceptors2 = calculateLigandBindingMolar(lymphocyte, chemokine2);
@@ -116,12 +161,39 @@ public class Algorithm2 extends Algorithm1{
 				.multiply(iaBoundReceptors2[4] - iaBoundReceptors2[5]));
 		
 
+		
+		//TODO if its a KO then we dont need to scale the responses...
+		
+		//System.out.println("ebi2Before: " + vMovement2);
+		
+		
+		
+		if(multipleChemokines){
+		
+		
 		//lets make cxcl13 more potent that ebi2 for the lawls
+			//should only be scaled with respect to CXCL13 so dont see why this is having an effect
 		Double3D ebi2Scaled = vMovement2.multiply(signallingBias);
+		
+		//System.out.println("ebi2Scaled: " + ebi2Scaled);
+		//System.out.println("vMoveBefore" + vMovement1);
 		
 		vMovement1 = vMovement1.add(ebi2Scaled);
 		
+		}
+		
+		else{
+			
+			//if there is just one chemokine then we dont need to worry about scaling. One vector
+			//will be zero so its fine to just sum them together. 
+			vMovement1 = vMovement1.add(vMovement2);
+			
+		}
+		
 
+		//System.out.println("vMoveAfter" + vMovement1);
+		
+		//TODO what happens when we have the ebi2KO
 		
 		return vMovement1;
 	}
@@ -154,6 +226,13 @@ public class Algorithm2 extends Algorithm1{
 	 */
 	public void calculateWhereToMoveNext(Lymphocyte lymphocyte,Chemokine.TYPE chemokine1,Chemokine.TYPE chemokine2 ) {
 		Double3D vMovement = getMoveDirection(lymphocyte, chemokine1,chemokine2);
+		//Double3D vMovement_1 = getMoveDirection(lymphocyte,chemokine1);
+		//double vectorMagnitude = vMovement_1.lengthSq();
+		//Double3D vMovement_2 = getMoveDirection(lymphocyte,chemokine2);
+		
+		
+	
+		
 		double vectorMagnitude = vMovement.lengthSq();
 		
 		//let's fix persistence to 0.5
@@ -238,5 +317,123 @@ public class Algorithm2 extends Algorithm1{
 	}
 	
 	
+	
+
+	public void calculateWhereToMoveNext2(Lymphocyte lymphocyte,Chemokine.TYPE chemokine1,Chemokine.TYPE chemokine2 ) {
+	
+		
+		
+		//get the vector for each chemokine
+		Double3D vMovement_1 = getMoveDirection(lymphocyte,chemokine1);
+		double vectorMagnitude1 = vMovement_1.lengthSq();
+		Double3D vMovement_2 = getMoveDirection(lymphocyte,chemokine2);
+		double vectorMagnitude2 = vMovement_2.lengthSq();
+		
+		
+		//use this to determine how much signalling there is...
+		double scalar = 0;
+		if (vectorMagnitude1 >= Settings.BC.SIGNAL_THRESHOLD  &&
+				vectorMagnitude2 >= Settings.BC.SIGNAL_THRESHOLD ) {
+			
+			//increased signalling so increased actin polymerisation and increased intrinsic velocity
+			
+				scalar = Settings.BC.SPEED_SCALAR * 0.5;
+		}
+		
+		else if(vectorMagnitude1 >= Settings.BC.SIGNAL_THRESHOLD  ||
+				vectorMagnitude2 >= Settings.BC.SIGNAL_THRESHOLD ){
+			
+			scalar = Settings.BC.SPEED_SCALAR;
+		}
+		else{
+			scalar = Settings.BC.SPEED_SCALAR;
+		}
+		
+		
+	
+		Double3D vMovement;
+		
+		if(multipleChemokines){
+		
+		Double3D ebi2Scaled = vMovement_2.multiply(signallingBias);
+		vMovement = vMovement_1.add(ebi2Scaled);
+		
+		}
+		
+		else{
+			
+			//if there is just one chemokine then we dont need to worry about scaling. One vector
+			//will be zero so its fine to just sum them together. 
+			vMovement = vMovement_1.add(vMovement_2);
+			
+		}
+		
+		
+		double vectorMagnitude = vMovement.lengthSq();
+		
+		double persistence = 0;
+		
+		if (vMovement.lengthSq() > 0) {
+			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
+				
+				//if there's sufficient directional bias
+				//can affect cell polarity
+				persistence = Settings.BC.POLARITY;
+				
+				// Add some noise to the signal
+				Double3D newdirection = Vector3DHelper
+						.getRandomDirectionInCone(vMovement.normalize(),
+								Math.toRadians(2));
+					
+				//  scale the new vector with respect to the old vector,
+				// values less than 1 favour the old vector, values greater than 1 favour the new vector
+				// this is constrained between 0 and 2
+				newdirection = newdirection.multiply(persistence);
+				
+				//update the direction that the cell is facing
+				vMovement = lymphocyte.getM_d3Face().add(newdirection);
+				
+				//remember that this is half of the amount of noise that you actually want!
+				vMovement = Vector3DHelper
+					.getRandomDirectionInCone(vMovement.normalize(),
+							Settings.BC.DIRECTION_ERROR());
+
+				//normalise the vector
+				if (vMovement.lengthSq() > 0) {
+					vMovement = vMovement.normalize();
+				}
+			}
+			else {
+				vMovement = null;
+			}
+		}
+
+		// we detect no chemokine, or at least difference in chemokine
+		else {
+			vMovement = null;
+		}
+
+		if (vMovement == null || vMovement.lengthSq() == 0) {
+			// no data! so do a random turn
+
+			persistence = Settings.BC.RANDOM_POLARITY;
+			
+			//lets try the new way
+			Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(lymphocyte.getM_d3Face(),
+					Settings.BC.MAX_TURN_ANGLE());
+			
+			newdirection = newdirection.multiply(persistence);
+			
+			//update the direction that the cell is facing
+			vMovement = lymphocyte.getM_d3Face().add(newdirection);
+			
+			//normalise the vector
+			if (vMovement.lengthSq() > 0) {
+				vMovement = vMovement.normalize();
+			}	
+		}
+		//update the migration data
+		updateMigrationData2(lymphocyte, vMovement,vectorMagnitude, persistence, scalar);
+	}
 
 }
