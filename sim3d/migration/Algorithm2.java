@@ -39,8 +39,8 @@ public class Algorithm2 extends Algorithm1{
 
 			calculateWhereToMoveNext(lymphocyte, chemokine1,chemokine2);
 			lymphocyte.handleBounce(); // Check for bounces
-			receptorStep(lymphocyte, chemokine1);
-			receptorStep(lymphocyte, chemokine2);
+			receptorStep2(lymphocyte, chemokine1);
+			receptorStep2(lymphocyte, chemokine2);
 			lymphocyte.registerCollisions(lymphocyte.m_cgGrid); // Register the new movement with the grid
 		
 	}
@@ -117,7 +117,7 @@ public class Algorithm2 extends Algorithm1{
 	
 		//careful cos current implementation will affect sensitivity of the parameters
 		//needs to be scaled and what have you
-		double speedScalar = (((receptorsSignalling / Settings.BC.ODE.Rf))*2.0 * Settings.BC.TRAVEL_DISTANCE());
+		double speedScalar = (((receptorsSignalling / Settings.BC.ODE.Rf))*12.0 * Settings.BC.TRAVEL_DISTANCE());
 		
 		
 		//System.out.println("r_percent: " + (receptorsSignalling / Settings.BC.ODE.Rf));
@@ -162,6 +162,147 @@ public class Algorithm2 extends Algorithm1{
 		return signallingReceptors;
 		
 	}
+	
+	void receptorStep2(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
+		double[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte,chemokine);
+
+		
+		Lymphocyte.Receptor receptor = null;
+		
+		switch (chemokine) {
+		case CXCL13: 
+			receptor = Lymphocyte.Receptor.CXCR5;
+			break;
+		case CCL19:
+			receptor = Lymphocyte.Receptor.CCR7;	
+			break;
+			
+		case EBI2L:
+			receptor = Lymphocyte.Receptor.EBI2;	
+			break;
+		default:
+			break;
+	
+		}
+		
+		// update the amount of free and bound receptors
+		for (int i = 0; i < 6; i++) {
+			
+			lymphocyte.setM_Rf(receptor,lymphocyte.getM_Rf(receptor) - (int) iaBoundReceptors[i] );
+			lymphocyte.setM_LR(receptor,lymphocyte.getM_LR(receptor) + (int)iaBoundReceptors[i] );
+			
+		}
+
+		//sim timestep increments in 1 min intervals so divide by 60 to get it in seconds.
+		int iTimesteps = 60; 
+		int iR_i, iL_r, iR_d;
+		double h = 1; // the parameters are already in seconds so don't need to
+						// scale them
+
+		double Ki = Settings.BC.ODE.K_i();// Ka is already in seconds
+	
+		
+		double Kr = Settings.BC.ODE.K_r();
+		double Koff = Settings.BC.ODE.Koff;
+		
+		//rate of receptor desensitisation...
+		double Kdes =  0.015;
+		
+		/**
+		 * Solve the ODE using 4th order Runge Kutta timestep j equals 1 second
+		 */
+
+		for (int i = 0; i < iTimesteps; i++) {
+
+			iR_i = lymphocyte.getM_Ri(receptor);
+			//System.out.println("iR_i: " + iR_i);
+			
+			iL_r = lymphocyte.getM_LR(receptor);
+			//System.out.println("iL_r: " + iL_r);
+			
+			iR_d = lymphocyte.getM_Rd(receptor);
+			
+			// receptors desensitised from surface
+			double LRdK1 = h * (Kdes * iL_r);
+			double LRdK2 = h * ((Kdes * iL_r) + LRdK1 / 2);
+			double LRdK3 = h * ((Kdes * iL_r) + LRdK2 / 2);
+			double LRdK4 = h * ((Kdes * iL_r) + LRdK3);
+
+			
+			// receptors internalised from surface
+			double LRK1 = h * (Ki * iR_d);
+			double LRK2 = h * ((Ki * iR_d) + LRK1 / 2);
+			double LRK3 = h * ((Ki * iR_d) + LRK2 / 2);
+			double LRK4 = h * ((Ki * iR_d) + LRK3);
+			
+			// receptors that are recycled from internal pool
+			double RfK1 = h * (Kr * iR_i);
+			double RfK2 = h * ((Kr * iR_i) + RfK1 / 2);
+			double RfK3 = h * ((Kr * iR_i) + RfK2 / 2);
+			double RfK4 = h * ((Kr * iR_i) + RfK3);
+
+			// ligand dissociation from receptor
+			// receptors that are recycled from internal pool
+			double RdisK1 = h * (Koff * iL_r);
+			double RdisK2 = h * ((Koff * iL_r) + RdisK1 / 2);
+			double RdisK3 = h * ((Koff * iL_r) + RdisK2 / 2);
+			double RdisK4 = h * ((Koff * iL_r) + RdisK3);
+
+			
+		
+			//System.out.println("Rf: " + lymphocyte.getM_Rf(receptor));
+			//System.out.println("LR: " + lymphocyte.getM_LR(receptor));
+			//System.out.println("Ri: " + lymphocyte.getM_Ri(receptor));
+			
+			
+			int d_rf = lymphocyte.getM_Rf(receptor);
+			int d_ri = lymphocyte.getM_Ri(receptor);
+			//System.out.println("d_ri: " + d_ri);
+			
+			int d_lr = lymphocyte.getM_LR(receptor);
+			
+			int d_rd = lymphocyte.getM_Rd(receptor);
+			
+			
+			
+			//receptors recycled + ligand dissociation
+			d_rf += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
+					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
+			
+			//receptors internalised - receptors recycled....
+			d_ri += (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
+					- (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
+			
+			// ligand dissociation - receptor desensitisation
+			d_lr -=  (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6))
+					+ (int) ((LRdK1 / 6) + (LRdK2 / 3) + (LRdK3 / 3) + (LRdK4 / 6));
+			
+			//receptors desensitised - receptors internalised
+			d_rd += (int) ((LRdK1 / 6) + (LRdK2 / 3) + (LRdK3 / 3) + (LRdK4 / 6))
+					- (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6));
+			
+			lymphocyte.setM_Rf(receptor, d_rf);
+			lymphocyte.setM_Ri(receptor, d_ri);
+			lymphocyte.setM_LR(receptor, d_lr);
+			lymphocyte.setM_Rd(receptor, d_rd);
+			
+			/*
+			lymphocyte.m_iR_free += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
+					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
+					
+					
+			lymphocyte.m_iR_i += (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
+					- (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
+					
+			lymphocyte.m_iL_r -= (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
+					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
+			*/																		
+	
+		}
+	}
+	
+	
+	
 	
 	/**
 	 * 

@@ -339,7 +339,7 @@ public class Algorithm2Test {
 		}
 
 		int totalReceptorParams = (Settings.BC.ODE.Rf + Settings.BC.ODE.Ri + Settings.BC.ODE.LR);
-		int totalReceptorSim = (bcCells[0].getM_LR(Lymphocyte.Receptor.CXCR5) + 
+		int totalReceptorSim = (bcCells[0].getM_LR(Lymphocyte.Receptor.CXCR5) + bcCells[0].getM_Rd(Lymphocyte.Receptor.CXCR5)+
 				bcCells[0].getM_Ri(Lymphocyte.Receptor.CXCR5) + bcCells[0].getM_Rf(Lymphocyte.Receptor.CXCR5));
 
 		assertEquals(totalReceptorSim, totalReceptorParams);// why is this

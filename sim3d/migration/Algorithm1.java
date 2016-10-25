@@ -408,13 +408,11 @@ public class Algorithm1 implements MigrationAlgorithm{
 			lymphocyte.m_iL_r -= (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
 					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
 			*/																		
-
 	
-					
-			
 		}
-
 	}
+	
+	
 
 	public void consumeLigand(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
 		
