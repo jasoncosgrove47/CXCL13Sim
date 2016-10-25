@@ -64,10 +64,11 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 
 		//need to have a chat with simon about this one
 		Algorithm2.multipleChemokines = true;
-		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(3));
+		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(4));
 		this.getM_receptorMap().get(Receptor.CXCR5).add(0,Settings.BC.ODE.LR());
 		this.getM_receptorMap().get(Receptor.CXCR5).add(1,Settings.BC.ODE.Rf());
 		this.getM_receptorMap().get(Receptor.CXCR5).add(2,Settings.BC.ODE.Ri());
+		this.getM_receptorMap().get(Receptor.CXCR5).add(3,0);//this is for desensitised receptors
 		
 		//this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(3));
 		//this.getM_receptorMap().get(Receptor.CXCR5).add(0,0);
@@ -79,10 +80,11 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		this.getM_receptorMap().get(Receptor.CCR7).add(1,0);
 		this.getM_receptorMap().get(Receptor.CCR7).add(2,0);
 		
-		this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(3));
+		this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(4));
 		this.getM_receptorMap().get(Receptor.EBI2).add(0,Settings.BC.ODE.LR());
 		this.getM_receptorMap().get(Receptor.EBI2).add(1,Settings.BC.ODE.Rf());
 		this.getM_receptorMap().get(Receptor.EBI2).add(2,Settings.BC.ODE.Ri());
+		this.getM_receptorMap().get(Receptor.EBI2).add(3,0);//this is for desensitised receptors
 		
 		//this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(3));
 		//this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
@@ -1145,6 +1147,20 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		}
 	}
 	
+	public void setM_Rd(Lymphocyte.Receptor receptor, Integer value){
+		switch (receptor) {
+		case CXCR5: 
+			this.getM_receptorMap().get(Receptor.CXCR5).set(3, value);
+			break;
+		case CCR7:
+			this.getM_receptorMap().get(Receptor.CCR7).set(3, value);
+			break;
+		case EBI2:
+			this.getM_receptorMap().get(Receptor.EBI2).set(3, value);
+			break;
+		}
+	}
+	
 	public Integer getM_LR(Lymphocyte.Receptor receptor){
 		int output;
 		switch (receptor) {
@@ -1202,5 +1218,24 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return output;
 	}
 	
+	
+	public Integer getM_Rd(Lymphocyte.Receptor receptor){
+		int output;
+		switch (receptor) {
+		case CXCR5: 
+			output = m_receptorMap.get(Receptor.CXCR5).get(3);
+			break;
+		case CCR7:
+			output = m_receptorMap.get(Receptor.CCR7).get(3);
+			break;
+		case EBI2:
+			output = m_receptorMap.get(Receptor.EBI2).get(3);
+			break;
+			
+		default:
+			output = 0;
+		}	
+		return output;
+	}
 	
 }
