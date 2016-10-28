@@ -60,7 +60,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	
 	public void initialiseReceptors(){
 		
-		
+
 
 		//need to have a chat with simon about this one
 		Algorithm2.multipleChemokines = true;
@@ -92,8 +92,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		//this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
 		//this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
 		//this.getM_receptorMap().get(Receptor.EBI2).add(3,0);
-		
-		
+			
 	}
 	
 	

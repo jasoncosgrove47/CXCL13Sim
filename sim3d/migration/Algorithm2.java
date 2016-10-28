@@ -7,14 +7,12 @@ import sim3d.Settings;
 import sim3d.cell.Lymphocyte;
 import sim3d.cell.Lymphocyte.Receptor;
 import sim3d.diffusion.Chemokine;
+import sim3d.util.ODESolver;
 import sim3d.util.Vector3DHelper;
 
 public class Algorithm2 extends Algorithm1{
 	
-	
-	
 
-	
 	
 	//TODO need to comment on how this works and determine what the best model is
 	//less than 1 favours CXCL13, greater than one favours EBI2L
@@ -39,8 +37,17 @@ public class Algorithm2 extends Algorithm1{
 
 			calculateWhereToMoveNext(lymphocyte, chemokine1,chemokine2);
 			lymphocyte.handleBounce(); // Check for bounces
-			receptorStep2(lymphocyte, chemokine1);
-			receptorStep2(lymphocyte, chemokine2);
+			
+			
+			
+			ODESolver.solveODE(Settings.BC.ODE.K_a(),Settings.BC.ODE.K_r(),Settings.BC.ODE.K_i(),
+								0.37,0.065,chemokine1, lymphocyte);
+			
+			ODESolver.solveODE(Settings.BC.ODE.K_a(),Settings.BC.ODE.K_r(),Settings.BC.ODE.K_i(),
+					0.37,0.065,chemokine2, lymphocyte);
+			
+			//receptorStep2(lymphocyte, chemokine1);
+			//receptorStep2(lymphocyte, chemokine2);
 			lymphocyte.registerCollisions(lymphocyte.m_cgGrid); // Register the new movement with the grid
 		
 	}
@@ -110,15 +117,20 @@ public class Algorithm2 extends Algorithm1{
 		double receptorsInternal = CXCR5internal + EBI2internal;
 		double receptorsSignalling = CXCR5signalling + EBI2signalling;
 		
-		System.out.println("receptorsInternal: " + receptorsInternal);
-		System.out.println("receptorsSignalling: " + receptorsSignalling);
+		//System.out.println("receptorsInternal: " + receptorsInternal);
+		//System.out.println("receptorsSignalling: " + receptorsSignalling);
 		
 		//double receptors = calculateReceptorsSignalling(bc)
 	
 		//careful cos current implementation will affect sensitivity of the parameters
 		//needs to be scaled and what have you
-		double speedScalar = (((receptorsSignalling / Settings.BC.ODE.Rf))*12.0 * Settings.BC.TRAVEL_DISTANCE());
 		
+		double scalarval = 14.0;
+		
+		double speedScalar = (((receptorsSignalling / Settings.BC.ODE.Rf))*scalarval * Settings.BC.TRAVEL_DISTANCE());
+		
+		
+		//System.out.println("scalar: " +  (receptorsSignalling / Settings.BC.ODE.Rf)*scalarval * Settings.BC.TRAVEL_DISTANCE());
 		
 		//System.out.println("r_percent: " + (receptorsSignalling / Settings.BC.ODE.Rf));
 		
@@ -138,30 +150,19 @@ public class Algorithm2 extends Algorithm1{
 		} while (travelDistance <= 0);//must be greater than zero
 		
 		
-	
+		//bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
 		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
 	
 			
 	}
 	
 	
-	Double calculateReceptorsSignalling(Lymphocyte lymphocyte,Chemokine.TYPE chemokine1,Chemokine.TYPE chemokine2){
-		
-		double[] iaBoundReceptors1 = calculateLigandBindingMolar(lymphocyte, chemokine1);
-		double[] iaBoundReceptors2 = calculateLigandBindingMolar(lymphocyte, chemokine2);
-		
-		double signallingReceptors = 0;
-		
-		//need to calculate the totalnumber of receptors
-		//to determine the increase in cell velocity
-		for(int i =0; i < iaBoundReceptors1.length;i++){
-			signallingReceptors +=  iaBoundReceptors1[i] + iaBoundReceptors2[i];
-			
-		}
-		
-		return signallingReceptors;
-		
-	}
+	
+
+	
+	
+	
+	
 	
 	void receptorStep2(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
 		double[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte,chemokine);
@@ -206,7 +207,7 @@ public class Algorithm2 extends Algorithm1{
 		double Koff = Settings.BC.ODE.Koff;
 		
 		//rate of receptor desensitisation...
-		double Kdes =  0.015;
+		double Kdes =  0.065;
 		
 		/**
 		 * Solve the ODE using 4th order Runge Kutta timestep j equals 1 second
@@ -250,10 +251,12 @@ public class Algorithm2 extends Algorithm1{
 
 			
 		
-			//System.out.println("Rf: " + lymphocyte.getM_Rf(receptor));
-			//System.out.println("LR: " + lymphocyte.getM_LR(receptor));
-			//System.out.println("Ri: " + lymphocyte.getM_Ri(receptor));
 			
+			//System.out.println("before Rf: " + lymphocyte.getM_Rf(receptor));
+			//System.out.println("before LR: " + lymphocyte.getM_LR(receptor));
+			//System.out.println("before Ri: " + lymphocyte.getM_Ri(receptor));
+			//System.out.println("before Rd: " + lymphocyte.getM_Rd(receptor));
+		
 			
 			int d_rf = lymphocyte.getM_Rf(receptor);
 			int d_ri = lymphocyte.getM_Ri(receptor);
@@ -266,25 +269,32 @@ public class Algorithm2 extends Algorithm1{
 			
 			
 			//receptors recycled + ligand dissociation
-			d_rf += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
+			d_rf = d_rf + (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
 					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
 			
 			//receptors internalised - receptors recycled....
-			d_ri += (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
+			d_ri = d_ri + (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
 					- (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
 			
 			// ligand dissociation - receptor desensitisation
-			d_lr -=  (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6))
-					+ (int) ((LRdK1 / 6) + (LRdK2 / 3) + (LRdK3 / 3) + (LRdK4 / 6));
+			d_lr = d_lr -  (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6))
+					- (int) ((LRdK1 / 6) + (LRdK2 / 3) + (LRdK3 / 3) + (LRdK4 / 6));
 			
 			//receptors desensitised - receptors internalised
-			d_rd += (int) ((LRdK1 / 6) + (LRdK2 / 3) + (LRdK3 / 3) + (LRdK4 / 6))
+			d_rd = d_rd + (int) ((LRdK1 / 6) + (LRdK2 / 3) + (LRdK3 / 3) + (LRdK4 / 6))
 					- (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6));
 			
 			lymphocyte.setM_Rf(receptor, d_rf);
 			lymphocyte.setM_Ri(receptor, d_ri);
 			lymphocyte.setM_LR(receptor, d_lr);
 			lymphocyte.setM_Rd(receptor, d_rd);
+			
+			
+			//System.out.println("after Rf: " + lymphocyte.getM_Rf(receptor));
+			//System.out.println("after LR: " + lymphocyte.getM_LR(receptor));
+			//System.out.println("after Ri: " + lymphocyte.getM_Ri(receptor));
+			//System.out.println("after Rd: " + lymphocyte.getM_Rd(receptor));
+			
 			
 			/*
 			lymphocyte.m_iR_free += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
@@ -301,7 +311,68 @@ public class Algorithm2 extends Algorithm1{
 		}
 	}
 	
+	private double[] calculateLigandBound(Lymphocyte lymphocyte, Chemokine.TYPE chemokine){
+		// need to figure out what is sensible to secrete per timestep, might as
+				// well do that in moles. Get the surrounding values for moles
+
+				Lymphocyte.Receptor receptor = null;
+				
+				switch (chemokine) {
+				case CXCL13: 
+					receptor = Lymphocyte.Receptor.CXCR5;
+					break;
+				case CCL19:
+					receptor = Lymphocyte.Receptor.CCR7;	
+					break;
+					
+				case EBI2L:
+					receptor = Lymphocyte.Receptor.EBI2;	
+					break;
+				default:
+					break;
+				}
+
+				double[][][] ia3Concs = Chemokine.get(chemokine, (int) lymphocyte.x,
+						(int) lymphocyte.y, (int) lymphocyte.z);
+
+				// Assume the receptors are spread evenly around the cell
+				//int iReceptors = lymphocyte.m_iR_free / 6;
+
+				int iReceptors = lymphocyte.getM_LR(receptor)/6;
+				
+				
+				// get CXCL13 concentrations at each psuedopod
+				// {x+, x-, y+, y-, z+, z-}
+				double[] iaConcs = { ia3Concs[2][1][1], ia3Concs[0][1][1],
+						ia3Concs[1][2][1], ia3Concs[1][0][1], ia3Concs[1][1][2],
+						ia3Concs[1][1][0] };
+
+				double totalLigand = 0;
+				
+				//determine the total amount of ligand
+				for (int j = 0; j < 6; j++) // for each pseudopod
+				{
+					totalLigand += iaConcs[j];
+				}
+				
+				// store how many receptors are bound at each
+				// of the 6 pseudopods and store values in a double array
+				double[] iaBoundReceptors = new double[6];
+				
+				
+				for(int k = 0;k<6;k++){
+					double proportionToBind = 0;
+							
+					proportionToBind = iaConcs[k]/totalLigand;
+					iaBoundReceptors[k] = (int) (proportionToBind * iReceptors);
+					
+				}
+				
+				
+				return iaBoundReceptors;
 	
+		
+	}
 	
 	
 	/**
@@ -318,12 +389,13 @@ public class Algorithm2 extends Algorithm1{
 	Double3D getMoveDirection(Lymphocyte lymphocyte,Chemokine.TYPE chemokine1,Chemokine.TYPE chemokine2) {
 
 		
-		double[] iaBoundReceptors1 = calculateLigandBindingMolar(lymphocyte, chemokine1);
-		double[] iaBoundReceptors2 = calculateLigandBindingMolar(lymphocyte, chemokine2);
+		//TODO what are the implications of doing this twice, once here and once for receptor step
+		//double[] iaBoundReceptors1 = calculateLigandBindingMolar(lymphocyte, chemokine1);
+		//double[] iaBoundReceptors2 = calculateLigandBindingMolar(lymphocyte, chemokine2);
 		
 
-		
-		
+		double[] iaBoundReceptors1 = calculateLigandBound(lymphocyte, chemokine1);
+		double[] iaBoundReceptors2 = calculateLigandBound(lymphocyte, chemokine2);
 		
 
 		// the new direction for the cell to move
@@ -431,6 +503,8 @@ public class Algorithm2 extends Algorithm1{
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
 				
+				
+				//System.out.println("cell is chemotactic");
 				//if there's sufficient directional bias
 				//can affect cell polarity
 				persistence = Settings.BC.POLARITY;
@@ -473,10 +547,14 @@ public class Algorithm2 extends Algorithm1{
 		if (vMovement == null || vMovement.lengthSq() == 0) {
 			// no data! so do a random turn
 			
+			
+			
+			//System.out.println("cell is random walk");
+			
 			//TODO from what i remember this was between 0.5-2
 			//was just used to set speed so need to redefine this function...
 			//speaking of which this should be in the model documentation
-			//persistence = Settings.BC.POLARITY;
+			persistence = Settings.BC.RANDOM_POLARITY;
 			
 			//this was the old bit of code to do it
 			//vMovement = Vector3DHelper.getRandomDirectionInCone(bc.getM_d3Face(),
@@ -486,10 +564,20 @@ public class Algorithm2 extends Algorithm1{
 			Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(lymphocyte.getM_d3Face(),
 					Settings.BC.MAX_TURN_ANGLE());
 			
-			//newdirection = newdirection.multiply(persistence);
 			
-			//update the direction that the cell is facing
+			// we need to scale this new direction or it will assume the old one is equal
+			newdirection = newdirection.multiply(persistence);
+			
+		
+		
+			
+			//update the direction that the cell is facing 
+			// TODO put this back as it was
+			//this assumes that the two signals are equal and this is not the case so need to scale it
 			vMovement = lymphocyte.getM_d3Face().add(newdirection);
+			
+			
+			
 			
 			//TODO review this code, we may not need it...
 			//now add noise to this

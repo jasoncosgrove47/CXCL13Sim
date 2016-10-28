@@ -252,6 +252,7 @@ public class Settings {
 		public static void convertAnglesToRadians() {
 			DIRECTION_ERROR = Math.toRadians(DIRECTION_ERROR_DEGREES);
 			MAX_TURN_ANGLE = Math.toRadians(MAX_TURN_ANGLE_DEGREES);
+			System.out.println("max turn angle is: " + MAX_TURN_ANGLE);
 		}
 
 		/**
@@ -455,7 +456,7 @@ public class Settings {
 			public static double Koff_PREFIX;
 			
 			private static double scaleKoff() {
-				return (Koff_PREFIX * 1e-3);
+				return (Koff_PREFIX * 1);
 			}
 			
 			

@@ -387,6 +387,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		
 		double totalChemokineinMoles = calculateTotalChemokineLevels();
 		//this is the volume of the entire compartment in liters
+		//need to know what total compartmental volume is
 		double vol = 7.84e-9;
 		
 		//System.out.println("total chemokine (Molar) is: " + totalChemokineinMoles/vol);		

@@ -550,6 +550,9 @@ public class Algorithm1 implements MigrationAlgorithm{
 				double RfK3 = h * ((Ka * iaConcs[i]) + RfK2 / 2);
 				double RfK4 = h * ((Ka * iaConcs[i]) + RfK3);
 
+				
+				
+				
 				// the total change in bound receptor for this time increment is
 				// given b this equation
 				proportionToBind += ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
@@ -569,7 +572,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		}
 
-		consumeLigand(lymphocyte, chemokine);
+		//consumeLigand(lymphocyte, chemokine);
 
 		return iaBoundReceptors;
 	}

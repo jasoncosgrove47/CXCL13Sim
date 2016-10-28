@@ -13,6 +13,7 @@ import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
+import sim3d.cell.Lymphocyte.Receptor;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.stroma.StromaEdge;
@@ -86,6 +87,16 @@ public class cognateBC extends BC {
 			}
 			counter++;
 		}
+		
+	
+		/*
+		System.out.println("Rf_BC: " + this.getM_Rf(Receptor.CXCR5));
+		System.out.println("LR: " + this.getM_LR(Receptor.CXCR5));
+		System.out.println("Ri: " + this.getM_Ri(Receptor.CXCR5));
+		System.out.println("Rd: " + this.getM_Rd(Receptor.CXCR5));
+	*/
+	
+	
 	}
 	
 	

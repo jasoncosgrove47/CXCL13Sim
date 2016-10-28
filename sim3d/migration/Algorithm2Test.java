@@ -211,6 +211,7 @@ public class Algorithm2Test {
 		double[] results;
 		results = a2.calculateLigandBindingMoles(bc, chemokine);
 
+		System.out.println("results: " + results[0]);
 		assertNotNull(results[0]);
 
 	}
@@ -287,6 +288,8 @@ public class Algorithm2Test {
 			bc.step(null);
 			m_pParticle.step(null);
 		}
+		
+		System.out.println("CXCR5" + bc.getM_LR(Lymphocyte.Receptor.CXCR5));
 
 		assertThat(bc.getM_LR(Lymphocyte.Receptor.CXCR5), not(equalTo(10000)));
 
@@ -294,6 +297,8 @@ public class Algorithm2Test {
 
 	/**
 	 * Assert that the total number of receptors remains constant TODO simplify
+	 * 
+	 * TODO this is buggy, shoudl not be passing
 	 */
 	@Test
 	public void testReceptorStepConservation() {
@@ -320,6 +325,7 @@ public class Algorithm2Test {
 		m_pParticle.step(null);
 		m_pParticle.step(null);
 
+		
 		// Randomly place a BCs
 		BC[] bcCells = new BC[1];
 		for (int i = 0; i < 1; i++) {
@@ -339,7 +345,7 @@ public class Algorithm2Test {
 		}
 
 		int totalReceptorParams = (Settings.BC.ODE.Rf + Settings.BC.ODE.Ri + Settings.BC.ODE.LR);
-		int totalReceptorSim = (bcCells[0].getM_LR(Lymphocyte.Receptor.CXCR5) + bcCells[0].getM_Rd(Lymphocyte.Receptor.CXCR5)+
+		int totalReceptorSim = (bcCells[0].getM_LR(Lymphocyte.Receptor.CXCR5) + bcCells[0].getM_Rd(Lymphocyte.Receptor.CXCR5) +
 				bcCells[0].getM_Ri(Lymphocyte.Receptor.CXCR5) + bcCells[0].getM_Rf(Lymphocyte.Receptor.CXCR5));
 
 		assertEquals(totalReceptorSim, totalReceptorParams);// why is this
