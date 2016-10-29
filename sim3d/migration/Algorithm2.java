@@ -39,7 +39,6 @@ public class Algorithm2 extends Algorithm1{
 			lymphocyte.handleBounce(); // Check for bounces
 			
 			
-			
 			ODESolver.solveODE(Settings.BC.ODE.K_a(),Settings.BC.ODE.K_r(),Settings.BC.ODE.K_i(),
 								0.37,0.065,chemokine1, lymphocyte);
 			
@@ -54,43 +53,6 @@ public class Algorithm2 extends Algorithm1{
 	
 
 	
-
-	/**
-	public void updateMigrationData2(Lymphocyte  bc, Double3D vMovement, double vectorMagnitude, double persistence, double scalar){
-		
-		// Reset all the movement/collision data
-		bc.getM_d3aCollisions().clear();
-		bc.setM_d3aMovements(new ArrayList<Double3D>());
-
-		// We make speed a function of cell polarity
-		// speed scalar will be zero if persistence 
-		// is equal to 1. calculated from maiuri paper in cell 2015
-		double speedScalar = (Math.log(Settings.BC.RANDOM_POLARITY / persistence))
-				/ scalar;
-
-	
-		
-		double travelDistance;
-		
-
-		// lets make travelDistance a gaussian for a better fit
-		// and constrain it so it cant give a value less than zero
-		do {
-			travelDistance = Settings.RNG.nextGaussian()
-					* Settings.BC.TRAVEL_DISTANCE_SD
-					+ Settings.BC.TRAVEL_DISTANCE();
-
-			// only sample within oneSD
-		} while (travelDistance <= 0);//must be greater than zero
-		
-		
-	
-		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
-	
-			
-	}
-	
-	*/
 	
 	
 	@Override
@@ -99,12 +61,6 @@ public class Algorithm2 extends Algorithm1{
 		// Reset all the movement/collision data
 		bc.getM_d3aCollisions().clear();
 		bc.setM_d3aMovements(new ArrayList<Double3D>());
-
-		// We make speed a function of cell polarity
-		// speed scalar will be zero if persistence 
-		// is equal to 1. calculated from maiuri paper in cell 2015
-		//double speedScalar = (Math.log(Settings.BC.RANDOM_POLARITY / persistence))
-		//		/ Settings.BC.SPEED_SCALAR;
 
 		
 		
@@ -117,25 +73,13 @@ public class Algorithm2 extends Algorithm1{
 		double receptorsInternal = CXCR5internal + EBI2internal;
 		double receptorsSignalling = CXCR5signalling + EBI2signalling;
 		
-		//System.out.println("receptorsInternal: " + receptorsInternal);
-		//System.out.println("receptorsSignalling: " + receptorsSignalling);
-		
-		//double receptors = calculateReceptorsSignalling(bc)
-	
-		//careful cos current implementation will affect sensitivity of the parameters
-		//needs to be scaled and what have you
-		
+		//TODO this needs to be an external parameter
 		double scalarval = 14.0;
 		
-		double speedScalar = (((receptorsSignalling / Settings.BC.ODE.Rf))*scalarval * Settings.BC.TRAVEL_DISTANCE());
 		
+		double speedScalar = (((receptorsSignalling / Settings.BC.ODE.Rf))*Settings.BC.SPEED_SCALAR * Settings.BC.TRAVEL_DISTANCE());
 		
-		//System.out.println("scalar: " +  (receptorsSignalling / Settings.BC.ODE.Rf)*scalarval * Settings.BC.TRAVEL_DISTANCE());
-		
-		//System.out.println("r_percent: " + (receptorsSignalling / Settings.BC.ODE.Rf));
-		
-		//System.out.println("speedScalar: " + speedScalar);
-		
+	
 		double travelDistance;
 		
 
@@ -250,14 +194,6 @@ public class Algorithm2 extends Algorithm1{
 			double RdisK4 = h * ((Koff * iL_r) + RdisK3);
 
 			
-		
-			
-			//System.out.println("before Rf: " + lymphocyte.getM_Rf(receptor));
-			//System.out.println("before LR: " + lymphocyte.getM_LR(receptor));
-			//System.out.println("before Ri: " + lymphocyte.getM_Ri(receptor));
-			//System.out.println("before Rd: " + lymphocyte.getM_Rd(receptor));
-		
-			
 			int d_rf = lymphocyte.getM_Rf(receptor);
 			int d_ri = lymphocyte.getM_Ri(receptor);
 			//System.out.println("d_ri: " + d_ri);
@@ -288,30 +224,12 @@ public class Algorithm2 extends Algorithm1{
 			lymphocyte.setM_Ri(receptor, d_ri);
 			lymphocyte.setM_LR(receptor, d_lr);
 			lymphocyte.setM_Rd(receptor, d_rd);
-			
-			
-			//System.out.println("after Rf: " + lymphocyte.getM_Rf(receptor));
-			//System.out.println("after LR: " + lymphocyte.getM_LR(receptor));
-			//System.out.println("after Ri: " + lymphocyte.getM_Ri(receptor));
-			//System.out.println("after Rd: " + lymphocyte.getM_Rd(receptor));
-			
-			
-			/*
-			lymphocyte.m_iR_free += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
-					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
-					
-					
-			lymphocyte.m_iR_i += (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
-					- (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
-					
-			lymphocyte.m_iL_r -= (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
-					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
-			*/																		
+																			
 	
 		}
 	}
 	
-	private double[] calculateLigandBound(Lymphocyte lymphocyte, Chemokine.TYPE chemokine){
+	public static double[] calculateLigandBound(Lymphocyte lymphocyte, Chemokine.TYPE chemokine){
 		// need to figure out what is sensible to secrete per timestep, might as
 				// well do that in moles. Get the surrounding values for moles
 
@@ -371,8 +289,10 @@ public class Algorithm2 extends Algorithm1{
 				
 				return iaBoundReceptors;
 	
-		
 	}
+	
+	
+	
 	
 	
 	/**
@@ -388,11 +308,7 @@ public class Algorithm2 extends Algorithm1{
 	 */
 	Double3D getMoveDirection(Lymphocyte lymphocyte,Chemokine.TYPE chemokine1,Chemokine.TYPE chemokine2) {
 
-		
-		//TODO what are the implications of doing this twice, once here and once for receptor step
-		//double[] iaBoundReceptors1 = calculateLigandBindingMolar(lymphocyte, chemokine1);
-		//double[] iaBoundReceptors2 = calculateLigandBindingMolar(lymphocyte, chemokine2);
-		
+	
 
 		double[] iaBoundReceptors1 = calculateLigandBound(lymphocyte, chemokine1);
 		double[] iaBoundReceptors2 = calculateLigandBound(lymphocyte, chemokine2);
