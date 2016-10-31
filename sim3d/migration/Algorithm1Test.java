@@ -35,16 +35,21 @@ import ec.util.MersenneTwisterFast;
 
 public class Algorithm1Test {
 
+	
+	
+
+	/*
 	BC bc = new BC();
 	private Schedule schedule = new Schedule();
 	private Chemokine m_pParticle;
 	public static Document parameters;
-
+*/
 	
 	
 	/**
 	 * Initialise the simulation parameters
 	 */
+	/*
 	private static void loadParameters() {
 
 		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
@@ -54,7 +59,9 @@ public class Algorithm1Test {
 		Settings.FDC.loadParameters(parameters);
 		
 	}
+	*/
 
+	/*
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 
@@ -111,12 +118,14 @@ public class Algorithm1Test {
 		BC.drawEnvironment = null;
 	}
 
-
+*/
 
 	/**
 	 * Test that determinespacetomove() returns true when 
 	 * there is space to move
 	 */
+	
+	/*
 	@Test
 	public void testDetermineSpaceToMove() {
 		// no other cells around so should return true
@@ -126,11 +135,14 @@ public class Algorithm1Test {
 				bc.z + 0.2);
 		assertEquals(true, test);
 	}
+	*/
 
 	/**
 	 * Test that determinespacetomove() returns false 
 	 * when there isn't space to move
 	 */
+	
+	/*
 	@Test
 	public void testdetermineSpaceToMove2() {
 		
@@ -153,12 +165,14 @@ public class Algorithm1Test {
 
 	}
 
+*/
 
 	
 	/**
 	 * Test that calculateWhereToMoveNext can update the m_d3aMovements array.
 	 * TODO this test could definitely be refined
 	 */
+	/*
 	@Test
 	public void testCalculateWhereToMoveNext() {
 		
@@ -170,12 +184,13 @@ public class Algorithm1Test {
 		// assert movements list has been updated
 		assertEquals(false, bc.getM_d3aMovements().isEmpty());
 	}
-
+*/
 	
 	/**
 	 * Test that perform saved movements takes data from m_d3aMovements and
 	 * updates cells location accordingly
 	 */
+	/*
 	@Test
 	public void testPerformSavedMovements() {
 
@@ -190,10 +205,13 @@ public class Algorithm1Test {
 		assertEquals(new Double3D(bc.x, bc.y, bc.z), targetLocation);
 
 	}
+	*/
 
 	/**
 	 * test that a BC can't be accessed once marked as dead
 	 */
+	
+	/*
 	@Test
 	public void testRemoveDeadCell() {
 		BC bcTemp = new BC();
@@ -202,6 +220,7 @@ public class Algorithm1Test {
 		bcTemp.removeDeadCell(BC.bcEnvironment);
 		assertEquals(false, BC.bcEnvironment.exists(bcTemp));
 	}
+	*/
 
 	/**
 	 * Test that getLigandBinding can detect chemokine Integration tests to
@@ -212,6 +231,8 @@ public class Algorithm1Test {
 	 * we can calculate how much chemokine is in the surrounding gridspaces
 	 * and make sure that the results reflect that
 	 */
+	
+	/*
 	@Test
 	public void testGetLigandBinding() {
 
@@ -231,9 +252,11 @@ public class Algorithm1Test {
 
 	}
 
+*/
 	/**
 	 * Test that no ligand binds if there is no chemokine there
 	 */
+	/*
 	@Test
 	public void testGetLigandBinding2() {
 		
@@ -244,6 +267,7 @@ public class Algorithm1Test {
 		results = a1.calculateLigandBindingMoles(bc, chemokine);
 		assertThat(results[0], equalTo(0.0));
 	}
+	*/
 
 	/**
 	 * test that getMoveDirection returns a double3D Integration tests ensure
@@ -254,6 +278,7 @@ public class Algorithm1Test {
 	 * 
 	 * 
 	 */
+	/*
 	@Test
 	public void testGetMoveDirection() {
 
@@ -270,6 +295,7 @@ public class Algorithm1Test {
 		assertNotNull(test);
 
 	}
+	*/
 
 
 
@@ -280,6 +306,7 @@ public class Algorithm1Test {
 	/**
 	 * Assert that receptor numbers can change over time
 	 */
+	/*
 	@Test
 	public void testReceptorStepDynamic() {
 
@@ -307,10 +334,12 @@ public class Algorithm1Test {
 		assertThat(bc.getM_LR(Lymphocyte.Receptor.CXCR5), not(equalTo(10000)));
 
 	}
+	*/
 
 	/**
 	 * Assert that the total number of receptors remains constant TODO simplify
 	 */
+	/*
 	@Test
 	public void testReceptorStepConservation() {
 		m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -9));
@@ -361,5 +390,8 @@ public class Algorithm1Test {
 		assertEquals(totalReceptorSim, totalReceptorParams);// why is this
 															// condition here?
 	}
+	*/
+	
+	
 
 }

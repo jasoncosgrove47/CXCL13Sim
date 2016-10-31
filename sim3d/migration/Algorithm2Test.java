@@ -149,6 +149,7 @@ public class Algorithm2Test {
 
 
 	
+	
 	/**
 	 * Test that calculateWhereToMoveNext can update the m_d3aMovements array.
 	 * TODO this test could definitely be refined

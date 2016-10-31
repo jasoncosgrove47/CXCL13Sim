@@ -17,6 +17,7 @@ import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.cell.BC;
+import sim3d.cell.Lymphocyte.Receptor;
 import sim3d.cell.cognateBC;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
@@ -34,6 +35,7 @@ public class BCIntegrationTests {
 	// a new schedule to step the tests
 	private Schedule schedule = new Schedule();
 	private Chemokine m_pParticle; // an instance of particle moles
+	private Chemokine m_pParticle2; // an instance of particle moles
 	public static Document parameters; // parameter file in .xml format
 
 
@@ -77,6 +79,10 @@ public class BCIntegrationTests {
 		// instantiate particlemoles
 		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
+		
+		m_pParticle2 = new Chemokine(schedule, Chemokine.TYPE.EBI2L,
+				31, 31, 31);
+		
 
 		// initialise the BC environment
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
@@ -361,7 +367,8 @@ public class BCIntegrationTests {
 	@Test
 	public void testTRANSIENTSENSITIVITY() {
 		for (int i = 0; i < 31; i++) {
-			m_pParticle.field[15][15][i] = 4000;
+			m_pParticle.field[15][15][i] = 0;
+			m_pParticle2.field[15][15][i] = 0;
 		}
 
 		// Let's diffuse a little
@@ -402,8 +409,20 @@ public class BCIntegrationTests {
 		// determine where all of the cells are localised
 		int[] iaResults = new int[5];
 		for (int i = 0; i < 250; i++) {
+
+
+			
 			iaResults[(int) (5 * (bcCells[i].z - 1) / 29.0)]++;
+			
+			
+			
 		}
+		
+		for(int i = 0;i < iaResults.length;i++){
+			
+			System.out.println("number of cells in zone: " + i + " " + iaResults[i]);
+		}
+		
 		assertEquals("0-6", 50, iaResults[0], 15.0);
 		assertEquals("6-12", 50, iaResults[1], 15.0);
 		assertEquals("12-18", 50, iaResults[2], 15.0);
@@ -420,8 +439,9 @@ public class BCIntegrationTests {
 	 */
 	@Test
 	public void testNONCXCR5EXPRESSINGequalsDESENSITISED() {
+		
 		for (int i = 0; i < 31; i++) {
-			m_pParticle.field[15][15][i] = 4000;
+			m_pParticle.field[15][15][i] = 10e-22;
 		}
 
 		// get rid of all CXCR5
@@ -453,6 +473,8 @@ public class BCIntegrationTests {
 		}
 
 		// Let them move a bit
+		
+	
 		for (int i = 0; i < 800; i++) {
 			for (int j = 0; j < 250; j++) {
 				bcCells[j].step(null);
@@ -464,17 +486,22 @@ public class BCIntegrationTests {
 			}
 			m_pParticle.step(null);
 		}
+	
 
 		// determine where all of the cells are localised
 		int[] iaResults = new int[5];
 		for (int i = 0; i < 250; i++) {
+	
 			iaResults[(int) (5 * (bcCells[i].z - 1) / 29.0)]++;
+
+
 		}
 		assertEquals("0-6", 50, iaResults[0], 15.0);
 		assertEquals("6-12", 50, iaResults[1], 15.0);
 		assertEquals("12-18", 50, iaResults[2], 15.0);
 		assertEquals("18-24", 50, iaResults[3], 15.0);
 		assertEquals("24-30", 50, iaResults[4], 15.0);
+		
 	}
 
 }

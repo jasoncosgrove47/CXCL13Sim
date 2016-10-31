@@ -38,6 +38,7 @@ public class BCTest {
 	BC bc = new BC();
 	private Schedule schedule = new Schedule();
 	private Chemokine m_pParticle;
+	private Chemokine m_pParticle2;
 	public static Document parameters;
 
 	/**
@@ -62,6 +63,7 @@ public class BCTest {
 		Settings.WIDTH = 31;
 		Settings.HEIGHT = 31;
 		Settings.DEPTH = 31;
+		
 
 		Settings.CXCL13.DIFFUSION_COEFFICIENT = 0.0000000000076;
 		Settings.GRID_SIZE = 0.00001;
@@ -85,6 +87,10 @@ public class BCTest {
 	public void setUp() throws Exception {
 
 		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CXCL13,
+				31, 31, 31);
+		
+		
+		m_pParticle2 = new Chemokine(schedule, Chemokine.TYPE.EBI2L,
 				31, 31, 31);
 
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
@@ -483,7 +489,7 @@ public class BCTest {
 		}
 
 		int totalReceptorParams = (Settings.BC.ODE.Rf + Settings.BC.ODE.Ri + Settings.BC.ODE.LR);
-		int totalReceptorSim = (bcCells[0].getM_LR(Lymphocyte.Receptor.CXCR5) + 
+		int totalReceptorSim = (bcCells[0].getM_LR(Lymphocyte.Receptor.CXCR5) + bcCells[0].getM_Rd(Lymphocyte.Receptor.CXCR5) +
 				bcCells[0].getM_Ri(Lymphocyte.Receptor.CXCR5) + bcCells[0].getM_Rf(Lymphocyte.Receptor.CXCR5));
 
 		assertEquals(totalReceptorSim, totalReceptorParams);// why is this

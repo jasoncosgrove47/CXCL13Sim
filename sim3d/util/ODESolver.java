@@ -77,6 +77,7 @@ public class ODESolver {
 			}
 			
 			
+			
 			iR_i = lymphocyte.getM_Ri(receptor);	
 			iL_r = lymphocyte.getM_LR(receptor);	
 			iR_d = lymphocyte.getM_Rd(receptor);
@@ -136,7 +137,7 @@ public class ODESolver {
 			double ligandDissociation = (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
 			
 			//add chemokine that dissociates to grid
-			consumeLigand(lymphocyte,chemokine, ligandDissociation);
+			addChemokine(lymphocyte,chemokine, ligandDissociation);
 			
 			double receptorsDesensitised = (int) ((LRdK1 / 6) + (LRdK2 / 3) + (LRdK3 / 3) + (LRdK4 / 6));
 			

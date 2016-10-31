@@ -55,6 +55,7 @@ public class Settings {
 		Node sbN = sbNL.item(0);
 		SIGNALLING_BIAS= Double.parseDouble(sbN.getTextContent());
 
+		
 		//NodeList diffusionNL = paramOElement
 		//		.getElementsByTagName("DIFFUSION_COEFFICIENT");
 		//Node diffusionN = diffusionNL.item(0);
@@ -397,6 +398,10 @@ public class Settings {
 				Node KiN = KiNL.item(0);
 				Ki = Double.parseDouble(KiN.getTextContent());
 				
+				NodeList KdesNL = paramODEElement.getElementsByTagName("Kdes");
+				Node KdesN = KdesNL.item(0);
+				Kdes = Double.parseDouble(KdesN.getTextContent());
+				
 				NodeList KoffNL = paramODEElement.getElementsByTagName("Koff");
 				Node KoffN = KoffNL.item(0);
 				Koff_PREFIX = Double.parseDouble(KoffN.getTextContent());
@@ -432,6 +437,8 @@ public class Settings {
 				return Ri;
 			}
 
+			
+			public static double Kdes;
 			
 			public static double Ka_EBI2;
 			
