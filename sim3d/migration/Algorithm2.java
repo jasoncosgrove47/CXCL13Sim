@@ -146,8 +146,8 @@ public class Algorithm2 extends Algorithm1{
 		} while (travelDistance <= 0);//must be greater than zero
 		
 		
-		//bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
-		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
+		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
+		//bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
 			
 	}
 	

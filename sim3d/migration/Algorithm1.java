@@ -33,7 +33,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * TODO conclusion will need to be updated
 	 */
-	/*
+	
 	@Override
 	public void performMigration(Lymphocyte lymphocyte) {
 		
@@ -63,7 +63,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	
 
 	}
-	*/
+
 	
 	
 	/*
@@ -71,7 +71,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * TODO shouldnt need to be updated
 	 */
-	/*
+	
 	public void performSavedMovements(Lymphocyte lymphocyte) {
 
 		for (Double3D d3Movement : lymphocyte.getM_d3aMovements()) {
@@ -93,7 +93,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 		}
 
 	}
-	*/
+
 
 	/**
 	 * Determines if there is space to move to a target destination
@@ -110,7 +110,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * @param z
 	 * @return
 	 */
-	/*
+
 	public boolean determineSpaceToMove(double x, double y, double z) {
 		Double3D putativeLocation = new Double3D(x, y, z);
 
@@ -135,7 +135,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 			return false;
 	}
 
-	*/
+	
 	
 	/**
 	 * 
@@ -160,7 +160,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * cell updates its movements array (M_d3aMovements) so the movements
 	 * can be performed at the next timestep
 	 */
-	/*
+
 	public void calculateWhereToMoveNext(Lymphocyte lymphocyte,Chemokine.TYPE chemokine) {
 		Double3D vMovement = getMoveDirection(lymphocyte, chemokine);
 		double vectorMagnitude = vMovement.lengthSq();
@@ -246,10 +246,10 @@ public class Algorithm1 implements MigrationAlgorithm{
 		updateMigrationData(lymphocyte, vMovement,vectorMagnitude, persistence);
 	}
 	
-	*/
+
 	
 	
-	/*
+
 	public void updateMigrationData(Lymphocyte  bc, Double3D vMovement, double vectorMagnitude, double persistence){
 		
 		// Reset all the movement/collision data
@@ -291,7 +291,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 			
 	}
 	
-	*/
+	
 
 	
 	/**
@@ -301,7 +301,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * 
 	 */
-	/*
+	
 	void receptorStep(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
 		double[] iaBoundReceptors = calculateLigandBindingMolar(lymphocyte,chemokine);
 
@@ -402,22 +402,22 @@ public class Algorithm1 implements MigrationAlgorithm{
 			
 			
 			
-			lymphocyte.m_iR_free += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
-					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
+			//lymphocyte.m_iR_free += (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6))
+			//		+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
 					
 					
-			lymphocyte.m_iR_i += (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
-					- (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
+			//lymphocyte.m_iR_i += (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
+			//		- (int) ((RfK1 / 6) + (RfK2 / 3) + (RfK3 / 3) + (RfK4 / 6));
 					
-			lymphocyte.m_iL_r -= (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
-					+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
+			//lymphocyte.m_iL_r -= (int) ((LRK1 / 6) + (LRK2 / 3) + (LRK3 / 3) + (LRK4 / 6))
+			//		+ (int) ((RdisK1 / 6) + (RdisK2 / 3) + (RdisK3 / 3) + (RdisK4 / 6));
 																					
 	
 		}
 	}
-	*/
 	
-/*
+	
+
 	public void consumeLigand(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
 		
 		double x = lymphocyte.x;
@@ -448,7 +448,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 	}
 
-*/
+
 	/**
 	 * 
 	 * Samples CXCL13 in the vicinity of the cell, and calculates a new movement
@@ -457,7 +457,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * @return The new direction for the cell to move
 	 * 
 	 */
-	/*
+
 	Double3D getMoveDirection(Lymphocyte lymphocyte,Chemokine.TYPE chemokine) {
 
 
@@ -478,7 +478,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		return vMovement;
 	}
-	*/
+
 
 	
 	
@@ -489,7 +489,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * receptor. Need this because parameter Ka is moles/litre/sec 
 	 * @return an int array with the number of bound receptors at each psuedopod
 	 */
-	/*
+
 	public double[] calculateLigandBindingMolar(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
 
 		Lymphocyte.Receptor receptor = null;
@@ -583,7 +583,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 
 		return iaBoundReceptors;
 	}
-	*/
+
 
 	/**
 	 * Helper method to calculate the amount of ligand bound to receptor returns
@@ -593,7 +593,7 @@ public class Algorithm1 implements MigrationAlgorithm{
 	 * 
 	 * @return
 	 */
-	/*
+
 	public double[] calculateLigandBindingMoles(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
 
 		// need to figure out what is sensible to secrete per timestep, might as
@@ -675,5 +675,5 @@ public class Algorithm1 implements MigrationAlgorithm{
 		}
 		return iaBoundReceptors;
 	}
-	*/
+	
 }
