@@ -11,7 +11,6 @@ import sim.util.Bag;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.cell.BC;
-import sim3d.cell.TC;
 import sim3d.cell.cognateBC;
 import sim3d.cell.cognateBC.TYPE;
 import sim3d.util.IO;
@@ -38,7 +37,7 @@ public class SystemTests {
 				IO.openXMLFile("/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml"));
 
 		// set the appropriate parameters
-		BC.setMultipleChemokines(false);
+
 		
 		
 		Settings.BC.COUNT = 0;

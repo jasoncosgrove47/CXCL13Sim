@@ -1,34 +1,25 @@
 package sim3d.cell;
 
-import sim.util.*;
+
 import sim.engine.*;
-import sim.field.continuous.Continuous3D;
 
 import java.awt.Color;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Map;
-
-import javax.media.j3d.Appearance;
 import javax.media.j3d.BranchGroup;
-import javax.media.j3d.ColoringAttributes;
-import javax.media.j3d.GeometryArray;
-import javax.media.j3d.LineArray;
+
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
-
 import com.sun.j3d.loaders.IncorrectFormatException;
 import com.sun.j3d.loaders.ParsingErrorException;
 import com.sun.j3d.loaders.Scene;
 import com.sun.j3d.loaders.objectfile.ObjectFile;
-
-import sim.portrayal3d.SimplePortrayal3D;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim3d.Settings;
+import sim3d.migration.Algorithm1;
 
 
 /**
@@ -44,6 +35,12 @@ public class TC extends Lymphocyte{
 	
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private Algorithm1 a2 = new Algorithm1();
+	
+	/**
 	 * Controls what a B cell agent does for each time step Each Bcell registers
 	 * its intended path on the collision grid, once all B cells register the
 	 * collision grid handles the movement at the next iteration the B cells are
@@ -52,36 +49,16 @@ public class TC extends Lymphocyte{
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
-		super.step(state);		
+
+		migrate(a2);
 	}
 
 
 	
-	public TC(){
-		initialiseReceptors();
-	}
 	
 	
 	
-	
-	public void initialiseReceptors(){
-		this.getM_receptorMap().put(Receptor.CCR7, new ArrayList<Integer>(3));
-		this.getM_receptorMap().get(Receptor.CCR7).add(0,Settings.BC.ODE.LR());
-		this.getM_receptorMap().get(Receptor.CCR7).add(1,Settings.BC.ODE.Rf());
-		this.getM_receptorMap().get(Receptor.CCR7).add(2,Settings.BC.ODE.Ri());
-		
-		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(3));
-		this.getM_receptorMap().get(Receptor.CXCR5).add(0,0);
-		this.getM_receptorMap().get(Receptor.CXCR5).add(1,0);
-		this.getM_receptorMap().get(Receptor.CXCR5).add(2,0);
-		
-		this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(3));
-		this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
-		this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
-		this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
-		
-		
-	}
+
 	
 	
 	
@@ -95,6 +72,8 @@ public class TC extends Lymphocyte{
 	 */
 	
 
+	
+	
 	
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
@@ -117,23 +96,20 @@ public class TC extends Lymphocyte{
 				try {
 					scene = f.load("/Users/jc1571/Desktop/Lymphocyte.obj");
 					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (IncorrectFormatException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (ParsingErrorException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 			
 				
 			    Map<String, Shape3D> nameMap = scene.getNamedObjects(); 
 
-			    for (String name : nameMap.keySet()) {
+			   // for (String name : nameMap.keySet()) {
 			        //System.out.printf("Name: %s\n", name); 
 			        
-			    }
+			    //}
 			    // Obtains a reference to a specific component in the scene 
 				Shape3D lc = nameMap.get("lymphocyte"); 
 

@@ -6,7 +6,6 @@ package sim3d.diffusion.algorithms;
 import static org.junit.Assert.assertEquals;
 
 
-//import org.hamcrest.number.IsCloseTo;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -16,9 +15,7 @@ import static org.hamcrest.Matchers.*;
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim3d.Settings;
-import sim3d.SimulationEnvironment;
 import sim3d.diffusion.Chemokine;
-import sim3d.util.IO;
 
 /**
  * @author simonjarrett, jason cosgrove
@@ -28,8 +25,6 @@ public class TestDiffusionAlgorithmMultiThread {
 	private Schedule schedule = new Schedule();
 	public static Document parameters;
 
-
-	//TODO needs to fail if D_Steps is less than 1!!!
 	
 	/**
 	 * @throws java.lang.Exception

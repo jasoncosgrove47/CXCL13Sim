@@ -8,7 +8,6 @@ import sim.engine.Steppable;
 import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.DoubleGrid3D;
 import sim3d.Settings;
-import sim3d.SimulationEnvironment;
 import sim3d.diffusion.algorithms.DiffusionAlgorithmMultiThread;
 
 /**
@@ -365,20 +364,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	 */
 	public void step(final SimState state) {
 
-
-	
-		
-		/*
-		// diffuse and decay at a rate diffusion steps per sim timestep
-		for (int i = 0; i < Settings.DIFFUSION_STEPS; i++) {
-			m_daDiffusionAlgorithm.diffuse(this);
-			
-			//this is not actually per second but per timstep - need a means of converting this....
-			//for now just do it minute by minute
-			decay();
-		}
-		*/
-		
 		adaptiveDiffusion();
 		updateDisplay();
 		
@@ -390,9 +375,18 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		//need to know what total compartmental volume is
 		double vol = 7.84e-9;
 		
-		//System.out.println("total chemokine (Molar) is: " + totalChemokineinMoles/vol);		
+		double molarconc = calculateMolarConcentration(vol, totalChemokineinMoles);
+		//System.out.println( "total chemokine (Molar) is: " + totalChemokineinMoles/vol);		
 	}
 
+	
+	
+	private double calculateMolarConcentration(double vol, double totalChemokineInMoles){
+		
+		return totalChemokineInMoles/vol;
+	}
+	
+	
 	public double calculateTotalChemokineLevels() {
 
 		double totalChemokineValue = 0;
@@ -404,7 +398,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 				}
 			}
 		}
-
 		return totalChemokineValue;
 
 	}

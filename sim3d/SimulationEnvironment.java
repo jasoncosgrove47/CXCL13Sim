@@ -28,6 +28,9 @@ import sim3d.util.StromaGenerator;
 
 public class SimulationEnvironment extends SimState {
 
+	
+	private static int follicleRadius = 13;
+	
 	private static final long serialVersionUID = 1;
 
 	/**
@@ -63,19 +66,20 @@ public class SimulationEnvironment extends SimState {
 	public Continuous3D frcEnvironment;
 
 	/**
-	 * Instance of the particle moles class
+	 * Instance of the CXCL13 class
 	 */
 	public static Chemokine CXCL13;
 
 	/**
-	 * Instance of the particle moles class
+	 * Instance of the CCL19 class
 	 */
 	public static Chemokine CCL19;
 
 	/**
-	 * Instance of the particle moles class
+	 * Instance of the EBI2L class
 	 */
 	public static Chemokine EBI2L;
+
 
 	/*
 	 * Parameter file: XML format
@@ -256,6 +260,9 @@ public class SimulationEnvironment extends SimState {
 	 * Seeds B cells into the FDC network
 	 */
 	void seedCells(CELLTYPE celltype) {
+		
+		
+		
 		int count = 0; // the number of cells to seed
 
 		// set the number of cells to seed
@@ -274,7 +281,7 @@ public class SimulationEnvironment extends SimState {
 
 			case B:
 				BC bc = new BC();
-				bc.setObjectLocation(generateCoordinateWithinCircle());
+				bc.setObjectLocation(generateCoordinateWithinCircle(follicleRadius));
 				scheduleStoppableCell(bc);
 				// so we only have 1 BC updating the ODE graph
 				if (i == 0) {
@@ -284,14 +291,14 @@ public class SimulationEnvironment extends SimState {
 
 			case cB:
 				cognateBC cbc = new cognateBC(i);
-				cbc.setObjectLocation(generateCoordinateWithinCircle());
+				cbc.setObjectLocation(generateCoordinateWithinCircle(follicleRadius));
 				scheduleStoppableCell(cbc);
 				break;
 
 			case T:
 				TC tc = new TC();
-				//tc.setObjectLocation(generateCoordinateOutsideCircle());
-				tc.setObjectLocation(generateCoordinateWithinCircle());
+				tc.setObjectLocation(generateCoordinateOutsideCircle(follicleRadius));
+
 				scheduleStoppableCell(tc);
 				break;
 
@@ -304,7 +311,7 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * @return a random Double3D inside a circle
 	 */
-	Double3D generateCoordinateWithinCircle() {
+	Double3D generateCoordinateWithinCircle(int circleRadius) {
 
 		int x, y, z;
 		do {
@@ -316,10 +323,9 @@ public class SimulationEnvironment extends SimState {
 			// the radius of the circle is 13 and it is inside this that we seed
 			// the b cells
 
-			// TODO we need to able to alter this value!!!
-			// this is not consistent with our parameter values!!!
+
 		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1,
-				(Settings.HEIGHT / 2) + 1, 13) == false);
+				(Settings.HEIGHT / 2) + 1, circleRadius) == false);
 
 		return new Double3D(x, y, z);
 	}
@@ -328,7 +334,7 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * @return a random Double3D inside a circle
 	 */
-	private Double3D generateCoordinateOutsideCircle() {
+	private Double3D generateCoordinateOutsideCircle(int circleRadius) {
 
 		int x, y, z;
 		do {
@@ -339,11 +345,8 @@ public class SimulationEnvironment extends SimState {
 			// keep generating new values while they are outside of the circle
 			// the radius of the circle is 13 and it is inside this that we seed
 			// the b cells
-
-			// TODO we need to able to alter this value!!!
-			// this is not consistent with our parameter values!!!
 		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1,
-				(Settings.HEIGHT / 2) + 1, 13) == true);
+				(Settings.HEIGHT / 2) + 1, circleRadius) == true);
 
 		return new Double3D(x, y, z);
 	}
@@ -486,7 +489,7 @@ public class SimulationEnvironment extends SimState {
 
 	}
 
-	// TODO this needs a lot of refactoring but passes the tests for the moment
+	// TODO this needs refactoring but going to change the stroma stuff soon anyway
 	// anyway
 	private void generateDendrites(CollisionGrid cgGrid,
 			ArrayList<StromaEdge> sealEdges, StromaEdge.TYPE type) {
@@ -602,10 +605,7 @@ public class SimulationEnvironment extends SimState {
 			}
 			// calculate the total number of dendrites in the network
 			totalNumberOfDendrites = calculateTotalNumberOfDendrites();
-			System.out.println("totalStromaObjects: "
-					+ fdcEnvironment.getAllObjects().size());
-			System.out.println("totalNumberOfBranches: "
-					+ totalNumberOfDendrites);
+
 		}
 
 	}

@@ -1,13 +1,11 @@
 package sim3d.cell;
 
-import static org.hamcrest.Matchers.greaterThan;
+
 import static org.junit.Assert.*;
 
 import javax.media.j3d.TransformGroup;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -20,12 +18,13 @@ import sim3d.stroma.StromaEdge;
 import dataLogger.Controller;
 import ec.util.MersenneTwisterFast;
 
+
 public class cognateBCTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		Settings.RNG = new MersenneTwisterFast();
-		BC.setMultipleChemokines(false);
+	
 		
 	}
 

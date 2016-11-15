@@ -1,6 +1,6 @@
 package sim3d.cell;
 
-import sim.engine.Steppable;
+
 import sim.field.continuous.Continuous3D;
 import sim.portrayal3d.SimplePortrayal3D;
 import sim.util.Double3D;

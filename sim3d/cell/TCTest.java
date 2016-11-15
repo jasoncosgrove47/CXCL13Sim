@@ -33,6 +33,7 @@ public class TCTest {
 
 	TC tc;
 	private Chemokine m_pParticle;
+	private Chemokine m_pParticle2;
 	private Schedule schedule = new Schedule();
 	public static Document parameters;
 	
@@ -60,21 +61,16 @@ public class TCTest {
 		Settings.HEIGHT = 31;
 		Settings.DEPTH = 31;
 
-		Settings.CCL19.DIFFUSION_COEFFICIENT = 0.0000000000076;
+		Settings.CXCL13.DIFFUSION_COEFFICIENT = 0.0000000000076;
 		Settings.GRID_SIZE = 0.00001;
 
 		// NEED TO DIVIDE THE WHOLE THING BY 60 AS DIFFUSION UPDATES
 		// EVERY SECOND BUT CELLS EVERY 1 MIN
-		Settings.CCL19.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (40.15 * Settings.CCL19.DIFFUSION_COEFFICIENT));// need
+		Settings.CXCL13.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (40.15 * Settings.CCL19.DIFFUSION_COEFFICIENT));// need
 																													// to
 		Settings.CXCL13.DIFFUSION_STEPS = (int) (60 / Settings.CCL19.DIFFUSION_TIMESTEP);
 
-		System.out.println("coefficient: " + Settings.CCL19.DIFFUSION_COEFFICIENT
-				+ "timestep: " + Settings.CCL19.DIFFUSION_STEPS + "steps: "
-				+ Settings.CXCL13.DIFFUSION_TIMESTEP);
-		
-		
-		BC.setMultipleChemokines(false);
+
 		
 	}
 
@@ -82,12 +78,16 @@ public class TCTest {
 	public static void tearDownAfterClass() throws Exception {
 	}
 
+	
 	@Before
 	public void setUp() throws Exception {
 		tc = new TC();
 		
 
-		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CCL19,
+		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CXCL13,
+				31, 31, 31);
+		
+		m_pParticle2 = new Chemokine(schedule, Chemokine.TYPE.EBI2L,
 				31, 31, 31);
 
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
@@ -97,11 +97,12 @@ public class TCTest {
 		tc.setObjectLocation(new Double3D(Settings.RNG.nextInt(14) + 8,
 				Settings.RNG.nextInt(14) + 8, Settings.RNG.nextInt(14) + 8));
 
-		for (int i = 0; i < 3; i++) {
+		//for (int i = 0; i < 3; i++) {
 
-			tc.step(null);
-			m_pParticle.step(null);
-		}
+			//tc.step(null);
+//			m_pParticle.step(null);
+//			m_pParticle2.step(null);
+	//	}
 		
 		
 		
@@ -141,7 +142,6 @@ public class TCTest {
 	/**
 	 * Tests that register collisions can add data to the collisionGrid
 	 * 
-	 * TODO needs refining
 	 */
 	@Test
 	public void testRegisterCollisions() {
@@ -160,6 +160,7 @@ public class TCTest {
 		//bc.m_d3aMovements.add(loc2);
 		tc.registerCollisions(cgGrid);
 
+		
 		// assert that the collision data is added
 		assertEquals(true, cgGrid.getM_i3lCollisionPoints().size() > 0);
 		
@@ -169,6 +170,8 @@ public class TCTest {
 			
 		
 	}
+	
+	
 	
 	
 	/**
@@ -406,7 +409,7 @@ public class TCTest {
 	@Test
 	public void testReceptorStepDynamic() {
 
-		m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -9));
+		m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -22));
 
 		Settings.BC.ODE.Rf = 10000;
 		Settings.BC.ODE.Ri = 10000;
@@ -423,8 +426,9 @@ public class TCTest {
 
 		for (int i = 0; i < 30; i++) {
 
+			System.out.println("iteration is: " + i);
 			tc.step(null);
-			m_pParticle.step(null);
+			//m_pParticle.step(null);
 		}
 
 		assertThat(tc.getM_LR(Lymphocyte.Receptor.CCR7), not(equalTo(10000)));
@@ -432,11 +436,11 @@ public class TCTest {
 	}
 
 	/**
-	 * Assert that the total number of receptors remains constant TODO simplify
+	 * Assert that the total number of receptors remains constant 
 	 */
 	@Test
 	public void testReceptorStepConservation() {
-		m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -9));
+		m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -22));
 
 		Settings.BC.ODE.Rf = 1000;
 		Settings.BC.ODE.Ri = 1000;
@@ -473,13 +477,14 @@ public class TCTest {
 			for (int j = 0; j < 1; j++) {
 				tcCells[j].step(null);// why are you passing in null
 			}
-			m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -9));
+			m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -22));
 			m_pParticle.step(null);
 		}
 
+		
 		int totalReceptorParams = (Settings.BC.ODE.Rf + Settings.BC.ODE.Ri + Settings.BC.ODE.LR);
-		int totalReceptorSim = (tcCells[0].getM_LR(Lymphocyte.Receptor.CCR7) + 
-				tcCells[0].getM_Ri(Lymphocyte.Receptor.CCR7) + tcCells[0].getM_Rf(Lymphocyte.Receptor.CCR7));
+		int totalReceptorSim = (tcCells[0].getM_LR(Lymphocyte.Receptor.CXCR5) + 
+				tcCells[0].getM_Ri(Lymphocyte.Receptor.CXCR5) + tcCells[0].getM_Rf(Lymphocyte.Receptor.CXCR5) + tcCells[0].getM_Rd(Lymphocyte.Receptor.CXCR5));
 
 		assertEquals(totalReceptorSim, totalReceptorParams);// why is this
 															// condition here?

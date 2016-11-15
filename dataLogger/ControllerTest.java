@@ -15,15 +15,13 @@ import sim3d.SimulationEnvironment;
 public class ControllerTest {
 
 	/**
-	 * Test that when the simulation starts
-	 *  experimentFinished is set to false
+	 * Test that when the simulation starts experimentFinished is set to false
 	 */
 	@Test
 	public void testExperimentFinished() {
 
 		// upon starting, experimentFinished should be set to false
-		assertEquals("experimentFinished should be false", false,
-				SimulationEnvironment.experimentFinished);
+		assertEquals("experimentFinished should be false", false, SimulationEnvironment.experimentFinished);
 	}
 
 	/**
@@ -35,14 +33,13 @@ public class ControllerTest {
 		Settings.EXPERIMENTLENGTH = 10;
 		Controller controller = new Controller();
 
-		// step contoller 11 times
+		// step contoller ExperimentLength times times
 		for (int i = 0; i < Settings.EXPERIMENTLENGTH + 1; i++) {
 			controller.step(null);
 		}
 
 		// check that the experiment finished guard has been updated
-		assertEquals("experimentFinished should be false", true,
-				SimulationEnvironment.experimentFinished);
+		assertEquals("experimentFinished should be false", true, SimulationEnvironment.experimentFinished);
 	}
 
 }

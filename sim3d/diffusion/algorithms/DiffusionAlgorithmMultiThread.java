@@ -196,10 +196,7 @@ public class DiffusionAlgorithmMultiThread
 						[(zEdge == -1) ? z : zEdge] // i.e. this one isn't on
 													// the edge
 								
-							
-						//TODO this line bounces it back in so try let it equal to zero	
-						//= 0;	
-						//TODO make the boundary condition a parameter
+					
 						+= pSpace.field[x][y][z];
 						
 						// the actual boundary is zero but we are only
@@ -294,6 +291,7 @@ public class DiffusionAlgorithmMultiThread
 				for ( int z = iStartZ; z < iDepth; z++ )
 				{
 					// We now diffuse from this grid space outwards
+					
 					int iCount = 0;
 					for ( int r = -1; r < 2; r++ )
 					{

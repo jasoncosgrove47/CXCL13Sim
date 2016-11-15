@@ -6,8 +6,9 @@ import sim3d.SimulationEnvironment;
 
 public final class outputToCSV {
 	/**
-	 * Forms the view component of the MVC (see controller) responsible for 
+	 * Forms the view component of the MVC (see controller) responsible for
 	 * exporting in .csv format
+	 * 
 	 * @author jason cosgrove
 	 */
 
@@ -24,7 +25,7 @@ public final class outputToCSV {
 		double networkScanned;
 
 		try {
-			
+
 			processedDataWriter = new FileWriter(processedFileName);
 			// set the data headings
 			processedDataWriter.append("TrackID");
@@ -41,15 +42,11 @@ public final class outputToCSV {
 			processedDataWriter.append('\n');
 
 			// for each tracker cell
-			for (Integer key : Controller.getInstance().getCoordinates()
-					.keySet()) {
+			for (Integer key : Controller.getInstance().getCoordinates().keySet()) {
 				double[] results = ProcessData.processMigrationData(key);
 
-				
-				
 				// calculate the percentage of the network scanned
-				dendritesVisited = (double) Controller.getInstance()
-						.getDendritesVisited().get(key);
+				dendritesVisited = (double) Controller.getInstance().getDendritesVisited().get(key);
 
 				// divide the number of dendrites visited by the total number of
 				// dendrites
@@ -81,7 +78,7 @@ public final class outputToCSV {
 	}
 
 	/**
-	 * Writes raw data to csv files
+	 * Write the unprocessed raw data to .csv files
 	 */
 	public static void writeRawDataToFile(String rawFileName) {
 
@@ -107,8 +104,7 @@ public final class outputToCSV {
 			rawDataWriter.append('\n');
 
 			// for each tracker cell
-			for (Integer key : Controller.getInstance().getCoordinates()
-					.keySet()) {
+			for (Integer key : Controller.getInstance().getCoordinates().keySet()) {
 				ProcessData.processRawData(key, rawDataWriter);
 			}
 

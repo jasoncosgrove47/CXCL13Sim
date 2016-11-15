@@ -5,14 +5,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.media.j3d.TransformGroup;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,7 +20,6 @@ import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
-import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 import sim3d.diffusion.Chemokine;
@@ -68,24 +64,23 @@ public class BCTest {
 		Settings.CXCL13.DIFFUSION_COEFFICIENT = 0.0000000000076;
 		Settings.GRID_SIZE = 0.00001;
 
+		
 		// NEED TO DIVIDE THE WHOLE THING BY 60 AS DIFFUSION UPDATES
 		// EVERY SECOND BUT CELLS EVERY 1 MIN
 		Settings.CXCL13.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (40.15 * Settings.CXCL13.DIFFUSION_COEFFICIENT));// need
 																													// to
 		Settings.CXCL13.DIFFUSION_STEPS = (int) (60 / Settings.CXCL13.DIFFUSION_TIMESTEP);
 
-		System.out.println("coefficient: " + Settings.CXCL13.DIFFUSION_COEFFICIENT
-				+ "timestep: " + Settings.CXCL13.DIFFUSION_STEPS + "steps: "
-				+ Settings.CXCL13.DIFFUSION_TIMESTEP);
+
 		
-		
-		BC.setMultipleChemokines(false);
+	
 
 	}
 
 	@Before
 	public void setUp() throws Exception {
 
+		
 		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
 		

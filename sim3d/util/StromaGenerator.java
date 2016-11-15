@@ -5,7 +5,6 @@ import java.util.List;
 
 import sim.util.Double3D;
 import sim3d.Settings;
-import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
 
 /**

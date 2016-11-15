@@ -14,7 +14,6 @@ import sim3d.util.IO;
  * configurations and pass in -Xmx3000m
  * 
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
-
  */
 
 
@@ -33,6 +32,7 @@ public class consoleRun {
 	/**
 	 * Run the simulation
 	 */
+	
 	public static void main(String[] args) {
 
 		// output the start time
@@ -66,7 +66,7 @@ public class consoleRun {
 
 			// run the simulation for 500 steps to allow it to reach
 			// steady-state
-			if (steps == 80) {
+			if (steps == 100) {
 
 				// update the steadyState guard to begin recording data
 				SimulationEnvironment.steadyStateReached = true;
@@ -98,16 +98,26 @@ public class consoleRun {
 	
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
-		Date formattedendtime = new Date(endtime);
-		System.out.println("endtime: " + sdf.format(formattedendtime));
-		long totaltime = endtime - starttime;
-		// convert milliseconds to minutes
-		System.out.println("total time taken to run: " + totaltime / 60000
-				+ " minutes and " + (totaltime % 60000) / 1000 + " seconds");
 
+
+		System.out.println(calculateRunTime(starttime, endtime, sdf));
+		
 		System.exit(0);
 	}
 
+	
+	private static String calculateRunTime(long startTime, long endTime, SimpleDateFormat sdf){
+		
+		Date formattedendtime = new Date(endTime);
+		System.out.println("endtime: " + sdf.format(formattedendtime));
+		long totaltime = endTime - startTime;
+		// convert milliseconds to minutes
+		return("total time taken to run: " + totaltime / 60000
+				+ " minutes and " + (totaltime % 60000) / 1000 + " seconds");
+		
+		
+		
+	}
 
 
 }

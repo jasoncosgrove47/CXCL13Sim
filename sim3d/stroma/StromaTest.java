@@ -13,19 +13,17 @@ import javax.media.j3d.TransformGroup;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Document;
+
 
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
-import sim.util.Int3D;
 import sim3d.Settings;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 import sim3d.diffusion.Chemokine;
 import sim3d.util.StromaGenerator;
-import sim3d.util.IO;
 import sim3d.util.StromaGenerator.StromalCell;
 
 public class StromaTest {

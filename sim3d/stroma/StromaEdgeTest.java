@@ -1,18 +1,15 @@
 package sim3d.stroma;
 
-import static org.hamcrest.Matchers.greaterThan;
+
 import static org.junit.Assert.*;
 
 import javax.media.j3d.TransformGroup;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+
 import org.junit.Test;
 
 import sim.util.Double3D;
-import sim.util.Int3D;
+
 import sim3d.Settings;
 import sim3d.cell.BC;
 import sim3d.collisiondetection.CollisionGrid;

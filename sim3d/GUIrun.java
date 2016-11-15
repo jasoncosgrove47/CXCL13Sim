@@ -38,6 +38,7 @@ public class GUIrun extends GUIState {
 		return "BSim";
 	}
 
+	
 	/**
 	 * Main method which sets up a simulation.
 	 */

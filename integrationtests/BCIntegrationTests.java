@@ -17,7 +17,6 @@ import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.cell.BC;
-import sim3d.cell.Lymphocyte.Receptor;
 import sim3d.cell.cognateBC;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
@@ -32,6 +31,7 @@ import static org.hamcrest.Matchers.*;
  */
 public class BCIntegrationTests {
 
+	
 	// a new schedule to step the tests
 	private Schedule schedule = new Schedule();
 	private Chemokine m_pParticle; // an instance of particle moles
@@ -66,10 +66,7 @@ public class BCIntegrationTests {
 		Settings.CXCL13.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.00 * Settings.CXCL13.DIFFUSION_COEFFICIENT));
 		Settings.CXCL13.DIFFUSION_STEPS = (int) (60 / Settings.CXCL13.DIFFUSION_TIMESTEP);
 
-		// useful for debugging to know what these values are
-		System.out.println("coefficient: " + Settings.CXCL13.DIFFUSION_COEFFICIENT
-				+ "timestep: " + Settings.CXCL13.DIFFUSION_STEPS + "steps: "
-				+ Settings.CXCL13.DIFFUSION_TIMESTEP);
+
 
 	}
 
@@ -94,7 +91,6 @@ public class BCIntegrationTests {
 		Settings.BC.ODE.Rf = 30000;
 		Settings.BC.ODE.Ri = 0;
 		
-		BC.setMultipleChemokines(false);
 
 	}
 
@@ -115,9 +111,9 @@ public class BCIntegrationTests {
 	public void testCXCL13SENSITIVE() {
 
 		
-		double test1 = m_pParticle.field[15][15][15];
 
-		System.out.println("test1: " + test1);
+
+	
 
 		m_pParticle.field[15][15][15] = (1 * Math.pow(10, -16));
 
@@ -162,9 +158,6 @@ public class BCIntegrationTests {
 			avDistance += bcLoc.length();
 		}
 
-		double test = m_pParticle.field[12][12][12];
-		System.out.println("amount of chemokine is: " + test);
-		System.out.println("avdist: " + (avDistance / 100));
 		// assert that BCs accumulate at the source of chemokine
 		assertThat(avDistance / 100, lessThan(9.0));
 
@@ -418,10 +411,7 @@ public class BCIntegrationTests {
 			
 		}
 		
-		for(int i = 0;i < iaResults.length;i++){
-			
-			System.out.println("number of cells in zone: " + i + " " + iaResults[i]);
-		}
+
 		
 		assertEquals("0-6", 50, iaResults[0], 15.0);
 		assertEquals("6-12", 50, iaResults[1], 15.0);
@@ -436,20 +426,23 @@ public class BCIntegrationTests {
 	 * concentration of chemokine, i.e. the stromal network
 	 * 
 	 * Can fail on occasion due to chance so needs to be run multiple times.
-	 *  TODO we really need to reassess this.
+	 *  TODO we really need to reassess this.it passes even when they have receptors :(
 	 * 
 	 */
 	@Test
 	public void testNONCXCR5EXPRESSINGequalsDESENSITISED() {
 		
 		for (int i = 0; i < 31; i++) {
-			m_pParticle.field[15][15][i] = 10e-22;
+			m_pParticle.field[15][15][i] = 0;//10e-30;
+			m_pParticle2.field[15][15][i] = 0;
 		}
 
 		// get rid of all CXCR5
-		Settings.BC.ODE.LR = 0;
-		Settings.BC.ODE.Rf = 0;
-		Settings.BC.ODE.Ri = 0;
+		Settings.BC.ODE.LR = 00;
+		Settings.BC.ODE.Rf = 00;
+		Settings.BC.ODE.Ri = 00;
+		
+
 
 		// Let's diffuse a little
 		Settings.CXCL13.DIFFUSION_STEPS = 2;
@@ -477,14 +470,15 @@ public class BCIntegrationTests {
 		// Let them move a bit
 		
 	
-		for (int i = 0; i < 800; i++) {
+		for (int i = 0; i < 80; i++) {
 			for (int j = 0; j < 250; j++) {
 				bcCells[j].step(null);
 			}
 
 			// chemokine diffuses faster than cells are updated
 			for (int k = 0; k < 31; k++) {
-				m_pParticle.field[15][15][k] = (1.7 * Math.pow(10, -9));
+				m_pParticle.field[15][15][k] = 0;// (1.7 * Math.pow(10, -22));
+				m_pParticle2.field[15][15][k] = 0;
 			}
 			m_pParticle.step(null);
 		}

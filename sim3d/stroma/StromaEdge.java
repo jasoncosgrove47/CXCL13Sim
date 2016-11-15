@@ -12,8 +12,7 @@ import javax.media.j3d.TransformGroup;
 import javax.media.j3d.TransparencyAttributes;
 import javax.vecmath.Point3d;
 
-import sim.engine.SimState;
-import sim.engine.Steppable;
+
 import sim.field.continuous.Continuous3D;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.util.Double3D;
@@ -62,7 +61,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	/**
 	 * Define colours so that we can add an antigen heatmap later if required.
-	 * TODO there might be a cool figure we could get out of this!
 	 */
 	public java.awt.Color blue0 = new Color(30, 40, 190, 180);
 	public java.awt.Color blueLow = new Color(30, 40, 190, 0);

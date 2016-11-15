@@ -1,9 +1,9 @@
 package sim3d.util;
 
-import sim3d.Settings;
+
 import sim3d.cell.Lymphocyte;
 import sim3d.diffusion.Chemokine;
-import sim3d.migration.Algorithm2;
+
 
 /**
  * 4th order Runge Kutta Solver as described from:

@@ -2,29 +2,21 @@ package sim3d.stroma;
 
 
 
-import java.awt.Color;
-import java.io.FileNotFoundException;
-import java.util.Enumeration;
-import java.util.Hashtable;
 
-import javax.media.j3d.Appearance;
-import javax.media.j3d.BranchGroup;
-import javax.media.j3d.ColoringAttributes;
-import javax.media.j3d.Shape3D;
-import javax.media.j3d.Transform3D;
+import java.awt.Color;
+
+
+
 import javax.media.j3d.TransformGroup;
 
-import com.sun.j3d.loaders.IncorrectFormatException;
-import com.sun.j3d.loaders.ParsingErrorException;
-import com.sun.j3d.loaders.Scene;
-import com.sun.j3d.loaders.objectfile.ObjectFile;
+
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.continuous.Continuous3D;
-import sim.portrayal3d.SimplePortrayal3D;
+
 import sim.portrayal3d.simple.CubePortrayal3D;
-import sim.portrayal3d.simple.Shape3DPortrayal3D;
+
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
@@ -50,6 +42,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	double MRCsecretionRate_EBI2L  = Settings.MRC.EBI2L_EMITTED();
 	
 
+	
 
 	private Color m_col;
 	private TYPE stromatype;
@@ -193,7 +186,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				
 
 				CubePortrayal3D s = new CubePortrayal3D(col,0.75);
-				//TODO this needs to be a rectangle shape and not a sphere!!
+
 				//SpherePortrayal3D s = new SpherePortrayal3D(
 				//		Settings.FDC.DRAW_COLOR(),
 				//		Settings.FDC.STROMA_NODE_RADIUS * 4, 6);

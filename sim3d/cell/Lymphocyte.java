@@ -1,5 +1,6 @@
 package sim3d.cell;
 
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -27,10 +28,7 @@ import sim.util.Int3D;
 import sim3d.Settings;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
-import sim3d.collisiondetection.Collidable.CLASS;
-import sim3d.diffusion.Chemokine.TYPE;
 import sim3d.migration.Algorithm1;
-import sim3d.migration.Algorithm2;
 import sim3d.migration.MigrationAlgorithm;
 import sim3d.migration.MigratoryCell;
 import sim3d.stroma.StromaEdge;
@@ -61,9 +59,8 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	public void initialiseReceptors(){
 		
 
-
 		//need to have a chat with simon about this one
-		Algorithm2.multipleChemokines = true;
+
 		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(4));
 		this.getM_receptorMap().get(Receptor.CXCR5).add(0,Settings.BC.ODE.LR());
 		this.getM_receptorMap().get(Receptor.CXCR5).add(1,Settings.BC.ODE.Rf());
@@ -80,6 +77,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		this.getM_receptorMap().get(Receptor.CCR7).add(0,0);
 		this.getM_receptorMap().get(Receptor.CCR7).add(1,0);
 		this.getM_receptorMap().get(Receptor.CCR7).add(2,0);
+		this.getM_receptorMap().get(Receptor.CCR7).add(3,0);
 		
 		this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(4));
 		this.getM_receptorMap().get(Receptor.EBI2).add(0,Settings.BC.ODE.LR());
@@ -167,7 +165,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	/*
 	 * Determines the position of a BC on a stromal edge
 	 */
-	private Algorithm1 a1 = new Algorithm1();
+	private Algorithm1 a2 = new Algorithm1();
 	
 	/*
 	 * Determines how many collisions a BC has had this timestep necessary to
@@ -220,7 +218,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
-		migrate(a1);	
+		migrate(a2);
 	}
 
 	/**

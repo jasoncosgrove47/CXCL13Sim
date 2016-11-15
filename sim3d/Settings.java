@@ -57,6 +57,7 @@ public class Settings {
 
 	
 
+		
 	}
 
 	/*
@@ -201,7 +202,6 @@ public class Settings {
 		public static void convertAnglesToRadians() {
 			DIRECTION_ERROR = Math.toRadians(DIRECTION_ERROR_DEGREES);
 			MAX_TURN_ANGLE = Math.toRadians(MAX_TURN_ANGLE_DEGREES);
-			System.out.println("max turn angle is: " + MAX_TURN_ANGLE);
 		}
 
 		/**
@@ -677,7 +677,7 @@ public class Settings {
 			return (Math.pow(GRID_SIZE, 2) / (10 * DIFFUSION_COEFFICIENT));
 		}
 		
-		// TODO exception handling if D_Steps is less than 1!!!! 
+
 
 		/**
 		 * multiply by 60 as we want to update diffusion in seconds and not minutes
@@ -755,7 +755,6 @@ public class Settings {
 			return (Math.pow(GRID_SIZE, 2) / (10 * DIFFUSION_COEFFICIENT));
 		}
 		
-		// TODO exception handling if D_Steps is less than 1!!!! 
 
 		/**
 		 * multiply by 60 as we want to update diffusion in seconds and not minutes
@@ -835,7 +834,6 @@ public class Settings {
 			return (Math.pow(GRID_SIZE, 2) / (10 * DIFFUSION_COEFFICIENT));
 		}
 		
-		// TODO exception handling if D_Steps is less than 1!!!! 
 
 		/**
 		 * multiply by 60 as we want to update diffusion in seconds and not minutes

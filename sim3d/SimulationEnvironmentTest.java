@@ -23,6 +23,7 @@ import sim3d.util.IO;
 public class SimulationEnvironmentTest {
 
 	SimulationEnvironment sim;
+	Chemokine m_pParticle;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -61,7 +62,8 @@ public class SimulationEnvironmentTest {
 		SimulationEnvironment sim = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 		
-		Chemokine m_pParticle = new Chemokine(sim.schedule, Chemokine.TYPE.CXCL13,
+		
+		m_pParticle = new Chemokine(sim.schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
 
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
@@ -121,13 +123,14 @@ public class SimulationEnvironmentTest {
 	@Test
 	public void testDisplayLevel() {
 
-		Chemokine m_pParticle = new Chemokine(sim.schedule, Chemokine.TYPE.CXCL13,
+		m_pParticle = new Chemokine(sim.schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
 
 		sim.setDisplayLevel(10);
 		assertEquals(sim.getDisplayLevel(),10 );
 		
 	}
+	
 	
 	
 	/**
@@ -140,10 +143,12 @@ public class SimulationEnvironmentTest {
 		SimulationEnvironment sim = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 
-		Double3D test = sim.generateCoordinateWithinCircle();
+		int radius = 13;
+		
+		Double3D test = sim.generateCoordinateWithinCircle(radius);
 
 		assertEquals(true, sim.isWithinCircle((int) test.x, (int) test.y,
-				(Settings.WIDTH / 2) + 1, (Settings.HEIGHT / 2) + 1, 13));
+				(Settings.WIDTH / 2) + 1, (Settings.HEIGHT / 2) + 1, radius));
 
 	}
 
@@ -165,7 +170,7 @@ public class SimulationEnvironmentTest {
 
 		//now assert that instances of StromaEdge and FDC have been placed
 		Bag test = sim.fdcEnvironment.getAllObjects();
-		Iterator itr = test.iterator();
+		Iterator<?> itr = test.iterator();
 		int SEcounter = 0;
 		int FDCcounter = 0;
 		while(itr.hasNext()) {

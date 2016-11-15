@@ -68,8 +68,9 @@ public class Grajdeanu extends DiffusionAlgorithmMultiThread implements Serializ
 					// in 3D!) this stops anisotropy as accounts for fact that diagonal
 					// neighbours are further away than lateral ones
 
-					// TODO add some value to the center squares diffusion
-					// coefficient such that more chemokine stays there. Remember 
+					// We can add some value to the center squares diffusion
+					// coefficient such that more chemokine stays there if we 
+					// want to simulate confined diffusion. Remember 
 					// that the algorithm weights each surrounding gridspace and 
 					// then normalises it so we can increase the weighting at the 
 					// central space by doing this
