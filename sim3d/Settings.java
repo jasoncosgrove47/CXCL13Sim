@@ -524,7 +524,7 @@ public class Settings {
 
 		//how much is secreted in nanomoles (NOT MOLAR)
 		public static double scaleEmissionRate(double emissionrate) {
-			return (emissionrate * 1E-18);
+			return (emissionrate * 1E-21);
 		}
 
 		public static double CXCL13_EMITTED() {
@@ -557,6 +557,14 @@ public class Settings {
 			Element paramFRCElement = (Element) params.getElementsByTagName(
 					"FRC").item(0);
 
+			NodeList countNL = paramFRCElement.getElementsByTagName("RCCOUNT");
+			Node countN = countNL.item(0);
+			COUNT = Integer.parseInt(countN.getTextContent());
+			
+			NodeList countSCS = paramFRCElement.getElementsByTagName("SCSDEPTH");
+			Node countSC = countSCS.item(0);
+			SCSDEPTH = Integer.parseInt(countSC.getTextContent());
+			
 			NodeList ccl19NL = paramFRCElement
 					.getElementsByTagName("CCL19_EMITTED_FRC");
 			Node ccl19N = ccl19NL.item(0);
@@ -577,6 +585,9 @@ public class Settings {
 		private static double emissionrate;
 
 		public static double CCL19_EMITTED;
+		
+		public static int COUNT;
+		public static int SCSDEPTH;
 		
 	}
 	

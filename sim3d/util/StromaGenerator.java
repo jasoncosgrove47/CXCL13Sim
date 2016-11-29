@@ -1,10 +1,14 @@
 package sim3d.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import sim.util.Double3D;
 import sim3d.Settings;
+import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
 
 /**
@@ -16,6 +20,10 @@ import sim3d.stroma.StromaEdge;
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
 public class StromaGenerator {
+	
+	
+	
+	
 	/**
 	 * Class to keep track of edges for each cell
 	 */
@@ -37,7 +45,7 @@ public class StromaGenerator {
 		 * We're only interested in these because they are needed to generate
 		 * the directions
 		 */
-		ArrayList<Double3D> d3lEdges = new ArrayList<Double3D>();
+		public ArrayList<Double3D> d3lEdges = new ArrayList<Double3D>();
 
 		/**
 		 * Constructor
@@ -86,7 +94,12 @@ public class StromaGenerator {
 		// because it is of an abstract interface
 		ArrayList<StromalCell>[][][] frcla3CellLocations = new ArrayList[iWidth][iHeight][iDepth];
 		ArrayList<StromalCell> frclUnbranchedCells = new ArrayList<StromalCell>();
-
+		ArrayList<Double3D> locs = new ArrayList<Double3D>();
+		
+		
+		//we need to initialise the stroma array
+		
+		//what is this doing create an arraylist at each of the stromal cell locations
 		for (int x = 0; x < iWidth; x++) {
 			for (int y = 0; y < iHeight; y++) {
 				for (int z = 0; z < iDepth; z++) {
@@ -129,8 +142,13 @@ public class StromaGenerator {
 				iEdges++;
 			}
 
+			
+			
+
+			
+			
 			// if we have edges to add
-			if (iEdges > 0) {
+			if (iEdges > 0 ) {
 				// Get some directions
 				Double3D[] d3aDirections = generateDirections(iWidth, iHeight,
 						iDepth, frcla3CellLocations, frcNextCell, iEdges);
@@ -140,23 +158,55 @@ public class StromaGenerator {
 						frclUnbranchedCells, frcla3CellLocations, frcNextCell,
 						d3aDirections);
 
+				//lets keep track of everything we,ve put down so as not to get confused
+				
+			
+				
 				for (Double3D d3Direction : d3aDirections) {
+
+					
+					
+					
 					if (d3Direction != null) {
 						// Add the edges
-						selEdges.add(new StromaEdge(frcNextCell.d3Location,
+						
+
+						StromaEdge edge = new StromaEdge(frcNextCell.d3Location,
 								new Double3D(frcNextCell.d3Location.x
 										+ d3Direction.x,
 										frcNextCell.d3Location.y
 												+ d3Direction.y,
 										frcNextCell.d3Location.z
-												+ d3Direction.z), StromaEdge.TYPE.RC_edge));
+												+ d3Direction.z), StromaEdge.TYPE.RC_edge);
+						
+						selEdges.add(edge);
+				
+						
 					}
 						
 				}
 			}
 
+
+
+			//do a final check so there are no overlaps
+			boolean include = true;
+			for(int x = 0; x < frclCellLocations.size(); x++){
+				
+				if(calcDistance(frcNextCell.d3Location,
+						frclCellLocations.get(x).d3Location) < 0.1){
+					
+					include = false;
+				}
+				
+			}
+			
 			// Move the cell to the locations list
+			
+			if(include){
 			frclCellLocations.add(frcNextCell);
+			}
+			
 			frclUnbranchedCells.remove(frcNextCell);
 		}
 
@@ -170,6 +220,8 @@ public class StromaGenerator {
 	
 	/**
 	 * Generates a stromal network and returns the nodes in a 3D boolean array.
+	 * 
+	 * This is for an FDC NETWORK
 	 * 
 	 * @param iWidth
 	 *            Width of grid
@@ -208,6 +260,10 @@ public class StromaGenerator {
 		int iRemainingCells = iCellCount - 1;
 
 		while (iRemainingCells > 0 && frclUnbranchedCells.size() > 0) {
+			
+			
+			//need to make sure that there are no overlaps at this point
+			
 			StromalCell frcNextCell = pickNextCell(iWidth, iHeight, iDepth,
 					frclUnbranchedCells, frcla3CellLocations);
 			// FRCCell frcNextCell = frclUnbranchedCells.get(
@@ -238,14 +294,24 @@ public class StromaGenerator {
 				Double3D[] d3aDirections = generateDirections(iWidth, iHeight,
 						iDepth, frcla3CellLocations, frcNextCell, iEdges);
 
+				
+	
+				
 				// Create some cells at this direction
 				iRemainingCells -= createNewCells(iWidth, iHeight, iDepth,
 						frclUnbranchedCells, frcla3CellLocations, frcNextCell,
 						d3aDirections);
 
 				for (Double3D d3Direction : d3aDirections) {
+					
+					
+					
+					
 					if (d3Direction != null) {
 						// Add the edges
+						
+
+						
 						selEdges.add(new StromaEdge(frcNextCell.d3Location,
 								new Double3D(frcNextCell.d3Location.x
 										+ d3Direction.x,
@@ -253,16 +319,23 @@ public class StromaGenerator {
 												+ d3Direction.y,
 										frcNextCell.d3Location.z
 												+ d3Direction.z), StromaEdge.TYPE.FDC_edge));
-					}
+						}
 						
 				}
 			}
 
+			
+			
+			
+			
 			// Move the cell to the locations list
 			frclCellLocations.add(frcNextCell);
 			frclUnbranchedCells.remove(frcNextCell);
 		}
 
+		
+		
+		
 		return iCellCount - iRemainingCells;
 	}
 
@@ -271,7 +344,10 @@ public class StromaGenerator {
 	
 	
 	
+	//i need to store the indices of all the overlapping cells
+	// in a datastructure
 	
+
 	
 	
 	
@@ -329,6 +405,8 @@ public class StromaGenerator {
 			}
 		}
 
+	
+
 		return frclReturn;
 	}
 
@@ -363,6 +441,10 @@ public class StromaGenerator {
 	/**
 	 * Add cells to the grid and add the edges to reach them
 	 * 
+	 * TODO: im pretty sure this one is the culprit
+	 * 
+	 *
+	 * 
 	 * @param iWidth
 	 *            Width of the space
 	 * @param iHeight
@@ -383,6 +465,9 @@ public class StromaGenerator {
 			ArrayList<StromalCell> frclCellLocations,
 			ArrayList<StromalCell>[][][] frcla3CellLocations, StromalCell frcOrigin,
 			Double3D[] d3aDirections) {
+		
+		
+	
 		int iCellsCreated = 0;
 
 		for (int i = 0; i < d3aDirections.length; i++) {
@@ -440,6 +525,8 @@ public class StromaGenerator {
 			// If we don't do this, the grid is ridiculously dense
 			ArrayList<StromalCell> d3lAdjacent = getAdjacentCells(iWidth, iHeight,
 					iDepth, frcla3CellLocations, frcNewPoint, 1.6);
+			
+			
 
 			// If there is one (and it isn't itself)
 			if (d3lAdjacent.size() > 1
@@ -447,10 +534,14 @@ public class StromaGenerator {
 				// Pick a random one (probably only one)
 				StromalCell newLoc = d3lAdjacent.get(Settings.RNG
 						.nextInt(d3lAdjacent.size()));
+				
+				//TODO need to make sure that they are not too close!!!
+				//but the problem doesnt seem to be here....
 
-				while (newLoc == frcOrigin) {
+				while (newLoc == frcOrigin ) {
 					newLoc = d3lAdjacent.get(Settings.RNG.nextInt(d3lAdjacent
 							.size()));
+					
 				}
 
 				// draw an edge to the existing cell
@@ -509,6 +600,7 @@ public class StromaGenerator {
 		do {
 			bFail = false;
 
+			//where we store the new locations
 			d3aReturn[0] = new Double3D();
 
 			// account for the edges already going to this cell
@@ -516,6 +608,11 @@ public class StromaGenerator {
 				d3aReturn[0].subtract(d3Point);
 			}
 
+			
+			//for each cell, determine a suitable length
+			// ake sure there are no cells which are too close
+			
+			
 			for (int i = 1; i < iCellCount; i++) {
 
 				// This distribution... It approximately matches the paper, and
@@ -538,6 +635,8 @@ public class StromaGenerator {
 				// Yay! More magic numbers
 				length = 1.3 + length * 3.5;
 
+		
+				
 				// 2D special case
 				if (iDepth == 1) {
 					d3aReturn[i] = Vector3DHelper.getRandomDirection();
@@ -548,15 +647,21 @@ public class StromaGenerator {
 							.multiply(length);
 				}
 
+				
+				
 				// If there's a cell there, try again..?
 				if (getAdjacentCells(iWidth, iHeight, iDepth,
 						frcla3CellLocations,
 						new StromalCell(frcLocation.d3Location.add(d3aReturn[i])),
 						1.1).size() > 0) {
+					
+					
 					i--;
 					continue;
 				}
 
+				
+				
 				// Make sure we don't collide with other edges already made
 				boolean bCollision = false;
 				for (int j = 0; j < i; j++) {
@@ -580,7 +685,7 @@ public class StromaGenerator {
 			// If there are any cells too close to the final edge, try it all
 			// again!
 			if (getAdjacentCells(iWidth, iHeight, iDepth, frcla3CellLocations,
-					new StromalCell(frcLocation.d3Location.add(d3aReturn[0])), 1.2)
+					new StromalCell(frcLocation.d3Location.add(d3aReturn[0])), 1.2)//TODO was 1.2
 					.size() > 0) {
 				bFail = true;
 				continue;
@@ -601,8 +706,11 @@ public class StromaGenerator {
 
 			// just check we aren't making a huge edge!
 		} while (!bFail && d3aReturn[0].length() > 4
-				&& d3aReturn[0].length() < 1.1);
+				&& d3aReturn[0].length() < 1.1);//TODO put this back as it was
 
+		
+		
+		
 		return d3aReturn;
 	}
 

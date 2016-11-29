@@ -66,7 +66,7 @@ public class consoleRun {
 
 			// run the simulation for 500 steps to allow it to reach
 			// steady-state
-			if (steps == 100) {
+			if (steps == 1000) {
 
 				// update the steadyState guard to begin recording data
 				SimulationEnvironment.steadyStateReached = true;
@@ -93,7 +93,7 @@ public class consoleRun {
 		System.out.println("\nSimulation completed successfully!\n\n");
 
 		// write the recorded data and raw data to a .csv file
-		 //outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv" );
+		 outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv" );
 		 outputToCSV.writeDataToFile(outputPath + outputFileName);
 	
 		// Output the time taken for simulation to run

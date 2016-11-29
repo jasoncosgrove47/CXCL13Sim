@@ -131,30 +131,45 @@ public class Algorithm1 implements MigrationAlgorithm {
 		double CXCR5signalling = bc.getM_receptorMap().get(Receptor.CXCR5).get(0);
 		double EBI2signalling = bc.getM_receptorMap().get(Receptor.EBI2).get(0);
 
+	
+		
 		double receptorsSignalling = CXCR5signalling + EBI2signalling;
+		
+		//the Rf remains the same for ecah so dont need to do an individual scalar for each
 		double percentageSignalling = receptorsSignalling / Settings.BC.ODE.Rf;
 
 		double speedScalar = 0;
 
+		
+		//System.out.println("percentageSignalling is " + percentageSignalling);
+		
 		if (percentageSignalling > 0) {
 
-			speedScalar = (percentageSignalling * Settings.BC.SPEED_SCALAR * Settings.BC.TRAVEL_DISTANCE());
+			//need to constain speed scalar between 0 and 1
+			speedScalar = (percentageSignalling * Settings.BC.SPEED_SCALAR);
 
+			//System.out.println("percentageSignalling:" + percentageSignalling);
+			//System.out.println("speedScalar:" + speedScalar);
 		}
+		
+		
+		//double speedScalar = (Math.log(Settings.BC.RANDOM_POLARITY / persistence))
+		//		/ Settings.BC.SPEED_SCALAR;
 
-		double travelDistance;
+		double travelDistance = Settings.BC.TRAVEL_DISTANCE();
 
 		// TODO we stopped adding noise if i recall so look into getting rid of
 		// this term!
 		// lets make travelDistance a gaussian for a better fit
 		// and constrain it so it cant give a value less than zero
-		do {
-			travelDistance = Settings.RNG.nextGaussian() * Settings.BC.TRAVEL_DISTANCE_SD
-					+ Settings.BC.TRAVEL_DISTANCE();
+		//do {
+		//	travelDistance = Settings.RNG.nextGaussian() * Settings.BC.TRAVEL_DISTANCE_SD
+		//			+ Settings.BC.TRAVEL_DISTANCE();
 
 			// only sample within oneSD
-		} while (travelDistance <= 0);// must be greater than zero
+		//} while (travelDistance <= 0);// must be greater than zero
 
+		
 		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
 
 	}
@@ -315,14 +330,18 @@ public class Algorithm1 implements MigrationAlgorithm {
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
 
+				
 				// if there's sufficient directional bias
 				// can affect cell polarity
 				persistence = Settings.BC.POLARITY;
 
 				// Add some noise to the signal
-				Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
-						Math.toRadians(2));
+				//Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
+				//		Settings.BC.DIRECTION_ERROR());
 
+				
+				
+				Double3D newdirection = vMovement.normalize();
 				// scale the new vector with respect to the old vector,
 				// values less than 1 favour the old vector, values greater than
 				// 1 favour the new vector
@@ -332,10 +351,7 @@ public class Algorithm1 implements MigrationAlgorithm {
 				// update the direction that the cell is facing
 				vMovement = lymphocyte.getM_d3Face().add(newdirection);
 
-				// remember that this is half of the amount of noise that you
-				// actually want!
-				vMovement = Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
-						Settings.BC.DIRECTION_ERROR());
+		
 
 				// normalise the vector
 				if (vMovement.lengthSq() > 0) {
@@ -356,12 +372,16 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 			// was just used to set speed so need to redefine this function...
 			// speaking of which this should be in the model documentation
+
+			
 			persistence = Settings.BC.RANDOM_POLARITY;
 
 			// lets try the new way
 			Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(lymphocyte.getM_d3Face(),
 					Settings.BC.MAX_TURN_ANGLE());
 
+			
+		
 			// we need to scale this new direction or it will assume the old one
 			// is equal we were really forcing the new vector such that there was really
 			// no previous directional bias and perhaps more of a gas like
@@ -369,9 +389,14 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 			newdirection = newdirection.multiply(persistence);
 
+			//TODO need to delete these lines of code 
+	
+			
 			// update the direction that the cell is facing
 			vMovement = lymphocyte.getM_d3Face().add(newdirection);
 
+			
+			
 			// normalise the vector
 			if (vMovement.lengthSq() > 0) {
 				vMovement = vMovement.normalize();

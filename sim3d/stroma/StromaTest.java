@@ -73,7 +73,7 @@ public class StromaTest {
 	@Test
 	public void isStatic() {
 
-		Stroma frc = new Stroma(Stroma.TYPE.FRC);
+		Stroma frc = new Stroma(Stroma.TYPE.bRC);
 		assertTrue(frc.isStatic());
 		Stroma mrc = new Stroma(Stroma.TYPE.MRC);
 		assertTrue(mrc.isStatic());
@@ -133,7 +133,7 @@ public class StromaTest {
 		assertEquals(true, cgGrid_fdc.getM_i3lCollisionPoints().size() > 0);
 		
 		CollisionGrid cgGrid_frc = new CollisionGrid(31, 31, 31, 1);
-		Stroma frc = new Stroma(Stroma.TYPE.FRC);
+		Stroma frc = new Stroma(Stroma.TYPE.bRC);
 		frc.registerCollisions(cgGrid_frc);
 		assertEquals(true, cgGrid_frc.getM_i3lCollisionPoints().size() > 0);
 		
@@ -198,7 +198,7 @@ public class StromaTest {
 		Stroma fdc = new Stroma(Stroma.TYPE.FDC);
 		assertEquals(fdc.getCollisionClass(), CLASS.STROMA);
 		
-		Stroma frc = new Stroma(Stroma.TYPE.FRC);
+		Stroma frc = new Stroma(Stroma.TYPE.bRC);
 		assertEquals(frc.getCollisionClass(), CLASS.STROMA);
 		
 		Stroma mrc = new Stroma(Stroma.TYPE.MRC);

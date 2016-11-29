@@ -12,7 +12,7 @@ import javax.media.j3d.TransformGroup;
 import javax.media.j3d.TransparencyAttributes;
 import javax.vecmath.Point3d;
 
-
+import sim.engine.Stoppable;
 import sim.field.continuous.Continuous3D;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.util.Double3D;
@@ -42,6 +42,32 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	public static enum TYPE {
 		FDC_edge,FDC_branch,RC_edge
 	}
+	
+	
+	/**
+	 * Flag to show if this class has been stopped (when no longer needed)
+	 */
+	private Stoppable stopper = null;
+
+	/**
+	 * Method to change the value of the stopper this is the stoppabkle object
+	 * so we can access its stop method stoppable can acess BC but not the other
+	 * way round
+	 * 
+	 * @param stopper
+	 *            Whether the class should be stopped or not
+	 */
+	public void setStopper(Stoppable stopper) {
+		this.stopper = stopper;
+	}
+
+	/**
+	 * Method to stop the class where necessary
+	 */
+	public void stop() {
+		stopper.stop();
+	}
+	
 	
 	
 	private static final long serialVersionUID = 1L;
@@ -126,6 +152,9 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 */
 	public StromaEdge(Double3D d3Point1, Double3D d3Point2, TYPE type) {
 
+		
+		Color col = new Color(125, 10, 10, 15);
+		
 		this.setStromaedgetype(type);
 		
 		// makes sure that first point is always lower on the z axis
@@ -156,11 +185,15 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			break;
 		case FDC_branch:
 			setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);	
-			setM_col(Settings.FDC.DRAW_COLOR());
+			
+			Color col2 = new Color(125, 0, 0, 200);
+			setM_col(col2);
 			break;
 			
+			
+		
 		case RC_edge:
-			setM_col(Settings.FDC.DRAW_COLOR());
+			setM_col(col);
 			setAntigenLevel(0);	
 			break;
 			

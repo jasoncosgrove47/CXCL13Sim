@@ -73,7 +73,8 @@ public class GUIrun extends GUIState {
 	 * Color map which is used to visualise chemokine concentration concentration
 	 * Best to keep range witin one order of magnitude
 	 */
-	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
+	//set max saturation value to 25nM, lowest to 1nM
+	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(1.0e-21, 25e-21,
 			lightred, red);
 	public SimpleColorMap CCL19ColorMap = new SimpleColorMap(4.5e-21, 3.5e-20,
 			blueLow, blue2);

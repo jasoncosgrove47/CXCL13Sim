@@ -1,6 +1,7 @@
 package sim3d.cell;
 
 
+import sim.engine.Stoppable;
 import sim.field.continuous.Continuous3D;
 import sim.portrayal3d.SimplePortrayal3D;
 import sim.util.Double3D;
@@ -34,4 +35,8 @@ public abstract class DrawableCell3D extends SimplePortrayal3D {
 
 		getDrawEnvironment().setObjectLocation(this, new Double3D(x, y, z));
 	}
+	
+	
+
+	
 }

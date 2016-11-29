@@ -395,6 +395,8 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 			for (int y = 0; y < m_iHeight; y++) {
 				for (int z = 0; z < m_iDepth; z++) {
 					totalChemokineValue += this.field[x][y][z];
+					
+					
 				}
 			}
 		}

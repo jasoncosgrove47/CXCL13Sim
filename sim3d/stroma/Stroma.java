@@ -4,8 +4,7 @@ package sim3d.stroma;
 
 
 import java.awt.Color;
-
-
+import java.util.ArrayList;
 
 import javax.media.j3d.TransformGroup;
 
@@ -13,8 +12,9 @@ import javax.media.j3d.TransformGroup;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.engine.Stoppable;
 import sim.field.continuous.Continuous3D;
-
+import sim.portrayal3d.simple.CircledPortrayal3D;
 import sim.portrayal3d.simple.CubePortrayal3D;
 
 import sim.portrayal3d.simple.SpherePortrayal3D;
@@ -42,7 +42,46 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	double MRCsecretionRate_EBI2L  = Settings.MRC.EBI2L_EMITTED();
 	
 
+	public ArrayList<StromaEdge> m_dendrites; 
 	
+	/**
+	 * How to remove a BC from the schedule:
+	 * 
+	 * when you schedule the BC it will return a stoppable object we store this
+	 * object so we can access it when we need to stop the object. Then to
+	 * remove the object we simply call stop() on the stopper object the BC can
+	 * then be removed by garbage collection
+	 */
+	public void removeDeadCell(Continuous3D randomSpace) {
+		this.stop();
+		randomSpace.remove(this);
+	}
+
+	/**
+	 * Flag to show if this class has been stopped (when no longer needed)
+	 */
+	private Stoppable stopper = null;
+
+	/**
+	 * Method to change the value of the stopper this is the stoppabkle object
+	 * so we can access its stop method stoppable can acess BC but not the other
+	 * way round
+	 * 
+	 * @param stopper
+	 *            Whether the class should be stopped or not
+	 */
+	public void setStopper(Stoppable stopper) {
+		this.stopper = stopper;
+	}
+
+	/**
+	 * Method to stop the class where necessary
+	 */
+	public void stop() {
+		stopper.stop();
+	}
+	
+
 
 	private Color m_col;
 	private TYPE stromatype;
@@ -52,12 +91,15 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	boolean m_EBI2L  = false;
 	
 	public static enum TYPE {
-		FDC, FRC, MRC, LEC
+		FDC, bRC, MRC, LEC
 	}
 	
 	
 	//TODO need to sort out what the draw environment is...
 	public Stroma(TYPE type){
+		
+		
+		this.m_dendrites = new ArrayList<StromaEdge>();
 		
 		this.setStromatype(type);
 		
@@ -66,7 +108,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			m_CXCL13 = true;	
 			break;
 			
-		case FRC:
+		case bRC:
 			m_CCL19  = true;	
 			break;
 			
@@ -118,11 +160,14 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		
 		switch (this.getStromatype()) {
 		case FDC: 
+			
+			
 			if (transf == null) {
 				transf = new TransformGroup();
+				Color col2 =  new Color(100, 130, 40);
 
 				SpherePortrayal3D s = new SpherePortrayal3D(
-						Settings.FDC.DRAW_COLOR(),
+						col2,
 						Settings.FDC.STROMA_NODE_RADIUS * 2, 6);
 				s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 				TransformGroup localTG = s.getModel(obj, null);
@@ -133,13 +178,15 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			break;
 	
 			
-		case FRC:
+		case bRC:
 
 				if (transf == null) {
 					transf = new TransformGroup();
 
+					Color col = new Color(255, 100, 100, 125);
+					
 					SpherePortrayal3D s = new SpherePortrayal3D(
-							Settings.FRC.DRAW_COLOR(),
+							col,
 							Settings.FDC.STROMA_NODE_RADIUS * 2, 6);
 					s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 					TransformGroup localTG = s.getModel(obj, null);
@@ -153,17 +200,24 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			
 				if (transf == null) {
 					
+					
+					
+					
 
 					transf = new TransformGroup();
 
+					Color col = new Color(255, 0, 0, 200);
+					
+				
 					SpherePortrayal3D s = new SpherePortrayal3D(
-							Settings.FDC.DRAW_COLOR(),
-							Settings.FDC.STROMA_NODE_RADIUS * 2, 6);
+							col,
+							Settings.FDC.STROMA_NODE_RADIUS * 4, 6);
 					s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 					TransformGroup localTG = s.getModel(obj, null);
 
 					localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 					transf.addChild(localTG);
+				
 				
 				}
 		
@@ -226,6 +280,9 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	@Override
 	public void step(final SimState state) {
 
+		
+		//System.out.println(this.m_dendrites.size());
+		
 		if(m_CXCL13){
 			
 			if(this.stromatype == Stroma.TYPE.FDC){
