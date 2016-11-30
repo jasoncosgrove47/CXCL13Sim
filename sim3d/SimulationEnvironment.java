@@ -217,13 +217,13 @@ public class SimulationEnvironment extends SimState {
 		
 		
 		
-		//initialiseStromalCell(cgGrid, Stroma.TYPE.FDC);
+		initialiseStromalCell(cgGrid, Stroma.TYPE.FDC);
 		initialiseStromalCell(cgGrid, Stroma.TYPE.bRC);
-		//initialiseStromalCell(cgGrid, Stroma.TYPE.MRC);
+
 		seedSCS(cgGrid);
 		
 
-		//shapeNetwork();
+		shapeNetwork();
 			
 		// BCs will need to update their collision profile each
 		// step so tell them what collision grid to use
@@ -493,7 +493,7 @@ public class SimulationEnvironment extends SimState {
 									
 									Double3D nloc = new Double3D(neighbour.x, neighbour.y, neighbour.z);
 						
-									StromaEdge se = new StromaEdge(loc,nloc,StromaEdge.TYPE.FDC_branch);
+									StromaEdge se = new StromaEdge(loc,nloc,StromaEdge.TYPE.RC_edge);
 						
 									se.setObjectLocation(new Double3D(se.x,
 										se.y , se.z));
@@ -541,19 +541,19 @@ public class SimulationEnvironment extends SimState {
 					}					
 				}
 				
-				
-				
-				
+								
 				else if(fdc.getStromatype() == Stroma.TYPE.bRC){
 
+					//get rid of any FDCs which arent connected to any dendrites
+					if(fdc.m_dendrites.size() == 0){
+						deleteRC(fdc);	
+					}
+					
 					if(isWithinCircle((int)fdc.x, (int)fdc.y, (Settings.WIDTH / 2) + 1,
 							(Settings.HEIGHT / 2)+2 , 12)){
-					
-					
+						
 						deleteRC(fdc);
 						
-					
-	
 					}
 				}
 				
@@ -593,6 +593,19 @@ public class SimulationEnvironment extends SimState {
 			{
 				  frc.m_dendrites.add(seEdge);		
 			}
+			
+			
+			double distance = calcDistance(loc,edgeloc);
+			double distance2 = calcDistance(loc,edgeloc2);
+			
+
+			//sometimes they are very close but not perfectly in the same place. 
+			if(distance < 0.1 || distance2 < 0.1){
+				frc.m_dendrites.add(seEdge);	
+			}
+			
+			
+			
 	
 		}
 	
@@ -648,19 +661,7 @@ public class SimulationEnvironment extends SimState {
 				  Double3D j_p2 = new Double3D(sealEdges.get(j).getPoint2().x +1,
 						  sealEdges.get(j).getPoint2().y+1, sealEdges.get(j).getPoint2().z +1);
 				  
-				 //if there is an overlap
-				if(i_p1.x == j_p1.x && i_p1.y == j_p1.y && i_p1.z == j_p1.z
-						&& i_p2.x == j_p2.x && i_p2.y == j_p2.y && i_p2.z == j_p2.z ){
-					edgesToRemove.add(sealEdges.get(i));
-			
-				}
 				
-				//probably also need to check the inverse situation just to be sure...
-				if(i_p1.x == j_p2.x && i_p1.y == j_p2.y && i_p1.z == j_p2.z
-						&& i_p2.x == j_p1.x && i_p2.y == j_p1.y && i_p2.z == j_p1.z ){
-					edgesToRemove.add(sealEdges.get(i));
-			
-				}
 				
 				//sometimes get edges that are very close so need to account for this
 				double d1 = calcDistance(i_p1, j_p1);
@@ -670,11 +671,11 @@ public class SimulationEnvironment extends SimState {
 				
 				
 				
-				if(d1 < 0.2 && d4 < 0.2){
+				if(d1 < 0.15 && d4 < 0.15){
 					edgesToRemove.add(sealEdges.get(i));
 				}
 				
-				if(d2 < 0.2 && d3 < 0.2){
+				else if(d2 < 0.15 && d3 < 0.15){
 					edgesToRemove.add(sealEdges.get(i));
 				}
 				
