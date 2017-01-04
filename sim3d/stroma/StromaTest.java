@@ -51,7 +51,7 @@ public class StromaTest {
 		StromaEdge rc = new StromaEdge(new Double3D(0,0,0),new Double3D(0,0,0), StromaEdge.TYPE.RC_edge);
 		assertEquals(rc.getAntigenLevel(),0);
 		
-		StromaEdge fdcbranch = new StromaEdge(new Double3D(0,0,0),new Double3D(0,0,0), StromaEdge.TYPE.FDC_branch);
+		StromaEdge fdcbranch = new StromaEdge(new Double3D(0,0,0),new Double3D(0,0,0), StromaEdge.TYPE.FDC_edge);
 		assertThat(fdcbranch.getAntigenLevel(), greaterThan(0));
 		
 		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
@@ -209,7 +209,7 @@ public class StromaTest {
 		
 		StromaEdge fdcedge = new StromaEdge(d1,d2,StromaEdge.TYPE.FDC_edge);
 		StromaEdge frcedge = new StromaEdge(d1,d2,StromaEdge.TYPE.RC_edge);
-		StromaEdge fdcbranch = new StromaEdge(d1,d2,StromaEdge.TYPE.FDC_branch);
+		StromaEdge fdcbranch = new StromaEdge(d1,d2,StromaEdge.TYPE.FDC_edge);
 		
 		assertEquals(fdcedge.getCollisionClass(), CLASS.STROMA_EDGE);
 		assertEquals(frcedge.getCollisionClass(), CLASS.STROMA_EDGE);

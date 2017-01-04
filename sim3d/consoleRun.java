@@ -54,7 +54,7 @@ public class consoleRun {
 		// start the simulation
 		long steps = 0;
 		SimulationEnvironment.simulation.start();
-		System.out.println("EBI2Sim v1.0 - Console Version");
+		System.out.println("FollicleSim v1.0 - Console Version");
 		System.out
 				.println("\nAuthor: Jason Cosgrove, York Computational Immunology Lab");
 
@@ -66,7 +66,7 @@ public class consoleRun {
 
 			// run the simulation for 500 steps to allow it to reach
 			// steady-state
-			if (steps == 1000) {
+			if (steps == 150) {
 
 				// update the steadyState guard to begin recording data
 				SimulationEnvironment.steadyStateReached = true;

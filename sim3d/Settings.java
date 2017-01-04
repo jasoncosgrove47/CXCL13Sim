@@ -547,7 +547,7 @@ public class Settings {
 	/**
 	 * subclass containing all of the FRC parameters
 	 */
-	public static class FRC{
+	public static class bRC{
 		
 		
 	
@@ -555,7 +555,7 @@ public class Settings {
 			// Simulation Tag
 
 			Element paramFRCElement = (Element) params.getElementsByTagName(
-					"FRC").item(0);
+					"bRC").item(0);
 
 			NodeList countNL = paramFRCElement.getElementsByTagName("RCCOUNT");
 			Node countN = countNL.item(0);
@@ -565,12 +565,12 @@ public class Settings {
 			Node countSC = countSCS.item(0);
 			SCSDEPTH = Integer.parseInt(countSC.getTextContent());
 			
-			NodeList ccl19NL = paramFRCElement
-					.getElementsByTagName("CCL19_EMITTED_FRC");
-			Node ccl19N = ccl19NL.item(0);
-			emissionrate = Double.parseDouble(ccl19N.getTextContent());
+			NodeList cxcl13NL = paramFRCElement
+					.getElementsByTagName("CXCL13_EMITTED_FRC");
+			Node cxcl13N = cxcl13NL.item(0);
+			emissionrate = Double.parseDouble(cxcl13N.getTextContent());
 
-			CCL19_EMITTED = FDC.scaleEmissionRate(emissionrate);
+			CXCL13_EMITTED = FDC.scaleEmissionRate(emissionrate);
 		}
 		
 		public static Color DRAW_COLOR() {
@@ -578,13 +578,13 @@ public class Settings {
 		}
 		
 
-		public static double CCL19_EMITTED() {
-			return CCL19_EMITTED;
+		public static double CXCL13_EMITTED() {
+			return CXCL13_EMITTED;
 		}
 		
 		private static double emissionrate;
 
-		public static double CCL19_EMITTED;
+		public static double CXCL13_EMITTED;
 		
 		public static int COUNT;
 		public static int SCSDEPTH;

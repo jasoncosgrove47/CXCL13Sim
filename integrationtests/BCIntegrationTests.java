@@ -184,7 +184,7 @@ public class BCIntegrationTests {
 		Settings.FDC.STARTINGANTIGENLEVEL = 400;
 		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1,
 				1, 1),StromaEdge.TYPE.FDC_edge);
-		cBC.acquireAntigen(se);
+		cBC.acquireAntigenEdge(se);
 
 		// assert that the BC is now primed
 		assertEquals(cognateBC.TYPE.PRIMED, cBC.type);
@@ -259,7 +259,7 @@ public class BCIntegrationTests {
 		iEdges--;
 		for (int i = 0; i < iEdges; i++) {
 			points[i + 1] = points[i + 1].multiply(3).add(d3Centre);
-			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1],StromaEdge.TYPE.FDC_branch);
+			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1],StromaEdge.TYPE.FDC_edge);
 			seEdge.registerCollisions(cgGrid);
 		}
 

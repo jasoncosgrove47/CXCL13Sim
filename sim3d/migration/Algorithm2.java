@@ -12,7 +12,7 @@ import sim3d.diffusion.Chemokine;
 import sim3d.util.ODESolver;
 import sim3d.util.Vector3DHelper;
 
-public class Algorithm1 implements MigrationAlgorithm {
+public class Algorithm2 implements MigrationAlgorithm {
 
 	// less than 1 favours CXCL13, greater than one favours EBI2L
 	double signallingBias = Settings.SIGNALLING_BIAS;
@@ -89,7 +89,7 @@ public class Algorithm1 implements MigrationAlgorithm {
 	public void performMigration(Lymphocyte lymphocyte) {
 
 		Chemokine.TYPE chemokine1 = Chemokine.TYPE.CXCL13;
-
+		Chemokine.TYPE chemokine2 = Chemokine.TYPE.EBI2L;
 		lymphocyte.setCollisionCounter(0); // reset the collision counter for
 											// this timestep
 		lymphocyte.getM_i3lCollisionPoints().clear();
@@ -103,13 +103,14 @@ public class Algorithm1 implements MigrationAlgorithm {
 			performSavedMovements(lymphocyte);
 		}
 
-		calculateWhereToMoveNext(lymphocyte, chemokine1);
+		calculateWhereToMoveNext(lymphocyte, chemokine1, chemokine2);
 		lymphocyte.handleBounce(); // Check for bounces
 
 		ODESolver.solveODE(Settings.BC.ODE.K_a(), Settings.BC.ODE.K_r(), Settings.BC.ODE.K_i(), Settings.BC.ODE.Koff,
 				Settings.BC.ODE.Kdes, chemokine1, lymphocyte);
 
-
+		ODESolver.solveODE(Settings.BC.ODE.K_a(), Settings.BC.ODE.K_r(), Settings.BC.ODE.K_i(), Settings.BC.ODE.Koff,
+				Settings.BC.ODE.Kdes, chemokine2, lymphocyte);
 
 		lymphocyte.registerCollisions(Lymphocyte.m_cgGrid); // Register the new
 															// movement with the
@@ -133,11 +134,11 @@ public class Algorithm1 implements MigrationAlgorithm {
 		bc.setM_d3aMovements(new ArrayList<Double3D>());
 
 		double CXCR5signalling = bc.getM_receptorMap().get(Receptor.CXCR5).get(0);
-
+		double EBI2signalling = bc.getM_receptorMap().get(Receptor.EBI2).get(0);
 
 	
 		
-		double receptorsSignalling = CXCR5signalling ;
+		double receptorsSignalling = CXCR5signalling + EBI2signalling;
 		
 		//the Rf remains the same for ecah so dont need to do an individual scalar for each
 		double percentageSignalling = receptorsSignalling / Settings.BC.ODE.Rf;
@@ -152,9 +153,13 @@ public class Algorithm1 implements MigrationAlgorithm {
 			//need to constain speed scalar between 0 and 1
 			speedScalar = (percentageSignalling * Settings.BC.SPEED_SCALAR);
 
+			//System.out.println("percentageSignalling:" + percentageSignalling);
+			//System.out.println("speedScalar:" + speedScalar);
 		}
 		
-
+		
+		//double speedScalar = (Math.log(Settings.BC.RANDOM_POLARITY / persistence))
+		//		/ Settings.BC.SPEED_SCALAR;
 
 		double travelDistance = Settings.BC.TRAVEL_DISTANCE();
 
@@ -252,10 +257,10 @@ public class Algorithm1 implements MigrationAlgorithm {
 	 * 
 	 * @return The new direction for the cell to move
 	 */
-	Double3D getMoveDirection(Lymphocyte lymphocyte, Chemokine.TYPE chemokine1) {
+	Double3D getMoveDirection(Lymphocyte lymphocyte, Chemokine.TYPE chemokine1, Chemokine.TYPE chemokine2) {
 
 		double[] iaBoundReceptors1 = calculateLigandBound(lymphocyte, chemokine1);
-
+		double[] iaBoundReceptors2 = calculateLigandBound(lymphocyte, chemokine2);
 
 		// the new direction for the cell to move
 		Double3D vMovement1 = new Double3D();
@@ -267,7 +272,35 @@ public class Algorithm1 implements MigrationAlgorithm {
 		// Z
 		vMovement1 = vMovement1.add(new Double3D(0, 0, 1).multiply(iaBoundReceptors1[4] - iaBoundReceptors1[5]));
 
+		// the new direction for the cell to move
+		Double3D vMovement2 = new Double3D();
 
+		// X
+		vMovement2 = vMovement2.add(new Double3D(1, 0, 0).multiply(iaBoundReceptors2[0] - iaBoundReceptors2[1]));
+		// Y
+		vMovement2 = vMovement2.add(new Double3D(0, 1, 0).multiply(iaBoundReceptors2[2] - iaBoundReceptors2[3]));
+		// Z
+		vMovement2 = vMovement2.add(new Double3D(0, 0, 1).multiply(iaBoundReceptors2[4] - iaBoundReceptors2[5]));
+
+		// if the magnitude of the two vectors is greater than zero, then we
+		// need to bias the signal
+
+		if (vMovement1.lengthSq() > 0 && vMovement2.lengthSq() > 0) {
+
+			// scale the second signal with respect to the first.
+			Double3D signalScaled = vMovement2.multiply(signallingBias);
+			vMovement1 = vMovement1.add(signalScaled);
+
+		}
+
+		else {
+
+			// if there is just one chemokine then we dont need to
+			// worry about scaling. One vector
+			// will be zero so its fine to just sum them together.
+			vMovement1 = vMovement1.add(vMovement2);
+
+		}
 
 		return vMovement1;
 	}
@@ -292,9 +325,9 @@ public class Algorithm1 implements MigrationAlgorithm {
 	 * 
 	 * 
 	 */
-	public void calculateWhereToMoveNext(Lymphocyte lymphocyte, Chemokine.TYPE chemokine1) {
+	public void calculateWhereToMoveNext(Lymphocyte lymphocyte, Chemokine.TYPE chemokine1, Chemokine.TYPE chemokine2) {
 
-		Double3D vMovement = getMoveDirection(lymphocyte, chemokine1);
+		Double3D vMovement = getMoveDirection(lymphocyte, chemokine1, chemokine2);
 
 		double vectorMagnitude = vMovement.lengthSq();
 		double persistence = 0;

@@ -79,11 +79,11 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		this.getM_receptorMap().get(Receptor.CCR7).add(2,0);
 		this.getM_receptorMap().get(Receptor.CCR7).add(3,0);
 		
-		this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(4));
-		this.getM_receptorMap().get(Receptor.EBI2).add(0,Settings.BC.ODE.LR());
-		this.getM_receptorMap().get(Receptor.EBI2).add(1,Settings.BC.ODE.Rf());
-		this.getM_receptorMap().get(Receptor.EBI2).add(2,Settings.BC.ODE.Ri());
-		this.getM_receptorMap().get(Receptor.EBI2).add(3,0);//this is for desensitised receptors
+		//this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(4));
+		//this.getM_receptorMap().get(Receptor.EBI2).add(0,Settings.BC.ODE.LR());
+		//this.getM_receptorMap().get(Receptor.EBI2).add(1,Settings.BC.ODE.Rf());
+		//this.getM_receptorMap().get(Receptor.EBI2).add(2,Settings.BC.ODE.Ri());
+		//this.getM_receptorMap().get(Receptor.EBI2).add(3,0);//this is for desensitised receptors
 		
 		//this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(4));
 		//this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
@@ -421,7 +421,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				// essentially solving a system of linear
 				// equations, and all the details are there.
 				// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
-				// section 5.1.8, 5.1.9 psuedocode p146
+				// section 5.1.8, 5.1.9 psuedocode p146. Its now also in the project folder
 				// see betterexplained trig and also dot product for intuitive
 				// understanding of how formulae are derived
 				//
@@ -846,14 +846,14 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 
 			// does this sub movement go out of bounds
 			if (dTempPosY + d3Movement.y < 1
-					//TODO THIS WAS SET TO HEIGHT -1 NEED TO CHANGE BACK IMMEDIATELY
-					|| dTempPosY + d3Movement.y > Settings.HEIGHT - 2) {
+					//TODO this needs to be set to the SCS height , wherever you see a 3
+					|| dTempPosY + d3Movement.y > Settings.HEIGHT - 3) {
 				// Figure out at which point it goes out
 				double dCutOff = 1;
 				if (dTempPosY + d3Movement.y < 1) {
 					dCutOff = (1 - dTempPosY) / d3Movement.y;
 				} else {
-					dCutOff = ((Settings.HEIGHT - 2) - dTempPosY)
+					dCutOff = ((Settings.HEIGHT - 3) - dTempPosY)
 							/ d3Movement.y;
 				}
 

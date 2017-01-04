@@ -23,7 +23,7 @@ import sim3d.cell.Lymphocyte;
 import sim3d.diffusion.Chemokine;
 import sim3d.util.IO;
 
-public class Algorithm1Test {
+public class Algorithm2Test {
 
 	BC bc = new BC();
 	private Schedule schedule = new Schedule();
@@ -124,7 +124,7 @@ public class Algorithm1Test {
 	@Test
 	public void testdetermineSpaceToMove2() {
 		
-		Algorithm1 a2 = new Algorithm1();
+		Algorithm2 a2 = new Algorithm2();
 		
 		Double3D location = new Double3D(bc.x, bc.y, bc.z);
 
@@ -153,7 +153,7 @@ public class Algorithm1Test {
 	@Test
 	public void testCalculateWhereToMoveNext() {
 		
-		Algorithm1 a2 = new Algorithm1();
+		Algorithm2 a2 = new Algorithm2();
 		Chemokine.TYPE chemokine = Chemokine.TYPE.CXCL13;
 		Chemokine.TYPE chemokine2 = Chemokine.TYPE.EBI2L;
 		bc.setM_d3aMovements(new ArrayList<Double3D>());
@@ -238,7 +238,7 @@ public class Algorithm1Test {
 	@Test
 	public void testGetMoveDirection() {
 
-		Algorithm1 a2 = new Algorithm1();
+		Algorithm2 a2 = new Algorithm2();
 		Chemokine.TYPE chemokine = Chemokine.TYPE.CXCL13;
 		Chemokine.TYPE chemokine2 = Chemokine.TYPE.EBI2L;
 		m_pParticle.field[(int) bc.x][(int) bc.y][(int) bc.z] = (1.7 * Math

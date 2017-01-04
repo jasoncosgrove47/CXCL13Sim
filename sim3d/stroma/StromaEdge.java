@@ -12,6 +12,8 @@ import javax.media.j3d.TransformGroup;
 import javax.media.j3d.TransparencyAttributes;
 import javax.vecmath.Point3d;
 
+import sim.engine.SimState;
+import sim.engine.Steppable;
 import sim.engine.Stoppable;
 import sim.field.continuous.Continuous3D;
 import sim.portrayal3d.simple.Shape3DPortrayal3D;
@@ -21,6 +23,7 @@ import sim3d.Settings;
 import sim3d.cell.DrawableCell3D;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
+import sim3d.diffusion.Chemokine;
 
 /**
  * An agent representing the edge of stroma. Used to represent the dendrites of
@@ -32,7 +35,7 @@ import sim3d.collisiondetection.CollisionGrid;
  * @author Jason Cosgrove, Simon Jarrett
  */
 public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
-		Collidable {
+		Collidable,Steppable {
 
 	private TYPE stromaedgetype;
 	
@@ -40,7 +43,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	private Color m_col;
 	
 	public static enum TYPE {
-		FDC_edge,FDC_branch,RC_edge
+		FDC_edge,RC_edge
 	}
 	
 	
@@ -68,6 +71,34 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		stopper.stop();
 	}
 	
+	
+	
+	@Override
+	public void step(SimState arg0) {
+		
+		
+		
+		switch (this.stromaedgetype) {
+		case FDC_edge: 
+
+			// TODO Auto-generated method stub
+			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.midpoint.x, (int) this.midpoint.y, (int) this.midpoint.z,
+					Settings.FDC.CXCL13_EMITTED);
+			break;
+
+			
+		case RC_edge:
+
+			// TODO Auto-generated method stub
+			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.midpoint.x, (int) this.midpoint.y, (int) this.midpoint.z,
+					Settings.bRC.CXCL13_EMITTED);
+			break;
+			
+		}
+		
+	
+		
+	}
 	
 	
 	private static final long serialVersionUID = 1L;
@@ -153,7 +184,9 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	public StromaEdge(Double3D d3Point1, Double3D d3Point2, TYPE type) {
 
 		
-		Color col = new Color(125, 10, 10, 15);
+		Color col = new Color(165, 0, 0, 100);
+		
+		//Color col = new Color(125, 20, 20, 15);
 		
 		this.setStromaedgetype(type);
 		
@@ -181,14 +214,13 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		switch (type) {
 		case FDC_edge: 
 			setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
-			setM_col(Settings.FDC.DRAW_COLOR());
-			break;
-		case FDC_branch:
-			setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);	
 			
-			Color col2 = new Color(125, 0, 0, 200);
+			//Color col2 = new Color(90, 10, 10, 15);
+			Color col2 = new Color(183, 161, 167, 0);
 			setM_col(col2);
+			//setM_col(Settings.FDC.DRAW_COLOR());
 			break;
+
 			
 			
 		
@@ -271,19 +303,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			
 				break;
 			
-			case FDC_branch:
-			
-				aAppearance.setColoringAttributes(new ColoringAttributes(getM_col()
-						.getRed() / 255f, getM_col().getGreen() / 255f,
-						getM_col().getBlue() / 255f, ColoringAttributes.FASTEST));
-				aAppearance.setTransparencyAttributes(new TransparencyAttributes(
-						TransparencyAttributes.FASTEST, 0.4f));
 
-
-				la.setLineWidth((float) fdcBranchRadius);
-			
-
-				break;
 				
 			case RC_edge:
 
@@ -383,5 +403,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	public void setStromaedgetype(TYPE stromaedgetype) {
 		this.stromaedgetype = stromaedgetype;
 	}
+
+
 
 }

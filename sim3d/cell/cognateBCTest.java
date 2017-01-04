@@ -71,13 +71,13 @@ public class cognateBCTest {
 		Settings.FDC.STARTINGANTIGENLEVEL = 400;
 		
 		StromaEdge se = new StromaEdge(new Double3D(0,0,0), new Double3D(1,1,1),StromaEdge.TYPE.FDC_edge);
-		cBC.acquireAntigen(se);
+		cBC.acquireAntigenEdge(se);
 		
 		int test = Controller.getInstance().getDendritesVisited().get(cBC.getIndex());
 		assertEquals(1, test);
 		
 		//test that the cBC can only acquire antigen from a unique stromal cell once
-		cBC.acquireAntigen(se);
+		cBC.acquireAntigenEdge(se);
 		int test2 = Controller.getInstance().getDendritesVisited().get(cBC.getIndex());
 		assertEquals(1, test2);
 		

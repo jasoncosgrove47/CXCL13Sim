@@ -64,7 +64,7 @@ public class StromaEdgeTest {
 		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
 		BC.m_cgGrid = cgGrid;
 
-		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1, 1, 1), StromaEdge.TYPE.FDC_branch);
+		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1, 1, 1), StromaEdge.TYPE.FDC_edge);
 		se.registerCollisions(cgGrid);
 		assertEquals(true, cgGrid.getM_i3lCollisionPoints().size() > 0);
 	}

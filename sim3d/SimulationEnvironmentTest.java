@@ -188,33 +188,6 @@ public class SimulationEnvironmentTest {
 		
 	}
 
-	/**
-	 * Test that we can add branches to branches, to provide a more web like
-	 * morphology for FDCs
-	 */
-	@Test
-	public void testAddBranchesToBranches() {
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
-		SimulationEnvironment sim = new SimulationEnvironment(0,
-				IO.openXMLFile(paramFile));
 
-		// due to all the dependecies its easier to run start() than to call
-		// just the initialise FDC method
-		sim.start();
-
-		int counter = 0;
-		Bag Stroma = sim.fdcEnvironment.getAllObjects();
-		for (int i = 0; i < Stroma.size(); i++) {
-			if (Stroma.get(i) instanceof StromaEdge) {
-				StromaEdge se = (StromaEdge) Stroma.get(i);
-				if(se.getStromaedgetype() == StromaEdge.TYPE.FDC_branch){
-					
-					counter += 1;
-				}
-			
-			}
-		}
-		assertThat(counter, greaterThan(0));
-	}
 
 }

@@ -37,12 +37,22 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 	
 	double FDCsecretionRate_CXCL13 = Settings.FDC.CXCL13_EMITTED();
-	double FRCsecretionRate_CCL19  = Settings.FRC.CCL19_EMITTED();
+	double bRCsecretionRate_CXCL13  = Settings.bRC.CXCL13_EMITTED();
 	double MRCsecretionRate_CXCL13 = Settings.MRC.CXCL13_EMITTED();
 	double MRCsecretionRate_EBI2L  = Settings.MRC.EBI2L_EMITTED();
 	
 
 	public ArrayList<StromaEdge> m_dendrites; 
+	
+	private ArrayList<Integer> cellsCollidedWith = new ArrayList<Integer>();
+	
+	
+	/**
+	 * Divide each dendrite in two so that a B cell must be at the correct part
+	 * of the dendrite to acquire antigen
+	 */
+	private int m_antigenLevel;
+	
 	
 	/**
 	 * How to remove a BC from the schedule:
@@ -109,19 +119,23 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			break;
 			
 		case bRC:
-			m_CCL19  = true;	
+			m_CXCL13  = true;	
 			break;
 			
 		case MRC:
-			m_CXCL13 = true;	
-			m_EBI2L  = true;	
+			
+			
+			//now need to deal with the interactions with BCs....
+			this.set_antigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
+			m_CXCL13 = true;		
 			break;
 			
 		case LEC:
+			
+			this.set_antigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
 			break;
 			
 		}
-		
 	}
 	
 	
@@ -164,11 +178,13 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			
 			if (transf == null) {
 				transf = new TransformGroup();
-				Color col2 =  new Color(100, 130, 40);
-
+				//Color col = new Color(255, 100, 100, 125);
+				//Color col = new Color(20, 210, 100, 125);
+				Color col =  new Color(200, 130, 40);
+				
 				SpherePortrayal3D s = new SpherePortrayal3D(
-						col2,
-						Settings.FDC.STROMA_NODE_RADIUS * 2, 6);
+						col,
+						Settings.FDC.STROMA_NODE_RADIUS * 3.5, 6);
 				s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 				TransformGroup localTG = s.getModel(obj, null);
 
@@ -183,11 +199,11 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				if (transf == null) {
 					transf = new TransformGroup();
 
-					Color col = new Color(255, 100, 100, 125);
+					Color col = new Color(10, 210, 120, 125);
 					
 					SpherePortrayal3D s = new SpherePortrayal3D(
 							col,
-							Settings.FDC.STROMA_NODE_RADIUS * 2, 6);
+							Settings.FDC.STROMA_NODE_RADIUS * 3, 6);
 					s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 					TransformGroup localTG = s.getModel(obj, null);
 
@@ -199,10 +215,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		case MRC:
 			
 				if (transf == null) {
-					
-					
-					
-					
 
 					transf = new TransformGroup();
 
@@ -239,7 +251,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				Color col =  new Color(200, 130, 40);
 				
 
-				CubePortrayal3D s = new CubePortrayal3D(col,0.75);
+				CubePortrayal3D s = new CubePortrayal3D(col,1.0);
 
 				//SpherePortrayal3D s = new SpherePortrayal3D(
 				//		Settings.FDC.DRAW_COLOR(),
@@ -289,6 +301,10 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
 						FDCsecretionRate_CXCL13);
 			}
+			else if(this.stromatype == Stroma.TYPE.bRC){
+				Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
+						bRCsecretionRate_CXCL13);
+			}
 			else{
 				Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
 						MRCsecretionRate_CXCL13);
@@ -297,12 +313,12 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 		//for now we dont care about CCL19
 		if(m_CCL19){
-			Chemokine.add(Chemokine.TYPE.CCL19, (int) x, (int) y, (int) z,
-					FRCsecretionRate_CCL19);
+			//Chemokine.add(Chemokine.TYPE.CCL19, (int) x, (int) y, (int) z,
+			//		FRCsecretionRate_CCL19);
 		}
 		if(m_EBI2L){
-			Chemokine.add(Chemokine.TYPE.EBI2L, (int) x, (int) y, (int) z,
-					MRCsecretionRate_EBI2L);
+			//Chemokine.add(Chemokine.TYPE.EBI2L, (int) x, (int) y, (int) z,
+				//	MRCsecretionRate_EBI2L);
 		}
 
 	}
@@ -326,8 +342,23 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	public void setM_col(Color m_col) {
 		this.m_col = m_col;
 	}
+
+	public int get_antigenLevel() {
+		return m_antigenLevel;
+	}
+
+	public void set_antigenLevel(int m_antigenLevel) {
+		this.m_antigenLevel = m_antigenLevel;
+	}
 	
-	
+	public ArrayList<Integer> getCellsCollidedWith() {
+		return cellsCollidedWith;
+	}
+
+	public void setCellsCollidedWith(ArrayList<Integer> cellsCollidedWith) {
+		this.cellsCollidedWith = cellsCollidedWith;
+	}
+
 	
 	
 }

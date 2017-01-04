@@ -50,7 +50,7 @@ public final class outputToCSV {
 
 				// divide the number of dendrites visited by the total number of
 				// dendrites
-				networkScanned = (dendritesVisited / SimulationEnvironment.totalNumberOfDendrites);
+				networkScanned = (dendritesVisited / SimulationEnvironment.totalNumberOfAPCs);
 
 				// write the data out to the file
 				processedDataWriter.append(Integer.toString(key));

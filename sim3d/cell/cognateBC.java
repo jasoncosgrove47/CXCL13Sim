@@ -15,6 +15,7 @@ import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
+import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
 
 
@@ -167,39 +168,39 @@ public class cognateBC extends BC {
 		// first collision so we can ignore anything after this
 		for (Collidable cCell : csCollidables) {
 			switch (cCell.getCollisionClass()) {
+			
 			case STROMA_EDGE: // These first two are the more likely hits as
 								// they won't be moving
-				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
-					iCollisionMovement = getM_d3aMovements().size() - 1;
-					bCollision = true;
+				StromaEdge.TYPE type =  ((StromaEdge) cCell).getStromaedgetype();
+				if(type == StromaEdge.TYPE.FDC_edge){
+					if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
+						iCollisionMovement = getM_d3aMovements().size() - 1;
+						bCollision = true;
 
-					// this guard is here as we don't want the agents to acquire
-					// antigen until controller starts recording
-					if (SimulationEnvironment.steadyStateReached == true) {
-						acquireAntigen(cCell);
-					}
+						// this guard is here as we don't want the agents to acquire
+						// antigen until controller starts recording
+						if (SimulationEnvironment.steadyStateReached == true) {
+							acquireAntigenEdge(cCell);
+						}
 
 				}
+			}
 				break;
 
+				//TODO get rid of branches altogether. 
 			case BRANCH:
 
-				//TODO this was branch so not sure if this is sensible
-				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
-					
-			
-					iCollisionMovement = getM_d3aMovements().size() - 1;
-					bCollision = true;
-
-					// this guard is here as we don't want the agents to acquire
-					// antigen until controller starts recording
-					if (SimulationEnvironment.steadyStateReached == true) {
-						acquireAntigen(cCell);
-					}
-				}
+	
 
 				break;
 			case STROMA:
+				
+				Stroma.TYPE s_type =  ((Stroma) cCell).getStromatype();
+				
+				if(s_type == Stroma.TYPE.MRC || s_type == Stroma.TYPE.LEC ){
+					acquireAntigenNode(cCell);
+				}
+				
 				break;
 			case LYMPHOCYTE:
 				break;
@@ -212,12 +213,56 @@ public class cognateBC extends BC {
 		}
 	}
 
+	
 	/**
-	 * Acquire antigen from a stroma edge or branch
-	 * TODO think this is what's making it sensitive to calibration
+	 * Acquire antigen from a node
+	 * TODO can refactor this so we dont need replicated code. 
 	 * @param cCell
 	 */
-	public void acquireAntigen(Collidable cCell) {
+	public void acquireAntigenNode(Collidable cCell) {
+		Stroma stroma = (Stroma) cCell;
+
+		// determine if the cell has already grabbed antigen from this dendrite
+		boolean collision = stroma.getCellsCollidedWith()
+				.contains(this.index);
+
+
+		// we divide the stroma in two as make it more accurate
+		//if on the upper half of the stroma
+		if (collision == false) 
+		{
+
+			if (stroma.get_antigenLevel() > 0) // if the stroma has antigen to present
+			{
+				// remove antigen from the stromal edge
+				stroma.set_antigenLevel(stroma.get_antigenLevel() - 1);
+				stroma.getCellsCollidedWith().add(this.index);
+
+				// TODO not the prettiest code so should refactor
+				this.dendritesVisited += 1;
+				Controller.getInstance().getDendritesVisited()
+						.put(this.index, this.dendritesVisited);
+
+				// increment the cBC antigen captured counter
+				this.setAntigenCaptured(this.getAntigenCaptured() + 1);
+
+			}
+		} 
+
+		// if the cell is naive then we need to update its status to primed
+		if (this.type == TYPE.NAIVE) {
+			this.type = TYPE.PRIMED;
+
+		}
+	}
+	
+	
+	
+	/**
+	 * Acquire antigen from a stroma edge
+	 * @param cCell
+	 */
+	public void acquireAntigenEdge(Collidable cCell) {
 		StromaEdge sEdge = (StromaEdge) cCell;
 
 		// determine if the cell has already grabbed antigen from this dendrite
