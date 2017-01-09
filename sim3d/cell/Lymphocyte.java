@@ -26,11 +26,13 @@ import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.migration.Algorithm1;
 import sim3d.migration.MigrationAlgorithm;
 import sim3d.migration.MigratoryCell;
+import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
 import sim3d.util.Vector3DHelper;
 
@@ -126,6 +128,15 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 			Settings.FDC.STROMA_EDGE_RADIUS)
 			* (Settings.BC.COLLISION_RADIUS + Settings.FDC.STROMA_EDGE_RADIUS);
 
+	/**
+	 * The squared distance between a BC and a stromal cell at the point of
+	 * collision; precomputed to speed up calculations
+	 */
+	static final double BC_SC_COLLIDE_DIST_SQ = (Settings.BC.COLLISION_RADIUS + 
+			Settings.FDC.STROMA_NODE_RADIUS)
+			* (Settings.BC.COLLISION_RADIUS + Settings.FDC.STROMA_NODE_RADIUS);
+	
+	
 	/**
 	 * Required to prevent a warning
 	 */
@@ -299,6 +310,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	/**
 	 * Handles collisions between b cells and stroma
 	 */
+
 	@Override
 	public void handleCollisions(CollisionGrid cgGrid) {
 		// don't let a b cell collide more than collisionThreshold times
@@ -337,10 +349,16 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				}
 				break;
 			case STROMA:
+			
+				//is it safe to assume that the cells have actually collided at this point
+				// or do we still need to do the collision check as per collideStromaEdge to determine 
+				// where they have collided. 
+				
+
+
+				
 		
 				
-				
-				break;
 			case LYMPHOCYTE:
 				break;
 			}
@@ -376,6 +394,103 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		registerCollisions(cgGrid);
 	}
 
+	
+	
+	
+	/**
+	 * Treat the cells movement vector as a line and the static stromal cell as a point
+	 * we then figure out what the closest point between the two objects is,
+	 * if this distance is less than the width of the two cells then we mark it as a collision
+	 * 
+	 * 
+	 * 
+	 * @param cell
+	 * @param iCollisionMovement
+	 * @return
+	 */
+	protected boolean collideStromaNode(Stroma cell, int iCollisionMovement){
+		
+	
+		Double3D initialLoc = this.getDrawEnvironment().getObjectLocation(this);
+
+		
+		//determine the last coordinates of the movement, need to figure out what these various
+		//arraylists contain collisionMovement md3amovement etc
+		double x = 0,y = 0,z = 0;
+		for (int i = 0; i < iCollisionMovement; i++) {
+			Double3D d1 = getM_d3aMovements().get(i);
+			
+			x += d1.x;
+			y += d1.y;
+			z += d1.z;
+		}
+		
+		Double3D endLoc = initialLoc.add(new Double3D(x,y,z));
+		
+		Double3D stromaLoc = cell.getDrawEnvironment().getObjectLocation(cell);
+		double dist = distanceToSegment(initialLoc, endLoc, stromaLoc);
+		
+		if(dist < BC_SE_COLLIDE_DIST_SQ){
+			iCollisionMovement = getM_d3aMovements().size() - 1;
+			return true;
+		}
+		else return false;
+	}
+	
+	
+	/*
+    * Returns the distance of p3 to the segment defined by p1,p2;
+    * 
+    * @param p1
+    *                First point of the segment
+    * @param p2
+    *                Second point of the segment
+    * @param p3
+    *                Point to which we want to know the distance of the segment
+    *                defined by p1,p2
+    * @return The distance of p3 to the segment defined by p1,p2
+    * 
+    * Works on the fact that shortest point between the point and the line
+    * is where they are orthogonal, ie where the dot product equals 0
+    * 
+    * the distance is thus the distance between the poiint and where
+    * the orthogonal tangent meets the line. 
+    * 
+    * http://paulbourke.net/geometry/pointlineplane/
+    * http://paulbourke.net/geometry/pointlineplane/DistancePoint.java
+    * 
+    */
+    public static double distanceToSegment(Double3D p1, Double3D p2, Double3D p3) {
+
+	final double xDelta = p2.getX() - p1.getX();
+	final double yDelta = p2.getY() - p1.getY();
+	final double zDelta = p2.getZ() - p1.getZ();
+	
+
+	if ((xDelta == 0) && (yDelta == 0)) {
+	    throw new IllegalArgumentException("p1 and p2 cannot be the same point");
+	}
+
+	
+	final double u = ((p3.getX() - p1.getX()) * xDelta + (p3.getY() - p1.getY()) * yDelta + (p3.getZ() - p1.getZ()) * zDelta) 
+			/ (xDelta * xDelta + yDelta * yDelta + zDelta * zDelta);
+
+	final Double3D closestPoint;
+	if (u < 0) {
+	    closestPoint = p1;
+	} else if (u > 1) {
+	    closestPoint = p2;
+	} else {
+	    closestPoint = new Double3D(p1.getX() + u * xDelta, p1.getY() + u * yDelta, p1.getZ() + u * yDelta);
+	}
+
+	return closestPoint.distance(p3);
+    }
+	
+	
+    
+   
+	
 	/**
 	 * Performs collision detection and handling with Stroma Edges (cylinders).
 	 * 
@@ -847,13 +962,13 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 			// does this sub movement go out of bounds
 			if (dTempPosY + d3Movement.y < 1
 					//TODO this needs to be set to the SCS height , wherever you see a 3
-					|| dTempPosY + d3Movement.y > Settings.HEIGHT - 3) {
+					|| dTempPosY + d3Movement.y > Settings.HEIGHT - (Settings.bRC.SCSDEPTH +1)) {
 				// Figure out at which point it goes out
 				double dCutOff = 1;
 				if (dTempPosY + d3Movement.y < 1) {
 					dCutOff = (1 - dTempPosY) / d3Movement.y;
 				} else {
-					dCutOff = ((Settings.HEIGHT - 3) - dTempPosY)
+					dCutOff = ((Settings.HEIGHT - (Settings.bRC.SCSDEPTH +1)) - dTempPosY)
 							/ d3Movement.y;
 				}
 

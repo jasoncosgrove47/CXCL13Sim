@@ -278,8 +278,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			//Color frccol = Settings.FRC.DRAW_COLOR();
 
 			
-			double fdcEdgeRadius = Settings.FDC.STROMA_EDGE_RADIUS * 20;
-			double fdcBranchRadius = Settings.FDC.BRANCH_RADIUS * 20;
+			double fdcEdgeRadius = Settings.FDC.STROMA_EDGE_RADIUS * 10;
 			double rcEdgeRadius = Settings.FDC.STROMA_EDGE_RADIUS * 20;
 			
 			switch (this.getStromaedgetype()) {

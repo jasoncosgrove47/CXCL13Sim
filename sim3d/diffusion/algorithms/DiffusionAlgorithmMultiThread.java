@@ -1,5 +1,6 @@
 package sim3d.diffusion.algorithms;
 
+import sim3d.Settings;
 import sim3d.diffusion.Chemokine;
 
 import java.util.concurrent.ExecutorService;
@@ -146,7 +147,7 @@ public class DiffusionAlgorithmMultiThread
 		// you want to iterate through 1 to gridwidth,height depth -1 so we
 		// precalculate for efficiency
 		int iWidth = m_iWidth - 1;
-		int iHeight = m_iHeight - 1;
+		int iHeight = m_iHeight - Settings.bRC.SCSDEPTH ; //to do well need to have a think abhout this
 		int iDepth = m_iDepth - 1;
 
 		// Now enforce the boundary condition
