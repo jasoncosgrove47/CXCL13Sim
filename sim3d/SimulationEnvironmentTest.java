@@ -28,9 +28,9 @@ public class SimulationEnvironmentTest {
 	@Before
 	public void setUp() throws Exception {
 		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
-		sim = new SimulationEnvironment(0,
+		SimulationEnvironment.simulation = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
-		sim.setupSimulationParameters();
+		SimulationEnvironment.simulation.setupSimulationParameters();
 	}
 
 	/*
@@ -108,10 +108,10 @@ public class SimulationEnvironmentTest {
 		// Initialise the B cell grid
 		BC.bcEnvironment = new Continuous3D(5, 10, 10, 10);
 		BC.drawEnvironment = BC.bcEnvironment;
-		sim.seedCells(CELLTYPE.B);
+		SimulationEnvironment.simulation.seedCells(CELLTYPE.B);
 		int numofcells = BC.bcEnvironment.allObjects.numObjs;
 		assertEquals(10, numofcells);
-		sim.seedCells(CELLTYPE.cB);
+		SimulationEnvironment.simulation.seedCells(CELLTYPE.cB);
 		numofcells = BC.bcEnvironment.allObjects.numObjs;
 		assertEquals(11, numofcells);
 	}
@@ -123,11 +123,11 @@ public class SimulationEnvironmentTest {
 	@Test
 	public void testDisplayLevel() {
 
-		m_pParticle = new Chemokine(sim.schedule, Chemokine.TYPE.CXCL13,
+		m_pParticle = new Chemokine(SimulationEnvironment.simulation.schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
 
-		sim.setDisplayLevel(10);
-		assertEquals(sim.getDisplayLevel(),10 );
+		SimulationEnvironment.simulation.setDisplayLevel(10);
+		assertEquals(SimulationEnvironment.simulation.getDisplayLevel(),10 );
 		
 	}
 	
@@ -161,6 +161,7 @@ public class SimulationEnvironmentTest {
 		SimulationEnvironment sim = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 
+		
 		// due to all the dependecies its easier to run start() than to call
 		// just the initialise FDC method
 		sim.start();
@@ -183,6 +184,8 @@ public class SimulationEnvironmentTest {
 		        	 FDCcounter +=1;
 		         }
 		      }
+		System.out.println(FDCcounter);
+
 		assertTrue(SEcounter > 0);
 		assertTrue(FDCcounter > 0);
 		

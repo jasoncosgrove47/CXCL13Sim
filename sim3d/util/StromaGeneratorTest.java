@@ -41,7 +41,7 @@ public class StromaGeneratorTest {
 	public void testEdgeLength() {
 		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		StromaGenerator.generateStroma3D(100, 100, 100, 10000,
+		StromaGenerator.generateStroma3D_Updated(100, 100, 100, 10000,
 				d3lCellLocations, selEdges);
 
 		double dTotal = 0;
@@ -74,7 +74,7 @@ public class StromaGeneratorTest {
 	public void testEdgeCount() {
 		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		StromaGenerator.generateStroma3D(100, 100, 100, 10000,
+		StromaGenerator.generateStroma3D_Updated(100, 100, 100, 10000,
 				d3lCellLocations, selEdges);
 
 		int iCellCount = 0;
@@ -104,7 +104,7 @@ public class StromaGeneratorTest {
 		
 		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		StromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
+		StromaGenerator.generateStroma3D_Updated(50, 50, 5, 350, d3lCellLocations,
 				selEdges);
 
 		int iCellCount = d3lCellLocations.size();
@@ -121,7 +121,7 @@ public class StromaGeneratorTest {
 
 		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		StromaGenerator.generateStroma3D(50, 50, 1, 10, d3lCellLocations,
+		StromaGenerator.generateStroma3D_Updated(50, 50, 1, 10, d3lCellLocations,
 				selEdges);
 
 		int iCellCount = d3lCellLocations.size();

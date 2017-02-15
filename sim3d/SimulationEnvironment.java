@@ -11,6 +11,9 @@ import java.util.Set;
 
 import org.w3c.dom.Document;
 
+import dataLogger.Controller;
+import dataLogger.ProcessData;
+import dataLogger.outputToCSV;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -41,7 +44,7 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * this is the size of the FDC network
 	 */
-	public static int fdcNetRadius = 13;
+	public static int fdcNetRadius = 15;
 	
 
 	private static final long serialVersionUID = 1;
@@ -230,6 +233,7 @@ public class SimulationEnvironment extends SimState {
 		schedule.scheduleRepeating(cgGrid, 3, 1); //TODO does this mean that this is scheduled last? surely it should be one of the first things
 
 	
+	
 		
 		FollicleInitialiser.initialiseFollicle(cgGrid);
 		
@@ -245,6 +249,22 @@ public class SimulationEnvironment extends SimState {
 		//seedCells(CELLTYPE.T);
 		
 		totalNumberOfAPCs = calculateTotalNumberOfAPCs();
+		
+		int[] numbers = calculateNodesAndEdges();
+		
+		System.out.println("nodes: " + numbers[0]);
+		System.out.println("edges: " + numbers[1]);
+		
+		int[][] a_matrix = Controller.generateAdjacencyMatrix();
+		a_matrix = Controller.updateAdjacencyMatrixForRCs(a_matrix);
+		a_matrix = Controller.updateAdjacencyMatrixForFDCs(a_matrix);
+		
+
+		outputToCSV.writeNodeInformationToFile("/Users/jc1571/Desktop/nodeInfo.csv", Controller.getNodeinformation());
+		
+		outputToCSV.writeAdjacencyMatrixToFile("/Users/jc1571/Desktop/adjacency.csv", a_matrix);
+		
+		
 	}
 
 	
@@ -339,10 +359,6 @@ public class SimulationEnvironment extends SimState {
 	}
 	
 
-	
-	
-
-
 	/**
 	 * Tests whether co-ordinates x,y are in the circle centered at
 	 * circleCentreX, circleCentreY with a specified radius
@@ -382,6 +398,7 @@ public class SimulationEnvironment extends SimState {
 			count = Settings.TC.COUNT;
 		}
 
+		
 		// seed the cells
 		for (int i = 0; i < count; i++) {
 			switch (celltype) {
@@ -499,6 +516,41 @@ public class SimulationEnvironment extends SimState {
 		return number;
 
 	}
+	
+	
+	
+	
+	public static int[] calculateNodesAndEdges(){
+		
+		int nodes = 0;
+		int edges = 0;
+		int[] output = new int[2];
+		
+		Bag stroma = SimulationEnvironment.fdcEnvironment.getAllObjects();
+		for (int i = 0; i < stroma.size(); i++) {
+			if (stroma.get(i) instanceof StromaEdge) {
+			
+				edges ++;
+			}
+		
+			else if(stroma.get(i) instanceof Stroma){
+				if(((Stroma)stroma.get(i)).getStromatype()!=Stroma.TYPE.LEC){
+					nodes ++;
+				}
+			}
+		}
+		
+		output[0] = nodes;
+		output[1] = edges;
+		
+		
+		return output;
+		
+
+	}
+	
+	
+	
 	
 	
 	private int calculateTotalNumberOfAPCs(){

@@ -2,6 +2,9 @@ package dataLogger;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import dataLogger.Controller.nodeInfo;
 import sim3d.SimulationEnvironment;
 
 public final class outputToCSV {
@@ -12,6 +15,94 @@ public final class outputToCSV {
 	 * @author jason cosgrove
 	 */
 
+	
+	
+	
+	public static void writeNodeInformationToFile(String filename, ArrayList<nodeInfo> nodeinformation){
+		FileWriter processedDataWriter;
+
+
+		try {
+
+			processedDataWriter = new FileWriter(filename);
+
+			
+			processedDataWriter.append("x");
+			processedDataWriter.append(',');
+			processedDataWriter.append("y");
+			processedDataWriter.append(',');
+			processedDataWriter.append("z");
+			processedDataWriter.append(',');
+			processedDataWriter.append("ID");
+			processedDataWriter.append(',');
+			processedDataWriter.append("subset");
+			processedDataWriter.append('\n');
+			
+			
+			for (nodeInfo temp : nodeinformation) {
+				
+				processedDataWriter.append(Double.toString(temp.getM_loc().x));
+				processedDataWriter.append(',');
+				processedDataWriter.append(Double.toString(temp.getM_loc().y));
+				processedDataWriter.append(',');
+				processedDataWriter.append(Double.toString(temp.getM_loc().z));
+				processedDataWriter.append(',');
+				processedDataWriter.append(Integer.toString(temp.getM_index()));
+				processedDataWriter.append(',');
+				processedDataWriter.append(temp.getM_type().toString());
+				processedDataWriter.append('\n');
+			}
+			
+			
+	
+			
+			// close the file stream
+			processedDataWriter.flush();
+			processedDataWriter.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	
+	
+	public static void writeAdjacencyMatrixToFile(String filename,int[][] a_matrix){
+		FileWriter processedDataWriter;
+
+
+		try {
+
+			processedDataWriter = new FileWriter(filename);
+
+			for(int j = 0; j < a_matrix.length ; j++){
+				for(int k = 0; k < a_matrix.length ;k++){
+					
+					processedDataWriter.append(Integer.toString(a_matrix[j][k]));
+					processedDataWriter.append(',');
+					
+					
+				}	
+				processedDataWriter.append('\n');
+			}
+			
+			// close the file stream
+			processedDataWriter.flush();
+			processedDataWriter.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	
+	
+	
+	
 	/**
 	 * processes migration data and sends processed data to csv files
 	 */

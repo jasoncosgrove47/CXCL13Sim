@@ -140,6 +140,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	
 	
 	
+	
 	/**
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
@@ -172,6 +173,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		
 	
 		
+		
 		switch (this.getStromatype()) {
 		case FDC: 
 			
@@ -179,8 +181,8 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			if (transf == null) {
 				transf = new TransformGroup();
 				//Color col = new Color(255, 100, 100, 125);
-				//Color col = new Color(20, 210, 100, 125);
-				Color col =  new Color(200, 130, 40);
+				Color col = new Color(20, 210, 100, 125);
+				//Color col =  new Color(200, 130, 40);
 				
 				SpherePortrayal3D s = new SpherePortrayal3D(
 						col,

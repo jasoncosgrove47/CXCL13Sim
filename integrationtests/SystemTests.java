@@ -27,30 +27,32 @@ public class SystemTests {
 	 * Make sure that B cells can become primed
 	 */
 	@Test
-	public void testShouldAcquireAntigen() {
+	public void testShouldAcquireAntigen() { 
 		// set up the simulation
 		
 		long steps = 0;
 		long seed = System.currentTimeMillis();
-		SimulationEnvironment sim = new SimulationEnvironment(
+		SimulationEnvironment.simulation= new SimulationEnvironment(
 				seed,
 				IO.openXMLFile("/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml"));
 
+		
+		
 		// set the appropriate parameters
 
 		
-		
+	
 		Settings.BC.COUNT = 0;
 		Settings.BC.COGNATECOUNT = 100;
 		SimulationEnvironment.steadyStateReached = true;
 		Settings.EXPERIMENTLENGTH = 400;
-		sim.start();
+		SimulationEnvironment.simulation.start();
 		
 
 		// run the simulation for 400 steps
 		do {
-			steps = sim.schedule.getSteps();
-			if (!sim.schedule.step(sim))
+			steps = SimulationEnvironment.simulation.schedule.getSteps();
+			if (!SimulationEnvironment.simulation.schedule.step(SimulationEnvironment.simulation))
 				break;
 		} while (steps < 400);
 
@@ -77,7 +79,7 @@ public class SystemTests {
 		assertThat(primedCount, greaterThan(20));
 
 		// finish the simulation
-		sim.finish();
+		SimulationEnvironment.simulation.finish();
 	}
 
 }

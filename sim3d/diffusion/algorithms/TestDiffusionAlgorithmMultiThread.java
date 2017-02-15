@@ -72,6 +72,9 @@ public class TestDiffusionAlgorithmMultiThread {
 	/**
 	 * Test method for
 	 * {@link sim3d.diffusion.algorithms.DiffusionAlgorithmOLD# diffuse(sim3d.diffusion.Particle)}
+	 * TODO fails when you run it in the analysis pipeline but is fine when you run it on its own
+	 * 
+	 * 
 	 */
 	@Test
 	public void testConservation() {

@@ -56,14 +56,20 @@ public class StromaTest {
 		
 		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		StromaGenerator.generateStroma3D(50, 50, 5, 350, d3lCellLocations,
+		
+		
+		
+		StromaGenerator.generateStroma3D_Updated(50, 50, 5, 350, d3lCellLocations,
 				selEdges);
 		
 
+	
 		
 		for (StromaEdge seEdge : selEdges) {
 			seEdge.getAntigenLevel();
-			assertThat(seEdge.getAntigenLevel(), greaterThan(0));
+			if(seEdge.getStromaedgetype() == StromaEdge.TYPE.FDC_edge){
+				assertThat(seEdge.getAntigenLevel(), greaterThan(0));
+			}
 		}
 	}
 
@@ -97,7 +103,7 @@ public class StromaTest {
 
 		Settings.FDC.STARTINGANTIGENLEVEL = 100;
 
-		StromaGenerator.generateStroma3D(5, 5, 5, 5, d3lCellLocations2,
+		StromaGenerator.generateStroma3D_Updated(5, 5, 5, 5, d3lCellLocations2,
 				selEdges2);
 
 		for (StromaEdge seEdge : selEdges2) {

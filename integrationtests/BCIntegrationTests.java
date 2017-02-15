@@ -35,7 +35,6 @@ public class BCIntegrationTests {
 	// a new schedule to step the tests
 	private Schedule schedule = new Schedule();
 	private Chemokine m_pParticle; // an instance of particle moles
-	private Chemokine m_pParticle2; // an instance of particle moles
 	public static Document parameters; // parameter file in .xml format
 
 
@@ -76,9 +75,7 @@ public class BCIntegrationTests {
 		// instantiate particlemoles
 		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
-		
-		m_pParticle2 = new Chemokine(schedule, Chemokine.TYPE.EBI2L,
-				31, 31, 31);
+	
 		
 
 		// initialise the BC environment
@@ -361,7 +358,6 @@ public class BCIntegrationTests {
 	public void testTRANSIENTSENSITIVITY() {
 		for (int i = 0; i < 31; i++) {
 			m_pParticle.field[15][15][i] = 0;
-			m_pParticle2.field[15][15][i] = 0;
 		}
 
 		// Let's diffuse a little
@@ -388,7 +384,7 @@ public class BCIntegrationTests {
 		}
 
 		// Let them move a bit
-		for (int i = 0; i < 800; i++) {
+		for (int i = 0; i < 300; i++) {
 			for (int j = 0; j < 250; j++) {
 				bcCells[j].step(null);
 			}
@@ -434,7 +430,7 @@ public class BCIntegrationTests {
 		
 		for (int i = 0; i < 31; i++) {
 			m_pParticle.field[15][15][i] = 0;//10e-30;
-			m_pParticle2.field[15][15][i] = 0;
+	
 		}
 
 		// get rid of all CXCR5
@@ -470,7 +466,7 @@ public class BCIntegrationTests {
 		// Let them move a bit
 		
 	
-		for (int i = 0; i < 80; i++) {
+		for (int i = 0; i < 500; i++) {
 			for (int j = 0; j < 250; j++) {
 				bcCells[j].step(null);
 			}
@@ -478,7 +474,6 @@ public class BCIntegrationTests {
 			// chemokine diffuses faster than cells are updated
 			for (int k = 0; k < 31; k++) {
 				m_pParticle.field[15][15][k] = 0;// (1.7 * Math.pow(10, -22));
-				m_pParticle2.field[15][15][k] = 0;
 			}
 			m_pParticle.step(null);
 		}

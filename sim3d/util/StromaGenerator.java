@@ -23,6 +23,7 @@ import sim3d.stroma.StromaEdge;
  */
 public class StromaGenerator {
 	
+	
 	/**
 	 * Class to keep track of edges for each cell
 	 */
@@ -46,6 +47,11 @@ public class StromaGenerator {
 		 */
 		public ArrayList<Double3D> d3lEdges = new ArrayList<Double3D>();
 
+		
+		
+		
+		public Stroma.TYPE type;
+		
 		/**
 		 * Constructor
 		 * 
@@ -159,10 +165,7 @@ public class StromaGenerator {
 			if (iEdges > 0) {
 				// Get some directions
 				Double3D[] d3aDirections;
-				
-
-			
-				
+								
 				d3aDirections = generateDirections_Updated(iWidth, iHeight,
 						iDepth, stromala3CellLocations, nextCell, iEdges, celltype);
 				
@@ -177,7 +180,6 @@ public class StromaGenerator {
 					if (d3Direction != null) {
 						// Add the edges
 
-					
 						selEdges.add(new StromaEdge(nextCell.d3Location,
 								new Double3D(nextCell.d3Location.x
 										+ d3Direction.x,
@@ -212,9 +214,6 @@ public class StromaGenerator {
 	
 	
 	
-
-		
-		
 	/**
 	 * Generates the directions in which we should create cells, making sure
 	 * that the directions follow the pattern seen in stroma
@@ -384,6 +383,7 @@ public class StromaGenerator {
 
 				// Yay! More magic numbers
 				//TODO just overwriting this to see if we can change the shape of the network
+				//we can make this smaller for the lawls
 				return (0.7 + length * 3.1);
 		 }
 		 

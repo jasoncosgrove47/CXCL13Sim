@@ -43,7 +43,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	private Color m_col;
 	
 	public static enum TYPE {
-		FDC_edge,RC_edge
+		FDC_edge,RC_edge, MRC_edge
 	}
 	
 	
@@ -92,6 +92,13 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			// TODO Auto-generated method stub
 			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.midpoint.x, (int) this.midpoint.y, (int) this.midpoint.z,
 					Settings.bRC.CXCL13_EMITTED);
+			break;
+			
+		case MRC_edge:
+
+			// TODO Auto-generated method stub
+			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.midpoint.x, (int) this.midpoint.y, (int) this.midpoint.z,
+					Settings.MRC.CXCL13_EMITTED);
 			break;
 			
 		}
@@ -184,6 +191,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	public StromaEdge(Double3D d3Point1, Double3D d3Point2, TYPE type) {
 
 		
+		
 		Color col = new Color(165, 0, 0, 100);
 		
 		//Color col = new Color(125, 20, 20, 15);
@@ -198,6 +206,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			d3Point2 = temp;
 		}
 
+		
 		// location of stroma is static so easiest to specify it's location in
 		// the constructor
 		x = d3Point1.x;
@@ -216,19 +225,26 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
 			
 			//Color col2 = new Color(90, 10, 10, 15);
-			Color col2 = new Color(183, 161, 167, 0);
+			//Color col2 = new Color(183, 161, 167, 0);
+			Color col2 = new Color(215,230,230, 0);
+		
 			setM_col(col2);
 			//setM_col(Settings.FDC.DRAW_COLOR());
 			break;
 
 			
-			
+		case MRC_edge:
+			setM_col(col);
+			setAntigenLevel(0);	
+			break;	
 		
 		case RC_edge:
 			setM_col(col);
 			setAntigenLevel(0);	
 			break;
 			
+			
+		
 		}
 		
 	
@@ -317,10 +333,23 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			
 				break;
 
+			case MRC_edge:
+
+				aAppearance.setColoringAttributes(new ColoringAttributes(getM_col()
+						.getRed() / 255f, getM_col().getGreen() / 255f,
+						getM_col().getBlue() / 255f, ColoringAttributes.FASTEST));
+				aAppearance.setTransparencyAttributes(new TransparencyAttributes(
+						TransparencyAttributes.FASTEST, 0.4f));
+
+
+				la.setLineWidth((float) rcEdgeRadius);
+				
+				
+				break;
+				
 			}
 			
 			
-	
 			aAppearance.setLineAttributes(la);
 
 			Shape3D s3Shape = new Shape3D(lineArr, aAppearance);

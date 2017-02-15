@@ -61,7 +61,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	public void initialiseReceptors(){
 		
 
-		//need to have a chat with simon about this one
 
 		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(4));
 		this.getM_receptorMap().get(Receptor.CXCR5).add(0,Settings.BC.ODE.LR());
@@ -69,11 +68,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		this.getM_receptorMap().get(Receptor.CXCR5).add(2,Settings.BC.ODE.Ri());
 		this.getM_receptorMap().get(Receptor.CXCR5).add(3,0);//this is for desensitised receptors
 		
-		//this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(4));
-		//this.getM_receptorMap().get(Receptor.CXCR5).add(0,0);
-		//this.getM_receptorMap().get(Receptor.CXCR5).add(1,0);
-		//this.getM_receptorMap().get(Receptor.CXCR5).add(2,0);
-		//this.getM_receptorMap().get(Receptor.CXCR5).add(3,0);
 		
 		this.getM_receptorMap().put(Receptor.CCR7, new ArrayList<Integer>(3));
 		this.getM_receptorMap().get(Receptor.CCR7).add(0,0);
@@ -81,20 +75,14 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		this.getM_receptorMap().get(Receptor.CCR7).add(2,0);
 		this.getM_receptorMap().get(Receptor.CCR7).add(3,0);
 		
-		//this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(4));
-		//this.getM_receptorMap().get(Receptor.EBI2).add(0,Settings.BC.ODE.LR());
-		//this.getM_receptorMap().get(Receptor.EBI2).add(1,Settings.BC.ODE.Rf());
-		//this.getM_receptorMap().get(Receptor.EBI2).add(2,Settings.BC.ODE.Ri());
-		//this.getM_receptorMap().get(Receptor.EBI2).add(3,0);//this is for desensitised receptors
 		
-		//this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(4));
-		//this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
-		//this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
-		//this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
-		//this.getM_receptorMap().get(Receptor.EBI2).add(3,0);
+		this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(4));
+		this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
+		this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
+		this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
+		this.getM_receptorMap().get(Receptor.EBI2).add(3,0);
 			
 	}
-	
 	
 	
 	
@@ -149,6 +137,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	public boolean displayODEGraph = false;
 
 	/**
+	 * 
 	 * The direction the cell is facing; used for movement
 	 */
 	private Double3D m_d3Face = Vector3DHelper.getRandomDirection();
@@ -160,6 +149,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 
 	/**
 	 * The movements of the cell; each collision or bounce means a new movement
+	 * each movement is relative to the current position
 	 */
 	private List<Double3D> m_d3aMovements = new ArrayList<Double3D>();
 
@@ -353,12 +343,14 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				//is it safe to assume that the cells have actually collided at this point
 				// or do we still need to do the collision check as per collideStromaEdge to determine 
 				// where they have collided. 
+				if (collideStromaNode((Stroma) cCell, iCollisionMovement)) {
+					
+					iCollisionMovement = getM_d3aMovements().size() - 1;
+					bCollision = true;
 				
+				}
+				break;
 
-
-				
-		
-				
 			case LYMPHOCYTE:
 				break;
 			}
@@ -409,32 +401,46 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 * @return
 	 */
 	protected boolean collideStromaNode(Stroma cell, int iCollisionMovement){
-		
+
 	
-		Double3D initialLoc = this.getDrawEnvironment().getObjectLocation(this);
+		boolean hasCollided = false;
+		
+		//the cells current location
+		Double3D p1 = this.getDrawEnvironment().getObjectLocation(this);
 
 		
 		//determine the last coordinates of the movement, need to figure out what these various
 		//arraylists contain collisionMovement md3amovement etc
-		double x = 0,y = 0,z = 0;
 		for (int i = 0; i < iCollisionMovement; i++) {
-			Double3D d1 = getM_d3aMovements().get(i);
 			
-			x += d1.x;
-			y += d1.y;
-			z += d1.z;
+			//the movements to make relative to the current position
+			Double3D d1 = getM_d3aMovements().get(i);	
+			Double3D stromaLoc = cell.getDrawEnvironment().getObjectLocation(cell);
+			
+			//determine the point on the line which is the shortest distance between
+			// the stromal cell and the movement vector
+			Double3D shortestPoint = closestPointToStroma(p1,d1,stromaLoc);
+			double length = shortestDistanceToSegment(shortestPoint, stromaLoc);
+			
+			if(length < BC_SC_COLLIDE_DIST_SQ){
+				iCollisionMovement = getM_d3aMovements().size() - 1;
+				hasCollided = true;
+			}
+			
+			
+			if (hasCollided) {
+				
+				updateMovementToAccountForCollisionWithNode(length,p1,d1,shortestPoint,stromaLoc,i);
+				
+			} else {
+				// Move the BC location according to full the movement.
+				p1 = p1.add(d1);
+			}
+		
 		}
 		
-		Double3D endLoc = initialLoc.add(new Double3D(x,y,z));
-		
-		Double3D stromaLoc = cell.getDrawEnvironment().getObjectLocation(cell);
-		double dist = distanceToSegment(initialLoc, endLoc, stromaLoc);
-		
-		if(dist < BC_SE_COLLIDE_DIST_SQ){
-			iCollisionMovement = getM_d3aMovements().size() - 1;
-			return true;
-		}
-		else return false;
+	
+		return hasCollided;
 	}
 	
 	
@@ -460,35 +466,72 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
     * http://paulbourke.net/geometry/pointlineplane/DistancePoint.java
     * 
     */
-    public static double distanceToSegment(Double3D p1, Double3D p2, Double3D p3) {
+    public static double shortestDistanceToSegment(Double3D closestPoint, Double3D p3) {
 
-	final double xDelta = p2.getX() - p1.getX();
-	final double yDelta = p2.getY() - p1.getY();
-	final double zDelta = p2.getZ() - p1.getZ();
-	
-
-	if ((xDelta == 0) && (yDelta == 0)) {
-	    throw new IllegalArgumentException("p1 and p2 cannot be the same point");
-	}
-
-	
-	final double u = ((p3.getX() - p1.getX()) * xDelta + (p3.getY() - p1.getY()) * yDelta + (p3.getZ() - p1.getZ()) * zDelta) 
-			/ (xDelta * xDelta + yDelta * yDelta + zDelta * zDelta);
-
-	final Double3D closestPoint;
-	if (u < 0) {
-	    closestPoint = p1;
-	} else if (u > 1) {
-	    closestPoint = p2;
-	} else {
-	    closestPoint = new Double3D(p1.getX() + u * xDelta, p1.getY() + u * yDelta, p1.getZ() + u * yDelta);
-	}
-
-	return closestPoint.distance(p3);
+    	return closestPoint.distance(p3);
     }
 	
-	
     
+    /**
+     * Given a point p1 on a line q1-q2 return the proportion of the distance from
+     * q1-p1 to the distance from q1-12
+     */
+    private static double proportionAlongVector(Double3D p1, Double3D q1, Double3D q2){
+    	double lengthOfLine = SimulationEnvironment.calcDistance(q1,q2);
+    	double distToClosestPoint = SimulationEnvironment.calcDistance(q1,p1);
+    	return distToClosestPoint/lengthOfLine;
+    	
+    }
+    
+	/*
+     * Returns the distance of p3 to the segment defined by p1,p2;
+     * 
+     * @param p1
+     *                First point of the segment
+     * @param p2
+     *                Second point of the segment
+     * @param p3
+     *                Point to which we want to know the distance of the segment
+     *                defined by p1,p2
+     * @return The distance of p3 to the segment defined by p1,p2
+     * 
+     * Works on the fact that shortest point between the point and the line
+     * is where they are orthogonal, ie where the dot product equals 0
+     * 
+     * the distance is thus the distance between the poiint and where
+     * the orthogonal tangent meets the line. 
+     * 
+     * http://paulbourke.net/geometry/pointlineplane/
+     * http://paulbourke.net/geometry/pointlineplane/DistancePoint.java
+     * 
+     */
+    public static Double3D closestPointToStroma(Double3D p1, Double3D p2, Double3D p3){
+    	
+    	final double xDelta = p2.getX() - p1.getX();
+    	final double yDelta = p2.getY() - p1.getY();
+    	final double zDelta = p2.getZ() - p1.getZ();
+    	
+
+    	if ((xDelta == 0) && (yDelta == 0)) {
+    	    throw new IllegalArgumentException("p1 and p2 cannot be the same point");
+    	}
+
+    	
+    	final double u = ((p3.getX() - p1.getX()) * xDelta + (p3.getY() - p1.getY()) * yDelta + (p3.getZ() - p1.getZ()) * zDelta) 
+    			/ (xDelta * xDelta + yDelta * yDelta + zDelta * zDelta);
+
+    	final Double3D closestPoint;
+    	if (u < 0) {
+    	    closestPoint = p1;
+    	} else if (u > 1) {
+    	    closestPoint = p2;
+    	} else {
+    	    closestPoint = new Double3D(p1.getX() + u * xDelta, p1.getY() + u * yDelta, p1.getZ() + u * yDelta);
+    	}
+
+    	return closestPoint;
+    	
+    }
    
 	
 	/**
@@ -510,62 +553,47 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 */
 	protected boolean collideStromaEdge(StromaEdge seEdge,
 			int iCollisionMovement) {
-		Double3D p1 = new Double3D(x, y, z);
-		Double3D p2 = seEdge.getPoint1();
-		Double3D d2 = seEdge.getPoint2().subtract(p2);
+		
+		//we have two lines characterised by the following start and end points
+		// P1-Q1
+		// P2-Q2
+		
+		// the closest point between the two lines are where the line between them is orthogonal to both lines
+		// or in other words where the dot product between the two vectors is equal to zero. 
+		// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
+		
+		
+		//take a point on the segment and then draw a vector from the
+		// point to the start point P1 of the line
+		// the dot product is just the projection of that vector onto
+		// the line (remember cos gives you the x-axis
+		// we are just making the line the x-axis).
+
+		
+		Double3D p1 = new Double3D(x, y, z);//the start point of the cells movement
+		Double3D p2 = seEdge.getPoint1(); //the start point of the stroma edge
+		Double3D d2 = seEdge.getPoint2().subtract(p2); //Q2 - P2
 
 		for (int i = 0; i < iCollisionMovement; i++) {
-			Double3D d1 = getM_d3aMovements().get(i);
+			Double3D d1 = getM_d3aMovements().get(i); //where to move relative to the current location
 
 			// make sure that d1 has a length
 			if (d1.length() > 0) {
 
-				// The two lines are p1 + s*d1 and p2 + t*d2
-				// We are essentially trying to find the closest point between
-				// the
-				// lines because that's an easy problem
-				// using the fact that the line between them would be orthogonal
-				// to
-				// both lines
+			
+				// For some pair of values for s  and t , L1 (s ) and L2 (t ) 
+				// correspond to the closest points on the lines, 
+				//  v (s , t ) describes a vector between them 
 
 				double s = 0;
 				double t = 0;
 
-				// This is all vector math explained in the following link. We
-				// are
-				// essentially solving a system of linear
-				// equations, and all the details are there.
-				// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
-				// section 5.1.8, 5.1.9 psuedocode p146. Its now also in the project folder
-				// see betterexplained trig and also dot product for intuitive
-				// understanding of how formulae are derived
-				//
-				// Given a point S2(t) = P2 +td2 on a line segment, the closest
-				// point on another line is given by
-				// closest point = S2(t) - P1.d1/d1.d1
-				//
-				// take a point on the segment and then draw a vector from the
-				// point
-				// to the start point P1 of the line
-				// the dot product is just the projection of that vector onto
-				// the
-				// line (remember cos gives you the x-axis
-				// we are just making the line the x-axis).
-				//
 
 				Double3D r = p1.subtract(p2); // p1 - p2
-				double a = Vector3DHelper.dotProduct(d1, d1); // squared length
-																// of
-																// segment s1,
-																// always
-																// positive
+				double a = Vector3DHelper.dotProduct(d1, d1); // squared length line 1																
 				double b = Vector3DHelper.dotProduct(d1, d2);
 				double c = Vector3DHelper.dotProduct(d1, r);
-				double e = Vector3DHelper.dotProduct(d2, d2); // squared length
-																// of
-																// segment s2,
-																// always
-																// positive
+				double e = Vector3DHelper.dotProduct(d2, d2); // squared length of line 2
 				double f = Vector3DHelper.dotProduct(d2, r);
 
 				// differing from the link, dealing with lines so dont need to
@@ -579,13 +607,12 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				List<Double> closestPoints = findClosestPointsBetween(i, p1,
 						p2, d1, d2, denom, s, t, a, b, c, e, f);
 
+	
 				s = closestPoints.get(0);
 				t = closestPoints.get(1);
 
-				// update the B cells T variable as this tells us how far along
-				// the
-				// stroma the B cell is
-
+				// update the B cells T-variable as this tells us how far along
+				// the stroma the B cell is
 				this.setPositionAlongStroma(closestPoints.get(1));
 
 				// So c1 and c2 are the points on the two lines which are
@@ -597,8 +624,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				Double3D c2 = p2.add(d2.multiply(t));
 
 				// remember that the dot product of a vector times a vector
-				// equals
-				// its length squared
+				// equals its length squared
 				double length = Vector3DHelper.dotProduct(c1.subtract(c2),
 						c1.subtract(c2));
 
@@ -668,9 +694,93 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return false;
 	}
 
+	
+	private void updateMovementToAccountForCollisionWithNode(double length,
+			Double3D p1,Double3D d1,  Double3D closestPoint, 
+			 Double3D stromaLoc,int i) {
+
+		Double3D d3NewDir;
+
+		// Get the approach direction normalised, and in reverse
+
+		Double3D d3MovementNormal = d1.multiply(-1).normalize();
+
+		// We hit bang in the middle so just bounce - unlikely!
+		if (length == 0) {
+
+			// The cell bounces back to it's original position so
+			// no need to updated its coordinates.
+			d3NewDir = d3MovementNormal;
+
+		} else {
+
+			// Calculate the direction from the stroma collision point to the BC
+			// collision point
+			Double3D d3BounceNormal = closestPoint
+					.subtract(stromaLoc).normalize();
+
+			
+			// reflect the movement normal about this point (rotate to it, and
+			// apply the same rotation again)
+			d3NewDir = Vector3DHelper.rotateVectorToVector(d3MovementNormal,
+					d3MovementNormal, d3BounceNormal);
+			d3NewDir = Vector3DHelper.rotateVectorToVector(d3NewDir,
+					d3MovementNormal, d3BounceNormal);
+
+		}
+
+		double s = proportionAlongVector(closestPoint,p1,d1);
+		
+		// Set the new movement 
+		d1 = d1.multiply(s); //what does multiplying by s give us??
+
+		if (d1.lengthSq() > 0) {
+			getM_d3aMovements().set(i, d1);
+			i++;
+		}
+
+		// We need to add up all vectors after this one
+		// so we can add a new vector of this length
+		double dNewLength = 0;
+		while (getM_d3aMovements().size() > i) {
+			dNewLength += getM_d3aMovements().get(i).length();
+			getM_d3aMovements().remove(i);
+		}
+
+		// add the remaining length of the current movement
+		dNewLength += d1.length() * (1 - s);
+
+		// slow down based on how fast we changed direction
+		dNewLength *= (2 + Vector3DHelper
+				.dotProduct(d3NewDir, d3MovementNormal)) / 3;
+		d3NewDir = d3NewDir.multiply(dNewLength);
+
+		if (d3NewDir.lengthSq() > 0) {
+			getM_d3aMovements().add(d3NewDir);
+		}
+
+	}
+	
+	
+	
 	/**
 	 * Helper Method to update movement after a collision occurs update the B
 	 * cells m_d3aMovements
+	 * 
+	 * TODO Need to say what the different inputs actually are....
+	 * 
+	 * d1 = the values to add to the current location to move it
+	 * d2 = Q2 - P2
+	 * 
+	 * p1 = cells current location
+	 * p2 = start point of line 2
+	 * 
+	 * s and t equal values where 
+	 * L1 (s) and L2 (t) correspond to the closest points on the lines, 
+	 * 
+	 * i is the iteration through the movements array
+	 * 
+	 * 
 	 */
 	private void updateMovementToAccountForCollision(double length,
 			Double3D d1, Double3D d2, Double3D p1, Double3D p2, double s,
@@ -706,7 +816,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		}
 
 		// Set the new movement
-		d1 = d1.multiply(s);
+		d1 = d1.multiply(s);//why multiply by s?
 
 		if (d1.lengthSq() > 0) {
 			getM_d3aMovements().set(i, d1);
@@ -940,6 +1050,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 * simulation borders along the Y-axis. TODO THIS SHOULD ACCOUNT FOR THE 
 	 * LECS ALSO needs to be a parameter
 	 */
+	
 	private boolean handleBounceYaxis(double dPosY, int iMovementIndex) {
 		// There might be multiple vectors now, so we need to keep track
 		// of position, and whether we've hit the wall yet or not
@@ -962,13 +1073,13 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 			// does this sub movement go out of bounds
 			if (dTempPosY + d3Movement.y < 1
 					//TODO this needs to be set to the SCS height , wherever you see a 3
-					|| dTempPosY + d3Movement.y > Settings.HEIGHT - (Settings.bRC.SCSDEPTH +1)) {
+					|| dTempPosY + d3Movement.y > Settings.HEIGHT- (Settings.bRC.SCSDEPTH)) {
 				// Figure out at which point it goes out
 				double dCutOff = 1;
 				if (dTempPosY + d3Movement.y < 1) {
 					dCutOff = (1 - dTempPosY) / d3Movement.y;
 				} else {
-					dCutOff = ((Settings.HEIGHT - (Settings.bRC.SCSDEPTH +1)) - dTempPosY)
+					dCutOff = ((Settings.HEIGHT- (Settings.bRC.SCSDEPTH) ) - dTempPosY) //
 							/ d3Movement.y;
 				}
 

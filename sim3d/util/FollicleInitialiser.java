@@ -38,10 +38,10 @@ public class FollicleInitialiser {
 		//fit the SCS
 		//lets try a different shape for the lols
 		//actual data equals 9.5266687,0.5291553,0.0206240
-		
+	
 		seedSCS(cgGrid);
 	
-		seedStroma(cgGrid,Stroma.TYPE.bRC);
+		seedStroma(cgGrid);
 		
 		
 		connectMRCNetwork(cgGrid);
@@ -67,34 +67,30 @@ public class FollicleInitialiser {
 		for (int x = 0; x < Settings.WIDTH; x++) {
 			for (int z = 1; z < Settings.DEPTH - 1; z++) {
 				
-				double y = 42.5672065 +(0.2289705 * x) - (0.0055798* Math.pow(x, 2));
+				//double y = 42.5672065 +(0.2289705 * x) - (0.0055798* Math.pow(x, 2));
 				
 				//seed the lymphatic endothelium
 				Stroma flec = new Stroma(Stroma.TYPE.LEC);
 				Stroma clec = new Stroma(Stroma.TYPE.LEC);
 
-				clec.setObjectLocation(new Double3D(x, y, z));
-				flec.setObjectLocation(new Double3D(x, y - Settings.bRC.SCSDEPTH, z));
+				clec.setObjectLocation(new Double3D(x, Settings.HEIGHT, z));
+				flec.setObjectLocation(new Double3D(x, Settings.HEIGHT - Settings.bRC.SCSDEPTH, z));
 
-				flec.registerCollisions(cgGrid);
-				clec.registerCollisions(cgGrid);
+				//do these need ot be on the collision grid if we set the bounce height correctly?
+				//flec.registerCollisions(cgGrid);
+				//clec.registerCollisions(cgGrid);
 				
+			
 				//now seed the MRCs
 				double random = Settings.RNG.nextDouble();
-				if(random > 0.6){
+				if(random > 0.5){
 					Stroma mrc = new Stroma(Stroma.TYPE.MRC);
-					mrc.setObjectLocation(new Double3D(x, y- (Settings.bRC.SCSDEPTH + 0.5), z));
+					mrc.setObjectLocation(new Double3D(x, Settings.HEIGHT- (Settings.bRC.SCSDEPTH + 1.0), z));
 					mrc.registerCollisions(cgGrid);
 					SimulationEnvironment.scheduleStoppableCell(mrc);
 				}
 				
-				//sometimes we see two MRCs overlapping so we do it again. 
-				else if(random > 0.9){
-					Stroma mrc = new Stroma(Stroma.TYPE.MRC);
-					mrc.setObjectLocation(new Double3D(x, y- (Settings.bRC.SCSDEPTH + 0.9), z));
-					mrc.registerCollisions(cgGrid);
-					SimulationEnvironment.scheduleStoppableCell(mrc);
-				}
+
 
 			}
 		}
@@ -102,129 +98,74 @@ public class FollicleInitialiser {
 
 	
 	
-	private static void seedStroma(CollisionGrid cgGrid, Stroma.TYPE celltype){
+	private static void seedStroma(CollisionGrid cgGrid){
 		// Generate some stroma
 		ArrayList<StromaGenerator.StromalCell> stromalCellLocations = 
 				new ArrayList<StromaGenerator.StromalCell>();
 		// this is for the dendrites
 		ArrayList<StromaEdge> sealEdges = new ArrayList<StromaEdge>();
 
-			int numOfCells = 0;
-		
-			if(celltype == Stroma.TYPE.FDC){
-				numOfCells = Settings.FDC.COUNT;
-			}
-			else // its arecticular cell
-			{
-				numOfCells = Settings.bRC.COUNT;
-			}
-
-
-
 			StromaGenerator.generateStroma3D_Updated(Settings.WIDTH - 2,
 					Settings.HEIGHT - (Settings.bRC.SCSDEPTH+2), Settings.DEPTH - 2,
-					numOfCells, stromalCellLocations, sealEdges);
-			
-			
+					Settings.bRC.COUNT, stromalCellLocations, sealEdges);
 			
 			m_edges = checkOverlaps(sealEdges);
 			
 			//set sealEdges to null so we can't use it again.
 			sealEdges = null;
 			
-			
-			if(celltype == Stroma.TYPE.bRC){
-			
-			//TODO need to adapt this so we can account for both RCs and FDCs
-			// need to generate dendrites before nodes as we get rid of overlaps
-			// having the nodes on the graph makes that a mess
-				seedEdges(cgGrid, m_edges, StromaEdge.TYPE.RC_edge);
-			
-				for (StromaGenerator.StromalCell sc : stromalCellLocations) {
-					seedRC(sc,cgGrid,m_edges, Stroma.TYPE.bRC);
-				}	
-			}
-			else if(celltype == Stroma.TYPE.FDC){
-				
-				seedEdges(cgGrid, m_edges, StromaEdge.TYPE.FDC_edge);
-				
-				for (StromaGenerator.StromalCell sc : stromalCellLocations) {
-					seedRC(sc,cgGrid,m_edges, Stroma.TYPE.FDC);
-				}
-				
+			for (StromaGenerator.StromalCell sc : stromalCellLocations) {
+				seedStromaNode(sc,cgGrid,m_edges);
 			}
 			
-	
+			seedEdges(cgGrid, m_edges);
+		
 	}
 	
 	
+	
+	
+	
 	/**
-	 * We generate the reticular network seperately to the FDC network
-	 * To generate connections between the different cells as we observe 
-	 * in vivo we make connections between stromal cells that are smaller
-	 * than a threshold distance apart. 
-	 * @param cgGrid
+	 * This is horrible code, i should be taken out back and shot
+	 * @param p1
+	 * @param p2
+	 * @return
 	 */
-	private static void connectRCtoFDC(CollisionGrid cgGrid){
+	private static boolean IsAlreadyConnected(Double3D p1, Double3D p2){
 		
 		Bag stroma = SimulationEnvironment.fdcEnvironment.getAllObjects();
-
-		// we want to count only branches and dendrites so
-		// we need to know how many FDC nodes there are
 		for (int i = 0; i < stroma.size(); i++) {
-			if (stroma.get(i) instanceof Stroma) {
-				if (((Stroma) stroma.get(i)).getStromatype() == Stroma.TYPE.bRC) {
-				
-					//get all the neighbours within 20 microns away
-					Stroma sc = (Stroma) stroma.get(i);
-					Double3D loc = new Double3D(sc.x,sc.y,sc.z);
-					Bag neighbours = SimulationEnvironment.fdcEnvironment.getNeighborsExactlyWithinDistance(loc, 2.7, false);
+			if (stroma.get(i) instanceof StromaEdge) {
+				if (((StromaEdge) stroma.get(i)).getStromaedgetype() == StromaEdge.TYPE.MRC_edge){
 					
-					//if the type of stromal cell is an FDC then generate a new edge betwen them and
-					//add to schedule etc
-					for (int j = 0; j < neighbours.size(); j++) {
-						if (neighbours.get(j) instanceof Stroma) {
-							if (((Stroma) neighbours.get(j)).getStromatype() == Stroma.TYPE.FDC){
-
-								Stroma neighbour = (Stroma) neighbours.get(j);
-								Double3D neighbourloc = new Double3D(neighbour.x, neighbour.y,
-										neighbour.z);
-								StromaEdge seEdge = new StromaEdge(loc,neighbourloc,StromaEdge.TYPE.RC_edge);
-
-								//assing the dendrite to the FRC
-								//TODO should we also add this to the FDC. 
-								sc.m_dendrites.add(seEdge);	
-								seEdge.setObjectLocation(new Double3D(seEdge.x,
-										seEdge.y , seEdge.z ));
-
-								SimulationEnvironment.scheduleStoppableCell(seEdge);
-								
-								seEdge.setStopper(SimulationEnvironment.simulation.schedule.scheduleRepeating((Steppable) seEdge, 2, 1));		
-								seEdge.registerCollisions(cgGrid);	
-								
-							}
-						}
-					}	
+					Double3D midpointToCheck = new Double3D((p1.x + p2.x) / 2,
+							(p1.y + p2.y) / 2, (p1.z + p2.z) / 2);
+					
+					if(((StromaEdge) stroma.get(i)).midpoint == midpointToCheck){
+						return true;
+					}
+					
 				}
 			}
-		}	
+		}
+		
+		return false;
 	}
 	
 	
-	
 	/**
-	 * We generate the reticular network seperately to the FDC network
-	 * To generate connections between the different cells as we observe 
-	 * in vivo we make connections between stromal cells that are smaller
-	 * than a threshold distance apart. 
+	 * TODO what is wrong with this method!!!!!!
+	 * 
+	 * 
+	 * IM SURE WE ARE GETTING OVERLAPPING EDGES WITH THIS METHOD. 
 	 * @param cgGrid
 	 */
 	private static void connectMRCNetwork(CollisionGrid cgGrid){
 		
 		Bag stroma = SimulationEnvironment.fdcEnvironment.getAllObjects();
 
-		// we want to count only branches and dendrites so
-		// we need to know how many FDC nodes there are
+		// iterate through all the stroma cells and check each MRC node
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof Stroma) {
 				if (((Stroma) stroma.get(i)).getStromatype() == Stroma.TYPE.MRC) {
@@ -235,31 +176,39 @@ public class FollicleInitialiser {
 					Double3D loc = new Double3D(sc.x,sc.y,sc.z);
 					Bag neighbours = SimulationEnvironment.fdcEnvironment.getNeighborsExactlyWithinDistance(loc, 2.0, false);
 					
-					//if the type of stromal cell is an FDC then generate a new edge betwen them and
+					//if the type of stromal cell is another MRC then generate a new edge betwen them and
 					//add to schedule etc
+					
+					//need to keep traack of who is connected with who
 					for (int j = 0; j < neighbours.size(); j++) {
 						if (neighbours.get(j) instanceof Stroma) {
 							if (((Stroma) neighbours.get(j)).getStromatype() == Stroma.TYPE.MRC){
 
-								
-								double random = Settings.RNG.nextDouble();
-							
+
 								Stroma neighbour = (Stroma) neighbours.get(j);
-								Double3D neighbourloc = new Double3D(neighbour.x, neighbour.y,
+								Double3D neighbourloc = new Double3D(neighbour.x, neighbour.y ,
 										neighbour.z);
-								StromaEdge seEdge = new StromaEdge(loc,neighbourloc,StromaEdge.TYPE.RC_edge);
-
-								//assing the dendrite to the FRC
-								//TODO should we also add this to the FDC. 
-								sc.m_dendrites.add(seEdge);	
-								seEdge.setObjectLocation(new Double3D(seEdge.x,
-										seEdge.y , seEdge.z ));
-
-								SimulationEnvironment.scheduleStoppableCell(seEdge);
 								
-								seEdge.setStopper(SimulationEnvironment.simulation.schedule.scheduleRepeating((Steppable) seEdge, 2, 1));		
-								seEdge.registerCollisions(cgGrid);	
 								
+								if(!IsAlreadyConnected(loc, neighbourloc)){
+									
+									StromaEdge seEdge = new StromaEdge(loc,neighbourloc,StromaEdge.TYPE.MRC_edge);
+
+									//TODO we need to check if this object already exists...
+	
+									
+									//assing the dendrite to the FRC
+									//TODO should we also add this to the FDC. 
+									sc.m_dendrites.add(seEdge);	
+									seEdge.setObjectLocation(new Double3D(seEdge.x,
+											seEdge.y , seEdge.z ));
+
+									SimulationEnvironment.scheduleStoppableCell(seEdge);
+									
+									seEdge.setStopper(SimulationEnvironment.simulation.schedule.scheduleRepeating((Steppable) seEdge, 2, 1));		
+									seEdge.registerCollisions(cgGrid);	
+									
+								}
 								
 							}	
 							
@@ -303,7 +252,7 @@ public class FollicleInitialiser {
 								Stroma neighbour = (Stroma) neighbours.get(j);
 								Double3D neighbourloc = new Double3D(neighbour.x, neighbour.y,
 										neighbour.z);
-								StromaEdge seEdge = new StromaEdge(loc,neighbourloc,StromaEdge.TYPE.RC_edge);
+								StromaEdge seEdge = new StromaEdge(loc,neighbourloc,StromaEdge.TYPE.MRC_edge);
 
 								//assing the dendrite to the FRC
 								//TODO should we also add this to the FDC. 
@@ -317,7 +266,6 @@ public class FollicleInitialiser {
 								seEdge.registerCollisions(cgGrid);	
 								
 							}	
-							
 						}
 					}	
 				}
@@ -337,19 +285,31 @@ public class FollicleInitialiser {
 	 * @param cgGrid
 	 * @param edges
 	 */
-	private static void seedRC(StromaGenerator.StromalCell sc,CollisionGrid cgGrid,ArrayList<StromaEdge> edges, Stroma.TYPE celltype){
+	private static void seedStromaNode(StromaGenerator.StromalCell sc,CollisionGrid cgGrid,ArrayList<StromaEdge> edges){
 			
 		Stroma frc;
+		double random = Settings.RNG.nextDouble();
 		
-		if(celltype == Stroma.TYPE.bRC){
-			frc = new Stroma(Stroma.TYPE.bRC);
-		
+		// we should stochastically seed FDC nodes ot be accurate. 
+		if(SimulationEnvironment.isWithinCircle(sc.d3Location.x, sc.d3Location.y, 
+				(Settings.WIDTH / 2) ,(Settings.HEIGHT / 2) , SimulationEnvironment.fdcNetRadius)){
+			
+			frc = new Stroma(Stroma.TYPE.FDC);
+			
+			//we stochastically place the FDCs because the nodes are less numerous
+			
+			if(random > 0.92){
+				placeNode(sc,cgGrid,edges,frc);
+			}
 		}
 		else{
-			frc = new Stroma(Stroma.TYPE.FDC);
+			frc = new Stroma(Stroma.TYPE.bRC);
+			placeNode(sc,cgGrid,edges,frc);
 		}
+	}
 		
-		
+	
+	private static void placeNode(StromaGenerator.StromalCell sc,CollisionGrid cgGrid,ArrayList<StromaEdge> edges, Stroma frc){
 		Double3D loc = new Double3D(sc.d3Location.x+1,
 				sc.d3Location.y +1, sc.d3Location.z +1);
 		// This will register the FRC with the environment/display
@@ -386,7 +346,6 @@ public class FollicleInitialiser {
 			}
 		}
 	}
-		
 	
 	/**
 	 * Remove an RC and its associated dendrites
@@ -478,7 +437,7 @@ public class FollicleInitialiser {
 	 * @param type
 	 */
 	private static void seedEdges(CollisionGrid cgGrid,
-			ArrayList<StromaEdge> edges, StromaEdge.TYPE type) {
+			ArrayList<StromaEdge> edges) {
 
 			for (StromaEdge seEdge : edges) {
 				
@@ -502,45 +461,6 @@ public class FollicleInitialiser {
 	}
 	
 	
-	/**
-	 * Prune the network, we sometimes gets nodes with no edges because we chop out the centre
-	 * so this method handles all of this
-	 */
-	private static void shapeNetwork(){		
-		
-		 // From the MASON manual: The provided Bag is to be treated as read-only and not to be modified,
-		 //	and it may change at any time without warning.
-		 // therefore do not edit a bag whilst iterating through!!!!!!!
-		Bag fdcs = new Bag(SimulationEnvironment.fdcEnvironment.getAllObjects());
-
-		
-		for(int i = 0; i < fdcs.size();i++){
-			
-			if(fdcs.get(i) instanceof Stroma){
-				Stroma fdc = (Stroma) fdcs.get(i);
-	
-				if (fdc.getStromatype() == Stroma.TYPE.FDC){
-					//get rid of any FDCs which arent connected to any dendrites
-					if(fdc.m_dendrites.size() == 0){
-						fdc.getDrawEnvironment().remove(fdc);
-						fdc.stop();
-					}					
-				}		
-				else if(fdc.getStromatype() == Stroma.TYPE.bRC){
-
-					//get rid of any FDCs which arent connected to any dendrites
-					if(fdc.m_dendrites.size() == 0){
-						deleteRC(fdc);
-					}
-					
-					if(SimulationEnvironment.isWithinCircle(fdc.x, fdc.y, (Settings.WIDTH / 2),
-							(Settings.HEIGHT / 2) , 13)){
-						deleteRC(fdc);
-					}
-				}
-			}	
-		}
-	}
 
 	
 	
