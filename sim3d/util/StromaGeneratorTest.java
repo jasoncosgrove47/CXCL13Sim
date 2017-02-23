@@ -64,6 +64,7 @@ public class StromaGeneratorTest {
 											// with 0.2 error for margin
 	}
 
+	
 	/**
 	 * Test method for
 	 * {@link sim3d.util.StromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}
@@ -82,7 +83,8 @@ public class StromaGeneratorTest {
 
 		for (StromalCell frcCell : d3lCellLocations) {
 			iCellCount++;
-			iEdgeCount += frcCell.iEdges;
+			iEdgeCount += frcCell.m_iEdges;
+			
 		}
 
 		double dEdgesPerFDC = (double) iEdgeCount / (double) iCellCount;

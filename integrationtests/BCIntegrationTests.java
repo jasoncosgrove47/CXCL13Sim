@@ -37,6 +37,7 @@ public class BCIntegrationTests {
 	private Chemokine m_pParticle; // an instance of particle moles
 	public static Document parameters; // parameter file in .xml format
 
+	
 
 	/**
 	 * Load simulation parameters

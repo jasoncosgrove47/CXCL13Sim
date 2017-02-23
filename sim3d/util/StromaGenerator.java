@@ -10,6 +10,7 @@ import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.stroma.Stroma;
+import sim3d.stroma.Stroma.TYPE;
 import sim3d.stroma.StromaEdge;
 
 /**
@@ -23,7 +24,6 @@ import sim3d.stroma.StromaEdge;
  */
 public class StromaGenerator {
 	
-	
 	/**
 	 * Class to keep track of edges for each cell
 	 */
@@ -31,12 +31,12 @@ public class StromaGenerator {
 		/**
 		 * Location of the cell
 		 */
-		public Double3D d3Location;
+		public Double3D m_d3Location;
 
 		/**
 		 * The number of edges (dendrites) the cell has
 		 */
-		public int iEdges = 0;
+		public int m_iEdges = 0;
 
 		/**
 		 * A list containing all the edges
@@ -49,8 +49,7 @@ public class StromaGenerator {
 
 		
 		
-		
-		public Stroma.TYPE type;
+		public Stroma.TYPE m_type;
 		
 		/**
 		 * Constructor
@@ -62,8 +61,9 @@ public class StromaGenerator {
 		 * @param z
 		 *            Z position of the cell
 		 */
-		public StromalCell(double x, double y, double z) {
-			d3Location = new Double3D(x, y, z);
+		public StromalCell(double x, double y, double z, Stroma.TYPE type) {
+			m_d3Location = new Double3D(x, y, z);
+			this.m_type = type;
 		}
 
 		/**
@@ -73,10 +73,73 @@ public class StromaGenerator {
 		 *            Position of the cell
 		 */
 		public StromalCell(Double3D d3Position) {
-			d3Location = d3Position;
+			m_d3Location = d3Position;
 		}
 	}
 
+	
+	//TODO think we need a processing step where we make sure that the relevant fields are updated
+	// such as the type based on anatomical location and we do some processing to make sure no duplicate
+	// or zero length edges. 
+	
+	
+	/**
+	 * CHECK THE STROMAEDGE ARRAY TO MAKE SURE THERE ARE NO DUPLICATES
+	 * 
+	 * When generated stroma we can get overlapping edges, this method
+	 * checks for overlaps and returns a new arraylist with all duplicated
+	 * edges removed. 
+	 * 
+	 * TODO: might be cleaner to have this in the generate stroma class
+	 * @param sealEdges
+	 * @return
+	 */
+	private static List<StromaEdge> removeOverlappingEdges(List<StromaEdge> sealEdges){
+
+		List<StromaEdge> updatedEdges = sealEdges;
+		List<StromaEdge> edgesToRemove = new ArrayList<StromaEdge>();
+
+		for (int i = 0; i < sealEdges.size(); i++) {
+			  for (int j = i+1; j < sealEdges.size(); j++) {
+				  
+				  //get the end points of each of the two edges
+				  Double3D i_p1 = new Double3D(sealEdges.get(i).x +1,
+						  sealEdges.get(i).y+1, sealEdges.get(i).z +1);
+				  Double3D i_p2 = new Double3D(sealEdges.get(i).getPoint2().x +1,
+						  sealEdges.get(i).getPoint2().y+1, sealEdges.get(i).getPoint2().z +1);
+					
+				  Double3D j_p1 = new Double3D(sealEdges.get(j).x +1,
+						  sealEdges.get(j).y+1, sealEdges.get(j).z +1);
+				  Double3D j_p2 = new Double3D(sealEdges.get(j).getPoint2().x +1,
+						  sealEdges.get(j).getPoint2().y+1, sealEdges.get(j).getPoint2().z +1);
+				  
+				//calculate the distances between all of the points. 
+				double d1 = calcDistance(i_p1, j_p1);
+				double d2 = calcDistance(i_p1, j_p2);
+				double d3 = calcDistance(i_p2, j_p1);
+				double d4 = calcDistance(i_p2, j_p2);
+				
+				//if the cells are too close to one another then remove them
+				// the threshold value was determined by trial and error
+				double thresholdDistance = 0.15; 
+				
+				if(d1 < thresholdDistance && d4 < thresholdDistance){
+					edgesToRemove.add(sealEdges.get(i));
+				}
+				else if(d2 < thresholdDistance && d3 < thresholdDistance){
+					edgesToRemove.add(sealEdges.get(i));
+				}
+			}
+		}
+
+		//now remove all of the overlapping edges in the removal list
+		for(int x = 0; x < edgesToRemove.size(); x ++){
+
+			updatedEdges.remove(edgesToRemove.get(x));
+		}
+		//return the updated array
+		return updatedEdges;
+	}
 	
 	
 	/**
@@ -113,7 +176,7 @@ public class StromaGenerator {
 
 		// Add one in the centre, TODO input this as a parameter
 		StromalCell stromalInitialCell = new StromalCell(iWidth / 2.0, iHeight / 2.0,
-				iDepth / 2.0);
+				iDepth / 2.0, Stroma.TYPE.FDC);
 		stromalUnbranchedCells.add(stromalInitialCell);
 		stromala3CellLocations[iWidth / 2][iHeight / 2][iDepth / 2]
 				.add(stromalInitialCell);
@@ -136,7 +199,7 @@ public class StromaGenerator {
 			StromaEdge.TYPE edgetype;
 			
 			//if its an FDC
-			if(SimulationEnvironment.isWithinCircle(nextCell.d3Location.x, nextCell.d3Location.y, 
+			if(SimulationEnvironment.isWithinCircle(nextCell.m_d3Location.x, nextCell.m_d3Location.y, 
 					(Settings.WIDTH / 2) ,(Settings.HEIGHT / 2) , SimulationEnvironment.fdcNetRadius)){
 				
 				celltype = Stroma.TYPE.FDC;
@@ -180,12 +243,12 @@ public class StromaGenerator {
 					if (d3Direction != null) {
 						// Add the edges
 
-						selEdges.add(new StromaEdge(nextCell.d3Location,
-								new Double3D(nextCell.d3Location.x
+						selEdges.add(new StromaEdge(nextCell.m_d3Location,
+								new Double3D(nextCell.m_d3Location.x
 										+ d3Direction.x,
-										nextCell.d3Location.y
+										nextCell.m_d3Location.y
 												+ d3Direction.y,
-										nextCell.d3Location.z
+										nextCell.m_d3Location.z
 												+ d3Direction.z), edgetype));
 						}	
 				}
@@ -195,8 +258,8 @@ public class StromaGenerator {
 			boolean include = true;
 			for(int x = 0; x < stromalCellLocations.size(); x++){
 				
-				if(calcDistance(nextCell.d3Location,
-						stromalCellLocations.get(x).d3Location) < 0.1){
+				if(calcDistance(nextCell.m_d3Location,
+						stromalCellLocations.get(x).m_d3Location) < 0.1){
 					include = false;
 				}
 			}
@@ -209,6 +272,10 @@ public class StromaGenerator {
 			
 			stromalUnbranchedCells.remove(nextCell);
 		}
+		
+		//now we need to process the stroma making sure there are no overlapping edges or zero length edges
+		selEdges = removeOverlappingEdges(selEdges);
+		
 		return iCellCount - iRemainingCells;
 	}
 	
@@ -285,7 +352,7 @@ public class StromaGenerator {
 				// If there's a cell there, try again..?
 				if (getAdjacentCells(iWidth, iHeight, iDepth,
 						frcla3CellLocations,
-						new StromalCell(frcLocation.d3Location.add(d3aReturn[i])),
+						new StromalCell(frcLocation.m_d3Location.add(d3aReturn[i])),
 						1.0).size() > 0) {
 					
 					i--;
@@ -315,7 +382,7 @@ public class StromaGenerator {
 			// If there are any cells too close to the final edge, try it all
 			// again!
 			if (getAdjacentCells(iWidth, iHeight, iDepth, frcla3CellLocations,
-					new StromalCell(frcLocation.d3Location.add(d3aReturn[0])), 1.0)//TODO was 1.2
+					new StromalCell(frcLocation.m_d3Location.add(d3aReturn[0])), 1.0)//TODO was 1.2
 					.size() > 0) {
 				bFail = true;
 				continue;
@@ -336,7 +403,7 @@ public class StromaGenerator {
 
 			// just check we aren't making a huge edge!
 		} while (!bFail && d3aReturn[0].length() > 4
-				&& d3aReturn[0].length() < 1.0);//TODO put this back as it was
+				&& d3aReturn[0].length() < 0.5);//TODO put this back as it was
 
 		return d3aReturn;
 	}
@@ -346,18 +413,25 @@ public class StromaGenerator {
 	
 	private static int calculateEdgeNumber(Stroma.TYPE celltype, int iRemainingCells, StromalCell frcNextCell){
 		
+		//lets add a plus one given these cells are denser than the FRCs
+
+			
 		 if(celltype == Stroma.TYPE.bRC){
 			 return Math.max(0,Math.min(iRemainingCells,
 										(int) (Math.pow(Settings.RNG.nextDouble(),
 												1.5) * (2.1) + 2.9))
-										- frcNextCell.iEdges);
+										- frcNextCell.m_iEdges) + 1;
+		
+			 
 		 }
-		 //add 2 to the number of FDC edges as they have much higher connectivity
+		 //add 3 to the number of FDC edges as they have much higher connectivity
+		 //TODO: we will need to update this to get it how we want it. dont like 
+		 // the way we have it currently but anyway
 		 else if(celltype == Stroma.TYPE.FDC){
 			 return Math.max(0,Math.min(iRemainingCells,
 						(int) (Math.pow(Settings.RNG.nextDouble(),
 								1.5) * (2.1) + 2.9))
-						- frcNextCell.iEdges) + 2;
+						- frcNextCell.m_iEdges) + 2;
 		 }
 		 
 		 return 0;
@@ -366,14 +440,23 @@ public class StromaGenerator {
 	private static double calculateEdgeLength(Stroma.TYPE celltype){
 		
 		 if(celltype == Stroma.TYPE.bRC){
-				double length = Settings.RNG.nextDouble() * 2.6;
+				
+			
+			
+			 	double length = Settings.RNG.nextDouble() * 2.6;
 				length = 0.00180148 * Math.pow(length, 5) - 0.0270696
 						* Math.pow(length, 4) + 0.151204 * Math.pow(length, 3)
 						- 0.342923 * Math.pow(length, 2) + 0.392281 * length;
 
 				// Yay! More magic numbers
 				//TODO just overwriting this to see if we can change the shape of the network
+				//return (1.3 + length * 3.5);
+				//System.out.println("edgeLengths are: " + (1.3 + length * 3.5));
 				return (1.3 + length * 3.5);
+			
+				//way too many numbers lets just make it gaussian for now
+				//return(Settings.RNG.nextGaussian()*4.0+0.1);
+				
 		 }
 		 else if(celltype == Stroma.TYPE.FDC){
 			 double length = Settings.RNG.nextDouble() * 2.6;
@@ -384,7 +467,7 @@ public class StromaGenerator {
 				// Yay! More magic numbers
 				//TODO just overwriting this to see if we can change the shape of the network
 				//we can make this smaller for the lawls
-				return (0.7 + length * 3.1);
+				return (1.3 + length * 3.5);
 		 }
 		 
 		 return 0;
@@ -417,21 +500,21 @@ public class StromaGenerator {
 
 		// Precompute these for efficiency
 		// +1 because we want the distance between the close edges of the cells
-		int iXLim = (int) Math.min(iMaxDistance + frcPoint.d3Location.x,
+		int iXLim = (int) Math.min(iMaxDistance + frcPoint.m_d3Location.x,
 				iWidth - 1);
-		int iYLim = (int) Math.min(iMaxDistance + frcPoint.d3Location.y,
+		int iYLim = (int) Math.min(iMaxDistance + frcPoint.m_d3Location.y,
 				iHeight - 1);
-		int iZLim = (int) Math.min(iMaxDistance + frcPoint.d3Location.z,
+		int iZLim = (int) Math.min(iMaxDistance + frcPoint.m_d3Location.z,
 				iDepth - 1);
 
-		for (int x = (int) Math.max(0, frcPoint.d3Location.x - iMaxDistance); x <= iXLim; x++) {
+		for (int x = (int) Math.max(0, frcPoint.m_d3Location.x - iMaxDistance); x <= iXLim; x++) {
 			for (int y = (int) Math
-					.max(0, frcPoint.d3Location.y - iMaxDistance); y <= iYLim; y++) {
-				for (int z = (int) Math.max(0, frcPoint.d3Location.z
+					.max(0, frcPoint.m_d3Location.y - iMaxDistance); y <= iYLim; y++) {
+				for (int z = (int) Math.max(0, frcPoint.m_d3Location.z
 						- iMaxDistance); z <= iZLim; z++) {
-					if (x == frcPoint.d3Location.x
-							&& y == frcPoint.d3Location.y
-							&& z == frcPoint.d3Location.z) {
+					if (x == frcPoint.m_d3Location.x
+							&& y == frcPoint.m_d3Location.y
+							&& z == frcPoint.m_d3Location.z) {
 						continue;
 					}
 					// if a cell lives at this location,
@@ -477,7 +560,7 @@ public class StromaGenerator {
 	 * @return The distance between the cells
 	 */
 	protected static double calcDistance(StromalCell i3Point1, StromalCell i3Point2) {
-		return calcDistance(i3Point1.d3Location, i3Point2.d3Location);
+		return calcDistance(i3Point1.m_d3Location, i3Point2.m_d3Location);
 	}
 
 	/**
@@ -508,44 +591,47 @@ public class StromaGenerator {
 			ArrayList<StromalCell>[][][] frcla3CellLocations, StromalCell frcOrigin,
 			Double3D[] d3aDirections) {
 		
-		
+	
 	
 		int iCellsCreated = 0;
 
 		for (int i = 0; i < d3aDirections.length; i++) {
 			double x, y, z;
-			x = frcOrigin.d3Location.x + d3aDirections[i].x;
-			y = frcOrigin.d3Location.y + d3aDirections[i].y;
-			z = frcOrigin.d3Location.z + d3aDirections[i].z;
+			x = frcOrigin.m_d3Location.x + d3aDirections[i].x;
+			y = frcOrigin.m_d3Location.y + d3aDirections[i].y;
+			z = frcOrigin.m_d3Location.z + d3aDirections[i].z;
+			
+			Stroma.TYPE type = determineStromaType(x,y);
+			
 
-			StromalCell frcNewPoint = new StromalCell(x, y, z);
+			StromalCell frcNewPoint = new StromalCell(x, y, z,type);
 
 			// check if out of bounds
 			if (x < 0 || x >= iWidth || y < 0 || y >= iHeight || z < 0
 					|| z >= iDepth) {
 				double dCoeff = 1;
 				if (x < 0) {
-					dCoeff = Math.min(dCoeff, -frcOrigin.d3Location.x
+					dCoeff = Math.min(dCoeff, -frcOrigin.m_d3Location.x
 							/ d3aDirections[i].x);
 				} else if (x > iWidth) {
-					dCoeff = Math.min(dCoeff, (iWidth - frcOrigin.d3Location.x)
+					dCoeff = Math.min(dCoeff, (iWidth - frcOrigin.m_d3Location.x)
 							/ d3aDirections[i].x);
 				}
 
 				if (y < 0) {
-					dCoeff = Math.min(dCoeff, -frcOrigin.d3Location.y
+					dCoeff = Math.min(dCoeff, -frcOrigin.m_d3Location.y
 							/ d3aDirections[i].y);
 				} else if (y > iHeight) {
 					dCoeff = Math.min(dCoeff,
-							(iHeight - frcOrigin.d3Location.y)
+							(iHeight - frcOrigin.m_d3Location.y)
 									/ d3aDirections[i].y);
 				}
 
 				if (z < 0) {
-					dCoeff = Math.min(dCoeff, -frcOrigin.d3Location.z
+					dCoeff = Math.min(dCoeff, -frcOrigin.m_d3Location.z
 							/ d3aDirections[i].z);
 				} else if (z > iDepth) {
-					dCoeff = Math.min(dCoeff, (iDepth - frcOrigin.d3Location.z)
+					dCoeff = Math.min(dCoeff, (iDepth - frcOrigin.m_d3Location.z)
 							/ d3aDirections[i].z);
 				}
 
@@ -558,7 +644,7 @@ public class StromaGenerator {
 				d3aDirections[i] = null;
 				/* }/ * */
 
-				frcOrigin.iEdges++;
+				frcOrigin.m_iEdges++;
 
 				continue;
 			}
@@ -587,10 +673,10 @@ public class StromaGenerator {
 				}
 
 				// draw an edge to the existing cell
-				d3aDirections[i] = new Double3D(newLoc.d3Location.x
-						- frcOrigin.d3Location.x, newLoc.d3Location.y
-						- frcOrigin.d3Location.y, newLoc.d3Location.z
-						- frcOrigin.d3Location.z);
+				d3aDirections[i] = new Double3D(newLoc.m_d3Location.x
+						- frcOrigin.m_d3Location.x, newLoc.m_d3Location.y
+						- frcOrigin.m_d3Location.y, newLoc.m_d3Location.z
+						- frcOrigin.m_d3Location.z);
 
 				frcNewPoint = newLoc;
 			} else {
@@ -606,8 +692,8 @@ public class StromaGenerator {
 			frcNewPoint.d3lEdges.add(d3aDirections[i].negate());
 
 			// tell the FRCCells of the new edges
-			frcNewPoint.iEdges++;
-			frcOrigin.iEdges++;
+			frcNewPoint.m_iEdges++;
+			frcOrigin.m_iEdges++;
 		}
 
 		return iCellsCreated;
@@ -640,8 +726,9 @@ public class StromaGenerator {
 			return null;
 		}
 
+		//The origin cell is always an FDC
 		StromalCell frcOrigin = new StromalCell(iWidth / 2.0, iHeight / 2.0,
-				iDepth / 2.0);
+				iDepth / 2.0, Stroma.TYPE.FDC);
 		StromalCell frcClosest = frclCellLocations.get(0);
 		double dDist = calcDistance(frcClosest, frcOrigin);
 
@@ -660,6 +747,22 @@ public class StromaGenerator {
 	}
 	
 	
+	/**
+	 * Nodes in the center of the follicle are FDCs while those
+	 * on the outside are bRCs, given a double3D this method returns a stroma type
+	 * @return 
+	 */
+	private static TYPE determineStromaType(double x, double y){
+		
+		if(SimulationEnvironment.isWithinCircle(x, y, 
+				(Settings.WIDTH / 2) ,(Settings.HEIGHT / 2) , SimulationEnvironment.fdcNetRadius)){
+			
+			return Stroma.TYPE.FDC;
+		}
+		else return Stroma.TYPE.bRC;
+		
+		
+	}
 	
 	
 	/**

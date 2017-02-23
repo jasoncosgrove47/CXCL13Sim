@@ -20,6 +20,7 @@ import sim.portrayal3d.simple.Shape3DPortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.cell.DrawableCell3D;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
@@ -39,12 +40,23 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	private TYPE stromaedgetype;
 	
+	public ArrayList<Stroma> m_Nodes; 
+	
+	//the branches connected to an edge
+	public ArrayList<StromaEdge> m_Branches; 
+	
+	//the other edges connected to an edge due to branching
+	public ArrayList<StromaEdge> m_Edges; 
+	
+	
+	private boolean isBranch;
 	
 	private Color m_col;
 	
 	public static enum TYPE {
-		FDC_edge,RC_edge, MRC_edge
+		FDC_edge,RC_edge, MRC_edge, FDC_branch, RC_branch, MRC_branch
 	}
+	
 	
 	
 	/**
@@ -64,6 +76,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		this.stopper = stopper;
 	}
 
+	
 	/**
 	 * Method to stop the class where necessary
 	 */
@@ -99,6 +112,14 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			// TODO Auto-generated method stub
 			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.midpoint.x, (int) this.midpoint.y, (int) this.midpoint.z,
 					Settings.MRC.CXCL13_EMITTED);
+			
+			
+			
+			break;
+		default:
+			
+		
+			
 			break;
 			
 		}
@@ -114,7 +135,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
 	 */
-	public static Continuous3D drawEnvironment;
+	public Continuous3D m_drawEnvironment;
 
 	/**
 	 * Records which cells ahve collided with this edge as we want to know the
@@ -189,11 +210,14 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 * @param d3Point2
 	 */
 	public StromaEdge(Double3D d3Point1, Double3D d3Point2, TYPE type) {
-
 		
+		
+		this.m_Nodes = new ArrayList<Stroma>();
+		this.m_Branches = new ArrayList<StromaEdge>();
+		this.m_Edges = new ArrayList<StromaEdge>();
 		
 		Color col = new Color(165, 0, 0, 100);
-		
+		Color col2 = new Color(215,230,230, 0);
 		//Color col = new Color(125, 20, 20, 15);
 		
 		this.setStromaedgetype(type);
@@ -226,28 +250,64 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			
 			//Color col2 = new Color(90, 10, 10, 15);
 			//Color col2 = new Color(183, 161, 167, 0);
-			Color col2 = new Color(215,230,230, 0);
-		
+
+			this.m_drawEnvironment = SimulationEnvironment.fdcEnvironment;
 			setM_col(col2);
-			//setM_col(Settings.FDC.DRAW_COLOR());
+
+			this.setBranch(false);
+			
 			break;
 
 			
 		case MRC_edge:
 			setM_col(col);
 			setAntigenLevel(0);	
+			this.setBranch(false);
+			
+			this.m_drawEnvironment = SimulationEnvironment.mrcEnvironment;
+			
 			break;	
 		
 		case RC_edge:
 			setM_col(col);
 			setAntigenLevel(0);	
+			this.setBranch(false);
+			this.m_drawEnvironment = SimulationEnvironment.brcEnvironment;
 			break;
 			
+		case FDC_branch: 
+			setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
 			
+			this.m_drawEnvironment = SimulationEnvironment.fdcEnvironment;
+			
+			//Color col2 = new Color(90, 10, 10, 15);
+			//Color col2 = new Color(183, 161, 167, 0);
+			//Color col2 = new Color(215,230,230, 0);
+		
+			setM_col(col2);
+			this.setBranch(true);
+
+			break;
+
+			
+		case MRC_branch:
+			setM_col(col);
+			setAntigenLevel(0);	
+			this.setBranch(true);
+			
+			this.m_drawEnvironment = SimulationEnvironment.mrcEnvironment;
+			
+			break;	
+		
+		case RC_branch:
+			setM_col(col);
+			setAntigenLevel(0);	
+			this.setBranch(true);
+			
+			this.m_drawEnvironment = SimulationEnvironment.brcEnvironment;
+			break;
 		
 		}
-		
-	
 	}
 
 	@Override
@@ -262,7 +322,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	@Override
 	public Continuous3D getDrawEnvironment() {
-		return drawEnvironment;
+		return m_drawEnvironment;
 	}
 
 	/*
@@ -275,7 +335,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
 		if (transf == null)// add || true to update the stroma visualisation
-
 		{
 			
 			transf = new TransformGroup();
@@ -289,10 +348,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			
 			LineAttributes la = new LineAttributes();
 			
-			//Color fdccol = Settings.FDC.DRAW_COLOR();
-			
-			//Color frccol = Settings.FRC.DRAW_COLOR();
-
 			
 			double fdcEdgeRadius = Settings.FDC.STROMA_EDGE_RADIUS * 10;
 			double rcEdgeRadius = Settings.FDC.STROMA_EDGE_RADIUS * 20;
@@ -347,8 +402,47 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 				
 				break;
 				
-			}
+				
+			case FDC_branch: 
+				
+				aAppearance.setColoringAttributes(new ColoringAttributes(getM_col()
+						.getRed() / 255f, getM_col().getGreen() / 255f,
+						getM_col().getBlue() / 255f, ColoringAttributes.FASTEST));
+				aAppearance.setTransparencyAttributes(new TransparencyAttributes(
+						TransparencyAttributes.FASTEST, 0.4f));
+
+				la.setLineWidth((float) fdcEdgeRadius);
 			
+				break;
+			
+
+				
+			case RC_branch:
+
+				aAppearance.setColoringAttributes(new ColoringAttributes(getM_col()
+						.getRed() / 255f, getM_col().getGreen() / 255f,
+						getM_col().getBlue() / 255f, ColoringAttributes.FASTEST));
+				aAppearance.setTransparencyAttributes(new TransparencyAttributes(
+						TransparencyAttributes.FASTEST, 0.4f));
+
+
+				la.setLineWidth((float) rcEdgeRadius);
+			
+				break;
+
+			case MRC_branch:
+
+				aAppearance.setColoringAttributes(new ColoringAttributes(getM_col()
+						.getRed() / 255f, getM_col().getGreen() / 255f,
+						getM_col().getBlue() / 255f, ColoringAttributes.FASTEST));
+				aAppearance.setTransparencyAttributes(new TransparencyAttributes(
+						TransparencyAttributes.FASTEST, 0.4f));
+
+				la.setLineWidth((float) rcEdgeRadius);
+						
+				break;	
+
+			}
 			
 			aAppearance.setLineAttributes(la);
 
@@ -430,6 +524,14 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	public void setStromaedgetype(TYPE stromaedgetype) {
 		this.stromaedgetype = stromaedgetype;
+	}
+
+	public boolean isBranch() {
+		return isBranch;
+	}
+
+	public void setBranch(boolean isBranch) {
+		this.isBranch = isBranch;
 	}
 
 

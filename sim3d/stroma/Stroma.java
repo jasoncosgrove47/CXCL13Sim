@@ -2,29 +2,31 @@ package sim3d.stroma;
 
 
 
-
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.media.j3d.TransformGroup;
-
 
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.engine.Stoppable;
 import sim.field.continuous.Continuous3D;
-import sim.portrayal3d.simple.CircledPortrayal3D;
 import sim.portrayal3d.simple.CubePortrayal3D;
 
 import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.cell.DrawableCell3D;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
+import sim3d.stroma.Stroma.TYPE;
 
 /**
  * TO do cell profiler analysis of raw image files then neural network classification
@@ -36,13 +38,30 @@ import sim3d.diffusion.Chemokine;
 public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 	
+	/**
+	 * This contains information about all stromal cells
+	 */
+	private static ArrayList<Stroma> nodeinformation = new ArrayList<Stroma>();
+	
+	/*
+	 * sometimes we have a location and not a node so this is a useful way to 
+	 * compare to move between the two. TODO may be very inefficient
+	 */
+
+	//static Map<Double3D, Stroma> NodeIndex = new HashMap<Double3D, Stroma>();
+	
+	
 	double FDCsecretionRate_CXCL13 = Settings.FDC.CXCL13_EMITTED();
 	double bRCsecretionRate_CXCL13  = Settings.bRC.CXCL13_EMITTED();
 	double MRCsecretionRate_CXCL13 = Settings.MRC.CXCL13_EMITTED();
 	double MRCsecretionRate_EBI2L  = Settings.MRC.EBI2L_EMITTED();
 	
 
-	public ArrayList<StromaEdge> m_dendrites; 
+	public ArrayList<StromaEdge> m_Edges; 
+	
+	//the other nodes a stromal cell is connected to
+	public ArrayList<Stroma> m_Nodes; 
+	
 	
 	private ArrayList<Integer> cellsCollidedWith = new ArrayList<Integer>();
 	
@@ -52,6 +71,10 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	 * of the dendrite to acquire antigen
 	 */
 	private int m_antigenLevel;
+	
+	
+	private Double3D m_location;
+	
 	
 	
 	/**
@@ -94,7 +117,9 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 
 	private Color m_col;
-	private TYPE stromatype;
+	
+	
+	private TYPE m_type;
 	
 	boolean m_CXCL13 = false;
 	boolean m_CCL19  = false;
@@ -106,33 +131,39 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	
 	
 	//TODO need to sort out what the draw environment is...
-	public Stroma(TYPE type){
+	public Stroma(TYPE type, Double3D loc){
 		
 		
-		this.m_dendrites = new ArrayList<StromaEdge>();
+		this.m_Edges = new ArrayList<StromaEdge>();
+		this.m_Nodes = new ArrayList<Stroma>();
+		
+		this.m_location = loc;
 		
 		this.setStromatype(type);
 		
 		switch (type) {
 		case FDC: 
 			m_CXCL13 = true;	
+			this.m_drawEnvironment = SimulationEnvironment.fdcEnvironment;
 			break;
 			
 		case bRC:
-			m_CXCL13  = true;	
+			m_CXCL13  = true;
+			this.m_drawEnvironment = SimulationEnvironment.brcEnvironment;
 			break;
 			
 		case MRC:
 			
-			
 			//now need to deal with the interactions with BCs....
 			this.set_antigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
-			m_CXCL13 = true;		
+			m_CXCL13 = true;	
+			this.m_drawEnvironment = SimulationEnvironment.mrcEnvironment;
 			break;
 			
 		case LEC:
 			
 			this.set_antigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
+			this.m_drawEnvironment = SimulationEnvironment.mrcEnvironment;
 			break;
 			
 		}
@@ -145,7 +176,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
 	 */
-	public static Continuous3D drawEnvironment;
+	public Continuous3D m_drawEnvironment;
 
 	private static final long serialVersionUID = 1L;
 
@@ -164,16 +195,14 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 	@Override
 	public Continuous3D getDrawEnvironment() {
-		return drawEnvironment;
+		return m_drawEnvironment;
 	}
 
 
 	// Create a model to visualising the stroma node in 3D
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
 		
-	
-		
-		
+
 		switch (this.getStromatype()) {
 		case FDC: 
 			
@@ -275,6 +304,16 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	}
 
 	
+	public static boolean AreStromaNodesConnected(Stroma n1, Stroma n2){
+		//if there is an edge between them then they are connected
+		for(StromaEdge se : n1.m_Edges){
+			if(n2.m_Edges.contains(se)) return true;
+		}
+		//no connection so return false
+		return false;
+	}
+	
+	
 	@Override
 	public void handleCollisions(CollisionGrid cgGrid) {
 		return;
@@ -299,11 +338,11 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		
 		if(m_CXCL13){
 			
-			if(this.stromatype == Stroma.TYPE.FDC){
+			if(this.m_type == Stroma.TYPE.FDC){
 				Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
 						FDCsecretionRate_CXCL13);
 			}
-			else if(this.stromatype == Stroma.TYPE.bRC){
+			else if(this.m_type == Stroma.TYPE.bRC){
 				Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
 						bRCsecretionRate_CXCL13);
 			}
@@ -327,12 +366,12 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 
 	public TYPE getStromatype() {
-		return stromatype;
+		return m_type;
 	}
 
 
 	public void setStromatype(TYPE stromatype) {
-		this.stromatype = stromatype;
+		this.m_type = stromatype;
 	}
 
 
@@ -359,6 +398,22 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 	public void setCellsCollidedWith(ArrayList<Integer> cellsCollidedWith) {
 		this.cellsCollidedWith = cellsCollidedWith;
+	}
+
+	public Double3D getM_location() {
+		return m_location;
+	}
+
+	public void setM_location(Double3D m_location) {
+		this.m_location = m_location;
+	}
+
+	public static ArrayList<Stroma> getNodeinformation() {
+		return nodeinformation;
+	}
+
+	public static void setNodeinformation(ArrayList<Stroma> nodeinformation) {
+		Stroma.nodeinformation = nodeinformation;
 	}
 
 	

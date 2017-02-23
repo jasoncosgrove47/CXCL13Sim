@@ -110,6 +110,17 @@ public class GUIrun extends GUIState {
 	
 	
 	/**
+	 * Portrayal forbRCs
+	 */
+	ContinuousPortrayal3D brcPortrayal = new ContinuousPortrayal3D();
+	
+	
+	/**
+	 * Portrayal for MRCs
+	 */
+	ContinuousPortrayal3D mrcPortrayal = new ContinuousPortrayal3D();
+	
+	/**
 	 * a 2D portrayal that will show a plane of the particles
 	 */
 	public FastHexaValueGridPortrayal2D CXCL13PortrayalFast = new FastHexaValueGridPortrayal2D();
@@ -177,6 +188,8 @@ public class GUIrun extends GUIState {
 
 		// Add the portrayals to the display
 		display3D.attach(fdcPortrayal, "FDC");
+		display3D.attach(brcPortrayal, "BRC");
+		display3D.attach(mrcPortrayal, "MRC");
 		display3D.attach(bcPortrayal, "BC");
 
 		ChemokineDisplay = new Display2D(600, 600, this);
@@ -228,7 +241,10 @@ public class GUIrun extends GUIState {
 	 */
 	public void setupPortrayals() {
 		// tell the portrayals what to portray and how to portray them
-		fdcPortrayal.setField(Stroma.drawEnvironment);
+		fdcPortrayal.setField(SimulationEnvironment.fdcEnvironment);
+		brcPortrayal.setField(SimulationEnvironment.brcEnvironment);
+		mrcPortrayal.setField(SimulationEnvironment.mrcEnvironment);
+		
 		bcPortrayal.setField(BC.drawEnvironment);
 		// CXCL13 Portrayals
 		CXCL13PortrayalFast.setField(Chemokine

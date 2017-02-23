@@ -4,8 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import dataLogger.Controller.nodeInfo;
+
 import sim3d.SimulationEnvironment;
+import sim3d.stroma.Stroma;
 
 public final class outputToCSV {
 	/**
@@ -18,7 +19,7 @@ public final class outputToCSV {
 	
 	
 	
-	public static void writeNodeInformationToFile(String filename, ArrayList<nodeInfo> nodeinformation){
+	public static void writeNodeInformationToFile(String filename, ArrayList<Stroma> nodeinformation){
 		FileWriter processedDataWriter;
 
 
@@ -39,17 +40,17 @@ public final class outputToCSV {
 			processedDataWriter.append('\n');
 			
 			
-			for (nodeInfo temp : nodeinformation) {
+			for (Stroma temp : nodeinformation) {
 				
-				processedDataWriter.append(Double.toString(temp.getM_loc().x));
+				processedDataWriter.append(Double.toString(temp.getM_location().x));
 				processedDataWriter.append(',');
-				processedDataWriter.append(Double.toString(temp.getM_loc().y));
+				processedDataWriter.append(Double.toString(temp.getM_location().y));
 				processedDataWriter.append(',');
-				processedDataWriter.append(Double.toString(temp.getM_loc().z));
+				processedDataWriter.append(Double.toString(temp.getM_location().z));
 				processedDataWriter.append(',');
 				processedDataWriter.append(Integer.toString(temp.getM_index()));
 				processedDataWriter.append(',');
-				processedDataWriter.append(temp.getM_type().toString());
+				processedDataWriter.append(temp.getStromatype().toString());
 				processedDataWriter.append('\n');
 			}
 			

@@ -2,6 +2,7 @@ package sim3d;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.junit.Before;
@@ -31,6 +32,7 @@ public class SimulationEnvironmentTest {
 		SimulationEnvironment.simulation = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 		SimulationEnvironment.simulation.setupSimulationParameters();
+		
 	}
 
 	/*
@@ -48,6 +50,78 @@ public class SimulationEnvironmentTest {
 		assertThat(Settings.DEPTH, greaterThan(0));
 	}
 
+	
+	@Test
+	public void testNetworkGenerationForZeroLengthEdges(){
+		
+		
+		Document parameters;
+		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		parameters = IO.openXMLFile(paramFile);
+		
+		SimulationEnvironment.simulation = new SimulationEnvironment(123,parameters);
+		SimulationEnvironment.simulation.start();
+	
+		boolean anyNodesHaveLengthZero = false;
+		
+		Bag stroma = SimulationEnvironment.getAllStroma();
+		for (int i = 0; i < stroma.size(); i++) {
+			if (stroma.get(i) instanceof StromaEdge) {
+	
+					Double3D p1 = ((StromaEdge) stroma.get(i)).getPoint1();
+					Double3D p2 = ((StromaEdge) stroma.get(i)).getPoint2();
+					
+					if(p1.equals(p2)){	
+						anyNodesHaveLengthZero = true;
+						System.out.println("edge type: " + ((StromaEdge)stroma.get(i)).getStromaedgetype());
+					}
+			}
+		}
+		
+		assertFalse(anyNodesHaveLengthZero);
+	}
+	
+	
+	
+	@Test
+	public void testNetworkGenerationForRepeatNodes(){
+		
+		Document parameters;
+		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		parameters = IO.openXMLFile(paramFile);
+		
+		SimulationEnvironment.simulation = new SimulationEnvironment(123,parameters);
+		SimulationEnvironment.simulation.start();
+	
+		
+		ArrayList<Double3D> locList = new ArrayList<Double3D>();
+		
+		boolean duplicates = false;
+		
+		
+		Bag stroma = SimulationEnvironment.getAllStroma();
+		for (int i = 0; i < stroma.size(); i++) {
+			if (stroma.get(i) instanceof Stroma) {
+	
+					Stroma sc = (Stroma) stroma.get(i);
+				
+					Double3D loc = sc.getDrawEnvironment().getObjectLocationAsDouble3D(sc);
+							
+					if(locList.contains(loc)){ //is the correct comparison here???
+						duplicates = true;
+					}
+					else{
+						//add it to the list
+						locList.add(loc);
+					}
+					
+			}
+		}
+		
+		assertFalse(duplicates);
+	}
+	
+	
 	/**
 	 * Test that we can schedule a BCell
 	 */
@@ -92,8 +166,8 @@ public class SimulationEnvironmentTest {
 	@Test
 	public void testIsWithinCircle() {
 	
-		assertEquals(false, sim.isWithinCircle(10, 10, 5, 5, 1));
-		assertEquals(true, sim.isWithinCircle(5, 5, 5, 5, 1));
+		assertEquals(false, SimulationEnvironment.isWithinCircle(10, 10, 5, 5, 1));
+		assertEquals(true, SimulationEnvironment.isWithinCircle(5, 5, 5, 5, 1));
 	}
 
 	/**
@@ -147,7 +221,7 @@ public class SimulationEnvironmentTest {
 		
 		Double3D test = sim.generateCoordinateWithinCircle(radius);
 
-		assertEquals(true, sim.isWithinCircle((int) test.x, (int) test.y,
+		assertEquals(true, SimulationEnvironment.isWithinCircle((int) test.x, (int) test.y,
 				(Settings.WIDTH / 2) + 1, (Settings.HEIGHT / 2) + 1, radius));
 
 	}
@@ -167,10 +241,10 @@ public class SimulationEnvironmentTest {
 		sim.start();
 		
 		//assert that the FDC grid is not empty
-		assertThat(sim.fdcEnvironment.allObjects.numObjs, greaterThan(0));
+		assertThat(SimulationEnvironment.getAllStroma().numObjs, greaterThan(0));
 
 		//now assert that instances of StromaEdge and FDC have been placed
-		Bag test = sim.fdcEnvironment.getAllObjects();
+		Bag test = SimulationEnvironment.getAllStroma();
 		Iterator<?> itr = test.iterator();
 		int SEcounter = 0;
 		int FDCcounter = 0;

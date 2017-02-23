@@ -12,6 +12,8 @@ import sim.util.Double3D;
  * @author Simon Jarrett - {@link simonjjarrett@gmail.com}
  */
 public abstract class DrawableCell3D extends SimplePortrayal3D {
+	
+	Double3D m_Location;
 	/**
 	 * Position of the cell
 	 */
@@ -29,12 +31,16 @@ public abstract class DrawableCell3D extends SimplePortrayal3D {
 	 *            The new location of the cell
 	 */
 	public final void setObjectLocation(Double3D d3Location) {
+		
+		this.m_Location = d3Location;
+		
 		x = d3Location.x;
 		y = d3Location.y;
 		z = d3Location.z;
 
 		getDrawEnvironment().setObjectLocation(this, new Double3D(x, y, z));
 	}
+	
 	
 	
 

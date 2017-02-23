@@ -47,6 +47,7 @@ public class SimulationEnvironment extends SimState {
 	public static int fdcNetRadius = 15;
 	
 
+	
 	private static final long serialVersionUID = 1;
 
 	/**
@@ -82,11 +83,16 @@ public class SimulationEnvironment extends SimState {
 	 * 3D grid for Stroma
 	 */
 	public static Continuous3D fdcEnvironment;
+	public static Continuous3D brcEnvironment;
+	public static Continuous3D mrcEnvironment;
 
+
+	
 	/**
 	 * Instance of the CXCL13 class
 	 */
 	public static Chemokine CXCL13;
+	
 	
 	
 	/**
@@ -142,6 +148,7 @@ public class SimulationEnvironment extends SimState {
 		Settings.EBI2L.loadParameters(parameters);
 	}
 
+	
 	/**
 	 * Destroy resources after use
 	 */
@@ -158,6 +165,7 @@ public class SimulationEnvironment extends SimState {
 		return Chemokine.getDisplayLevel() + 1;
 
 	}
+	
 
 	/**
 	 * Setter for the current display level
@@ -209,12 +217,18 @@ public class SimulationEnvironment extends SimState {
 		super.start();
 		
 
+
+		
 		// Initialise the stromal grid
 		fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
 				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
 
-		Stroma.drawEnvironment = fdcEnvironment;
-		StromaEdge.drawEnvironment = fdcEnvironment;
+		mrcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
+				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
+		
+		brcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
+				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
+		
 
 		// Initialise the B cell grid
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION,
@@ -237,6 +251,7 @@ public class SimulationEnvironment extends SimState {
 		
 		FollicleInitialiser.initialiseFollicle(cgGrid);
 		
+		
 	
 		
 		// BCs will need to update their collision profile each
@@ -248,22 +263,25 @@ public class SimulationEnvironment extends SimState {
 		seedCells(CELLTYPE.cB);
 		//seedCells(CELLTYPE.T);
 		
-		totalNumberOfAPCs = calculateTotalNumberOfAPCs();
+		//totalNumberOfAPCs = calculateTotalNumberOfAPCs();
 		
-		int[] numbers = calculateNodesAndEdges();
+		//int[] numbers = calculateNodesAndEdges();
 		
-		System.out.println("nodes: " + numbers[0]);
-		System.out.println("edges: " + numbers[1]);
+		//System.out.println("nodes: " + numbers[0]);
+		//System.out.println("edges: " + numbers[1]);
 		
-		int[][] a_matrix = Controller.generateAdjacencyMatrix();
-		a_matrix = Controller.updateAdjacencyMatrixForRCs(a_matrix);
-		a_matrix = Controller.updateAdjacencyMatrixForFDCs(a_matrix);
+		///this should throw an error now because we dont have a useful index
+		
+		//int[][] a_matrix = Controller.generateAdjacencyMatrix();
+		//a_matrix = Controller.updateAdjacencyMatrixForRCs(a_matrix);
+		//a_matrix = Controller.updateAdjacencyMatrixForFDCs(a_matrix);
+		//a_matrix = Controller.updateAdjacencyForBranchConnections(a_matrix);
+		
+		//System.out.println("FDC matrix updates are switched off for the moment");
 		
 
-		outputToCSV.writeNodeInformationToFile("/Users/jc1571/Desktop/nodeInfo.csv", Controller.getNodeinformation());
-		
-		outputToCSV.writeAdjacencyMatrixToFile("/Users/jc1571/Desktop/adjacency.csv", a_matrix);
-		
+		//outputToCSV.writeNodeInformationToFile("/Users/jc1571/Desktop/nodeInfo.csv", Stroma.getNodeinformation());
+		//outputToCSV.writeAdjacencyMatrixToFile("/Users/jc1571/Desktop/adjacency.csv", a_matrix);
 		
 	}
 
@@ -293,9 +311,10 @@ public class SimulationEnvironment extends SimState {
 		}
 		
 		
+		
 		for(int i = 0 ; i < mrcnodes.size(); i ++){
 			
-			Stroma mrc = new Stroma(Stroma.TYPE.MRC);
+			Stroma mrc = new Stroma(Stroma.TYPE.MRC, new Double3D(mrcnodes.get(i).x, mrcnodes.get(i).y, mrcnodes.get(i).z));
 			mrc.setObjectLocation(new Double3D(mrcnodes.get(i).x, mrcnodes.get(i).y, mrcnodes.get(i).z));
 			mrc.registerCollisions(cgGrid);
 			scheduleStoppableCell(mrc);
@@ -305,7 +324,7 @@ public class SimulationEnvironment extends SimState {
 		
 		for(int i = 0 ; i < fdcnodes.size(); i ++){
 			
-			Stroma fdc = new Stroma(Stroma.TYPE.FDC);
+			Stroma fdc = new Stroma(Stroma.TYPE.FDC,new Double3D(fdcnodes.get(i).x, fdcnodes.get(i).y, fdcnodes.get(i).z));
 			fdc.setObjectLocation(new Double3D(fdcnodes.get(i).x, fdcnodes.get(i).y, fdcnodes.get(i).z));
 			fdc.registerCollisions(cgGrid);
 			scheduleStoppableCell(fdc);
@@ -314,7 +333,7 @@ public class SimulationEnvironment extends SimState {
 		
 		for(int i = 0 ; i < brcnodes.size(); i ++){
 			
-			Stroma brc = new Stroma(Stroma.TYPE.bRC);
+			Stroma brc = new Stroma(Stroma.TYPE.bRC,new Double3D(brcnodes.get(i).x, brcnodes.get(i).y, brcnodes.get(i).z));
 			brc.setObjectLocation(new Double3D(brcnodes.get(i).x, brcnodes.get(i).y, brcnodes.get(i).z));
 			brc.registerCollisions(cgGrid);
 			scheduleStoppableCell(brc);	
@@ -347,11 +366,11 @@ public class SimulationEnvironment extends SimState {
 			for(int j = 0; j < 10;j++){
 
 				//Stroma flec = new Stroma(Stroma.TYPE.LEC);
-				Stroma clec = new Stroma(Stroma.TYPE.LEC);		
+				Stroma clec = new Stroma(Stroma.TYPE.LEC,new Double3D(i, y+1, j));		
 				//we add the 0.5 to the y as we dont want the LECs on the MRCs but just above them
 				clec.setObjectLocation(new Double3D(i, y+1, j));
 				//Stroma flec = new Stroma(Stroma.TYPE.LEC);
-				Stroma flec = new Stroma(Stroma.TYPE.LEC);
+				Stroma flec = new Stroma(Stroma.TYPE.LEC,new Double3D(i, y - 1, j));
 				//we add the 0.5 to the y as we dont want the LECs on teh MRCs but just above them
 				flec.setObjectLocation(new Double3D(i, y - 1, j));
 			}
@@ -489,6 +508,32 @@ public class SimulationEnvironment extends SimState {
 	
 
 
+	
+	public static Bag getAllStroma(){
+		Bag stroma = fdcEnvironment.getAllObjects();
+		System.out.println("size is: " + stroma.size());
+		stroma.addAll(brcEnvironment.getAllObjects());
+		System.out.println("size 2 is: " + stroma.size());
+		stroma.addAll(mrcEnvironment.getAllObjects());
+		System.out.println("size 3 is: " + stroma.size());
+		
+		return stroma;
+		
+	}
+	
+	
+	
+	public static Bag getAllStromaWithinDistance(Double3D loc, double dist){
+		Bag stroma = fdcEnvironment.getNeighborsExactlyWithinDistance(loc, dist);
+		System.out.println("size is: " + stroma.size());
+		stroma.addAll(brcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
+		System.out.println("size 2 is: " + stroma.size());
+		stroma.addAll(mrcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
+		System.out.println("size 3 is: " + stroma.size());
+		
+		return stroma;
+		
+	}
 
 	/**
 	 * Calculate the number of dendrites in the FDC network excluding the FDC
@@ -498,7 +543,7 @@ public class SimulationEnvironment extends SimState {
 	 */
 	private int calculateTotalNumberOfDendrites() {
 
-		Bag stroma = fdcEnvironment.getAllObjects();
+		Bag stroma = getAllStroma();
 		int FDCcounter = 0;
 
 		// we want to count only branches and dendrites so
@@ -519,14 +564,15 @@ public class SimulationEnvironment extends SimState {
 	
 	
 	
-	
+	//this calculates the total number of stromal cells and the edges but is not a measure of the
+	//protrusions or of the topology
 	public static int[] calculateNodesAndEdges(){
 		
 		int nodes = 0;
 		int edges = 0;
 		int[] output = new int[2];
 		
-		Bag stroma = SimulationEnvironment.fdcEnvironment.getAllObjects();
+		Bag stroma = getAllStroma();
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof StromaEdge) {
 			
@@ -542,8 +588,7 @@ public class SimulationEnvironment extends SimState {
 		
 		output[0] = nodes;
 		output[1] = edges;
-		
-		
+
 		return output;
 		
 
@@ -555,7 +600,7 @@ public class SimulationEnvironment extends SimState {
 	
 	private int calculateTotalNumberOfAPCs(){
 		
-		Bag stroma = fdcEnvironment.getAllObjects();
+		Bag stroma = getAllStroma();
 		int FDCcounter = 0;
 
 		// we want to count only branches and dendrites so

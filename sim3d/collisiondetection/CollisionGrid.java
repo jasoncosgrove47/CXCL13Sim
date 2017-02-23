@@ -413,6 +413,7 @@ public class CollisionGrid implements Steppable {
 	 * 
 	 * TODO does this happen
 	 */
+	
 	@Override
 	public void step(SimState state) {
 		// while we still have points to check

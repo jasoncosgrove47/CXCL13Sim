@@ -28,9 +28,15 @@ public class Controller implements Steppable {
 	 * Uses the MVC design pattern. Model: SimulationEnvironment. Each cognate
 	 * B-cell is responsible for maintaining it's own data Controller:
 	 * DataLogger contains data maps which B cells write to (more efficient than
-	 * iterating through each cell to do so) View: GUIrun or consoleRun are
-	 * responsible for running the model and instantiate OutputToCSV or Grapher
-	 * to display the data
+	 * iterating through each cell to do so).
+	 * 
+	 * This class also handles all of the network data, storing the node
+	 * information (location, index and type) in a nodeinfo object. This data
+	 * can then be outputted as a node information file an an adjacency matrix
+	 * for topology analysis
+	 * 
+	 * View: GUIrun or consoleRun are responsible for running the model and
+	 * instantiate OutputToCSV or Grapher to display the data
 	 * 
 	 * @author Jason Cosgrove
 	 */
@@ -50,7 +56,6 @@ public class Controller implements Steppable {
 		lengthOfExperiment = Settings.EXPERIMENTLENGTH;
 	}
 
-	
 	/**
 	 * Returns the sole instance of the class
 	 * 
@@ -81,57 +86,15 @@ public class Controller implements Steppable {
 	private Map<Integer, ArrayList<Double3D>> Coordinates = new HashMap<Integer, ArrayList<Double3D>>();
 	private Map<Integer, Integer> dendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
+	// this is the map containing the nodes plus their locations
+	//static Map<Double3D, Integer> NodeIndex = new HashMap<Double3D, Integer>(); // TODO
+																				// this
+																				// seems
+																				// messy...
 
-     // this is the node index for the stroma nodes plus their locations
-	//TODO this seems messy...
-	static Map< Double3D, Integer> NodeIndex = new HashMap< Double3D, Integer>();
-	
-	//this is an arraylist containing the information
-	private static ArrayList<nodeInfo> nodeinformation = new ArrayList<nodeInfo>();
-	
-	static class nodeInfo{
-		
-		public nodeInfo(Double3D loc, int i, TYPE type) {
-			setM_loc(loc);
-			setM_index(i);
-			setM_type(type);
-		}
-	
-		
-		public Double3D getM_loc() {
-			return m_loc;
-		}
-		public void setM_loc(Double3D m_loc) {
-			this.m_loc = m_loc;
-		}
+	// this is an arraylist containing the information
+	//private static ArrayList<nodeInfo> nodeinformation = new ArrayList<nodeInfo>();
 
-
-		public Integer getM_index() {
-			return m_index;
-		}
-
-
-		public void setM_index(Integer m_index) {
-			this.m_index = m_index;
-		}
-
-
-		public Stroma.TYPE getM_type() {
-			return m_type;
-		}
-
-
-		public void setM_type(Stroma.TYPE m_type) {
-			this.m_type = m_type;
-		}
-
-
-		private Double3D m_loc;
-		private Integer m_index;
-		private Stroma.TYPE m_type;
-	}
-	
-	
 	/**
 	 * Controls the length of an experiment and signals to the main class when
 	 * an experiment is finished
@@ -147,259 +110,582 @@ public class Controller implements Steppable {
 			SimulationEnvironment.experimentFinished = true;
 		}
 	}
-	
-	
-	
-	public static int[][] generateAdjacencyMatrix(){
 
-		
-			int[] nodesandedges = SimulationEnvironment.calculateNodesAndEdges();
-			int numberofnodes = nodesandedges[0];
+	/**
+	 * Initialise the network adjacency matrix, required for outputting to .csv
+	 * later.
+	 * 
+	 * @return
+	 */
+	public static int[][] generateAdjacencyMatrix() {
 
-			// we add a plus one because we also want an index for each one
-			int[][] adjacencyMatrix = new int[numberofnodes + 1][numberofnodes + 1];
-		
-			
-			int nodeindex = 0;
-			
+		// calcualte the number of nodes in the network
+		int[] nodesandedges = SimulationEnvironment.calculateNodesAndEdges();
+		int numberofnodes = nodesandedges[0];
+
+		// we add a plus one because we also want an index for each one
+		int[][] adjacencyMatrix = new int[numberofnodes + 1][numberofnodes + 1];
+
+		// add the nodes to the matrix headers, update the nodeinfo arraylist
+		// and the nodeIndexMap
+		adjacencyMatrix = initialiseNetworkInfo(adjacencyMatrix);
+
+		return adjacencyMatrix;
+
+	}
+
+	/**
+	 * Add the nodes to the matrix headers, update the nodeinfo arraylist and
+	 * the nodeIndexMap
+	 * 
+	 * @param adjacencyMatrix
+	 * @return
+	 */
+	private static int[][] initialiseNetworkInfo(int[][] adjacencyMatrix) {
+
+		// the unique IDcode for each stroma node
+		int nodeindex = 1;
+
+		Bag stroma = SimulationEnvironment.getAllStroma();
+		for (int i = 0; i < stroma.size(); i++) {
+
+			if (stroma.get(i) instanceof Stroma) {
+
+				if (((Stroma) stroma.get(i)).getStromatype() != Stroma.TYPE.LEC) {
+
+					Double3D loc = new Double3D(((Stroma) stroma.get(i)).x, ((Stroma) stroma.get(i)).y,
+							((Stroma) stroma.get(i)).z);
+
+					// give it a unique ID number and store the location
+					adjacencyMatrix[0][nodeindex] = nodeindex;
+					adjacencyMatrix[nodeindex][0] = nodeindex;
+
+
+					// we need to store the location a map and another data type
+					// for later use?
+					//NodeIndex.put(loc, nodeindex);
+
+					Stroma.TYPE type = ((Stroma) stroma.get(i)).getStromatype();
 					
-			Bag stroma = SimulationEnvironment.fdcEnvironment.getAllObjects();
-			for (int i = 0; i < stroma.size(); i++) {
 				
-				if(stroma.get(i) instanceof Stroma){
+				
 					
-					if(((Stroma)stroma.get(i)).getStromatype()!=Stroma.TYPE.LEC){
-					
-						Double3D loc = new Double3D(((Stroma) stroma.get(i)).x,
-								((Stroma) stroma.get(i)).y,((Stroma) stroma.get(i)).z);
-						//give it a unique ID number and store the location
+					//nodeInfo ni = new nodeInfo(loc, nodeindex, type);
 
-						adjacencyMatrix[0][nodeindex] = nodeindex;
-						adjacencyMatrix[nodeindex][0] = nodeindex;
-						nodeindex += 1;
-						
-						
-						//we need to store the location a map and another data type for later use?
-						NodeIndex.put(loc, nodeindex);
-						
-						Stroma.TYPE type = ((Stroma)stroma.get(i)).getStromatype();
-						nodeInfo ni = new nodeInfo(loc,nodeindex , type);
-						
-						getNodeinformation().add(ni);
-						
-						
-					}	
+					//getNodeinformation().add(ni);
+					
+					nodeindex += 1;
+					
 				}
 			}
-			
-			
-			return adjacencyMatrix;
-			
-			/*
-			for (Map.Entry<Integer, Double3D> entry : NodeIndex.entrySet())
-			{
-			    System.out.println(entry.getKey() + "/" + entry.getValue());
-			}
-			
-			
-		
-			for(int j = 0; j < adjacencyMatrix.length ; j++){
-				for(int k = 0; k < adjacencyMatrix.length ;k++){
-					
-					System.out.print(adjacencyMatrix[j][k] + " ");
-					
-				}	
-				System.out.println();
-			}
-			
-			*/
-			
+		}
 
-			
+		return adjacencyMatrix;
+	}
+
+	
+
+	
+	public static int[][] updateAdjacencyForBranchConnections(int[][] adjacencyMatrix){
+		
+		//iterate through all of the branches
+		Bag stroma = SimulationEnvironment.getAllStroma();
+		for (int i = 0; i < stroma.size(); i++) {
+
+			if (stroma.get(i) instanceof StromaEdge) {
+					
+				//only proceed if its a branch
+				if(((StromaEdge)stroma.get(i)).isBranch() == true){
+
+					//get the two points of the branch; these should correspond to 
+					// the midpoints of two edges
+					Double3D p1 = ((StromaEdge) stroma.get(i)).getPoint1();
+					Double3D p2 = ((StromaEdge) stroma.get(i)).getPoint2();
+					
+					//how do we figure out which edges these midpoints belong to
+					//were going to have to iterate through again arent we
+					
+					//OR we could be clever and just get the surrounding stroma and just check through
+					//those, 
+					
+					//TODO we would need to add the FRCs in here as well
+					Bag edges_1 = SimulationEnvironment.getAllStromaWithinDistance(p1, 5);
+
+
+					Bag edges_2 = SimulationEnvironment.getAllStromaWithinDistance(p2, 5);
+					
+					//now iterate through until you find the one that you want....
+					StromaEdge se_1 = null;
+					StromaEdge se_2 = null;
+					
+					for(int k = 0; k < edges_1.size(); k++){
+						if(edges_1.get(k) instanceof StromaEdge){
+							
+							//if its not a branch
+							if(((StromaEdge)stroma.get(i)).isBranch() == false){
+							
+								if(((StromaEdge)edges_1.get(k)).midpoint == p1)
+								{
+									se_1 = ((StromaEdge)edges_1.get(k));
+									//then we have our edge of interest we need to store this
+									//information and then exit the loop
+									break;
+								}
+							}
+							//what do we do if it is a branch??
+							else{
+								System.out.println("there are edges that may be connected to other edges");
+								
+								//find out if they share any common points
+								boolean test1 = (((StromaEdge)edges_1.get(k)).getPoint1()==p1);
+								boolean test2 = (((StromaEdge)edges_1.get(k)).getPoint2()==p1);
+								boolean test3 = (((StromaEdge)edges_1.get(k)).getPoint1()==p2);
+								boolean test4 = (((StromaEdge)edges_1.get(k)).getPoint2()==p2);
+								
+							
+								//if theres a connection there then they should share the points they
+								// are connected to
+								if(test1 || test2 || test3 || test4){
+									
+									//then the branches are connected
+									//Imagine something similar but with one less branch
+									// are all nodes still connected?
+									//branch p1-p2 - p4-p3
+									//branch p2-p3 - p1-p2
+									
+									//then yes in this scheme that would be the case
+									
+								}
+								
+								
+								
+							}
+						}
+					}
+					
+					for(int k = 0; k < edges_2.size(); k++){
+						if(edges_2.get(k) instanceof StromaEdge){
+							
+							if(((StromaEdge)stroma.get(i)).isBranch() == false){
+								
+								if(((StromaEdge)edges_2.get(k)).midpoint == p1)
+								{
+									
+										se_2 = ((StromaEdge)edges_2.get(k));
+										//then we have our edge of interest we need to store this
+										//information and then exit the loop
+										break;
+								}
+							}
+							else{
+								
+								System.out.println("there are edges that may be connected to other edges");
+								//The points should join at some point so we should be able to find these
+								//then there may be a branch nearby that we are connected to!!	
+								boolean test1 = (((StromaEdge)edges_1.get(k)).getPoint1()==p1);
+								boolean test2 = (((StromaEdge)edges_1.get(k)).getPoint2()==p1);
+								boolean test3 = (((StromaEdge)edges_1.get(k)).getPoint1()==p2);
+								boolean test4 = (((StromaEdge)edges_1.get(k)).getPoint2()==p2);
+								
+								//Imagine something similar but with one less branch
+								// are all nodes still connected?
+								//branch p1-p2 - p4-p3
+								//branch p2-p3 - p1-p2
+								
+								//then yes in this scheme that would be the case
+								
+								}
+						}
+					}
+					
+					//now for each edge we need the associated nodes
+					Double3D node1 = se_1.getPoint1();
+					Double3D node2 = se_1.getPoint2();
+					
+					Double3D node3 = se_2.getPoint1();
+					Double3D node4 = se_2.getPoint2();
+					
+					//now need to update the adjacency matrices for these 4 nodes
+					//int index1 = NodeIndex.get(node1);//the index should respond ot position in the matrix
+					//int index2 = NodeIndex.get(node2);
+					//int index3 = NodeIndex.get(node3);//the index should respond ot position in the matrix
+					//int index4 = NodeIndex.get(node4);
+					
+					/*
+					//this code is truly dreadful
+					adjacencyMatrix[index1][index2] = 1;
+					adjacencyMatrix[index2][index1] = 1;
+					adjacencyMatrix[index1][index3] = 1;
+					adjacencyMatrix[index3][index1] = 1;
+					adjacencyMatrix[index1][index4] = 1;
+					adjacencyMatrix[index4][index1] = 1;
+					adjacencyMatrix[index2][index3] = 1;
+					adjacencyMatrix[index3][index2] = 1;
+					adjacencyMatrix[index2][index4] = 1;
+					adjacencyMatrix[index4][index2] = 1;
+					adjacencyMatrix[index3][index4] = 1;
+					adjacencyMatrix[index4][index3] = 1;
+					*/
+
+
+				}	
+			}
+		}
+		return(adjacencyMatrix);
 	}
 	
 	
 	
 	/**
-	 * The way we calculate topology for RCs is different to FDCs given their very different topologies
 	 * 
-	 * The RCs are a case of iterating through all of the edges, determining the associated nodes and then
-	 * updating the adjacency matrix. 
+	 * Update the adjacency matrix with links for reticular cells. iterate
+	 * through all of the edges obtain the associated nodes update the adjacency
+	 * matrix
+	 * 
+	 * 
+	 * TODO We are probably missing links between the networks now that i thiink
+	 * of it
 	 * 
 	 * 
 	 * @param adjacencyMatrix
-	 * @return
+	 * @return an updated adjacency matrix
 	 */
-	public static int[][] updateAdjacencyMatrixForRCs(int[][] adjacencyMatrix){
+	public static int[][] updateAdjacencyMatrixForRCs(int[][] adjacencyMatrix) {
+
+		// we dont need all objects can just look in the immediate environment
+		Bag stroma = SimulationEnvironment.getAllStroma();
 		
+		ArrayList<StromaEdge> edgesToDelete = new ArrayList<StromaEdge>();
 		
-		//this bit updates all of the bRCs anyway
-		Bag stroma = SimulationEnvironment.fdcEnvironment.getAllObjects();
 		for (int i = 0; i < stroma.size(); i++) {
-			if(stroma.get(i) instanceof StromaEdge){
-				if(((StromaEdge)stroma.get(i)).getStromaedgetype()==StromaEdge.TYPE.RC_edge ||
-						((StromaEdge)stroma.get(i)).getStromaedgetype()==StromaEdge.TYPE.MRC_edge ){
+			if (stroma.get(i) instanceof StromaEdge) {
+				if (((StromaEdge) stroma.get(i)).getStromaedgetype() == StromaEdge.TYPE.RC_edge
+						|| ((StromaEdge) stroma.get(i)).getStromaedgetype() == StromaEdge.TYPE.MRC_edge) {
+
 					
-					Double3D p1 = ((StromaEdge)stroma.get(i)).getPoint1();
-					Double3D p2 = ((StromaEdge)stroma.get(i)).getPoint2();
-				
-					//in some instances there may be no node there
-					//so we need to check for this.
-					if(NodeIndex.get(p1) !=null){
-						if(NodeIndex.get(p2) !=null){
-							
-							int index1 = NodeIndex.get(p1);
-							int index2 = NodeIndex.get(p2);
+					StromaEdge se = ((StromaEdge) stroma.get(i));
+					
+					//get the nodes associated with that edge
+					
+					for(Stroma sc : se.m_Nodes){
+						
+						//adjacencyMatrix[index1][index2] = 1;
+						//adjacencyMatrix[index2][index1] = 1;
+						
+						//update the adjacency matrix with some kind of unique index
+					}
+					
+				}
+				}
+			}
+		
+		return adjacencyMatrix;
+		}
+	
+	
+	/*
+					
+					//get the two points of the edge
+					Double3D p1 = ((StromaEdge) stroma.get(i)).getPoint1();
+					Double3D p2 = ((StromaEdge) stroma.get(i)).getPoint2();
+
+					//check to see if there are nodes associated with those edge points
+					
+							//in some cases there is no node there this is for the FDCs				
+					if (NodeIndex.get(p1) != null && NodeIndex.get(p2) != null) {
 			
+
+							int index1 = NodeIndex.get(p1);//the index should respond ot position in the matrix
+							int index2 = NodeIndex.get(p2);
+							
+							if(index1 == index2){
+								System.out.println("indices are the same");
+								System.out.println("p1: " + p1);
+								System.out.println("p2: " + p2);
+							}
+
+							adjacencyMatrix[index1][index2] = 1;
+							adjacencyMatrix[index2][index1] = 1;
+
+					}
+					
+					
+					//if one of the nodes are null check if there are any that are close. 
+					else{
+					
+						
+						//see if we are close to any nodes anyway
+						int index1 = -1;
+						int index2 = -1;
+						for (nodeInfo temp : getNodeinformation()) {
+
+						
+							//check the distance between them hi
+							if(temp.m_loc.distance(p1) < 0.05){
+								index1 = NodeIndex.get(temp.m_loc);
+							}
+							else if(temp.m_loc.distance(p2) < 0.05){
+								index2 = NodeIndex.get(temp.m_loc);
+							}
+		
+						}
+						
+						
+						//if the index's have been updated then assign the appropraite nodes
+						if(index1 > -1 && index2 > -1){
 							
 							adjacencyMatrix[index1][index2] = 1;
 							adjacencyMatrix[index2][index1] = 1;
-							
 						}
 						
+						else{
+							
+							//cant remove things when iterating through the bag
+							//otherwise it throws an error
+							
+							System.out.println("edge deleted");
+							
+							edgesToDelete.add(((StromaEdge) stroma.get(i)));
+							
+							
+							//doesnt seem to be close to anything so lets get rid of it
+							//((StromaEdge) stroma.get(i)).getDrawEnvironment()
+							//.remove(((StromaEdge) stroma.get(i)));
+						
+							//((StromaEdge) stroma.get(i)).stop();
+							
+						}
+
 					}
-
-
-				}	
+	
+				}
 			}
 		}
 		
+		
+		//delete all of the stromal cells that were not close to other
+		// nodes
+		
+		for(StromaEdge se : edgesToDelete){
+			
+			se.getDrawEnvironment().remove(se);
+			se.stop();
+			
+		}
+		
+
 		return adjacencyMatrix;
 	}
 	
-	
+	*/
+
 	/**
 	 * The way we calculate topology for FDCs is more complex
 	 * 
-	 * Iterate through all of the nodes and provided there is no node
-	 * blocking the path from nodeA to nodeB then we assume a connection. 
-	 * This is how we did the analysis for the in vivo datasets. 
+	 * Iterate through all of the nodes and provided there is no node blocking
+	 * the path from nodeA to nodeB then we assume a connection. This is how we
+	 * did the analysis for the in vivo datasets.
 	 * 
+	 * 
+	 * TODO this is really inefficient because some nodes are already there so
+	 * dont want to double up on this.
 	 * 
 	 * @param adjacencyMatrix
-	 * @return
+	 * @return an updated adjacency matrix
 	 */
-	public static int[][] updateAdjacencyMatrixForFDCs(int[][] adjacencyMatrix){
-			
-		
-		//obtain all of the FDC locations
+
+	public static int[][] updateAdjacencyMatrixForFDCs(int[][] adjacencyMatrix) {
+
+		// obtain all of the FDC locations, again this is very inefficient, they need to be placed
+		// on separate grids
 		ArrayList<Double3D> fdclocations = new ArrayList<Double3D>();
-		for (nodeInfo temp : getNodeinformation()) {
-			
-			if(temp.getM_type() == Stroma.TYPE.FDC){
-				fdclocations.add(temp.getM_loc());
+		for (Stroma temp : Stroma.getNodeinformation()) {
+
+			if (temp.getStromatype() == Stroma.TYPE.FDC) {
+				fdclocations.add(temp.getM_location());
 			}
 		}
-		
-		
-		//draw a line between each node with no repetitions
-		for( int i = 0; i < fdclocations.size(); i ++){
-			for( int j = 0; j < fdclocations.size(); j ++){
-			
-				if(!fdclocations.get(i).equals(j)){
-					
-			
-					if(checkIfConnected(fdclocations,i,j)){
-						//then update the adjacency matrix
-						
-						
-						Double3D p1 = fdclocations.get(i);
-						Double3D p2 = fdclocations.get(j);
-						
-						int index1 = NodeIndex.get(p1);
-						int index2 = NodeIndex.get(p2);
-											
+
+		// draw a line between each node with no repetitions
+		for (int i = 0; i < fdclocations.size(); i++) {
+			for (int j = 0; j < fdclocations.size(); j++) {
+
+				//we dont want to connect a node to itself
+				if (i != j) {
+
+					// obtain the coordinates and query the MAP
+					// for the associated indices required for updating
+					// the adjacency matrix
+					Double3D p1 = fdclocations.get(i);
+					Double3D p2 = fdclocations.get(j);
+
+					int index1 = NodeIndex.get(p1);
+					int index2 = NodeIndex.get(p2);
+
+					// if the two cells are connected with no
+					// node inbetween them
+					if (checkIfConnected(adjacencyMatrix, fdclocations, i, j, index1, index2)) {
+						// then update the adjacency matrix
+
 						adjacencyMatrix[index1][index2] = 1;
 						adjacencyMatrix[index2][index1] = 1;
-						
-						
+
 					}
-						
-				}	
+
+				}
 			}
 		}
-		
 
-		//now we have all of the fdclocations, which to be honest we had already
+		// now we have all of the fdclocations, which to be honest we had
+		// already
 		return adjacencyMatrix;
 	}
 	
 
-	
-	//given two locations in a double3D arraylist, check all the other double3Ds to see
-	// if a node is blocking a connection between two other nodes. 
-	private static boolean checkIfConnected(ArrayList<Double3D> fdclocations, int i , int j){
-		
+
+	// given two locations in a double3D arraylist, check all the other
+	// double3Ds to see
+	// if a node is blocking a connection between two other nodes.
+	static boolean checkIfConnected(int[][] adjacencyMatrix, ArrayList<Double3D> fdclocations, int i, int j,
+			int index1, int index2) {
+
 		boolean placeConnection = true;
-		for (Double3D p3 : fdclocations){
-			
-			//if this isnt equal to our two points a and b
-			if((!p3.equals(fdclocations.get(i) )) && (!p3.equals(fdclocations.get(j)))    ){
-				if(isPointBetween(fdclocations.get(i), fdclocations.get(j), p3)){
-					
-					placeConnection = false;	
-				}	
+
+		// if there is already no connection already there see if there is a new
+		// connection
+		if (adjacencyMatrix[index1][index2] != 1) {
+
+			for (Double3D p3 : fdclocations) {
+
+				// if this isnt equal to our two points a and b
+				if ((!p3.equals(fdclocations.get(i))) && (!p3.equals(fdclocations.get(j)))) {
+					if (isPointBetween(fdclocations.get(i), fdclocations.get(j), p3)) {
+
+						placeConnection = false;
+						break;
+					}
+				}
 			}
+
 		}
-		
+
+		// if there is already a connection there then no point placing a new
+		// connection
+		// given we would have to iterate through all of the stroma
+		else {
+			placeConnection = false;
+		}
+
 		return placeConnection;
-		
+
 	}
-	
-	
-	
+
 	/**
-	 * Check if the cross product of b-a and c-a is 0 (all 3 components are zero) 
-	 * that means all the points are collinear. 
-	 * If they are, check if c's coordinates are between a's and b's.
+	 * To determine if the path between two nodes is blocked by another node 
+	 * we do the following:
+	 * 
+	 * Check if the points are collinear
+	 * 	Collinear when the cross product of b-a and c-a is 0 (all 3 components are zero)  
+	 * 
+	 *  If so, also need to check if  if c's
+	 * coordinates are between a's and b's.
+	 * 
+	 * This is true when the dot product of b-a and c-a 
+	 * is positive and is less than the squared distance between a and b
 	 * 
 	 * 
-	 * TODO 
-	 * need to walk through this calculation with simon and make sure that it makes sense
+	 * TODO need to walk through this calculation with simon and make sure that
+	 * it makes sense
 	 * 
 	 * @param a
 	 * @param b
 	 * @param c
-	 * @return 
+	 * @return
 	 */
-	private static boolean isPointBetween(Double3D a, Double3D b , Double3D c){
-		
+	static boolean isPointBetween(Double3D a, Double3D b, Double3D c) {
+
 		Double3D c_a = new Double3D(c.x - a.x, c.y - a.y, c.z - a.z);
 		Double3D b_a = new Double3D(b.x - a.x, b.y - a.y, b.z - a.z);
-		
+
 		Double3D crossproduct = Vector3DHelper.crossProduct(c_a, b_a);
-		
+
 		double dotproduct = Vector3DHelper.dotProduct(b_a, c_a);
-		
-		double squaredLength = Math.pow(a.distance(b),2);
-		
 
-		//this is our threshold needs to be the width of an edge i suppose so lets say 3 microns
+		double squaredLength = Math.pow(a.distance(b), 2);
+
+		// this is our threshold needs to be the width of an edge i suppose so
+		// lets say 3 microns
+		// TODO we need to revisit this and see if its sensible
 		double epsilon = 0.3;
-		
 
-		//check to see if they are colinear
-		
-		if (crossproduct.length() > epsilon){
+		// check to see if they are collinear
+
+		if (crossproduct.length() > epsilon) {
 			return false;
 		}
-		
-		//check if b lies within a-c by assessing whether the dot product of b-a and c-a 
-		// is positive and  is less than the squared distance between a and b
-		else if(dotproduct < 0){
+
+		// check if b lies within a-c by assessing whether the dot product of
+		// b-a and c-a
+		// is positive and is less than the squared distance between a and b
+		else if (dotproduct < 0) {
 			return false;
-		}
-		else if(dotproduct > squaredLength){
+		} else if (dotproduct > squaredLength) {
 			return false;
-		}
-		else return true;
-	    
-		
-		
+		} else
+			return true;
+
 	}
-	
 
-	
+	/**
+	 * This class handles the data for each node
+	 * we should attach the branches to this also
+	 * 
+	 * 
+	 */
+	/*
+	static class nodeInfo {
+
+		private Double3D m_loc; // the location of a node
+		private Integer m_index; // its unique indexID
+		private Stroma.TYPE m_type; // the stroma subtype: FDC,bRC, MRC
+
+		ArrayList<StromaEdge> edges = new ArrayList<StromaEdge>();
+		
+		
+		// constructor
+		public nodeInfo(Double3D loc, int i, TYPE type) {
+			setM_loc(loc);
+			setM_index(i);
+			setM_type(type);
+		}
+
+		public Double3D getM_loc() {
+			return m_loc;
+		}
+
+		public void setM_loc(Double3D m_loc) {
+			this.m_loc = m_loc;
+		}
+
+		public Integer getM_index() {
+			return m_index;
+		}
+
+		public void setM_index(Integer m_index) {
+			this.m_index = m_index;
+		}
+
+		public Stroma.TYPE getM_type() {
+			return m_type;
+		}
+
+		public void setM_type(Stroma.TYPE m_type) {
+			this.m_type = m_type;
+		}
+
+	}
+
+*/
 
 	public Map<Integer, Integer> getDendritesVisited() {
 		return dendritesVisited;
@@ -414,13 +700,5 @@ public class Controller implements Steppable {
 	}
 
 
-	public static ArrayList<nodeInfo> getNodeinformation() {
-		return nodeinformation;
-	}
-
-
-	public static void setNodeinformation(ArrayList<nodeInfo> nodeinformation) {
-		Controller.nodeinformation = nodeinformation;
-	}
 
 }

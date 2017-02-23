@@ -167,7 +167,7 @@ public class StromaTest {
 		Schedule schedule = new Schedule();
 		Continuous3D fdcEnvironment = new Continuous3D(
 				Settings.FDC.DISCRETISATION, 60, 60, 10);
-		Stroma.drawEnvironment = fdcEnvironment;
+//		Stroma.drawEnvironment = fdcEnvironment;
 		Chemokine m_pParticle = new Chemokine(schedule,
 				Chemokine.TYPE.CXCL13, 60, 60, 10);
 		Settings.FDC.CXCL13_EMITTED = 100;
@@ -192,7 +192,7 @@ public class StromaTest {
 		assertThat(chemokine[1][1][1], greaterThan(0.0));
 
 		Chemokine.reset();
-		Stroma.drawEnvironment = null;
+		//Stroma.drawEnvironment = null;
 
 	}
 

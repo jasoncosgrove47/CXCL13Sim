@@ -57,17 +57,13 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	
 	
 	
-	
 	public void initialiseReceptors(){
 		
-
-
 		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(4));
 		this.getM_receptorMap().get(Receptor.CXCR5).add(0,Settings.BC.ODE.LR());
 		this.getM_receptorMap().get(Receptor.CXCR5).add(1,Settings.BC.ODE.Rf());
 		this.getM_receptorMap().get(Receptor.CXCR5).add(2,Settings.BC.ODE.Ri());
 		this.getM_receptorMap().get(Receptor.CXCR5).add(3,0);//this is for desensitised receptors
-		
 		
 		this.getM_receptorMap().put(Receptor.CCR7, new ArrayList<Integer>(3));
 		this.getM_receptorMap().get(Receptor.CCR7).add(0,0);
@@ -75,17 +71,12 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		this.getM_receptorMap().get(Receptor.CCR7).add(2,0);
 		this.getM_receptorMap().get(Receptor.CCR7).add(3,0);
 		
-		
 		this.getM_receptorMap().put(Receptor.EBI2, new ArrayList<Integer>(4));
 		this.getM_receptorMap().get(Receptor.EBI2).add(0,0);
 		this.getM_receptorMap().get(Receptor.EBI2).add(1,0);
 		this.getM_receptorMap().get(Receptor.EBI2).add(2,0);
-		this.getM_receptorMap().get(Receptor.EBI2).add(3,0);
-			
+		this.getM_receptorMap().get(Receptor.EBI2).add(3,0);	
 	}
-	
-	
-	
 	
 	
 	public static enum Receptor {
@@ -238,6 +229,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		Int3D meDiscrete = grid.discretize(me);
 		return meDiscrete;
 	}
+	
 
 	/**
 	 * How to remove a BC from the schedule:

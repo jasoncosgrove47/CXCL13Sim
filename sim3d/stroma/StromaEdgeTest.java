@@ -17,6 +17,11 @@ import sim3d.collisiondetection.Collidable.CLASS;
 
 public class StromaEdgeTest {
 
+	
+	
+
+	
+	
 	/**
 	 * Test that getModel returns a TransformGroup object
 	 */
