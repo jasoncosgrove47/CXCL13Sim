@@ -186,7 +186,7 @@ public class Controller implements Steppable {
 						counter += 1;
 						
 						System.out.println("num of cells withoutedges" + counter);
-						//System.out.println("stromatuype" + sc.getStromatype());
+						System.out.println("stromatuype" + sc.getStromatype());
 						
 					}
 					

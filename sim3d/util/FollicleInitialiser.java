@@ -348,26 +348,29 @@ public final class FollicleInitialiser {
 		for (StromaEdge seEdge : edges) {
 
 			// get both edges of the
-			Double3D edgeloc = new Double3D(seEdge.getPoint1().x, seEdge.getPoint1().y, seEdge.getPoint1().z);
-			Double3D edgeloc2 = new Double3D(seEdge.getPoint2().x, seEdge.getPoint2().y, seEdge.getPoint2().z);
+			Double3D edgeloc = new Double3D(seEdge.getPoint1().x +1, seEdge.getPoint1().y +1, seEdge.getPoint1().z +1);
+			Double3D edgeloc2 = new Double3D(seEdge.getPoint2().x +1, seEdge.getPoint2().y +1, seEdge.getPoint2().z+ 1);
 
 			
-			if (loc.x == edgeloc.x && loc.y == edgeloc.y && loc.z == edgeloc.z) {
+			if (loc.distance(edgeloc) < 0.05) {
 				
 				//get the stromal cell at the other end of the edge
-				Stroma othernode = getNodeAtLocation(frc.getDrawEnvironment(), edgeloc2);
-				frc.getM_Nodes().add(othernode);
-				othernode.getM_Nodes().add(frc);
+				//Stroma othernode = getNodeAtLocation(frc.getDrawEnvironment(), edgeloc2);
+				
+				//maybe loads of these are null and thats why?
+				
+				//frc.getM_Nodes().add(othernode);
+				//othernode.getM_Nodes().add(frc);
 				
 				
 				frc.getM_Edges().add(seEdge);
 				seEdge.m_Nodes.add(frc);
-			} else if (loc.x == edgeloc2.x && loc.y == edgeloc2.y && loc.z == edgeloc2.z) {
+			} else if (loc.distance(edgeloc2) < 0.05) {
 				
 				//get the stromal cell at the other end of the edge
-				Stroma othernode = getNodeAtLocation(frc.getDrawEnvironment(), edgeloc2);
-				frc.getM_Nodes().add(othernode);
-				othernode.getM_Nodes().add(frc);
+				//Stroma othernode = getNodeAtLocation(frc.getDrawEnvironment(), edgeloc2);
+				//frc.getM_Nodes().add(othernode);
+				//othernode.getM_Nodes().add(frc);
 				
 				frc.getM_Edges().add(seEdge);
 				seEdge.m_Nodes.add(frc);
@@ -376,7 +379,22 @@ public final class FollicleInitialiser {
 	
 		}
 		
-		//no edge should have more than two nodes at this point
+		
+		//by the end of hte loop all of the frcs edges shoudl have been accounted for,
+		//now we can iterate throguh those and update all of the nodes
+		
+		for(StromaEdge se : frc.getM_Edges()){
+			
+			
+			
+			//update the node information
+			frc.getM_Nodes().addAll(se.m_Nodes);
+			//remove any self connections
+			frc.getM_Nodes().remove(frc);
+			
+		}
+		
+
 
 	}
 
