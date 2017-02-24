@@ -2,6 +2,9 @@ package sim3d.stroma;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
@@ -40,14 +43,19 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	private TYPE stromaedgetype;
 	
-	public ArrayList<Stroma> m_Nodes; 
+	//public ArrayList<Stroma> m_Nodes; 
 	
 	//the branches connected to an edge
-	public ArrayList<StromaEdge> m_Branches; 
+	//public ArrayList<StromaEdge> m_Branches; 
 	
 	//the other edges connected to an edge due to branching
-	public ArrayList<StromaEdge> m_Edges; 
+	//public ArrayList<StromaEdge> m_Edges; 
 	
+	//dont want duplicate entries so use a set
+	//dont think ordering matters so probably dont need a linked hashset
+	public Set<StromaEdge> m_Branches;
+	public Set<Stroma> m_Nodes;
+	public Set<StromaEdge> m_Edges ;
 	
 	private boolean isBranch;
 	
@@ -211,10 +219,18 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 */
 	public StromaEdge(Double3D d3Point1, Double3D d3Point2, TYPE type) {
 		
+		this.m_Branches = new LinkedHashSet<StromaEdge>();
 		
-		this.m_Nodes = new ArrayList<Stroma>();
-		this.m_Branches = new ArrayList<StromaEdge>();
-		this.m_Edges = new ArrayList<StromaEdge>();
+		//an edge can have other edges if connected by a branch
+		this.m_Edges = new LinkedHashSet<StromaEdge>();
+		
+		//TODO make this an array with just two nodes
+		this.m_Nodes = new LinkedHashSet<Stroma>();
+		
+		
+		//this.m_Nodes = new ArrayList<Stroma>();
+		//this.m_Branches = new ArrayList<StromaEdge>();
+		//this.m_Edges = new ArrayList<StromaEdge>();
 		
 		Color col = new Color(165, 0, 0, 100);
 		Color col2 = new Color(215,230,230, 0);

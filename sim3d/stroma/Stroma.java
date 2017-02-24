@@ -5,8 +5,11 @@ package sim3d.stroma;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.media.j3d.TransformGroup;
 
@@ -57,11 +60,14 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	double MRCsecretionRate_EBI2L  = Settings.MRC.EBI2L_EMITTED();
 	
 
-	public ArrayList<StromaEdge> m_Edges; 
+	//public ArrayList<StromaEdge> m_Edges; 
 	
 	//the other nodes a stromal cell is connected to
-	public ArrayList<Stroma> m_Nodes; 
+	//public ArrayList<Stroma> m_Nodes; 
 	
+	//dont want duplicate entries
+	private Set<Stroma> m_Nodes;
+	private Set<StromaEdge> m_Edges ;
 	
 	private ArrayList<Integer> cellsCollidedWith = new ArrayList<Integer>();
 	
@@ -76,6 +82,8 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	private Double3D m_location;
 	
 	
+	//the index used for the adjacency matriz
+	private int m_index;
 	
 	/**
 	 * How to remove a BC from the schedule:
@@ -134,8 +142,8 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	public Stroma(TYPE type, Double3D loc){
 		
 		
-		this.m_Edges = new ArrayList<StromaEdge>();
-		this.m_Nodes = new ArrayList<Stroma>();
+		this.setM_Edges(new LinkedHashSet<StromaEdge>());
+		this.setM_Nodes(new LinkedHashSet<Stroma>());
 		
 		this.m_location = loc;
 		
@@ -306,8 +314,8 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	
 	public static boolean AreStromaNodesConnected(Stroma n1, Stroma n2){
 		//if there is an edge between them then they are connected
-		for(StromaEdge se : n1.m_Edges){
-			if(n2.m_Edges.contains(se)) return true;
+		for(StromaEdge se : n1.getM_Edges()){
+			if(n2.getM_Edges().contains(se)) return true;
 		}
 		//no connection so return false
 		return false;
@@ -414,6 +422,30 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 	public static void setNodeinformation(ArrayList<Stroma> nodeinformation) {
 		Stroma.nodeinformation = nodeinformation;
+	}
+
+	public int getM_index() {
+		return m_index;
+	}
+
+	public void setM_index(int m_index) {
+		this.m_index = m_index;
+	}
+
+	public Set<Stroma> getM_Nodes() {
+		return m_Nodes;
+	}
+
+	public void setM_Nodes(Set<Stroma> m_Nodes) {
+		this.m_Nodes = m_Nodes;
+	}
+
+	public Set<StromaEdge> getM_Edges() {
+		return m_Edges;
+	}
+
+	public void setM_Edges(Set<StromaEdge> m_Edges) {
+		this.m_Edges = m_Edges;
 	}
 
 	

@@ -86,14 +86,7 @@ public class Controller implements Steppable {
 	private Map<Integer, ArrayList<Double3D>> Coordinates = new HashMap<Integer, ArrayList<Double3D>>();
 	private Map<Integer, Integer> dendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
-	// this is the map containing the nodes plus their locations
-	//static Map<Double3D, Integer> NodeIndex = new HashMap<Double3D, Integer>(); // TODO
-																				// this
-																				// seems
-																				// messy...
 
-	// this is an arraylist containing the information
-	//private static ArrayList<nodeInfo> nodeinformation = new ArrayList<nodeInfo>();
 
 	/**
 	 * Controls the length of an experiment and signals to the main class when
@@ -122,6 +115,9 @@ public class Controller implements Steppable {
 		// calcualte the number of nodes in the network
 		int[] nodesandedges = SimulationEnvironment.calculateNodesAndEdges();
 		int numberofnodes = nodesandedges[0];
+		
+	
+		//System.out.println("number of nodes: " + numberofnodes);
 
 		// we add a plus one because we also want an index for each one
 		int[][] adjacencyMatrix = new int[numberofnodes + 1][numberofnodes + 1];
@@ -145,35 +141,24 @@ public class Controller implements Steppable {
 
 		// the unique IDcode for each stroma node
 		int nodeindex = 1;
+		
 
 		Bag stroma = SimulationEnvironment.getAllStroma();
+
 		for (int i = 0; i < stroma.size(); i++) {
 
 			if (stroma.get(i) instanceof Stroma) {
 
+
 				if (((Stroma) stroma.get(i)).getStromatype() != Stroma.TYPE.LEC) {
 
-					Double3D loc = new Double3D(((Stroma) stroma.get(i)).x, ((Stroma) stroma.get(i)).y,
-							((Stroma) stroma.get(i)).z);
 
+					((Stroma) stroma.get(i)).setM_index(nodeindex);
+					
 					// give it a unique ID number and store the location
 					adjacencyMatrix[0][nodeindex] = nodeindex;
 					adjacencyMatrix[nodeindex][0] = nodeindex;
 
-
-					// we need to store the location a map and another data type
-					// for later use?
-					//NodeIndex.put(loc, nodeindex);
-
-					Stroma.TYPE type = ((Stroma) stroma.get(i)).getStromatype();
-					
-				
-				
-					
-					//nodeInfo ni = new nodeInfo(loc, nodeindex, type);
-
-					//getNodeinformation().add(ni);
-					
 					nodeindex += 1;
 					
 				}
@@ -184,6 +169,137 @@ public class Controller implements Steppable {
 	}
 
 	
+	
+	 public static int[][] updateAdjacencyMatrix(int[][] adjacencyMatrix){
+		
+		Bag stroma = SimulationEnvironment.getAllStroma();
+
+		int counter = 0;
+		
+		for (int i = 0; i < stroma.size(); i++) {
+			if (stroma.get(i) instanceof Stroma) {
+				
+				Stroma sc = (Stroma) stroma.get(i);
+				if (sc.getStromatype() != Stroma.TYPE.LEC) {
+
+					if(sc.getM_Nodes().size() == 0){
+						counter += 1;
+						
+						System.out.println("num of cells withoutedges" + counter);
+						//System.out.println("stromatuype" + sc.getStromatype());
+						
+					}
+					
+					for(Stroma stromalcell : sc.getM_Nodes()){
+						
+						
+						adjacencyMatrix[sc.getM_index()][stromalcell.getM_index()] = 1;
+						adjacencyMatrix[stromalcell.getM_index()][sc.getM_index()] = 1;
+											
+					}	
+				}
+			}
+		}
+
+		return adjacencyMatrix;
+		
+	}
+	
+	
+	 
+	 static void updateAdjacencyMatrixFDCs(){
+		 Bag stroma = SimulationEnvironment.fdcEnvironment.getAllObjects();
+
+			for (int i = 0; i < stroma.size(); i++) {
+				if (stroma.get(i) instanceof Stroma) {
+					
+					Stroma sc = (Stroma) stroma.get(i);
+					
+					 Bag stroma2 = SimulationEnvironment.fdcEnvironment.getAllObjects();
+
+						for (int j = 0; j < stroma.size(); j++) {
+							if (stroma2.get(j) instanceof Stroma) {
+								
+								Stroma sc2 = (Stroma) stroma2.get(j);
+								
+								if(!sc.equals(sc2)){
+									
+									
+									
+								}
+								
+								
+							}
+						}	
+				}
+			}
+		 
+	 }
+	 
+	 
+		/**
+		 * To determine if the path between two nodes is blocked by another node 
+		 * we do the following:
+		 * 
+		 * Check if the points are collinear
+		 * 	Collinear when the cross product of b-a and c-a is 0 (all 3 components are zero)  
+		 * 
+		 *  If so, also need to check if  if c's
+		 * coordinates are between a's and b's.
+		 * 
+		 * This is true when the dot product of b-a and c-a 
+		 * is positive and is less than the squared distance between a and b
+		 * 
+		 * @param a
+		 * @param b
+		 * @param c
+		 * @return
+		 */
+		static boolean isPointBetween(Double3D a, Double3D b, Double3D c) {
+
+			Double3D c_a = new Double3D(c.x - a.x, c.y - a.y, c.z - a.z);
+			Double3D b_a = new Double3D(b.x - a.x, b.y - a.y, b.z - a.z);
+
+			Double3D crossproduct = Vector3DHelper.crossProduct(c_a, b_a);
+
+			double dotproduct = Vector3DHelper.dotProduct(b_a, c_a);
+
+			double squaredLength = Math.pow(a.distance(b), 2);
+
+			// this is our threshold needs to be the width of an edge i suppose so
+			// lets say 3 microns
+			// TODO we need to revisit this and see if its sensible
+			double epsilon = 0.3;
+
+			// check to see if they are collinear
+
+			if (crossproduct.length() > epsilon) {
+				return false;
+			}
+
+			// check if b lies within a-c by assessing whether the dot product of
+			// b-a and c-a
+			// is positive and is less than the squared distance between a and b
+			else if (dotproduct < 0) {
+				return false;
+			} else if (dotproduct > squaredLength) {
+				return false;
+			} else
+				return true;
+
+		}
+	 
+	
+		 static boolean checkIfConnected(int[][] adjacencyMatrix, Stroma sc1, Stroma sc2){
+			 
+			 if (adjacencyMatrix[sc1.getM_index()][sc2.getM_index()] == 1) {
+				 return true;
+			 }
+			 return false;
+			 
+		 }
+		
+	/*
 
 	
 	public static int[][] updateAdjacencyForBranchConnections(int[][] adjacencyMatrix){
@@ -310,8 +426,7 @@ public class Controller implements Steppable {
 					//int index2 = NodeIndex.get(node2);
 					//int index3 = NodeIndex.get(node3);//the index should respond ot position in the matrix
 					//int index4 = NodeIndex.get(node4);
-					
-					/*
+				
 					//this code is truly dreadful
 					adjacencyMatrix[index1][index2] = 1;
 					adjacencyMatrix[index2][index1] = 1;
@@ -325,7 +440,7 @@ public class Controller implements Steppable {
 					adjacencyMatrix[index4][index2] = 1;
 					adjacencyMatrix[index3][index4] = 1;
 					adjacencyMatrix[index4][index3] = 1;
-					*/
+				
 
 
 				}	
@@ -334,7 +449,7 @@ public class Controller implements Steppable {
 		return(adjacencyMatrix);
 	}
 	
-	
+	*/
 	
 	/**
 	 * 
@@ -350,6 +465,8 @@ public class Controller implements Steppable {
 	 * @param adjacencyMatrix
 	 * @return an updated adjacency matrix
 	 */
+	
+	/*
 	public static int[][] updateAdjacencyMatrixForRCs(int[][] adjacencyMatrix) {
 
 		// we dont need all objects can just look in the immediate environment
@@ -381,7 +498,7 @@ public class Controller implements Steppable {
 		
 		return adjacencyMatrix;
 		}
-	
+	*/
 	
 	/*
 					
@@ -494,6 +611,8 @@ public class Controller implements Steppable {
 	 * @return an updated adjacency matrix
 	 */
 
+	
+	/*
 	public static int[][] updateAdjacencyMatrixForFDCs(int[][] adjacencyMatrix) {
 
 		// obtain all of the FDC locations, again this is very inefficient, they need to be placed
@@ -541,11 +660,17 @@ public class Controller implements Steppable {
 		return adjacencyMatrix;
 	}
 	
+*/
 
+	 
 
+	 
+	 
 	// given two locations in a double3D arraylist, check all the other
 	// double3Ds to see
 	// if a node is blocking a connection between two other nodes.
+	 
+	 /*
 	static boolean checkIfConnected(int[][] adjacencyMatrix, ArrayList<Double3D> fdclocations, int i, int j,
 			int index1, int index2) {
 
@@ -579,62 +704,9 @@ public class Controller implements Steppable {
 		return placeConnection;
 
 	}
+	*/
 
-	/**
-	 * To determine if the path between two nodes is blocked by another node 
-	 * we do the following:
-	 * 
-	 * Check if the points are collinear
-	 * 	Collinear when the cross product of b-a and c-a is 0 (all 3 components are zero)  
-	 * 
-	 *  If so, also need to check if  if c's
-	 * coordinates are between a's and b's.
-	 * 
-	 * This is true when the dot product of b-a and c-a 
-	 * is positive and is less than the squared distance between a and b
-	 * 
-	 * 
-	 * TODO need to walk through this calculation with simon and make sure that
-	 * it makes sense
-	 * 
-	 * @param a
-	 * @param b
-	 * @param c
-	 * @return
-	 */
-	static boolean isPointBetween(Double3D a, Double3D b, Double3D c) {
 
-		Double3D c_a = new Double3D(c.x - a.x, c.y - a.y, c.z - a.z);
-		Double3D b_a = new Double3D(b.x - a.x, b.y - a.y, b.z - a.z);
-
-		Double3D crossproduct = Vector3DHelper.crossProduct(c_a, b_a);
-
-		double dotproduct = Vector3DHelper.dotProduct(b_a, c_a);
-
-		double squaredLength = Math.pow(a.distance(b), 2);
-
-		// this is our threshold needs to be the width of an edge i suppose so
-		// lets say 3 microns
-		// TODO we need to revisit this and see if its sensible
-		double epsilon = 0.3;
-
-		// check to see if they are collinear
-
-		if (crossproduct.length() > epsilon) {
-			return false;
-		}
-
-		// check if b lies within a-c by assessing whether the dot product of
-		// b-a and c-a
-		// is positive and is less than the squared distance between a and b
-		else if (dotproduct < 0) {
-			return false;
-		} else if (dotproduct > squaredLength) {
-			return false;
-		} else
-			return true;
-
-	}
 
 	/**
 	 * This class handles the data for each node

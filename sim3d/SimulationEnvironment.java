@@ -261,27 +261,18 @@ public class SimulationEnvironment extends SimState {
 		// seed lymphocytes within the follicle
 		seedCells(CELLTYPE.B);
 		seedCells(CELLTYPE.cB);
-		//seedCells(CELLTYPE.T);
-		
-		//totalNumberOfAPCs = calculateTotalNumberOfAPCs();
-		
-		//int[] numbers = calculateNodesAndEdges();
-		
-		//System.out.println("nodes: " + numbers[0]);
-		//System.out.println("edges: " + numbers[1]);
-		
+
 		///this should throw an error now because we dont have a useful index
 		
-		//int[][] a_matrix = Controller.generateAdjacencyMatrix();
-		//a_matrix = Controller.updateAdjacencyMatrixForRCs(a_matrix);
+		int[][] a_matrix = Controller.generateAdjacencyMatrix();
+		a_matrix = Controller.updateAdjacencyMatrix(a_matrix);
 		//a_matrix = Controller.updateAdjacencyMatrixForFDCs(a_matrix);
 		//a_matrix = Controller.updateAdjacencyForBranchConnections(a_matrix);
-		
-		//System.out.println("FDC matrix updates are switched off for the moment");
+
 		
 
 		//outputToCSV.writeNodeInformationToFile("/Users/jc1571/Desktop/nodeInfo.csv", Stroma.getNodeinformation());
-		//outputToCSV.writeAdjacencyMatrixToFile("/Users/jc1571/Desktop/adjacency.csv", a_matrix);
+		outputToCSV.writeAdjacencyMatrixToFile("/Users/jc1571/Desktop/adjacency.csv", a_matrix);
 		
 	}
 
@@ -510,12 +501,16 @@ public class SimulationEnvironment extends SimState {
 
 	
 	public static Bag getAllStroma(){
-		Bag stroma = fdcEnvironment.getAllObjects();
-		System.out.println("size is: " + stroma.size());
+
+		
+		Bag stroma = new Bag();
+		
+		stroma.addAll(fdcEnvironment.getAllObjects());
+		//System.out.println("size is: " + stroma.size());
 		stroma.addAll(brcEnvironment.getAllObjects());
-		System.out.println("size 2 is: " + stroma.size());
+		//System.out.println("size 2 is: " + stroma.size());
 		stroma.addAll(mrcEnvironment.getAllObjects());
-		System.out.println("size 3 is: " + stroma.size());
+		//System.out.println("size 3 is: " + stroma.size());
 		
 		return stroma;
 		
@@ -524,12 +519,15 @@ public class SimulationEnvironment extends SimState {
 	
 	
 	public static Bag getAllStromaWithinDistance(Double3D loc, double dist){
-		Bag stroma = fdcEnvironment.getNeighborsExactlyWithinDistance(loc, dist);
-		System.out.println("size is: " + stroma.size());
+		
+		Bag stroma = new Bag();
+		
+		stroma.addAll(fdcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
+		//System.out.println("size is: " + stroma.size());
 		stroma.addAll(brcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
-		System.out.println("size 2 is: " + stroma.size());
+		//System.out.println("size 2 is: " + stroma.size());
 		stroma.addAll(mrcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
-		System.out.println("size 3 is: " + stroma.size());
+		//System.out.println("size 3 is: " + stroma.size());
 		
 		return stroma;
 		
@@ -573,13 +571,14 @@ public class SimulationEnvironment extends SimState {
 		int[] output = new int[2];
 		
 		Bag stroma = getAllStroma();
+		System.out.println("bag size 2: " + stroma.size());
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof StromaEdge) {
 			
 				edges ++;
 			}
 		
-			else if(stroma.get(i) instanceof Stroma){
+			if(stroma.get(i) instanceof Stroma){
 				if(((Stroma)stroma.get(i)).getStromatype()!=Stroma.TYPE.LEC){
 					nodes ++;
 				}
