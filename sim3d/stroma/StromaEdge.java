@@ -93,6 +93,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	}
 	
 	
+	private Double3D m_point2;
+	
 	
 	@Override
 	public void step(SimState arg0) {
@@ -103,7 +105,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		case FDC_edge: 
 
 			// TODO Auto-generated method stub
-			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.midpoint.x, (int) this.midpoint.y, (int) this.midpoint.z,
+			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.getMidpoint().x, (int) this.getMidpoint().y, (int) this.getMidpoint().z,
 					Settings.FDC.CXCL13_EMITTED);
 			break;
 
@@ -111,14 +113,14 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		case RC_edge:
 
 			// TODO Auto-generated method stub
-			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.midpoint.x, (int) this.midpoint.y, (int) this.midpoint.z,
+			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.getMidpoint().x, (int) this.getMidpoint().y, (int) this.getMidpoint().z,
 					Settings.bRC.CXCL13_EMITTED);
 			break;
 			
 		case MRC_edge:
 
 			// TODO Auto-generated method stub
-			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.midpoint.x, (int) this.midpoint.y, (int) this.midpoint.z,
+			Chemokine.add(Chemokine.TYPE.CXCL13, (int) this.getMidpoint().x, (int) this.getMidpoint().y, (int) this.getMidpoint().z,
 					Settings.MRC.CXCL13_EMITTED);
 			
 			
@@ -169,7 +171,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	/**
 	 * The midpoint of the edge, used for creating branches
 	 */
-	public Double3D midpoint;
+	private Double3D midpoint;
 
 	/**
 	 * Divide each dendrite in two so that a B cell must be at the correct part
@@ -228,6 +230,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		this.m_Nodes = new LinkedHashSet<Stroma>();
 		
 		
+		
+		
 		//this.m_Nodes = new ArrayList<Stroma>();
 		//this.m_Branches = new ArrayList<StromaEdge>();
 		//this.m_Edges = new ArrayList<StromaEdge>();
@@ -247,6 +251,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		}
 
 		
+		
+		
 		// location of stroma is static so easiest to specify it's location in
 		// the constructor
 		x = d3Point1.x;
@@ -256,9 +262,13 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		// vector representing the stromal edge
 		m_d3Edge = d3Point2.subtract(d3Point1);
 
+		
+		
+
+		
 		// the midpoint of the vector
-		midpoint = new Double3D((d3Point1.x + d3Point2.x) / 2,
-				(d3Point1.y + d3Point2.y) / 2, (d3Point1.z + d3Point2.z) / 2);
+		//midpoint = new Double3D((d3Point1.x + d3Point2.x) / 2,
+		//		(d3Point1.y + d3Point2.y) / 2, (d3Point1.z + d3Point2.z) / 2);
 		
 		switch (type) {
 		case FDC_edge: 
@@ -324,6 +334,10 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			break;
 		
 		}
+		
+
+		
+		
 	}
 
 	@Override
@@ -340,6 +354,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	public Continuous3D getDrawEnvironment() {
 		return m_drawEnvironment;
 	}
+	
 
 	/*
 	 * This method creates a 3d model of stromal edge for visualisation
@@ -476,6 +491,59 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		return transf;
 	}
 
+	//This is tricky, how do we have it so we cant use the other method
+	/**
+	 * TODO it has to be point1 that gets passed into this 
+	 * due to how the code is set up, always has to be p1
+	 */
+	@Override
+	public final void setObjectLocation(Double3D d3Location) {
+		
+
+		
+		//TODO this bit here needs to be an automated test
+		
+		if(this.getPoint1().distance(d3Location) > 0.1 && 
+				this.getPoint2().distance(d3Location) > 0.1){
+			
+			if(d3Location.distance(this.getMidpoint()) > 0.1){
+			
+			System.out.println("location corresponds to neither end point");
+			
+			System.out.println("edge point 1: " + this.getPoint1());
+			System.out.println("edge point 2: " + this.getPoint2());
+			System.out.println("location entered: " + d3Location);
+			System.out.println("midpiont: " + this.getMidpoint());
+			System.out.println("stromal edge type: " + this.getStromaedgetype());
+			}
+		}
+		
+		this.setM_Location(d3Location);
+		
+		x = d3Location.x;
+		y = d3Location.y;
+		z = d3Location.z;
+		
+		//we also need to update the midpoint at this point
+		
+		Double3D p1 = this.getPoint1();
+		Double3D p2 = this.getPoint2();
+		
+		this.setMidpoint(new Double3D((p1.x + p2.x) / 2,
+						(p1.y + p2.y) / 2, (p1.z + p2.z) / 2));
+
+		getDrawEnvironment().setObjectLocation(this, new Double3D(x, y, z));
+		
+
+		
+
+	}
+	
+	
+	
+	
+	
+	
 	/**
 	 * Accessor for point 1
 	 */
@@ -487,6 +555,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 * Accessor for point 2
 	 */
 	public Double3D getPoint2() {
+		
+
 		return new Double3D(x + m_d3Edge.x, y + m_d3Edge.y, z + m_d3Edge.z);
 	}
 
@@ -548,6 +618,21 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	public void setBranch(boolean isBranch) {
 		this.isBranch = isBranch;
+	}
+
+
+	public Double3D getMidpoint() {
+		Double3D p1 = this.getPoint1();
+		Double3D p2 = this.getPoint2();
+		
+		
+		return new Double3D((p1.x + p2.x) / 2,
+						(p1.y + p2.y) / 2, (p1.z + p2.z) / 2);
+	}
+
+
+	public void setMidpoint(Double3D midpoint) {
+		this.midpoint = midpoint;
 	}
 
 

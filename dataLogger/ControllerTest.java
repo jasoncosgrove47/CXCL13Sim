@@ -11,16 +11,10 @@ import java.util.Collections;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import ec.util.MersenneTwisterFast;
-import sim.engine.Schedule;
-import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
-import sim3d.collisiondetection.CollisionGrid;
-import sim3d.stroma.Stroma;
-import sim3d.stroma.StromaEdge;
-import sim3d.util.FollicleInitialiser;
+
 import sim3d.util.IO;
 
 /**
@@ -114,9 +108,10 @@ public class ControllerTest {
 		SimulationEnvironment.simulation.start();
 		
 		
+		
 		int[][] test = Controller.generateAdjacencyMatrix();
-		test = Controller.updateAdjacencyMatrixForRCs(test);
-		test = Controller.updateAdjacencyMatrixForFDCs(test);
+		test = Controller.updateAdjacencyMatrix(test);
+		//test = Controller.updateAdjacencyMatrixForFDCs(test);
 		
 		ArrayList<Integer> numEdgesPerNode = new ArrayList<Integer>();
 		
@@ -163,7 +158,7 @@ public class ControllerTest {
 		
 		
 		int[][] test = Controller.generateAdjacencyMatrix();
-		test = Controller.updateAdjacencyMatrixForRCs(test);
+		test = Controller.updateAdjacencyMatrix(test);
 		//test = Controller.updateAdjacencyMatrixForFDCs(test);
 		
 		ArrayList<Integer> numEdgesPerNode = new ArrayList<Integer>();
@@ -239,6 +234,7 @@ public class ControllerTest {
 	 * This is a very naive test just looking to see if we've added 1's
 	 * we'll need to revisit this at some point. 
 	 */
+	/*
 	@Test
 	public void testUpdateAdjacencyMatrixWithRCs(){
 		Document parameters;
@@ -250,7 +246,7 @@ public class ControllerTest {
 		SimulationEnvironment.simulation.start();
 		
 		int[][] test = Controller.generateAdjacencyMatrix();
-		test = Controller.updateAdjacencyMatrixForRCs(test);
+		test = Controller.updateAdjacencyMatrix(test);
 		
 		//Quite a crude test, would want to check something more specific
 		///are there any 1s in the matrix?
@@ -308,7 +304,7 @@ public class ControllerTest {
 		assertFalse(noUpdates);
 		
 	}
-	
+	*/
 	
 	/**
 	 * Test that when the simulation starts experimentFinished is set to false

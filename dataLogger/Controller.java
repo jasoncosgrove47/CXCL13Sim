@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.tools.javac.code.Attribute.Array;
+
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -13,8 +13,6 @@ import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.stroma.Stroma;
-import sim3d.stroma.Stroma.TYPE;
-import sim3d.stroma.StromaEdge;
 import sim3d.util.Vector3DHelper;
 
 @SuppressWarnings("serial")
@@ -108,7 +106,8 @@ public class Controller implements Steppable {
 	 * Initialise the network adjacency matrix, required for outputting to .csv
 	 * later.
 	 * 
-	 * @return
+	 * @return an n * n adjacency matrix where n is the amount of stroma + 1
+	 *         for the column and row labels
 	 */
 	public static int[][] generateAdjacencyMatrix() {
 
@@ -116,9 +115,6 @@ public class Controller implements Steppable {
 		int[] nodesandedges = SimulationEnvironment.calculateNodesAndEdges();
 		int numberofnodes = nodesandedges[0];
 		
-	
-		//System.out.println("number of nodes: " + numberofnodes);
-
 		// we add a plus one because we also want an index for each one
 		int[][] adjacencyMatrix = new int[numberofnodes + 1][numberofnodes + 1];
 
@@ -142,17 +138,11 @@ public class Controller implements Steppable {
 		// the unique IDcode for each stroma node
 		int nodeindex = 1;
 		
-
 		Bag stroma = SimulationEnvironment.getAllStroma();
-
 		for (int i = 0; i < stroma.size(); i++) {
-
 			if (stroma.get(i) instanceof Stroma) {
-
-
+				//LECs are not included in topological analysis
 				if (((Stroma) stroma.get(i)).getStromatype() != Stroma.TYPE.LEC) {
-
-
 					((Stroma) stroma.get(i)).setM_index(nodeindex);
 					
 					// give it a unique ID number and store the location
@@ -160,12 +150,11 @@ public class Controller implements Steppable {
 					adjacencyMatrix[nodeindex][0] = nodeindex;
 
 					nodeindex += 1;
-					
 				}
 			}
 		}
-
 		return adjacencyMatrix;
+		
 	}
 
 	
@@ -174,66 +163,85 @@ public class Controller implements Steppable {
 		
 		Bag stroma = SimulationEnvironment.getAllStroma();
 
-		int counter = 0;
-		
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof Stroma) {
 				
 				Stroma sc = (Stroma) stroma.get(i);
 				if (sc.getStromatype() != Stroma.TYPE.LEC) {
 
-					if(sc.getM_Nodes().size() == 0){
-						counter += 1;
-						
-						System.out.println("num of cells withoutedges" + counter);
-						System.out.println("stromatuype" + sc.getStromatype());
-						
-					}
+					//don't add any self connections
+					
 					
 					for(Stroma stromalcell : sc.getM_Nodes()){
 						
+						if(!stromalcell.equals(sc)){
 						
 						adjacencyMatrix[sc.getM_index()][stromalcell.getM_index()] = 1;
 						adjacencyMatrix[stromalcell.getM_index()][sc.getM_index()] = 1;
+						}
 											
 					}	
 				}
 			}
 		}
-
 		return adjacencyMatrix;
-		
 	}
 	
 	
 	 
-	 static void updateAdjacencyMatrixFDCs(){
-		 Bag stroma = SimulationEnvironment.fdcEnvironment.getAllObjects();
+	 
+	 
 
-			for (int i = 0; i < stroma.size(); i++) {
-				if (stroma.get(i) instanceof Stroma) {
-					
-					Stroma sc = (Stroma) stroma.get(i);
-					
-					 Bag stroma2 = SimulationEnvironment.fdcEnvironment.getAllObjects();
+	 
+	 
+	 
+	 /*
 
-						for (int j = 0; j < stroma.size(); j++) {
-							if (stroma2.get(j) instanceof Stroma) {
-								
-								Stroma sc2 = (Stroma) stroma2.get(j);
-								
-								if(!sc.equals(sc2)){
-									
-									
-									
-								}
-								
-								
-							}
-						}	
-				}
-			}
+	  * 
+	  * Because of the web like strucure of the FDC network, if two nodes are within
+	  * the network and are not blocked by another node, then we assume that they are
+	  * connected with one another in terms of the topology hi.
+	  * 
+	  * 
+	  */
+	 public static int[][] updateAdjacencyMatrixFDCs(int[][] adjacencyMatrix){
 		 
+		Bag stroma = SimulationEnvironment.fdcEnvironment.getAllObjects();
+		for (int i = 0; i < stroma.size(); i++) {
+			if (stroma.get(i) instanceof Stroma) {
+					
+				Stroma sc = (Stroma) stroma.get(i);
+				Bag stroma2 = SimulationEnvironment.fdcEnvironment.getAllObjects();
+
+				for (int j = 0; j < stroma2.size(); j++) {
+					if (stroma2.get(j) instanceof Stroma) {
+								
+						Stroma sc2 = (Stroma) stroma2.get(j);
+						boolean connected = true; //assume the two cells are connected hi	
+						if(!sc.equals(sc2)){
+							Bag stroma3 = SimulationEnvironment.fdcEnvironment.getAllObjects();	
+								for (int k = 0; k < stroma3.size(); k++) {
+									if (stroma3.get(k) instanceof Stroma) {
+										Stroma sc3 = (Stroma) stroma2.get(j);
+									
+										if(isPointBetween(sc.getM_Location(),sc2.getM_Location(),sc3.getM_Location())){
+											//System.out.println("FDCs aint connected");
+											connected = false;
+											break;
+										}
+									}
+							}
+							if(connected){
+								adjacencyMatrix[sc.getM_index()][sc2.getM_index()] = 1;
+								adjacencyMatrix[sc2.getM_index()][sc.getM_index()] = 1;
+							}
+							
+						}			
+					}
+				}	
+			}
+		}
+		return adjacencyMatrix;
 	 }
 	 
 	 
@@ -299,6 +307,7 @@ public class Controller implements Steppable {
 			 
 		 }
 		
+		 
 	/*
 
 	
@@ -324,7 +333,7 @@ public class Controller implements Steppable {
 					//OR we could be clever and just get the surrounding stroma and just check through
 					//those, 
 					
-					//TODO we would need to add the FRCs in here as well
+
 					Bag edges_1 = SimulationEnvironment.getAllStromaWithinDistance(p1, 5);
 
 
@@ -458,8 +467,6 @@ public class Controller implements Steppable {
 	 * matrix
 	 * 
 	 * 
-	 * TODO We are probably missing links between the networks now that i thiink
-	 * of it
 	 * 
 	 * 
 	 * @param adjacencyMatrix
@@ -604,8 +611,6 @@ public class Controller implements Steppable {
 	 * did the analysis for the in vivo datasets.
 	 * 
 	 * 
-	 * TODO this is really inefficient because some nodes are already there so
-	 * dont want to double up on this.
 	 * 
 	 * @param adjacencyMatrix
 	 * @return an updated adjacency matrix

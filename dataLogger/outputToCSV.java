@@ -42,11 +42,11 @@ public final class outputToCSV {
 			
 			for (Stroma temp : nodeinformation) {
 				
-				processedDataWriter.append(Double.toString(temp.getM_location().x));
+				processedDataWriter.append(Double.toString(temp.getM_Location().x));
 				processedDataWriter.append(',');
-				processedDataWriter.append(Double.toString(temp.getM_location().y));
+				processedDataWriter.append(Double.toString(temp.getM_Location().y));
 				processedDataWriter.append(',');
-				processedDataWriter.append(Double.toString(temp.getM_location().z));
+				processedDataWriter.append(Double.toString(temp.getM_Location().z));
 				processedDataWriter.append(',');
 				processedDataWriter.append(Integer.toString(temp.getM_index()));
 				processedDataWriter.append(',');

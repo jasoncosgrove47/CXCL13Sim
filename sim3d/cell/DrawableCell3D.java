@@ -1,7 +1,6 @@
 package sim3d.cell;
 
 
-import sim.engine.Stoppable;
 import sim.field.continuous.Continuous3D;
 import sim.portrayal3d.SimplePortrayal3D;
 import sim.util.Double3D;
@@ -13,7 +12,7 @@ import sim.util.Double3D;
  */
 public abstract class DrawableCell3D extends SimplePortrayal3D {
 	
-	Double3D m_Location;
+	private Double3D m_Location;
 	/**
 	 * Position of the cell
 	 */
@@ -30,15 +29,23 @@ public abstract class DrawableCell3D extends SimplePortrayal3D {
 	 * @param d3Location
 	 *            The new location of the cell
 	 */
-	public final void setObjectLocation(Double3D d3Location) {
+	public void setObjectLocation(Double3D d3Location) {
 		
-		this.m_Location = d3Location;
+		this.setM_Location(d3Location);
 		
 		x = d3Location.x;
 		y = d3Location.y;
 		z = d3Location.z;
 
 		getDrawEnvironment().setObjectLocation(this, new Double3D(x, y, z));
+	}
+
+	public Double3D getM_Location() {
+		return m_Location;
+	}
+
+	public void setM_Location(Double3D m_Location) {
+		this.m_Location = m_Location;
 	}
 	
 	

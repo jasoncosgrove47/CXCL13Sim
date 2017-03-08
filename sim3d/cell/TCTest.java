@@ -31,9 +31,9 @@ import sim3d.util.Vector3DHelper;
 
 public class TCTest {
 
+	
 	TC tc;
 	private Chemokine m_pParticle;
-	private Chemokine m_pParticle2;
 	private Schedule schedule = new Schedule();
 	public static Document parameters;
 	
@@ -87,8 +87,7 @@ public class TCTest {
 		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CXCL13,
 				31, 31, 31);
 		
-		m_pParticle2 = new Chemokine(schedule, Chemokine.TYPE.EBI2L,
-				31, 31, 31);
+
 
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
 				31);
@@ -153,7 +152,7 @@ public class TCTest {
 		// generate some coordinates and register collisions
 		TC tc = new TC();
 		Double3D loc1 = new Double3D(5, 5, 5);
-		Double3D loc2 = new Double3D(6, 6, 6);
+
 
 	
 		tc.getM_d3aMovements().add(loc1);
@@ -278,8 +277,7 @@ public class TCTest {
 	}
 
 	/**
-	 * Assert that calculate SNew returns a non-zero output TODO need to make
-	 * sure that the correct data is being returned
+	 * Assert that calculate SNew returns a non-zero output 
 	 */
 	@Test
 	public void testCalculateSNew() {
@@ -299,7 +297,6 @@ public class TCTest {
 
 	/**
 	 * Assert that calculate FindClosestPointsBetween returns a non-zero output
-	 * TODO need to make sure that the correct data is being returned.
 	 */
 	@Test
 	public void testFindClosestPointsBetween() {
@@ -489,6 +486,10 @@ public class TCTest {
 		assertEquals(totalReceptorSim, totalReceptorParams);// why is this
 															// condition here?
 	}
+
+
+
+
 
 }
 

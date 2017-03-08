@@ -22,11 +22,6 @@ public class Algorithm2 implements MigrationAlgorithm {
 	 * (M_d3aMovements). In this method we perform those movements subject to
 	 * there being free space available
 	 * 
-	 * 
-	 * 
-	 * TODO need to override some of the methods so we can look
-	 * at just one chemokine in isolation
-	 * 
 	 * @param lymphocyte
 	 */
 	public void performSavedMovements(Lymphocyte lymphocyte) {
@@ -135,8 +130,6 @@ public class Algorithm2 implements MigrationAlgorithm {
 
 		double CXCR5signalling = bc.getM_receptorMap().get(Receptor.CXCR5).get(0);
 		double EBI2signalling = bc.getM_receptorMap().get(Receptor.EBI2).get(0);
-
-	
 		
 		double receptorsSignalling = CXCR5signalling + EBI2signalling;
 		
@@ -144,36 +137,15 @@ public class Algorithm2 implements MigrationAlgorithm {
 		double percentageSignalling = receptorsSignalling / Settings.BC.ODE.Rf;
 
 		double speedScalar = 0;
-
-		
-		//System.out.println("percentageSignalling is " + percentageSignalling);
 		
 		if (percentageSignalling > 0) {
 
 			//need to constain speed scalar between 0 and 1
 			speedScalar = (percentageSignalling * Settings.BC.SPEED_SCALAR);
 
-			//System.out.println("percentageSignalling:" + percentageSignalling);
-			//System.out.println("speedScalar:" + speedScalar);
 		}
 		
-		
-		//double speedScalar = (Math.log(Settings.BC.RANDOM_POLARITY / persistence))
-		//		/ Settings.BC.SPEED_SCALAR;
-
 		double travelDistance = Settings.BC.TRAVEL_DISTANCE();
-
-		// TODO we stopped adding noise if i recall so look into getting rid of
-		// this term!
-		// lets make travelDistance a gaussian for a better fit
-		// and constrain it so it cant give a value less than zero
-		//do {
-		//	travelDistance = Settings.RNG.nextGaussian() * Settings.BC.TRAVEL_DISTANCE_SD
-		//			+ Settings.BC.TRAVEL_DISTANCE();
-
-			// only sample within oneSD
-		//} while (travelDistance <= 0);// must be greater than zero
-
 		
 		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
 
@@ -340,11 +312,6 @@ public class Algorithm2 implements MigrationAlgorithm {
 				// can affect cell polarity
 				persistence = Settings.BC.POLARITY;
 
-				// Add some noise to the signal
-				//Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
-				//		Settings.BC.DIRECTION_ERROR());
-
-				
 				
 				Double3D newdirection = vMovement.normalize();
 				// scale the new vector with respect to the old vector,
@@ -394,7 +361,6 @@ public class Algorithm2 implements MigrationAlgorithm {
 
 			newdirection = newdirection.multiply(persistence);
 
-			//TODO need to delete these lines of code 
 	
 			
 			// update the direction that the cell is facing
@@ -407,6 +373,7 @@ public class Algorithm2 implements MigrationAlgorithm {
 				vMovement = vMovement.normalize();
 			}
 		}
+		
 		// update the migration data
 		updateMigrationData(lymphocyte, vMovement, vectorMagnitude, persistence);
 	}

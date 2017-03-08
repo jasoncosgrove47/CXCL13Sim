@@ -21,12 +21,7 @@ public class Algorithm1 implements MigrationAlgorithm {
 	 * At each timestep, a lymphocyte stores its putative movements in an array
 	 * (M_d3aMovements). In this method we perform those movements subject to
 	 * there being free space available
-	 * 
-	 * 
-	 * 
-	 * TODO need to override some of the methods so we can look
-	 * at just one chemokine in isolation
-	 * 
+	 *  
 	 * @param lymphocyte
 	 */
 	public void performSavedMovements(Lymphocyte lymphocyte) {
@@ -134,9 +129,6 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 		double CXCR5signalling = bc.getM_receptorMap().get(Receptor.CXCR5).get(0);
 
-
-	
-		
 		double receptorsSignalling = CXCR5signalling ;
 		
 		//the Rf remains the same for ecah so dont need to do an individual scalar for each
@@ -145,30 +137,14 @@ public class Algorithm1 implements MigrationAlgorithm {
 		double speedScalar = 0;
 
 		
-		//System.out.println("percentageSignalling is " + percentageSignalling);
-		
 		if (percentageSignalling > 0) {
 
 			//need to constain speed scalar between 0 and 1
 			speedScalar = (percentageSignalling * Settings.BC.SPEED_SCALAR);
-
 		}
 		
 
-
 		double travelDistance = Settings.BC.TRAVEL_DISTANCE();
-
-		// TODO we stopped adding noise if i recall so look into getting rid of
-		// this term!
-		// lets make travelDistance a gaussian for a better fit
-		// and constrain it so it cant give a value less than zero
-		//do {
-		//	travelDistance = Settings.RNG.nextGaussian() * Settings.BC.TRAVEL_DISTANCE_SD
-		//			+ Settings.BC.TRAVEL_DISTANCE();
-
-			// only sample within oneSD
-		//} while (travelDistance <= 0);// must be greater than zero
-
 		
 		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
 
@@ -301,17 +277,10 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
-
 				
 				// if there's sufficient directional bias
 				// can affect cell polarity
 				persistence = Settings.BC.POLARITY;
-
-				// Add some noise to the signal
-				//Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
-				//		Settings.BC.DIRECTION_ERROR());
-
-				
 				
 				Double3D newdirection = vMovement.normalize();
 				// scale the new vector with respect to the old vector,
@@ -322,8 +291,6 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 				// update the direction that the cell is facing
 				vMovement = lymphocyte.getM_d3Face().add(newdirection);
-
-		
 
 				// normalise the vector
 				if (vMovement.lengthSq() > 0) {
@@ -341,34 +308,24 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 		if (vMovement == null || vMovement.lengthSq() == 0) {
 			// no data! so do a random turn
-
 			// was just used to set speed so need to redefine this function...
 			// speaking of which this should be in the model documentation
 
-			
 			persistence = Settings.BC.RANDOM_POLARITY;
 
 			// lets try the new way
 			Double3D newdirection = Vector3DHelper.getRandomDirectionInCone(lymphocyte.getM_d3Face(),
 					Settings.BC.MAX_TURN_ANGLE());
 
-			
-		
 			// we need to scale this new direction or it will assume the old one
 			// is equal we were really forcing the new vector such that there was really
 			// no previous directional bias and perhaps more of a gas like
 			// diffusion??
-
 			newdirection = newdirection.multiply(persistence);
-
-			//TODO need to delete these lines of code 
-	
 			
 			// update the direction that the cell is facing
 			vMovement = lymphocyte.getM_d3Face().add(newdirection);
 
-			
-			
 			// normalise the vector
 			if (vMovement.lengthSq() > 0) {
 				vMovement = vMovement.normalize();

@@ -26,7 +26,6 @@ import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
-import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.migration.Algorithm1;
@@ -182,9 +181,8 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	}
 
 	/**
-	 * @return the ENUM representing the type of Collidable this cell is (BC)
+	 * @return the ENUM representing the type of Collidable this cell is
 	 * 
-	 *TODO this method shouldnt be necessary here should just overwrite in BC
 	 */
 	@Override
 	public CLASS getCollisionClass() {
@@ -192,8 +190,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	}
 
 	/**
-	 * TODO this method shouldnt be necessary here should just overwrite in BC
-	 * (non-Javadoc)
 	 * @see sim3d.cell.DrawableCell3D#getDrawEnvironment()
 	 */
 	@Override
@@ -218,7 +214,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 */
 	@Override
 	public void migrate(MigrationAlgorithm algorithm) {
-		// TODO Auto-generated method stub
 		algorithm.performMigration(this);
 	}
 	
@@ -298,9 +293,9 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		// don't let a b cell collide more than collisionThreshold times
 		// otherwise you get in an infinite loop where a B cell continues
 		// bouncing indefinitely
-		int collisionThreshold = 50;
+		int iCollisionThreshold = 50;
 		if (getM_i3lCollisionPoints().size() == 0
-				|| getCollisionCounter() > collisionThreshold) {
+				|| getCollisionCounter() > iCollisionThreshold) {
 			return;
 		}
 
@@ -327,6 +322,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 
 				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
 					iCollisionMovement = getM_d3aMovements().size() - 1;
+					//iCollisionMovement = Math.max(0, getM_d3aMovements().size() - 1);
 					bCollision = true;
 				}
 				break;
@@ -337,13 +333,19 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				// where they have collided. 
 				if (collideStromaNode((Stroma) cCell, iCollisionMovement)) {
 					
+					//TODO this should never be -1, so need to add an additional check
 					iCollisionMovement = getM_d3aMovements().size() - 1;
+					//iCollisionMovement = Math.max(0, getM_d3aMovements().size() - 1);
+					
+					
 					bCollision = true;
-				
 				}
 				break;
 
 			case LYMPHOCYTE:
+				break;
+			case BRANCH:
+			default:
 				break;
 			}
 		}
@@ -431,7 +433,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		
 		}
 		
-	
 		return hasCollided;
 	}
 	
@@ -464,15 +465,17 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
     }
 	
     
+    
     /**
      * Given a point p1 on a line q1-q2 return the proportion of the distance from
      * q1-p1 to the distance from q1-12
      */
     private static double proportionAlongVector(Double3D p1, Double3D q1, Double3D q2){
-    	double lengthOfLine = SimulationEnvironment.calcDistance(q1,q2);
-    	double distToClosestPoint = SimulationEnvironment.calcDistance(q1,p1);
-    	return distToClosestPoint/lengthOfLine;
     	
+    	double lengthOfLine = q1.distance(q2);
+    	double distToClosestPoint = q1.distance(p1);
+    	return distToClosestPoint/lengthOfLine;
+ 
     }
     
 	/*
@@ -759,7 +762,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 * Helper Method to update movement after a collision occurs update the B
 	 * cells m_d3aMovements
 	 * 
-	 * TODO Need to say what the different inputs actually are....
 	 * 
 	 * d1 = the values to add to the current location to move it
 	 * d2 = Q2 - P2
@@ -1039,8 +1041,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 
 	/*
 	 * Helper method which handles collisions between a B cell and the
-	 * simulation borders along the Y-axis. TODO THIS SHOULD ACCOUNT FOR THE 
-	 * LECS ALSO needs to be a parameter
+	 * simulation borders along the Y-axis.
 	 */
 	
 	private boolean handleBounceYaxis(double dPosY, int iMovementIndex) {
@@ -1066,6 +1067,12 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 			if (dTempPosY + d3Movement.y < 1
 					//TODO this needs to be set to the SCS height , wherever you see a 3
 					|| dTempPosY + d3Movement.y > Settings.HEIGHT- (Settings.bRC.SCSDEPTH)) {
+				
+				//if (dTempPosY + d3Movement.y < 1
+						//TODO this needs to be set to the SCS height , wherever you see a 3
+					//	|| dTempPosY + d3Movement.y > Settings.HEIGHT) {
+				
+				
 				// Figure out at which point it goes out
 				double dCutOff = 1;
 				if (dTempPosY + d3Movement.y < 1) {
@@ -1073,6 +1080,9 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				} else {
 					dCutOff = ((Settings.HEIGHT- (Settings.bRC.SCSDEPTH) ) - dTempPosY) //
 							/ d3Movement.y;
+					
+					//dCutOff = (Settings.HEIGHT - dTempPosY) //
+						//	/ d3Movement.y;
 				}
 
 				// Create 2 new vectors split at the cutoff point, the

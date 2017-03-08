@@ -55,6 +55,7 @@ public class SimulationEnvironmentTest {
 	public void testNetworkGenerationForZeroLengthEdges(){
 		
 		
+
 		Document parameters;
 		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
@@ -71,7 +72,7 @@ public class SimulationEnvironmentTest {
 					Double3D p1 = ((StromaEdge) stroma.get(i)).getPoint1();
 					Double3D p2 = ((StromaEdge) stroma.get(i)).getPoint2();
 					
-					if(p1.equals(p2)){	
+					if(p1.distance(p2) < Settings.DOUBLE3D_PRECISION){	
 						anyNodesHaveLengthZero = true;
 						System.out.println("edge type: " + ((StromaEdge)stroma.get(i)).getStromaedgetype());
 					}
@@ -85,6 +86,7 @@ public class SimulationEnvironmentTest {
 	
 	@Test
 	public void testNetworkGenerationForRepeatNodes(){
+		
 		
 		Document parameters;
 		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";

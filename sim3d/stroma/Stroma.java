@@ -79,8 +79,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	private int m_antigenLevel;
 	
 	
-	private Double3D m_location;
-	
 	
 	//the index used for the adjacency matriz
 	private int m_index;
@@ -145,7 +143,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		this.setM_Edges(new LinkedHashSet<StromaEdge>());
 		this.setM_Nodes(new LinkedHashSet<Stroma>());
 		
-		this.m_location = loc;
+		this.setM_Location(loc);
 		
 		this.setStromatype(type);
 		
@@ -312,6 +310,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	}
 
 	
+	
 	public static boolean AreStromaNodesConnected(Stroma n1, Stroma n2){
 		//if there is an edge between them then they are connected
 		for(StromaEdge se : n1.getM_Edges()){
@@ -406,14 +405,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 	public void setCellsCollidedWith(ArrayList<Integer> cellsCollidedWith) {
 		this.cellsCollidedWith = cellsCollidedWith;
-	}
-
-	public Double3D getM_location() {
-		return m_location;
-	}
-
-	public void setM_location(Double3D m_location) {
-		this.m_location = m_location;
 	}
 
 	public static ArrayList<Stroma> getNodeinformation() {

@@ -1,6 +1,5 @@
 package sim3d.diffusion.algorithms;
 
-import sim3d.Settings;
 import sim3d.diffusion.Chemokine;
 
 import java.util.concurrent.ExecutorService;
@@ -292,8 +291,7 @@ public class DiffusionAlgorithmMultiThread
 				for ( int z = iStartZ; z < iDepth; z++ )
 				{
 					// We now diffuse from this grid space outwards
-					
-					int iCount = 0;
+
 					for ( int r = -1; r < 2; r++ )
 					{
 						for ( int s = -1; s < 2; s++ )
@@ -313,8 +311,8 @@ public class DiffusionAlgorithmMultiThread
 								
 								// Keep track of how many particles we've
 								// diffused
-								iCount += (int) (m_adDiffusionCoefficients[r + 1][s + 1][t + 1]
-										* (ia3Concentrations[x][y][z]));
+								//iCount += (int) (m_adDiffusionCoefficients[r + 1][s + 1][t + 1]
+								//		* (ia3Concentrations[x][y][z]));
 							}
 						}
 					}

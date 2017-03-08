@@ -148,7 +148,6 @@ public class Algorithm2Test {
 	
 	/**
 	 * Test that calculateWhereToMoveNext can update the m_d3aMovements array.
-	 * TODO this test could definitely be refined
 	 */
 	@Test
 	public void testCalculateWhereToMoveNext() {
@@ -188,7 +187,6 @@ public class Algorithm2Test {
 	 * Test that getLigandBinding can detect chemokine Integration tests to
 	 * ensure that the method can detect gradients
 	 * 
-	 * TODO refine
 	 * 
 	 * we can calculate how much chemokine is in the surrounding gridspaces
 	 * and make sure that the results reflect that

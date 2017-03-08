@@ -91,11 +91,12 @@ public class cognateBC extends BC {
 	}
 	
 	
+	
 	/**
 	 * Updates the cells surface receptor levels in Controller
 	 */
 	void updateReceptors() {
-		//TODO need to check that this is actually Rfree		
+	
 		receptors.add(this.getM_Rf(Lymphocyte.Receptor.CXCR5));
 		
 		Controller.getInstance().getReceptors()
@@ -128,7 +129,7 @@ public class cognateBC extends BC {
 
 	/**
 	 * Handles collisions between stroma and cognate B cells Might be able to
-	 * refactor TODO Need more comments
+	 * refactor 
 	 */
 	@Override
 	public void handleCollisions(CollisionGrid cgGrid) {
@@ -187,7 +188,7 @@ public class cognateBC extends BC {
 			}
 				break;
 
-				//TODO get rid of branches altogether. 
+			
 			case BRANCH:
 
 	

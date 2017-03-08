@@ -61,6 +61,15 @@ public class Settings {
 	}
 
 	/*
+	 * due to floating point inaccuracies you cant directly
+	 * compare double3Ds so we set a threshold here for use
+	 * throughout the simulation
+	 */
+	public static double DOUBLE3D_PRECISION = 0.01;
+	
+	
+	
+	/*
 	 * the number of cores to use for diffusion
 	 */
 	public static int NUM_THREADS;

@@ -1,18 +1,9 @@
 package sim3d;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.w3c.dom.Document;
-
 import dataLogger.Controller;
-import dataLogger.ProcessData;
 import dataLogger.outputToCSV;
 import sim.engine.*;
 import sim.util.*;
@@ -23,10 +14,7 @@ import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
 import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
-import sim3d.util.FollicleInitialiser;
-import sim3d.util.ParseStromaLocations;
-import sim3d.util.StromaGenerator;
-import sim3d.util.StromaGenerator.StromalCell;
+
 
 /**
  * This class sets up and runs the simulation absent of any GUI related function
@@ -45,8 +33,6 @@ public class SimulationEnvironment extends SimState {
 	 * this is the size of the FDC network
 	 */
 	public static int fdcNetRadius = 15;
-	
-
 	
 	private static final long serialVersionUID = 1;
 
@@ -86,17 +72,14 @@ public class SimulationEnvironment extends SimState {
 	public static Continuous3D brcEnvironment;
 	public static Continuous3D mrcEnvironment;
 
-
-	
 	/**
 	 * Instance of the CXCL13 class
 	 */
 	public static Chemokine CXCL13;
 	
 	
-	
 	/**
-	 * Instance of the CXCL13 class
+	 * Instance of the EBI2 class
 	 */
 	//public static Chemokine EBI2L;
 
@@ -115,9 +98,6 @@ public class SimulationEnvironment extends SimState {
 	public TYPE celltype;
 	
 
-
-	
-	
 	/**
 	 * Constructor for the simulation environment
 	 * 
@@ -166,7 +146,6 @@ public class SimulationEnvironment extends SimState {
 
 	}
 	
-
 	/**
 	 * Setter for the current display level
 	 */
@@ -185,8 +164,6 @@ public class SimulationEnvironment extends SimState {
 		
 	}
 
-	
-	
 	/**
 	 * Override this method for stroma as they need to be later in the schedule than
 	 * lymphocytes because they secrete chemokine, Otherwise you can get some
@@ -196,7 +173,6 @@ public class SimulationEnvironment extends SimState {
 	public static void scheduleStoppableCell(Stroma cell) {
 		cell.setStopper(simulation.schedule.scheduleRepeating((Steppable) cell, 2, 1));	
 	}
-	
 	
 	/**
 	 * Override this method for stroma as they need to be later in the schedule than
@@ -216,9 +192,6 @@ public class SimulationEnvironment extends SimState {
 		// start the simulation
 		super.start();
 		
-
-
-		
 		// Initialise the stromal grid
 		fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
 				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
@@ -229,7 +202,6 @@ public class SimulationEnvironment extends SimState {
 		brcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
 				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
 		
-
 		// Initialise the B cell grid
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION,
 				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
@@ -239,21 +211,14 @@ public class SimulationEnvironment extends SimState {
 		CXCL13 = new Chemokine(schedule, Chemokine.TYPE.CXCL13, Settings.WIDTH,
 				Settings.HEIGHT, Settings.DEPTH);
 		
-
-
 		// Initialise the CollisionGrid
 		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH,
 				Settings.HEIGHT, Settings.DEPTH, 1);
-		schedule.scheduleRepeating(cgGrid, 3, 1); //TODO does this mean that this is scheduled last? surely it should be one of the first things
+		schedule.scheduleRepeating(cgGrid, 3, 1); 
 
-	
-	
-		
+		//intialise the follicleEnvironment
 		FollicleInitialiser.initialiseFollicle(cgGrid);
-		
-		
-	
-		
+				
 		// BCs will need to update their collision profile each
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
@@ -263,13 +228,10 @@ public class SimulationEnvironment extends SimState {
 		seedCells(CELLTYPE.cB);
 
 		///this should throw an error now because we dont have a useful index
-		
 		int[][] a_matrix = Controller.generateAdjacencyMatrix();
 		a_matrix = Controller.updateAdjacencyMatrix(a_matrix);
-		//a_matrix = Controller.updateAdjacencyMatrixForFDCs(a_matrix);
-		//a_matrix = Controller.updateAdjacencyForBranchConnections(a_matrix);
-
-		
+		//a_matrix = Controller.updateFDCsWithAssumption(a_matrix);
+		//a_matrix = Controller.updateAdjacencyMatrixFDCs(a_matrix);
 
 		//outputToCSV.writeNodeInformationToFile("/Users/jc1571/Desktop/nodeInfo.csv", Stroma.getNodeinformation());
 		outputToCSV.writeAdjacencyMatrixToFile("/Users/jc1571/Desktop/adjacency.csv", a_matrix);
@@ -277,98 +239,6 @@ public class SimulationEnvironment extends SimState {
 	}
 
 	
-
-	
-	/**
-	 * In case we evr need to just read the stroma in straight from the node data
-	 * @param cgGrid
-	 */
-	private void readInStromaFromData(CollisionGrid cgGrid){
-		
-		ArrayList<Double3D> mrcnodes = new ArrayList<Double3D>();
-		ArrayList<Double3D> fdcnodes = new ArrayList<Double3D>();
-		ArrayList<Double3D> brcnodes = new ArrayList<Double3D>();
-		
-		
-		try {
-		mrcnodes = ParseStromaLocations.readStroma("/Users/jc1571/Desktop/mrcnodes.csv");
-		fdcnodes = ParseStromaLocations.readStroma("/Users/jc1571/Desktop/fdcnodes.csv");
-		brcnodes = ParseStromaLocations.readStroma("/Users/jc1571/Desktop/brcnodes.csv");
-		
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		
-		
-		for(int i = 0 ; i < mrcnodes.size(); i ++){
-			
-			Stroma mrc = new Stroma(Stroma.TYPE.MRC, new Double3D(mrcnodes.get(i).x, mrcnodes.get(i).y, mrcnodes.get(i).z));
-			mrc.setObjectLocation(new Double3D(mrcnodes.get(i).x, mrcnodes.get(i).y, mrcnodes.get(i).z));
-			mrc.registerCollisions(cgGrid);
-			scheduleStoppableCell(mrc);
-			
-			
-		}
-		
-		for(int i = 0 ; i < fdcnodes.size(); i ++){
-			
-			Stroma fdc = new Stroma(Stroma.TYPE.FDC,new Double3D(fdcnodes.get(i).x, fdcnodes.get(i).y, fdcnodes.get(i).z));
-			fdc.setObjectLocation(new Double3D(fdcnodes.get(i).x, fdcnodes.get(i).y, fdcnodes.get(i).z));
-			fdc.registerCollisions(cgGrid);
-			scheduleStoppableCell(fdc);
-			
-		}
-		
-		for(int i = 0 ; i < brcnodes.size(); i ++){
-			
-			Stroma brc = new Stroma(Stroma.TYPE.bRC,new Double3D(brcnodes.get(i).x, brcnodes.get(i).y, brcnodes.get(i).z));
-			brc.setObjectLocation(new Double3D(brcnodes.get(i).x, brcnodes.get(i).y, brcnodes.get(i).z));
-			brc.registerCollisions(cgGrid);
-			scheduleStoppableCell(brc);	
-		}
-		
-	}
-	
-
-	/**
-	 * Fit a quadratic regression line using a set of coefficients
-	 * This is done to set the SCS if we read in the network directly
-	 * from the data. 
-	 * 
-	 * Bo = intercept
-	 * B1 = the 1st regression coefficient
-	 * B2 = the 2nd regression coefficient
-	 * 
-	 * For the moment we use the coeffs: 
-	 *  y = 9.5266687 -(0.5291553 * i) + (0.0206240* Math.pow(i, 2));
-	 */
-	private static void fitSCS(double Bo, double B1 , double B2, int xMin, int xMax){
-		
-		for(int i = xMin; i < xMax;i++){
-			
-			//these numbers were obtained by fitting a polynomial 
-			//regression (2nd order) to the X and Y coordinates
-			// of the MRCs
-			double y = Bo +(B1 * i) - (B2* Math.pow(i, 2));
-	
-			for(int j = 0; j < 10;j++){
-
-				//Stroma flec = new Stroma(Stroma.TYPE.LEC);
-				Stroma clec = new Stroma(Stroma.TYPE.LEC,new Double3D(i, y+1, j));		
-				//we add the 0.5 to the y as we dont want the LECs on the MRCs but just above them
-				clec.setObjectLocation(new Double3D(i, y+1, j));
-				//Stroma flec = new Stroma(Stroma.TYPE.LEC);
-				Stroma flec = new Stroma(Stroma.TYPE.LEC,new Double3D(i, y - 1, j));
-				//we add the 0.5 to the y as we dont want the LECs on teh MRCs but just above them
-				flec.setObjectLocation(new Double3D(i, y - 1, j));
-			}
-		}		
-	}
-	
-
 	/**
 	 * Tests whether co-ordinates x,y are in the circle centered at
 	 * circleCentreX, circleCentreY with a specified radius
@@ -448,15 +318,15 @@ public class SimulationEnvironment extends SimState {
 	Double3D generateCoordinateWithinCircle(int circleRadius) {
 
 		int x, y, z;
+		
+		// keep generating new values while they are outside of the circle
+		// the radius of the circle is 13 and it is inside this that we seed
+		// the b cells
+		
 		do {
 			x = random.nextInt(Settings.WIDTH - 2) + 1;
 			y = random.nextInt(Settings.HEIGHT - 2) + 1;
 			z = random.nextInt(Settings.DEPTH - 2) + 1;
-
-			// keep generating new values while they are outside of the circle
-			// the radius of the circle is 13 and it is inside this that we seed
-			// the b cells
-
 
 		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1,
 				(Settings.HEIGHT / 2) + 1, circleRadius) == false);
@@ -485,85 +355,54 @@ public class SimulationEnvironment extends SimState {
 	}
 	
 
+
 	
 
 
-	
-	
-	//TODO DRY: this is in the other class: should we make a generic methods class to make this cleaner...
-	public static double calcDistance(Double3D i3Point1, Double3D i3Point2) {
-		return (Math.sqrt(Math.pow(i3Point1.x - i3Point2.x, 2)
-				+ Math.pow(i3Point1.y - i3Point2.y, 2)
-				+ Math.pow(i3Point1.z - i3Point2.z, 2)));
-	}
-	
-
-
-	
+	/**
+	 * Return all objects on the 3 stroma grids
+	 * @return a bag containing all stromal cells in the sim
+	 */
 	public static Bag getAllStroma(){
 
-		
 		Bag stroma = new Bag();
 		
-		stroma.addAll(fdcEnvironment.getAllObjects());
-		//System.out.println("size is: " + stroma.size());
-		stroma.addAll(brcEnvironment.getAllObjects());
-		//System.out.println("size 2 is: " + stroma.size());
-		stroma.addAll(mrcEnvironment.getAllObjects());
-		//System.out.println("size 3 is: " + stroma.size());
+		//TODO surely there is a better way to do this???
+		if(fdcEnvironment != null){
+			stroma.addAll(fdcEnvironment.getAllObjects());
+		}
+		if(brcEnvironment != null){
+			stroma.addAll(brcEnvironment.getAllObjects());
+		}
+		if(mrcEnvironment != null){
+			stroma.addAll(mrcEnvironment.getAllObjects());
+		}
+		
 		
 		return stroma;
-		
 	}
 	
 	
-	
+	/**
+	 * Return all objects on the 3 stroma grids within a threshold distance
+	 * @return a bag containing all stromal cells in the sim
+	 */
 	public static Bag getAllStromaWithinDistance(Double3D loc, double dist){
 		
 		Bag stroma = new Bag();
 		
 		stroma.addAll(fdcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
-		//System.out.println("size is: " + stroma.size());
 		stroma.addAll(brcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
-		//System.out.println("size 2 is: " + stroma.size());
 		stroma.addAll(mrcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
-		//System.out.println("size 3 is: " + stroma.size());
-		
+
 		return stroma;
-		
 	}
+
 
 	/**
-	 * Calculate the number of dendrites in the FDC network excluding the FDC
-	 * nodes
-	 * 
-	 * @return the number of dendrites as an integer value
+	 * 	this calculates the total number of stromal cells and the edges 
+	 *  but is not a measure of theprotrusions or of the topology
 	 */
-	private int calculateTotalNumberOfDendrites() {
-
-		Bag stroma = getAllStroma();
-		int FDCcounter = 0;
-
-		// we want to count only branches and dendrites so
-		// we need to know how many FDC nodes there are
-		for (int i = 0; i < stroma.size(); i++) {
-			if (stroma.get(i) instanceof Stroma) {
-				if (((Stroma) stroma.get(i)).getStromatype() == Stroma.TYPE.FDC) {
-					FDCcounter += 1;
-				}
-			}
-		}
-
-		// subtract number of nodes to get number of edges
-		int number = stroma.size() - FDCcounter;
-		return number;
-
-	}
-	
-	
-	
-	//this calculates the total number of stromal cells and the edges but is not a measure of the
-	//protrusions or of the topology
 	public static int[] calculateNodesAndEdges(){
 		
 		int nodes = 0;
@@ -571,7 +410,6 @@ public class SimulationEnvironment extends SimState {
 		int[] output = new int[2];
 		
 		Bag stroma = getAllStroma();
-		System.out.println("bag size 2: " + stroma.size());
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof StromaEdge) {
 			
@@ -589,14 +427,10 @@ public class SimulationEnvironment extends SimState {
 		output[1] = edges;
 
 		return output;
-		
-
 	}
 	
 	
-	
-	
-	
+	@SuppressWarnings("unused")
 	private int calculateTotalNumberOfAPCs(){
 		
 		Bag stroma = getAllStroma();

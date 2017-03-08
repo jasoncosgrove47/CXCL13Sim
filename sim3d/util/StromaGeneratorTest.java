@@ -14,7 +14,7 @@ import ec.util.MersenneTwisterFast;
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.stroma.StromaEdge;
-import sim3d.util.StromaGenerator.StromalCell;
+import sim3d.util.StromaGenerator.StromalCelltemp;
 
 /**
  * @author sjj509
@@ -39,7 +39,7 @@ public class StromaGeneratorTest {
 	 */
 	@Test
 	public void testEdgeLength() {
-		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
+		ArrayList<StromalCelltemp> d3lCellLocations = new ArrayList<StromalCelltemp>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
 		StromaGenerator.generateStroma3D_Updated(100, 100, 100, 10000,
 				d3lCellLocations, selEdges);
@@ -73,7 +73,7 @@ public class StromaGeneratorTest {
 	 */
 	@Test
 	public void testEdgeCount() {
-		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
+		ArrayList<StromalCelltemp> d3lCellLocations = new ArrayList<StromalCelltemp>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
 		StromaGenerator.generateStroma3D_Updated(100, 100, 100, 10000,
 				d3lCellLocations, selEdges);
@@ -81,7 +81,7 @@ public class StromaGeneratorTest {
 		int iCellCount = 0;
 		int iEdgeCount = 0;
 
-		for (StromalCell frcCell : d3lCellLocations) {
+		for (StromalCelltemp frcCell : d3lCellLocations) {
 			iCellCount++;
 			iEdgeCount += frcCell.m_iEdges;
 			
@@ -104,7 +104,7 @@ public class StromaGeneratorTest {
 	@Test
 	public void testCellCount() {
 		
-		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
+		ArrayList<StromalCelltemp> d3lCellLocations = new ArrayList<StromalCelltemp>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
 		StromaGenerator.generateStroma3D_Updated(50, 50, 5, 350, d3lCellLocations,
 				selEdges);
@@ -121,7 +121,7 @@ public class StromaGeneratorTest {
 	@Test
 	public void testStroma2D() {
 
-		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
+		ArrayList<StromalCelltemp> d3lCellLocations = new ArrayList<StromalCelltemp>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
 		StromaGenerator.generateStroma3D_Updated(50, 50, 1, 10, d3lCellLocations,
 				selEdges);

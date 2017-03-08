@@ -8,18 +8,82 @@ import javax.media.j3d.TransformGroup;
 
 import org.junit.Test;
 
+import sim.util.Bag;
 import sim.util.Double3D;
 
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.cell.BC;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
+import sim3d.util.IO;
 
 public class StromaEdgeTest {
 
 	
 	
 
+	/**
+	 * We need to make sure that all stromaEdges location
+	 * is equal to point 1 and also need to check that point 2
+	 * corresponds to p1 + edge vector, would also like to 
+	 * check that the midpoint is correct
+	 */
+	@Test
+	public void testSetObjectLocation(){
+		
+		//i think this is worth testing as an integratino test
+		long steps = 0;
+		long seed = System.currentTimeMillis();
+		SimulationEnvironment.simulation= new SimulationEnvironment(
+				seed,
+				IO.openXMLFile("/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml"));
+
+		
+
+		// set the appropriate parameters
+		Settings.BC.COUNT = 0;
+		Settings.BC.COGNATECOUNT = 100;
+		SimulationEnvironment.steadyStateReached = true;
+		Settings.EXPERIMENTLENGTH = 400;
+		SimulationEnvironment.simulation.start();
+		
+
+		// run the simulation for 400 steps
+		do {
+			steps = SimulationEnvironment.simulation.schedule.getSteps();
+			if (!SimulationEnvironment.simulation.schedule.step(SimulationEnvironment.simulation))
+				break;
+		} while (steps < 10);
+		
+		
+		boolean correctLocation = true;
+		
+		Bag stroma= SimulationEnvironment.getAllStroma();
+		
+		
+		//check that for each stromaedge the location is 
+		// set to point 1
+		for (int i = 0; i < stroma.size(); i ++){
+			if(stroma.get(i) instanceof StromaEdge){
+				
+				StromaEdge se = (StromaEdge) stroma.get(i);
+				if(se.getPoint1().distance(se.getM_Location()) > 0.1){//if they arent in the same place then
+					// update to false
+					correctLocation = false;
+					
+					break;
+				}
+			}
+			
+			
+		}
+		
+		assertTrue(correctLocation);
+		
+	}
+	
+	
 	
 	
 	/**

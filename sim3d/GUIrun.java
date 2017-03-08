@@ -8,7 +8,6 @@ import sim.display.*;
 import sim.display3d.Display3D;
 import sim3d.cell.BC;
 import sim3d.diffusion.Chemokine;
-import sim3d.stroma.Stroma;
 import sim3d.util.IO;
 
 import java.awt.Color;

@@ -3,14 +3,8 @@ package dataLogger;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import sim.util.Bag;
 import sim.util.Double3D;
-import sim3d.SimulationEnvironment;
-import sim3d.stroma.Stroma;
-import sim3d.stroma.StromaEdge;
+
 import sim3d.util.Vector3DHelper;
 
 public class ProcessData {

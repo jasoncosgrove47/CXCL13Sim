@@ -24,7 +24,7 @@ import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 import sim3d.diffusion.Chemokine;
 import sim3d.util.StromaGenerator;
-import sim3d.util.StromaGenerator.StromalCell;
+import sim3d.util.StromaGenerator.StromalCelltemp;
 
 public class StromaTest {
 
@@ -54,7 +54,7 @@ public class StromaTest {
 		StromaEdge fdcbranch = new StromaEdge(new Double3D(0,0,0),new Double3D(0,0,0), StromaEdge.TYPE.FDC_edge);
 		assertThat(fdcbranch.getAntigenLevel(), greaterThan(0));
 		
-		ArrayList<StromalCell> d3lCellLocations = new ArrayList<StromalCell>();
+		ArrayList<StromalCelltemp> d3lCellLocations = new ArrayList<StromalCelltemp>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
 		
 		
@@ -78,16 +78,18 @@ public class StromaTest {
 	 */
 	@Test
 	public void isStatic() {
+		
+		Double3D loc = new Double3D(0,0,0);
 
-		Stroma frc = new Stroma(Stroma.TYPE.bRC);
+		Stroma frc = new Stroma(Stroma.TYPE.bRC,loc);
 		assertTrue(frc.isStatic());
-		Stroma mrc = new Stroma(Stroma.TYPE.MRC);
+		Stroma mrc = new Stroma(Stroma.TYPE.MRC,loc);
 		assertTrue(mrc.isStatic());
-		Stroma lec = new Stroma(Stroma.TYPE.LEC);
+		Stroma lec = new Stroma(Stroma.TYPE.LEC,loc);
 		assertTrue(lec.isStatic());
 		
 		
-		Stroma fdc = new Stroma(Stroma.TYPE.FDC);
+		Stroma fdc = new Stroma(Stroma.TYPE.FDC,loc);
 		assertTrue(fdc.isStatic());
 
 	}
@@ -98,7 +100,7 @@ public class StromaTest {
 	@Test
 	public void canLoseAntigen() {
 
-		ArrayList<StromalCell> d3lCellLocations2 = new ArrayList<StromalCell>();
+		ArrayList<StromalCelltemp> d3lCellLocations2 = new ArrayList<StromalCelltemp>();
 		ArrayList<StromaEdge> selEdges2 = new ArrayList<StromaEdge>();
 
 		Settings.FDC.STARTINGANTIGENLEVEL = 100;
@@ -120,7 +122,8 @@ public class StromaTest {
 	 */
 	@Test
 	public void testGetModel() {
-		Stroma c = new Stroma(Stroma.TYPE.FDC);
+		Double3D loc = new Double3D(0,0,0);
+		Stroma c = new Stroma(Stroma.TYPE.FDC,loc);
 		TransformGroup localTG = c.getModel(c, null);
 		assertTrue(localTG instanceof TransformGroup);
 	}
@@ -131,25 +134,27 @@ public class StromaTest {
 	@Test
 	public void testRegisterCollisions() {
 
+		Double3D loc = new Double3D(0,0,0);
+		
 		Settings.FDC.STROMA_NODE_RADIUS = 1;
 
 		CollisionGrid cgGrid_fdc = new CollisionGrid(31, 31, 31, 1);
-		Stroma fdc = new Stroma(Stroma.TYPE.FDC);
+		Stroma fdc = new Stroma(Stroma.TYPE.FDC,loc);
 		fdc.registerCollisions(cgGrid_fdc);
 		assertEquals(true, cgGrid_fdc.getM_i3lCollisionPoints().size() > 0);
 		
 		CollisionGrid cgGrid_frc = new CollisionGrid(31, 31, 31, 1);
-		Stroma frc = new Stroma(Stroma.TYPE.bRC);
+		Stroma frc = new Stroma(Stroma.TYPE.bRC,loc);
 		frc.registerCollisions(cgGrid_frc);
 		assertEquals(true, cgGrid_frc.getM_i3lCollisionPoints().size() > 0);
 		
 		CollisionGrid cgGrid_mrc = new CollisionGrid(31, 31, 31, 1);
-		Stroma mrc = new Stroma(Stroma.TYPE.FDC);
+		Stroma mrc = new Stroma(Stroma.TYPE.FDC,loc);
 		mrc.registerCollisions(cgGrid_mrc);
 		assertEquals(true, cgGrid_mrc.getM_i3lCollisionPoints().size() > 0);
 		
 		CollisionGrid cgGrid_lec = new CollisionGrid(31, 31, 31, 1);
-		Stroma lec = new Stroma(Stroma.TYPE.FDC);
+		Stroma lec = new Stroma(Stroma.TYPE.FDC,loc);
 		lec.registerCollisions(cgGrid_lec);
 		assertEquals(true, cgGrid_lec.getM_i3lCollisionPoints().size() > 0);
 	}
@@ -163,6 +168,8 @@ public class StromaTest {
 	@Test
 	public void testCXCL13SECRETING() {
 
+		Double3D loc = new Double3D(0,0,0);
+		
 		// initialise the system
 		Schedule schedule = new Schedule();
 		Continuous3D fdcEnvironment = new Continuous3D(
@@ -171,7 +178,7 @@ public class StromaTest {
 		Chemokine m_pParticle = new Chemokine(schedule,
 				Chemokine.TYPE.CXCL13, 60, 60, 10);
 		Settings.FDC.CXCL13_EMITTED = 100;
-		Stroma fdc = new Stroma(Stroma.TYPE.FDC);
+		Stroma fdc = new Stroma(Stroma.TYPE.FDC,loc);
 		fdc.setObjectLocation(new Double3D(15, 15, 5));
 
 		// assert that there is currently no chemokine on the grid
@@ -201,13 +208,16 @@ public class StromaTest {
 	 */
 	@Test
 	public void testGetCollisionClass() {
-		Stroma fdc = new Stroma(Stroma.TYPE.FDC);
+		
+		Double3D loc = new Double3D(0,0,0);
+		
+		Stroma fdc = new Stroma(Stroma.TYPE.FDC,loc);
 		assertEquals(fdc.getCollisionClass(), CLASS.STROMA);
 		
-		Stroma frc = new Stroma(Stroma.TYPE.bRC);
+		Stroma frc = new Stroma(Stroma.TYPE.bRC,loc);
 		assertEquals(frc.getCollisionClass(), CLASS.STROMA);
 		
-		Stroma mrc = new Stroma(Stroma.TYPE.MRC);
+		Stroma mrc = new Stroma(Stroma.TYPE.MRC,loc);
 		assertEquals(mrc.getCollisionClass(), CLASS.STROMA);
 		
 		Double3D d1 = new Double3D(0,0,0);

@@ -34,7 +34,6 @@ public class BCTest {
 	BC bc = new BC();
 	private Schedule schedule = new Schedule();
 	private Chemokine m_pParticle;
-	private Chemokine m_pParticle2;
 	public static Document parameters;
 
 	/**
@@ -85,7 +84,7 @@ public class BCTest {
 				31, 31, 31);
 		
 		
-		m_pParticle2 = new Chemokine(schedule, Chemokine.TYPE.EBI2L,
+		new Chemokine(schedule, Chemokine.TYPE.EBI2L,
 				31, 31, 31);
 
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
@@ -173,7 +172,6 @@ public class BCTest {
 		// generate some coordinates and register collisions
 		BC bc = new BC();
 		Double3D loc1 = new Double3D(5, 5, 5);
-		Double3D loc2 = new Double3D(6, 6, 6);
 
 	
 		bc.getM_d3aMovements().add(loc1);

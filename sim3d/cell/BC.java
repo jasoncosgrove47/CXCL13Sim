@@ -24,9 +24,6 @@ public class BC extends Lymphocyte{
 	private static final long serialVersionUID = 1L;
 
 	
-	//TODO i really dont like this bit of code, need to refactor properly
-	//public static boolean multipleChemokines = true;
-	
 	/*
 	 * This is the algorithm which controls BC migration
 	 */
@@ -39,7 +36,6 @@ public class BC extends Lymphocyte{
 	 * collision grid handles the movement at the next iteration the B cells are
 	 * moved. B cells only collide with stroma
 	 */
-	
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
@@ -48,13 +44,6 @@ public class BC extends Lymphocyte{
 		
 	}
 
-	//public static boolean isMultipleChemokines() {
-	//	return multipleChemokines;
-	//}
-
-	//public static void setMultipleChemokines(boolean multipleChemokines) {
-		//BC.multipleChemokines = multipleChemokines;
-	//}
 
 	
 

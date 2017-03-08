@@ -104,6 +104,7 @@ public class TC extends Lymphocyte{
 					}
 			
 				
+				
 			    Map<String, Shape3D> nameMap = scene.getNamedObjects(); 
 
 			   // for (String name : nameMap.keySet()) {

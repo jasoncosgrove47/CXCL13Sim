@@ -78,6 +78,7 @@ public class BCIntegrationTests {
 				31, 31, 31);
 	
 		
+		
 
 		// initialise the BC environment
 		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
