@@ -229,7 +229,35 @@ public class FollicleInitialiserTest {
 		assertFalse(anyNodesHaveZeroNodeConnections);
 	}
 
+		//cells should not be connected to LECs
+	@Test
+	public void checkForLECConnections(){
 		
+		SimulationEnvironment.simulation.start();
+
+		boolean lecConnections = false;
+		
+		Bag stroma = SimulationEnvironment.getAllStroma();
+		for (int i = 0; i < stroma.size(); i++) {
+			if (stroma.get(i) instanceof Stroma) {
+				
+	
+				Stroma sc = (Stroma) stroma.get(i);
+				//on occastions the MRCs dont connect to anything so omit them from this
+				// test case
+				if(sc.getStromatype() != Stroma.TYPE.LEC ){
+					
+					for(Stroma sc2 : sc.getM_Nodes()){
+						if(sc2.getStromatype() == Stroma.TYPE.LEC){
+							lecConnections = true;
+							break;
+						}	
+					}	
+				}	
+			}	
+		}
+		assertFalse(lecConnections);
+	}
 	
 
 }

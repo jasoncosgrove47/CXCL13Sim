@@ -171,11 +171,18 @@ public class Controller implements Steppable {
 
 					//don't add any self connections
 					
-					
+					//there should be no LECs in the node list, must be MRCs.
 					for(Stroma stromalcell : sc.getM_Nodes()){
 						
 						if(!stromalcell.equals(sc)){
 						
+							
+							if(sc.getM_index() == 0 ||stromalcell.getM_index() == 0  ){
+								System.out.println("type of stroma1 is: " + sc.getStromatype());
+								System.out.println("why do some nodes have index = 0?");
+								System.out.println("type of stroma2 is: " + stromalcell.getStromatype());
+							}
+							
 						adjacencyMatrix[sc.getM_index()][stromalcell.getM_index()] = 1;
 						adjacencyMatrix[stromalcell.getM_index()][sc.getM_index()] = 1;
 						}

@@ -172,7 +172,8 @@ public final class FollicleInitialiser {
 			Stroma neighbour = getNodeAtLocation(sc.getDrawEnvironment(),newloc);
 			
 			//are there any nodes associated with this newloc, update the relevant arrays
-			if(neighbour != null){
+			//sometimes we pick up an LEC on the way
+			if(neighbour != null && neighbour.getStromatype() != Stroma.TYPE.LEC){
 				//if there is a stromal cell at this location
 				if(!sc.getM_Nodes().contains(neighbour)){
 					sc.getM_Nodes().add(neighbour);
@@ -259,10 +260,10 @@ public final class FollicleInitialiser {
 		
 		for (StromaGenerator.StromalCelltemp sc : stromalCellLocations) {	
 			
-			seedStromaNode(sc, cgGrid, sealEdges);
+			//seedStromaNode(sc, cgGrid, sealEdges);
 			
 	
-			/*
+			
 			if(sc.m_type == Stroma.TYPE.FDC){
 				double threshold = 0.6;
 				placeFDCStochastically(threshold,sc,cgGrid,sealEdges);
@@ -270,7 +271,7 @@ public final class FollicleInitialiser {
 			else{
 			seedStromaNode(sc, cgGrid, sealEdges);
 			}
-			*/
+		
 	
 		
 		}
