@@ -71,6 +71,7 @@ public class Controller implements Steppable {
 	 */
 	private int experimentTimer = 0;
 
+	
 	/*
 	 * The duration of an in silico experiment
 	 */
@@ -203,14 +204,12 @@ public class Controller implements Steppable {
 	 
 	 
 	 /*
-
 	  * 
 	  * Because of the web like strucure of the FDC network, if two nodes are within
 	  * the network and are not blocked by another node, then we assume that they are
 	  * connected with one another in terms of the topology hi.
-	  * 
-	  * 
 	  */
+	 /*
 	 public static int[][] updateAdjacencyMatrixFDCs(int[][] adjacencyMatrix){
 		 
 		Bag stroma = SimulationEnvironment.fdcEnvironment.getAllObjects();
@@ -250,7 +249,7 @@ public class Controller implements Steppable {
 		}
 		return adjacencyMatrix;
 	 }
-	 
+	 */
 	 
 		/**
 		 * To determine if the path between two nodes is blocked by another node 

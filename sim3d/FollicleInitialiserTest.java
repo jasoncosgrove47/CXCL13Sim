@@ -230,6 +230,7 @@ public class FollicleInitialiserTest {
 	}
 
 		//cells should not be connected to LECs
+	
 	@Test
 	public void checkForLECConnections(){
 		
@@ -260,4 +261,111 @@ public class FollicleInitialiserTest {
 	}
 	
 
+	
+	
+	@Test
+	public void checkForNodeConnectionsWithBranches(){
+
+		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
+				31);
+
+		Double3D p1 = new Double3D(1,1,1);
+		Double3D p2 = new Double3D(2,2,2);
+		Double3D p3 = new Double3D(3,3,3);
+		Double3D p4 = new Double3D(4,4,4);
+		Double3D p5 = new Double3D(2,4,3);
+		
+		Stroma n1 = new Stroma(Stroma.TYPE.FDC, p1);
+		Stroma n3 = new Stroma(Stroma.TYPE.FDC, p4);
+		Stroma n4 = new Stroma(Stroma.TYPE.FDC, p5);
+		
+		n1.setObjectLocation(p1);
+		n3.setObjectLocation(p4);
+		n4.setObjectLocation(p5);
+		
+		StromaEdge se1 = new StromaEdge(p1,p2,StromaEdge.TYPE.FDC_edge);
+		StromaEdge se2 = new StromaEdge(p2,p3,StromaEdge.TYPE.FDC_edge);
+		
+		//these three both orginate from p3 :D
+		StromaEdge se3 = new StromaEdge(p3,p4,StromaEdge.TYPE.FDC_edge);
+		StromaEdge se4 = new StromaEdge(p3,p5,StromaEdge.TYPE.FDC_edge);
+		
+		se1.setObjectLocation(se1.getPoint1());
+		se2.setObjectLocation(se2.getPoint1());
+		se3.setObjectLocation(se3.getPoint1());
+		se4.setObjectLocation(se4.getPoint1());
+		
+		//update the protrusions
+		n1.getM_Edges().add(se1);
+		n3.getM_Edges().add(se3);
+		n4.getM_Edges().add(se4);
+		
+		assertFalse(n1.getM_Nodes().contains(n3));
+		assertFalse(n1.getM_Nodes().contains(n4));
+		FollicleInitialiser.updateNodeConnectionForNodeIncludeBranches(n1);
+		assertTrue(n1.getM_Nodes().contains(n3));
+		assertTrue(n1.getM_Nodes().contains(n4));
+	}
+	
+	
+	@Test
+	public void checkForNodeConnectionsWithBranches2(){
+
+		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
+				31);
+
+		
+		//lets create two parallel lines with 2 points each
+		Double3D p1 = new Double3D(1,1,1);
+		Double3D p2 = new Double3D(2,2,2);
+		Double3D p3 = new Double3D(2,1,1);
+		Double3D p4 = new Double3D(3,2,2);
+		
+		Stroma n1 = new Stroma(Stroma.TYPE.FDC, p1);
+		Stroma n2 = new Stroma(Stroma.TYPE.FDC, p2);
+		Stroma n3 = new Stroma(Stroma.TYPE.FDC, p3);
+		Stroma n4 = new Stroma(Stroma.TYPE.FDC, p4);
+		
+		n1.setObjectLocation(p1);
+		n2.setObjectLocation(p2);
+		n3.setObjectLocation(p3);
+		n4.setObjectLocation(p4);
+		
+		
+		
+		//connect each parallel line with an edge
+		StromaEdge se1 = new StromaEdge(p1,p2,StromaEdge.TYPE.FDC_edge);
+		StromaEdge se2 = new StromaEdge(p3,p4,StromaEdge.TYPE.FDC_edge);
+		//now make a branch between them
+		StromaEdge se3 = new StromaEdge(se1.getMidpoint(),se2.getMidpoint(),StromaEdge.TYPE.FDC_branch);
+		
+		
+		//set the edge locations
+		se1.setObjectLocation(se1.getPoint1());
+		se2.setObjectLocation(se2.getPoint1());
+		se3.setObjectLocation(se1.getMidpoint());
+		
+		//update the protrusions
+		n1.getM_Edges().add(se1);
+		n2.getM_Edges().add(se1);
+		n3.getM_Edges().add(se2);
+		n4.getM_Edges().add(se2);
+		
+		assertFalse(n1.getM_Nodes().contains(n3));
+		assertFalse(n1.getM_Nodes().contains(n4));
+		assertFalse(n2.getM_Nodes().contains(n3));
+		assertFalse(n2.getM_Nodes().contains(n4));
+		FollicleInitialiser.updateNodeConnectionForNodeIncludeBranches(n1);
+		FollicleInitialiser.updateNodeConnectionForNodeIncludeBranches(n2);
+		assertTrue(n1.getM_Nodes().contains(n3));
+		assertTrue(n1.getM_Nodes().contains(n4));
+		assertTrue(n2.getM_Nodes().contains(n3));
+		assertTrue(n2.getM_Nodes().contains(n4));
+		assertTrue(n4.getM_Nodes().contains(n1));
+		assertTrue(n4.getM_Nodes().contains(n2));
+
+	}
+	
+	
+	
 }

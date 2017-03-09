@@ -404,7 +404,7 @@ public class StromaGenerator {
 			}
 
 			// just check we aren't making a huge edge!
-		} while (!bFail && d3aReturn[0].length() > 4
+		} while (!bFail && d3aReturn[0].length() > 4.5 //TODO was 4
 				&& d3aReturn[0].length() < 0.5);//TODO put this back as it was
 
 		return d3aReturn;
@@ -421,7 +421,7 @@ public class StromaGenerator {
 		 if(celltype == Stroma.TYPE.bRC){
 			 return Math.max(0,Math.min(iRemainingCells,
 						(int) (Math.pow(Settings.RNG.nextDouble(),
-								1.5) * (2.1) + 3.6))
+								1.5) * (2.1) + 3.5))
 						- frcNextCell.m_iEdges);
 			 
 			 /*
@@ -442,11 +442,11 @@ public class StromaGenerator {
 			//					1.5) * (2.1) + 4.9))
 			//			- frcNextCell.m_iEdges);
 
-			 
+	
 			 
 			 return Math.max(0,Math.min(iRemainingCells,
 						(int) (Math.pow(Settings.RNG.nextDouble(),
-								1.5) * (2.1) + 4.9))
+								1.5) * (2.1) + 5))
 					 		- frcNextCell.m_iEdges);
 
 		 }
@@ -469,7 +469,7 @@ public class StromaGenerator {
 				//TODO just overwriting this to see if we can change the shape of the network
 				//return (1.3 + length * 3.5);
 				//System.out.println("edgeLengths are: " + (1.3 + length * 3.5));
-				return (1.34 + length * 3.5);
+				return (1.3 + length * 3.5);
 			
 				//way too many numbers lets just make it gaussian for now
 				//return(Settings.RNG.nextGaussian()*4.0+0.1);
@@ -485,7 +485,7 @@ public class StromaGenerator {
 				//TODO just overwriting this to see if we can change the shape of the network
 				//we can make this smaller for the lawls
 				//return (1.3 + length * 3.5) + 2.5;
-				return (0.75 + length * 3.5);
+				return (1.3 + length * 3.5);
 		 }
 		 
 		 return 0;

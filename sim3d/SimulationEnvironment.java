@@ -83,6 +83,7 @@ public class SimulationEnvironment extends SimState {
 	 */
 	//public static Chemokine EBI2L;
 
+	
 	/*
 	 * Parameter file: XML format
 	 */
@@ -230,8 +231,7 @@ public class SimulationEnvironment extends SimState {
 		///this should throw an error now because we dont have a useful index
 		int[][] a_matrix = Controller.generateAdjacencyMatrix();
 		a_matrix = Controller.updateAdjacencyMatrix(a_matrix);
-		//a_matrix = Controller.updateFDCsWithAssumption(a_matrix);
-		//a_matrix = Controller.updateAdjacencyMatrixFDCs(a_matrix);
+
 
 		//outputToCSV.writeNodeInformationToFile("/Users/jc1571/Desktop/nodeInfo.csv", Stroma.getNodeinformation());
 		outputToCSV.writeAdjacencyMatrixToFile("/Users/jc1571/Desktop/adjacency.csv", a_matrix);

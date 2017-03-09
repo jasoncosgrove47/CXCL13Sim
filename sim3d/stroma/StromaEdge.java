@@ -636,5 +636,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	}
 
 
+	
 
 }

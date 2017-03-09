@@ -507,7 +507,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
     	final double zDelta = p2.getZ() - p1.getZ();
     	
 
-    	if ((xDelta == 0) && (yDelta == 0)) {
+    	if ((xDelta == 0) && (yDelta == 0) && (zDelta == 0)) {
     	    throw new IllegalArgumentException("p1 and p2 cannot be the same point");
     	}
 

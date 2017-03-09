@@ -13,7 +13,7 @@ import sim3d.stroma.StromaEdge;
 
 public class GenerateSCS {
 
-	static double threshold = 1.85; // a threshold distance within which we add
+	static double threshold = 2.2; // a threshold distance within which we add
 									// connections between stroma
 	static double mrcSeedProbability = 0.46; // the probability we add an MRC
 											// undeneath an LEC
@@ -266,7 +266,7 @@ public class GenerateSCS {
 					Stroma sc = (Stroma) stroma.get(i);
 					Double3D loc = sc.getM_Location();
 					Bag neighbours = SimulationEnvironment.brcEnvironment.getNeighborsExactlyWithinDistance(loc,
-							threshold + 0.4, false);
+							threshold , false);
 
 					
 					// add connections between all of the neighbours
