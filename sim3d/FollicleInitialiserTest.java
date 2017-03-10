@@ -42,6 +42,19 @@ public class FollicleInitialiserTest {
 	}
 
 	@Test
+	public void testCheckForPointsInTheWay() {
+		fail("not yet implemented");
+	}
+	
+	
+	
+	@Test
+	public void testForMultipleGrids() {
+		fail("not yet implemented");
+	}
+
+	
+	@Test
 	public void testUpdateNodeConnections() {
 		
 		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
@@ -74,15 +87,14 @@ public class FollicleInitialiserTest {
 		
 		
 		assertFalse(n1.getM_Nodes().contains(n2));
-		FollicleInitialiser.updateNodeConnectionForNode(n1);
+		FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(n1);
 		assertTrue(n1.getM_Nodes().contains(n2));
 		assertFalse(n1.getM_Nodes().contains(n3));
 		
 		
-		assertFalse(n2.getM_Nodes().contains(n1));
+
 		assertFalse(n2.getM_Nodes().contains(n3));
-		FollicleInitialiser.updateNodeConnectionForNode(n2);
-		assertTrue(n2.getM_Nodes().contains(n1));
+		FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(n2);
 		assertTrue(n2.getM_Nodes().contains(n3));
 		
 	
@@ -117,7 +129,7 @@ public class FollicleInitialiserTest {
 		n3.getM_Edges().add(se2);
 		
 		assertFalse(n1.getM_Nodes().contains(n3));
-		FollicleInitialiser.updateNodeConnectionForNode(n1);
+		FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(n1);
 		assertTrue(n1.getM_Nodes().contains(n3));
 		
 	}
@@ -152,7 +164,7 @@ public class FollicleInitialiserTest {
 		n3.getM_Edges().add(se3);
 		
 		assertFalse(n1.getM_Nodes().contains(n3));
-		FollicleInitialiser.updateNodeConnectionForNode(n1);
+		FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(n1);
 		assertTrue(n1.getM_Nodes().contains(n3));
 		
 	}
@@ -196,7 +208,7 @@ public class FollicleInitialiserTest {
 		
 		assertFalse(n1.getM_Nodes().contains(n3));
 		assertFalse(n1.getM_Nodes().contains(n4));
-		FollicleInitialiser.updateNodeConnectionForNode(n1);
+		FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(n1);
 		assertTrue(n1.getM_Nodes().contains(n3));
 		assertTrue(n1.getM_Nodes().contains(n4));
 		
@@ -210,6 +222,9 @@ public class FollicleInitialiserTest {
 
 		boolean anyNodesHaveZeroNodeConnections = false;
 		
+		int counter = 0;
+		
+		
 		Bag stroma = SimulationEnvironment.getAllStroma();
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof Stroma) {
@@ -218,14 +233,17 @@ public class FollicleInitialiserTest {
 				Stroma sc = (Stroma) stroma.get(i);
 				//on occastions the MRCs dont connect to anything so omit them from this
 				// test case
-				if(sc.getStromatype() != Stroma.TYPE.MRC && sc.getStromatype() != Stroma.TYPE.LEC )
+				if(sc.getStromatype() != Stroma.TYPE.MRC && sc.getStromatype() != Stroma.TYPE.LEC ){
 				
-				if(sc.getM_Nodes().size() == 0){
-					anyNodesHaveZeroNodeConnections = true;
-					
+					if(sc.getM_Nodes().size() == 0){
+						anyNodesHaveZeroNodeConnections = true;
+						counter += 1;
+					}
 				}
 			}	
 		}
+
+		System.out.println("counter equals: " + counter);
 		assertFalse(anyNodesHaveZeroNodeConnections);
 	}
 
@@ -302,7 +320,7 @@ public class FollicleInitialiserTest {
 		
 		assertFalse(n1.getM_Nodes().contains(n3));
 		assertFalse(n1.getM_Nodes().contains(n4));
-		FollicleInitialiser.updateNodeConnectionForNodeIncludeBranches(n1);
+		FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(n1);
 		assertTrue(n1.getM_Nodes().contains(n3));
 		assertTrue(n1.getM_Nodes().contains(n4));
 	}
@@ -355,8 +373,8 @@ public class FollicleInitialiserTest {
 		assertFalse(n1.getM_Nodes().contains(n4));
 		assertFalse(n2.getM_Nodes().contains(n3));
 		assertFalse(n2.getM_Nodes().contains(n4));
-		FollicleInitialiser.updateNodeConnectionForNodeIncludeBranches(n1);
-		FollicleInitialiser.updateNodeConnectionForNodeIncludeBranches(n2);
+		FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(n1);
+		FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(n2);
 		assertTrue(n1.getM_Nodes().contains(n3));
 		assertTrue(n1.getM_Nodes().contains(n4));
 		assertTrue(n2.getM_Nodes().contains(n3));

@@ -619,6 +619,9 @@ public class Settings {
 
 			EBI2L_EMITTED = FDC.scaleEmissionRate(emissionrate_ebi2l);
 			
+			NodeList countNL = paramMRCElement.getElementsByTagName("MRCCOUNT");
+			Node countN = countNL.item(0);
+			COUNT = Integer.parseInt(countN.getTextContent());
 			
 			NodeList cxcl13NL = paramMRCElement
 					.getElementsByTagName("CXCL13_EMITTED_MRC");
@@ -634,6 +637,8 @@ public class Settings {
 			return new Color(255, 212, 212);
 		}
 
+		public static int COUNT;
+		
 		private static double emissionrate_ebi2l;
 		
 		private static double emissionrate_cxcl13;

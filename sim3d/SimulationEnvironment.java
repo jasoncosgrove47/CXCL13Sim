@@ -391,10 +391,16 @@ public class SimulationEnvironment extends SimState {
 		
 		Bag stroma = new Bag();
 		
-		stroma.addAll(fdcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
-		stroma.addAll(brcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
-		stroma.addAll(mrcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
-
+		if(fdcEnvironment != null){
+			stroma.addAll(fdcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
+		}
+		if(brcEnvironment != null){
+			stroma.addAll(brcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
+		}
+		if(mrcEnvironment != null){
+			stroma.addAll(mrcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
+		}
+		
 		return stroma;
 	}
 
