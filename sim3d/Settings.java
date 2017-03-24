@@ -20,7 +20,6 @@ import ec.util.MersenneTwisterFast;
 public class Settings {
 	
 
-
 	
 	public static void loadParameters(Document params) {
 		// Simulation Tag
@@ -54,18 +53,19 @@ public class Settings {
 		NodeList sbNL = paramOElement.getElementsByTagName("SIGNALLING_BIAS");
 		Node sbN = sbNL.item(0);
 		SIGNALLING_BIAS= Double.parseDouble(sbN.getTextContent());
-
 	
-
-		
 	}
 
+	public static boolean calculateTopologyData =  true;
+	
+	
+	
 	/*
 	 * due to floating point inaccuracies you cant directly
 	 * compare double3Ds so we set a threshold here for use
 	 * throughout the simulation
 	 */
-	public static double DOUBLE3D_PRECISION = 0.01;
+	public static double DOUBLE3D_PRECISION = 0.05;
 	
 	
 	

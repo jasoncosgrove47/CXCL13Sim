@@ -29,10 +29,13 @@ import sim3d.stroma.StromaEdge;
 
 public class SimulationEnvironment extends SimState {
 
+	
+
+	
 	/**
 	 * this is the size of the FDC network
 	 */
-	public static int fdcNetRadius = 15;
+	public static int fdcNetRadius = 11;
 	
 	private static final long serialVersionUID = 1;
 
@@ -72,6 +75,14 @@ public class SimulationEnvironment extends SimState {
 	public static Continuous3D brcEnvironment;
 	public static Continuous3D mrcEnvironment;
 
+	
+	static double[][] distMatrix;
+	
+	static int[][] a_matrix ;
+	static int[][] fdc_a_matrix ;
+	static int[][] brc_a_matrix ;
+	static int[][] mrc_a_matrix ;
+	
 	/**
 	 * Instance of the CXCL13 class
 	 */
@@ -113,6 +124,7 @@ public class SimulationEnvironment extends SimState {
 								// Options class so we can access it everywhere
 	}
 
+	
 	/**
 	 * Load parameters from an external xml file to the static Options class
 	 */
@@ -229,12 +241,17 @@ public class SimulationEnvironment extends SimState {
 		seedCells(CELLTYPE.cB);
 
 		///this should throw an error now because we dont have a useful index
-		int[][] a_matrix = Controller.generateAdjacencyMatrix();
-		a_matrix = Controller.updateAdjacencyMatrix(a_matrix);
+		
+		if(Settings.calculateTopologyData){
+		
+			a_matrix = Controller.generateAdjacencyMatrix();
+			a_matrix = Controller.updateAdjacencyMatrix(a_matrix);
+			distMatrix = Controller.createAndUpdateDistanceMatrix();
+		
+		}
+		//TODO need to sort it out so that we have celltype specific adjacency matrices
+		//cant have two types of network index
 
-
-		//outputToCSV.writeNodeInformationToFile("/Users/jc1571/Desktop/nodeInfo.csv", Stroma.getNodeinformation());
-		outputToCSV.writeAdjacencyMatrixToFile("/Users/jc1571/Desktop/adjacency.csv", a_matrix);
 		
 	}
 

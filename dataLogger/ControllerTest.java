@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -22,6 +23,14 @@ import sim3d.util.IO;
  */
 public class ControllerTest {
 
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+
+		Settings.calculateTopologyData = true;
+		
+	}
+	
+	
 	
 	@Test
 	public void testIsPointBetween(){

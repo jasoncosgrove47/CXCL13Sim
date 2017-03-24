@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 
 import dataLogger.Controller;
 import dataLogger.outputToCSV;
+import sim3d.stroma.Stroma;
 import sim3d.util.IO;
 
 /**
@@ -81,13 +82,13 @@ public class consoleRun {
 
 				System.out.println("The experiment will now begin");
 			}
-
 			
 			if (!SimulationEnvironment.simulation.schedule
 					.step(SimulationEnvironment.simulation))
 				break;
 		} while (SimulationEnvironment.experimentFinished == false); //
 
+		
 		// finish the simulation
 		SimulationEnvironment.simulation.finish();
 		System.out.println("\nSimulation completed successfully!\n\n");
@@ -95,7 +96,14 @@ public class consoleRun {
 		// write the recorded data and raw data to a .csv file
 		 outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv" );
 		 outputToCSV.writeDataToFile(outputPath + outputFileName);
-	
+		 
+		if(Settings.calculateTopologyData){
+		 
+			outputToCSV.writeDistMatrixToFile(outputPath + "dist.csv", SimulationEnvironment.distMatrix);
+			outputToCSV.writeAdjacencyMatrixToFile(outputPath + "adjacency.csv", SimulationEnvironment.a_matrix);
+			outputToCSV.writeNodeInformationToFile(outputPath + "nodeInfo.csv", 
+					Stroma.getNodes());
+		}
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
 
@@ -105,7 +113,6 @@ public class consoleRun {
 		System.exit(0);
 	}
 
-	
 	private static String calculateRunTime(long startTime, long endTime, SimpleDateFormat sdf){
 		
 		Date formattedendtime = new Date(endTime);

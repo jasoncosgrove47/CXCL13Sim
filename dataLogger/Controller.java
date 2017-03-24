@@ -3,11 +3,9 @@ package dataLogger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-
-
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double3D;
 import sim3d.Settings;
@@ -87,6 +85,7 @@ public class Controller implements Steppable {
 	private Map<Integer, ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
 
 
+	
 	/**
 	 * Controls the length of an experiment and signals to the main class when
 	 * an experiment is finished
@@ -102,6 +101,7 @@ public class Controller implements Steppable {
 			SimulationEnvironment.experimentFinished = true;
 		}
 	}
+	
 
 	/**
 	 * Initialise the network adjacency matrix, required for outputting to .csv
@@ -127,6 +127,12 @@ public class Controller implements Steppable {
 
 	}
 
+	
+	
+	
+	
+
+	
 	/**
 	 * Add the nodes to the matrix headers, update the nodeinfo arraylist and
 	 * the nodeIndexMap
@@ -146,6 +152,7 @@ public class Controller implements Steppable {
 				if (((Stroma) stroma.get(i)).getStromatype() != Stroma.TYPE.LEC) {
 					((Stroma) stroma.get(i)).setM_index(nodeindex);
 					
+
 					// give it a unique ID number and store the location
 					adjacencyMatrix[0][nodeindex] = nodeindex;
 					adjacencyMatrix[nodeindex][0] = nodeindex;
@@ -160,6 +167,111 @@ public class Controller implements Steppable {
 
 	
 	
+	
+	
+	/**
+	 * Create a distance Matrix for the lawls
+	 * @return
+	 */
+	public static double[][] createAndUpdateDistanceMatrix(){
+		
+		// calcualte the number of nodes in the network
+		int[] nodesandedges = SimulationEnvironment.calculateNodesAndEdges();
+		int numberofnodes = nodesandedges[0];
+		
+		// we add a plus one because we also want an index for each one
+		double[][] distMatrix = new double[numberofnodes + 1][numberofnodes + 1];
+		
+		Bag stroma = SimulationEnvironment.getAllStroma();
+
+
+	
+		//they should have an index at this stage!
+		for (int i = 0; i < stroma.size(); i++) {
+			if (stroma.get(i) instanceof Stroma) {
+				//LECs are not included in topological analysis
+				if (((Stroma) stroma.get(i)).getStromatype() != Stroma.TYPE.LEC) {
+
+					int nodeindex = ((Stroma) stroma.get(i)).getM_index();
+					// give it a unique ID number and store the location
+					distMatrix[0][nodeindex] = nodeindex;
+					distMatrix[nodeindex][0] = nodeindex;
+	
+				}
+			}
+		}
+
+
+		for (int i = 0; i < stroma.size(); i++) {
+			if (stroma.get(i) instanceof Stroma) {
+				
+				Stroma sc = (Stroma) stroma.get(i);
+				if (sc.getStromatype() != Stroma.TYPE.LEC) {
+
+					//there should be no LECs in the node list, must be MRCs.
+					for(Stroma stromalcell : sc.getM_Nodes()){
+						
+						if(!stromalcell.equals(sc)){
+						
+						//we multiply the distance by 10 as we want it in microns	
+							double dist = sc.getM_Location().distance(stromalcell.getM_Location()) * 10;
+						
+							distMatrix[sc.getM_index()][stromalcell.getM_index()] = dist;
+							distMatrix[stromalcell.getM_index()][sc.getM_index()] = dist;
+						}
+											
+					}	
+				}
+			}
+		}
+		return distMatrix;
+		
+	}
+	
+	
+	
+	public static int[][] updateAdjacencyMatrix(int[][] adjacencyMatrix, Stroma.TYPE type){
+		
+		Continuous3D env;
+		if(type == Stroma.TYPE.FDC){
+			env = SimulationEnvironment.fdcEnvironment;
+		}
+		else if(type == Stroma.TYPE.bRC){
+			env = SimulationEnvironment.brcEnvironment;
+		}
+		else{
+			env = SimulationEnvironment.mrcEnvironment;
+		}
+	
+	
+		Bag stroma = env.getAllObjects();
+	
+		for (int i = 0; i < stroma.size(); i++) {
+			if (stroma.get(i) instanceof Stroma) {
+				
+				Stroma sc = (Stroma) stroma.get(i);
+				if (sc.getStromatype() != Stroma.TYPE.LEC) {
+
+					//don't add any self connections	
+					//there should be no LECs in the node list, must be MRCs.
+					for(Stroma stromalcell : sc.getM_Nodes()){
+						
+						if(!stromalcell.equals(sc)){
+						
+						
+						adjacencyMatrix[sc.getM_index()][stromalcell.getM_index()] = 1;
+						adjacencyMatrix[stromalcell.getM_index()][sc.getM_index()] = 1;
+						}
+											
+					}	
+				}
+			}
+		}
+		
+		return adjacencyMatrix;
+	}
+	
+	
 	 public static int[][] updateAdjacencyMatrix(int[][] adjacencyMatrix){
 		
 		Bag stroma = SimulationEnvironment.getAllStroma();
@@ -170,20 +282,13 @@ public class Controller implements Steppable {
 				Stroma sc = (Stroma) stroma.get(i);
 				if (sc.getStromatype() != Stroma.TYPE.LEC) {
 
-					//don't add any self connections
-					
+					//don't add any self connections	
 					//there should be no LECs in the node list, must be MRCs.
 					for(Stroma stromalcell : sc.getM_Nodes()){
 						
 						if(!stromalcell.equals(sc)){
 						
-							
-							if(sc.getM_index() == 0 ||stromalcell.getM_index() == 0  ){
-								System.out.println("type of stroma1 is: " + sc.getStromatype());
-								System.out.println("why do some nodes have index = 0?");
-								System.out.println("type of stroma2 is: " + stromalcell.getStromatype());
-							}
-							
+						
 						adjacencyMatrix[sc.getM_index()][stromalcell.getM_index()] = 1;
 						adjacencyMatrix[stromalcell.getM_index()][sc.getM_index()] = 1;
 						}
@@ -283,7 +388,7 @@ public class Controller implements Steppable {
 			// this is our threshold needs to be the width of an edge i suppose so
 			// lets say 3 microns
 			// TODO we need to revisit this and see if its sensible
-			double epsilon = 0.3;
+			double epsilon = Settings.FDC.STROMA_EDGE_RADIUS*2;
 
 			// check to see if they are collinear
 

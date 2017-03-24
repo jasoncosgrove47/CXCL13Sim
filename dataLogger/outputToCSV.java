@@ -18,7 +18,6 @@ public final class outputToCSV {
 
 	
 	
-	
 	public static void writeNodeInformationToFile(String filename, ArrayList<Stroma> nodeinformation){
 		FileWriter processedDataWriter;
 
@@ -101,7 +100,40 @@ public final class outputToCSV {
 	}
 	
 	
-	
+	/**
+	 * TODO dry need to think of a better way to do this. 
+	 * @param filename
+	 * @param dist_matrix
+	 */
+	public static void writeDistMatrixToFile(String filename,double[][] dist_matrix){
+		FileWriter processedDataWriter;
+
+
+		try {
+
+			processedDataWriter = new FileWriter(filename);
+
+			for(int j = 0; j < dist_matrix.length ; j++){
+				for(int k = 0; k < dist_matrix.length ;k++){
+					
+					processedDataWriter.append(Double.toString(dist_matrix[j][k]));
+					processedDataWriter.append(',');
+					
+					
+				}	
+				processedDataWriter.append('\n');
+			}
+			
+			// close the file stream
+			processedDataWriter.flush();
+			processedDataWriter.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
 	
 	
 	/**

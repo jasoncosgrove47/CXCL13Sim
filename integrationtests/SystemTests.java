@@ -40,7 +40,10 @@ public class SystemTests {
 		
 		// set the appropriate parameters
 
-		
+		Settings.HEIGHT = 40;
+		Settings.WIDTH = 40;
+		Settings.DEPTH = 10;
+		Settings.BC.COGNATECOUNT = 100;
 	
 		Settings.BC.COUNT = 0;
 		Settings.BC.COGNATECOUNT = 100;

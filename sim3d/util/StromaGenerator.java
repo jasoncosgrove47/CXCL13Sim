@@ -105,13 +105,13 @@ public class StromaGenerator {
 			  for (int j = i+1; j < sealEdges.size(); j++) {
 				  
 				  //get the end points of each of the two edges
-				  Double3D i_p1 = new Double3D(sealEdges.get(i).x +1,
-						  sealEdges.get(i).y+1, sealEdges.get(i).z +1);
+				  Double3D i_p1 = new Double3D(sealEdges.get(i).getPoint1().x +1,
+						  sealEdges.get(i).getPoint1().y+1, sealEdges.get(i).getPoint1().z +1);
 				  Double3D i_p2 = new Double3D(sealEdges.get(i).getPoint2().x +1,
 						  sealEdges.get(i).getPoint2().y+1, sealEdges.get(i).getPoint2().z +1);
 					
-				  Double3D j_p1 = new Double3D(sealEdges.get(j).x +1,
-						  sealEdges.get(j).y+1, sealEdges.get(j).z +1);
+				  Double3D j_p1 = new Double3D(sealEdges.get(j).getPoint1().x +1,
+						  sealEdges.get(j).getPoint1().y+1, sealEdges.get(j).getPoint1().z +1);
 				  Double3D j_p2 = new Double3D(sealEdges.get(j).getPoint2().x +1,
 						  sealEdges.get(j).getPoint2().y+1, sealEdges.get(j).getPoint2().z +1);
 				  
@@ -123,7 +123,7 @@ public class StromaGenerator {
 				
 				//if the cells are too close to one another then remove them
 				// the threshold value was determined by trial and error
-				double thresholdDistance = 0.15; 
+				double thresholdDistance = Settings.DOUBLE3D_PRECISION; 
 				
 				if(d1 < thresholdDistance && d4 < thresholdDistance){
 					edgesToRemove.add(sealEdges.get(i));
@@ -133,7 +133,9 @@ public class StromaGenerator {
 				}
 			}
 		}
+		
 
+		
 		//now remove all of the overlapping edges in the removal list
 		for(int x = 0; x < edgesToRemove.size(); x ++){
 
@@ -187,6 +189,7 @@ public class StromaGenerator {
 
 		while (iRemainingCells > 0 && stromalUnbranchedCells.size() > 0) {
 			
+			
 			//need to make sure that there are no overlaps at this point
 			
 			StromalCelltemp nextCell = pickNextCell(iWidth, iHeight, iDepth,
@@ -218,7 +221,9 @@ public class StromaGenerator {
 			// Calculate the number of edges to make
 			// Values were fitted to match the FRC paper
 			int iEdges = calculateEdgeNumber(celltype, iRemainingCells,nextCell);
-					
+				
+
+			
 			// This is the first time so we want at few edges otherwise
 			// generation will break sometimes
 			if (iRemainingCells == iCellCount - 1) {
@@ -278,9 +283,62 @@ public class StromaGenerator {
 		//now we need to process the stroma making sure there are no overlapping edges or zero length edges
 		selEdges = removeOverlappingEdges(selEdges);
 		
+		//TODO we may need to consider deleting their edges but i think that its fine for now
+		//Dont want to remove any near the SCS
+		//removeUnexpandedNodes(stromalCellLocations, selEdges);
+		
+		//i would like to remove any unexpanded nodes also...
+		
 		return iCellCount - iRemainingCells;
 	}
 	
+	
+	/**
+	 * Some edges dont get expanded and this messes up the topology so need to filter these out. 
+	 * @param stromalCellLocations
+	 * @param selEdges
+	 * @return a list of stromalcellLocations with the unexpanded nodes removed. 
+	 */
+	private static ArrayList<StromalCelltemp> removeUnexpandedNodes(ArrayList<StromalCelltemp> stromalCellLocations,
+			List<StromaEdge> selEdges){
+	
+		ArrayList<StromalCelltemp> nodesToDelete = new ArrayList<StromalCelltemp>();
+		
+		for(StromalCelltemp sc : stromalCellLocations){
+		
+			int numOfProtrusions = 0;
+			Double3D loc = sc.m_d3Location;
+			// update the node and edge connections for all edges
+			for (StromaEdge seEdge : selEdges) {
+			    Double3D edgeloc = new Double3D(seEdge.getPoint1().x, seEdge.getPoint1().y,
+						seEdge.getPoint1().z );
+				Double3D edgeloc2 = new Double3D(seEdge.getPoint2().x, seEdge.getPoint2().y,
+						seEdge.getPoint2().z);
+	
+				if (loc.distance(edgeloc) < Settings.DOUBLE3D_PRECISION) {
+						numOfProtrusions += 1;
+					
+				}else if (loc.distance(edgeloc2) < Settings.DOUBLE3D_PRECISION) {
+						numOfProtrusions += 1;
+				}
+			}
+			//TODO there needs to be a min and max protrusion value, keep the ones that are under the SCS
+			if(numOfProtrusions < 2 && loc.y < Settings.HEIGHT - 7){
+				nodesToDelete.add(sc);				
+			}
+			
+
+		}
+		
+		//now remove all of the overlapping edges in the removal list
+		for(int x = 0; x < nodesToDelete.size(); x ++){
+
+			stromalCellLocations.remove(nodesToDelete.get(x));
+		}
+		//return the updated array
+		return stromalCellLocations;
+		
+	}
 	
 	
 	/**
@@ -342,6 +400,7 @@ public class StromaGenerator {
 				// 2D special case
 				if (iDepth == 1) {
 					d3aReturn[i] = Vector3DHelper.getRandomDirection();
+					//what is this line doing?
 					d3aReturn[i] = new Double3D(d3aReturn[i].x, d3aReturn[i].y,
 							0).normalize().multiply((length + 1) * 3);
 				} else {
@@ -357,7 +416,7 @@ public class StromaGenerator {
 						new StromalCelltemp(frcLocation.m_d3Location.add(d3aReturn[i])),
 						1.0).size() > 0) {
 					
-					i--;
+					i--;//what is this doing?
 					continue;
 				}
 
@@ -404,9 +463,10 @@ public class StromaGenerator {
 			}
 
 			// just check we aren't making a huge edge!
-		} while (!bFail && d3aReturn[0].length() > 4.5 //TODO was 4
-				&& d3aReturn[0].length() < 0.5);//TODO put this back as it was
+		} while (!bFail && d3aReturn[0].length() > 4.0 //TODO was 4
+				&& d3aReturn[0].length() < 0.5);//TODO put this back as it was 0.5
 
+		
 		return d3aReturn;
 	}
 	
@@ -416,19 +476,25 @@ public class StromaGenerator {
 	private static int calculateEdgeNumber(Stroma.TYPE celltype, int iRemainingCells, StromalCelltemp frcNextCell){
 		
 		//lets add a plus one given these cells are denser than the FRCs
-
-			
+		
 		 if(celltype == Stroma.TYPE.bRC){
-			 return Math.max(0,Math.min(iRemainingCells,
-						(int) (Math.pow(Settings.RNG.nextDouble(),
-								1.5) * (2.1) + 3.5))
-						- frcNextCell.m_iEdges);
+
+						
+				return Math.max(0,Math.min(iRemainingCells,
+					(int) Settings.RNG.nextInt(3) + 4)
+				 		- frcNextCell.m_iEdges);
 			 
+		
 			 /*
 			 return Math.max(0,Math.min(iRemainingCells,
 										(int) (Math.pow(Settings.RNG.nextDouble(),
 												1.5) * (2.1) + 2.9))
 										- frcNextCell.m_iEdges);
+										
+		//return Math.max(0,Math.min(iRemainingCells,
+				(int) (Math.pow(Settings.RNG.nextDouble(),
+							1.5) * (2.1) + 7))
+					- frcNextCell.m_iEdges);
 		
 			 */
 		 }
@@ -442,12 +508,18 @@ public class StromaGenerator {
 			//					1.5) * (2.1) + 4.9))
 			//			- frcNextCell.m_iEdges);
 
+			 return Math.max(0,Math.min(iRemainingCells,
+						(int) Settings.RNG.nextInt(3) + 5)
+					 		- frcNextCell.m_iEdges);
 	
 			 
-			 return Math.max(0,Math.min(iRemainingCells,
-						(int) (Math.pow(Settings.RNG.nextDouble(),
-								1.5) * (2.1) + 5))
-					 		- frcNextCell.m_iEdges);
+			 
+			 //return Math.max(0,Math.min(iRemainingCells,
+			//			(int) (Math.pow(Settings.RNG.nextDouble(),
+			//					1.5) * (2.1) + 6))
+			//		 		- frcNextCell.m_iEdges);
+			 
+
 
 		 }
 		 
@@ -485,7 +557,12 @@ public class StromaGenerator {
 				//TODO just overwriting this to see if we can change the shape of the network
 				//we can make this smaller for the lawls
 				//return (1.3 + length * 3.5) + 2.5;
-				return (1.3 + length * 3.5);
+				//System.out.println("fdc edge length: " + (1.8 + length * 3.5));
+				
+				//return (1.8 + length * 3.5);
+				return Settings.RNG.nextGaussian()*0.2 + 3.4;
+				
+				
 		 }
 		 
 		 return 0;

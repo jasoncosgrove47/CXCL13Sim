@@ -2,6 +2,8 @@ package sim3d;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,6 +28,7 @@ public class FollicleInitialiserTest {
 		SimulationEnvironment.simulation = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 		SimulationEnvironment.simulation.setupSimulationParameters();
+		Settings.calculateTopologyData = true;
 		
 	}
 
@@ -41,6 +44,50 @@ public class FollicleInitialiserTest {
 	public void tearDown() throws Exception {
 	}
 
+	@Test
+	public void testAssignProtrusions() {
+		//test that assing proprtrusions can actually update the correct edges
+		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
+				31);
+		
+		ArrayList<StromaEdge> edges = new ArrayList<StromaEdge>();
+		
+		Double3D p1 = new Double3D(1,1,1);
+		Double3D p2 = new Double3D(2,2,2);
+		Double3D p3 = new Double3D(3,3,3);
+		Double3D p4 = new Double3D(4,4,4);
+		
+		
+		StromaEdge se1 = new StromaEdge(p1,p2,StromaEdge.TYPE.FDC_edge);
+		StromaEdge se2 = new StromaEdge(p2,p3,StromaEdge.TYPE.FDC_edge);
+		StromaEdge se3 = new StromaEdge(p3,p4,StromaEdge.TYPE.FDC_edge);
+		
+		se1.setObjectLocation(se1.getPoint1());
+		se2.setObjectLocation(se2.getPoint1());
+		se3.setObjectLocation(se3.getPoint1());
+		
+		edges.add(se1);
+		edges.add(se2);
+		edges.add(se3);
+		
+		Stroma n1 = new Stroma(Stroma.TYPE.FDC, p2);	
+		n1.setObjectLocation(p2);
+		
+		
+		//System.out.println("node loc: " + n1.getM_Location());
+		
+		FollicleInitialiser.assignProtrusions(edges,n1);
+		
+		assertTrue(n1.getM_Edges().contains(se1));
+		assertTrue(n1.getM_Edges().contains(se2));
+		assertFalse(n1.getM_Edges().contains(se3));
+		
+		//TODO also want to see if it can add nodes correctly, but lets do that in another test
+		fail("not yet implemented");
+	}
+	
+	
+	
 	@Test
 	public void testCheckForPointsInTheWay() {
 		fail("not yet implemented");
@@ -282,7 +329,7 @@ public class FollicleInitialiserTest {
 	
 	
 	@Test
-	public void checkForNodeConnectionsWithBranches(){
+	public void testUpdateNodeConnections5(){
 
 		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
 				31);
@@ -327,8 +374,10 @@ public class FollicleInitialiserTest {
 	
 	
 	@Test
-	public void checkForNodeConnectionsWithBranches2(){
+	public void checkForNodeConnectionsWithBranches(){
 
+		//check that we can also account for adding branches between stroma
+		
 		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
 				31);
 
@@ -349,8 +398,7 @@ public class FollicleInitialiserTest {
 		n3.setObjectLocation(p3);
 		n4.setObjectLocation(p4);
 		
-		
-		
+	
 		//connect each parallel line with an edge
 		StromaEdge se1 = new StromaEdge(p1,p2,StromaEdge.TYPE.FDC_edge);
 		StromaEdge se2 = new StromaEdge(p3,p4,StromaEdge.TYPE.FDC_edge);

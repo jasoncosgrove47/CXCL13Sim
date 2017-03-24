@@ -39,19 +39,22 @@ import sim3d.stroma.Stroma.TYPE;
  *
  */
 public class Stroma extends DrawableCell3D implements Steppable, Collidable {
-
 	
 	/**
 	 * This contains information about all stromal cells
 	 */
-	private static ArrayList<Stroma> nodeinformation = new ArrayList<Stroma>();
+	private static ArrayList<Stroma> nodes = new ArrayList<Stroma>();
 	
 	/*
-	 * sometimes we have a location and not a node so this is a useful way to 
-	 * compare to move between the two. TODO may be very inefficient
+	 * This contains each node locaiton and their node id, helps us do analysis later on
 	 */
-
-	//static Map<Double3D, Stroma> NodeIndex = new HashMap<Double3D, Stroma>();
+	//public static Map<Double3D,Integer> NodeIndex = new HashMap<Double3D, Integer>();
+	
+	
+	//the collision grid doesnt deal with
+	//no static objects so just set to static to
+	//false to remove from the collisionGrid
+	private boolean m_isStatic = true;
 	
 	
 	double FDCsecretionRate_CXCL13 = Settings.FDC.CXCL13_EMITTED();
@@ -172,6 +175,9 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			this.m_drawEnvironment = SimulationEnvironment.mrcEnvironment;
 			break;
 			
+		}
+		if(this.getStromatype() != Stroma.TYPE.LEC){
+			getNodes().add(this);
 		}
 	}
 	
@@ -328,7 +334,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 	@Override
 	public boolean isStatic() {
-		return true;
+		return isM_isStatic();
 	}
 
 	@Override
@@ -407,13 +413,13 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		this.cellsCollidedWith = cellsCollidedWith;
 	}
 
-	public static ArrayList<Stroma> getNodeinformation() {
-		return nodeinformation;
-	}
+	//public static ArrayList<Stroma> getNodeinformation() {
+		//return nodeinformation;
+	//}
 
-	public static void setNodeinformation(ArrayList<Stroma> nodeinformation) {
-		Stroma.nodeinformation = nodeinformation;
-	}
+	//public static void setNodeinformation(ArrayList<Stroma> nodeinformation) {
+		//Stroma.nodeinformation = nodeinformation;
+	//}
 
 	public int getM_index() {
 		return m_index;
@@ -437,6 +443,22 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 	public void setM_Edges(Set<StromaEdge> m_Edges) {
 		this.m_Edges = m_Edges;
+	}
+
+	public static ArrayList<Stroma> getNodes() {
+		return nodes;
+	}
+
+	public static void setNodes(ArrayList<Stroma> nodes) {
+		Stroma.nodes = nodes;
+	}
+
+	public boolean isM_isStatic() {
+		return m_isStatic;
+	}
+
+	public void setM_isStatic(boolean m_isStatic) {
+		this.m_isStatic = m_isStatic;
 	}
 
 	

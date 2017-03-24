@@ -43,6 +43,11 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	private TYPE stromaedgetype;
 	
+	//the collision grid doesnt deal with
+	//no static objects so just set to static to
+	//false to remove from the collisionGrid
+	private boolean m_isStatic = true;
+	
 	//public ArrayList<Stroma> m_Nodes; 
 	
 	//the branches connected to an edge
@@ -567,7 +572,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	@Override
 	public boolean isStatic() {
-		return true;
+		return isM_isStatic();
 	}
 
 	@Override
@@ -633,6 +638,16 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 
 	public void setMidpoint(Double3D midpoint) {
 		this.midpoint = midpoint;
+	}
+
+
+	public boolean isM_isStatic() {
+		return m_isStatic;
+	}
+
+
+	public void setM_isStatic(boolean m_isStatic) {
+		this.m_isStatic = m_isStatic;
 	}
 
 

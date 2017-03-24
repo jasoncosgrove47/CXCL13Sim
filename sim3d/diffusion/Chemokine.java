@@ -34,6 +34,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	 * The z-index to display
 	 */
 	static int m_iDisplayLevel = 5 ;
+	
 
 	/**
 	 * Gives each ENUM an array index
