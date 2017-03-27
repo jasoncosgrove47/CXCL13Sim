@@ -30,7 +30,7 @@ public class ControllerTest {
 		
 	}
 	
-	
+
 	
 	@Test
 	public void testIsPointBetween(){
@@ -118,7 +118,7 @@ public class ControllerTest {
 		
 		
 		
-		int[][] test = Controller.generateAdjacencyMatrix();
+		double[][] test = Controller.generateAdjacencyMatrix();
 		test = Controller.updateAdjacencyMatrix(test);
 		//test = Controller.updateAdjacencyMatrixForFDCs(test);
 		
@@ -166,7 +166,7 @@ public class ControllerTest {
 		SimulationEnvironment.simulation.start();
 		
 		
-		int[][] test = Controller.generateAdjacencyMatrix();
+		double[][] test = Controller.generateAdjacencyMatrix();
 		test = Controller.updateAdjacencyMatrix(test);
 		//test = Controller.updateAdjacencyMatrixForFDCs(test);
 		
@@ -209,7 +209,7 @@ public class ControllerTest {
 		SimulationEnvironment.simulation.start();
 		
 		
-		int[][] test = Controller.generateAdjacencyMatrix();
+		double[][] test = Controller.generateAdjacencyMatrix();
 		
 		int numNodes = SimulationEnvironment.calculateNodesAndEdges()[0];
 		

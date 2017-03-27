@@ -53,41 +53,7 @@ public final class outputToCSV {
 				processedDataWriter.append('\n');
 			}
 			
-			
 	
-			
-			// close the file stream
-			processedDataWriter.flush();
-			processedDataWriter.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		
-	}
-	
-	
-	
-	public static void writeAdjacencyMatrixToFile(String filename,int[][] a_matrix){
-		FileWriter processedDataWriter;
-
-
-		try {
-
-			processedDataWriter = new FileWriter(filename);
-
-			for(int j = 0; j < a_matrix.length ; j++){
-				for(int k = 0; k < a_matrix.length ;k++){
-					
-					processedDataWriter.append(Integer.toString(a_matrix[j][k]));
-					processedDataWriter.append(',');
-					
-					
-				}	
-				processedDataWriter.append('\n');
-			}
-			
 			// close the file stream
 			processedDataWriter.flush();
 			processedDataWriter.close();
@@ -101,11 +67,11 @@ public final class outputToCSV {
 	
 	
 	/**
-	 * TODO dry need to think of a better way to do this. 
-	 * @param filename
-	 * @param dist_matrix
+	 * Write a matrix out to .csv file
+	 * @param filename where to export the matrix
+	 * @param a_matrix the matrix to export
 	 */
-	public static void writeDistMatrixToFile(String filename,double[][] dist_matrix){
+	public static void writeMatrixToFile(String filename,double[][] a_matrix){
 		FileWriter processedDataWriter;
 
 
@@ -113,12 +79,11 @@ public final class outputToCSV {
 
 			processedDataWriter = new FileWriter(filename);
 
-			for(int j = 0; j < dist_matrix.length ; j++){
-				for(int k = 0; k < dist_matrix.length ;k++){
+			for(int j = 0; j < a_matrix.length ; j++){
+				for(int k = 0; k < a_matrix.length ;k++){
 					
-					processedDataWriter.append(Double.toString(dist_matrix[j][k]));
+					processedDataWriter.append(Double.toString(a_matrix[j][k]));
 					processedDataWriter.append(',');
-					
 					
 				}	
 				processedDataWriter.append('\n');
@@ -135,6 +100,7 @@ public final class outputToCSV {
 		
 	}
 	
+
 	
 	/**
 	 * processes migration data and sends processed data to csv files

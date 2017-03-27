@@ -15,22 +15,10 @@ public class GenerateSCS {
 	
 	
 	/**
-	 * a threshold distance within which we add
-	 * connections between stroma
-	 * TODO this should be an external parameter?
-	 */
-	static double threshold = 1.6; 
-	
-	
-	
-	/**
 	 * Seed the cells at the subcapuslar sinus
 	 * 
-	 * iterate through the X and Z axes keeping Y fixed to seed the SCS The MRCs
-	 * are generated stochastically: we iterate through the X and Z axes keeping
-	 * Y fixed to seed the SCS for each discrete location we generate a random
-	 * number and if this exceeds some threshold value then we add an MRC
-	 * location
+	 * iterate through the X and Z axes keeping Y fixed to seed the SCS The MRC
+	 * locations are generated stochastically
 	 * 
 	 * @param cgGrid
 	 *            the collision grid for the stroma
@@ -187,19 +175,18 @@ public class GenerateSCS {
 			}
 		}
 
-		// now instantiate the connections and connect the MRC network to the
-		// BRC network
+		// now instantiate the connections and connect the MRC network to the BRC network
 		seedMRCEdges(connectionsToAdd);
 		connectToRC();
-		//connectMRCtoRC(4,1);
 	}
 	
 	
 	
-	
-	
-	private static void connectToRC(){
-		
+	/**
+	 * 
+	 * @return an arraylist of BRCs above a threshold height
+	 */
+	private static ArrayList<Stroma> getBRCsAboveThresholdYCoord(double threshold){
 		Bag brcs = SimulationEnvironment.brcEnvironment.getAllObjects();
 		ArrayList<Stroma> brcNodes = new ArrayList<Stroma>();
 
@@ -209,99 +196,155 @@ public class GenerateSCS {
 				Stroma sc = ((Stroma) brcs.get(i));
 				//we only want the nodes closest to the mrc network
 					
-				if(sc.getM_Location().y > 30){ //height greater than 30 is close to the scs
+				if(sc.getM_Location().y > threshold){ //height greater than 30 is close to the scs
 					brcNodes.add(sc);
 				}
 			}
 		}
 		
-		//now for each of these brcs add a connection to the closest mrc hi
-		for(Stroma brc : brcNodes){
-			
-		for(int x = 0; x < 2; x ++){
-			Double3D loc = brc.getM_Location();
-			Bag neighbours = SimulationEnvironment.mrcEnvironment.getNeighborsExactlyWithinDistance(brc.getM_Location(), 5);
-			Stroma nodeToConnectTo = null;
-			double minDist = 5;
-			
-			if(!neighbours.isEmpty()){
-			//find the closest mrc to us
-				for(int i = 0; i < neighbours.size(); i ++){
-					if(neighbours.get(i) instanceof Stroma){
-						Stroma sc = (Stroma) neighbours.get(i);
-						if(sc.getStromatype() ==  Stroma.TYPE.MRC){
-							
-							if(!brc.equals(sc) && !brc.getM_Nodes().contains(sc)){
-							
-								double dist = brc.getM_Location().distance(sc.getM_Location());
-								if(dist < minDist){
-									minDist = dist;
-									nodeToConnectTo = sc;
-									
-								}
-							}
-						}	
-					}
-				}
-				
-				StromaEdge seEdge = new StromaEdge(loc, nodeToConnectTo.getM_Location(), StromaEdge.TYPE.MRC_edge);
-				seEdge.setObjectLocation(seEdge.getPoint1());
+		return brcNodes;
+		
+	}
 	
-				SimulationEnvironment.scheduleStoppableCell(seEdge);
 	
-				brc.getM_Nodes().add(nodeToConnectTo);
-				nodeToConnectTo.getM_Nodes().add(brc);
-				
-				brc.getM_Edges().add(seEdge);
-				nodeToConnectTo.getM_Edges().add(seEdge);
-				
-				seEdge.m_Nodes.add(brc);
-				seEdge.m_Nodes.add(nodeToConnectTo);
-			
-				//think its also worth connecting the edge using a branch
-				seEdge.getMidpoint();
-				
-				Bag branchneighbours = SimulationEnvironment.mrcEnvironment.getNeighborsExactlyWithinDistance(seEdge.getMidpoint(), 5);
-					
-				if(!branchneighbours.isEmpty()){
-
-					StromaEdge edgeToConnectTo = null;
-					int count = 0;
-					
-					for(int i = 0; i < branchneighbours.size(); i ++){
-						if(branchneighbours.get(i) instanceof StromaEdge){
-							
-							StromaEdge se = (StromaEdge) branchneighbours.get(i);
-							
-							
-							if(!seEdge.equals(se)){
-								double dist = seEdge.getM_Location().distance(se.getM_Location());
-								if(dist < minDist){
-									minDist = dist;
-									edgeToConnectTo = se;
+	
+	private static Stroma findClosestMRC(Bag neighbours, Stroma brc){
+		
+		Stroma nodeToConnectTo = null;
+		double minDist = 5;
+		if(!neighbours.isEmpty()){
+		//find the closest mrc to us
+			for(int i = 0; i < neighbours.size(); i ++){
+				if(neighbours.get(i) instanceof Stroma){
+					Stroma sc = (Stroma) neighbours.get(i);
+					if(sc.getStromatype() ==  Stroma.TYPE.MRC){
+						
+						if(!brc.equals(sc) && !brc.getM_Nodes().contains(sc)){
+						
+							double dist = brc.getM_Location().distance(sc.getM_Location());
+							if(dist < minDist){
+								minDist = dist;
+								nodeToConnectTo = sc;
 								
-								}
 							}
 						}
-					}
-							
-					if(edgeToConnectTo != null && edgeToConnectTo.getStromaedgetype() ==  StromaEdge.TYPE.MRC_edge && !seEdge.equals(edgeToConnectTo) && count < 3){
-						count += 1;
-						StromaEdge branch = new StromaEdge(seEdge.getMidpoint(), edgeToConnectTo.getMidpoint(), StromaEdge.TYPE.MRC_branch);
-						branch.setObjectLocation(branch.getPoint1());
-						SimulationEnvironment.scheduleStoppableCell(branch);
-						seEdge.m_Branches.add(branch);
-						edgeToConnectTo.m_Branches.add(branch);
-						branch.m_Edges.add(edgeToConnectTo);
-						branch.m_Edges.add(seEdge);
+					}	
+				}
+			}
+		}
+		
+		return nodeToConnectTo;
+	}
+	
+	
+	private static StromaEdge findClosestEdge(Bag neighbours, StromaEdge seEdge){
+		
+		StromaEdge edgeToConnectTo = null;
+		
+		if(!neighbours.isEmpty()){
+	
+			
+			double minDist = 5;
+			
+			for(int i = 0; i < neighbours.size(); i ++){
+				if(neighbours.get(i) instanceof StromaEdge){
+					
+					StromaEdge se = (StromaEdge) neighbours.get(i);
+					
+					
+					if(!seEdge.equals(se)){
+						double dist = seEdge.getM_Location().distance(se.getM_Location());
+						if(dist < minDist){
+							minDist = dist;
+							edgeToConnectTo = se;
+						
+						}
 					}
 				}
 			}
-			
 		}
+		
+		return edgeToConnectTo;
+		
+	}
+	/**
+	 * This method may exist elsewhere but im pretty sure MRC is a special case, will need to refactor
+	 * @return 
+	 */
+	private static StromaEdge addMRCEdge(Stroma brc, Stroma nodeToConnectTo){
+		StromaEdge seEdge = new StromaEdge(brc.getM_Location(), nodeToConnectTo.getM_Location(), StromaEdge.TYPE.MRC_edge);
+		seEdge.setObjectLocation(seEdge.getPoint1());
+
+		SimulationEnvironment.scheduleStoppableCell(seEdge);
+
+		brc.getM_Nodes().add(nodeToConnectTo);
+		nodeToConnectTo.getM_Nodes().add(brc);
+		
+		brc.getM_Edges().add(seEdge);
+		nodeToConnectTo.getM_Edges().add(seEdge);
+		
+		seEdge.m_Nodes.add(brc);
+		seEdge.m_Nodes.add(nodeToConnectTo);
+		
+		return seEdge;
+	}
+	
+	/**
+	 * This method may exist elsewhere but im pretty sure MRC is a special case, will need to refactor
+	 * @return 
+	 */
+	private static StromaEdge addMRCBranch(StromaEdge seEdge, StromaEdge edgeToConnectTo){
+		StromaEdge branch = new StromaEdge(seEdge.getMidpoint(), edgeToConnectTo.getMidpoint(), StromaEdge.TYPE.MRC_branch);
+		branch.setObjectLocation(branch.getPoint1());
+		SimulationEnvironment.scheduleStoppableCell(branch);
+		seEdge.m_Branches.add(branch);
+		edgeToConnectTo.m_Branches.add(branch);
+		branch.m_Edges.add(edgeToConnectTo);
+		branch.m_Edges.add(seEdge);
+		return branch;
+	}
+	
+	
+	/**
+	 * TODO add comments
+	 * 
+	 */
+	private static void connectToRC(){
+
+		ArrayList<Stroma> brcNodes = getBRCsAboveThresholdYCoord(30);
 			
+		//now for each of these brcs add a connection to the closest mrc hi
+		for(Stroma brc : brcNodes){
+			
+			for(int x = 0; x < 2; x ++){
+			
+				Bag neighbours = SimulationEnvironment.mrcEnvironment.
+						getNeighborsExactlyWithinDistance(brc.getM_Location(), 5);
+	
+				Stroma nodeToConnectTo = null;
+				nodeToConnectTo = findClosestMRC(neighbours, brc);
+				
+				if(nodeToConnectTo != null){
+				
+					StromaEdge seEdge = addMRCEdge(brc, nodeToConnectTo);
+								
+					Bag branchneighbours = SimulationEnvironment.mrcEnvironment.
+							getNeighborsExactlyWithinDistance(seEdge.getMidpoint(), 5);
+						
+					StromaEdge edgeToConnectTo = findClosestEdge(branchneighbours, seEdge);
+				
+					
+					if(edgeToConnectTo != null && edgeToConnectTo.getStromaedgetype() == 
+							StromaEdge.TYPE.MRC_edge && !seEdge.equals(edgeToConnectTo) ){
+	
+							addMRCBranch(seEdge, edgeToConnectTo);
+					}		
+				}
+			}
 		}
 	}
+			
+
 		
 		
 	
@@ -363,12 +406,12 @@ public class GenerateSCS {
 	 * make connections between MRCs and BRCs that are smaller than a threshold
 	 * distance apart.
 	 */
+	@SuppressWarnings("unused")
 	private static void connectMRCtoRC(int mean, int sd) {
 
 		Bag stroma = SimulationEnvironment.mrcEnvironment.getAllObjects();
 		Map<Stroma, ArrayList<Stroma>> connectionsToAdd = new HashMap<Stroma, ArrayList<Stroma>>();
 
-		ArrayList<Stroma> connections = new ArrayList<Stroma>();
 		
 		// we want to count only branches and dendrites so
 		// we need to know how many FDC nodes there are
@@ -378,69 +421,12 @@ public class GenerateSCS {
 
 					Stroma sc = (Stroma) stroma.get(i);
 					Double3D loc = sc.getM_Location();
-					
-			
+								
 					Bag neighbours = SimulationEnvironment.brcEnvironment.getNeighborsExactlyWithinDistance(loc,
 							2.2 , false);
-					
-					//lets just edit neighbours to get the effect we want, make it no more than 3 or something
-					
 				
-
 					connectionsToAdd = addMRCConnections(neighbours, sc, connectionsToAdd);
-
-
-					/*
-		
-					double connectionsToMake = (int) (Settings.RNG.nextGaussian()*sd+ mean); 
-					
-					//dont want to get stuck in an infinite loop here. 
-					int count = 0;
-					
-					while(sc.getM_Nodes().size() < connectionsToMake && count < 100){
-					
-						count += 1;
-						
-						Bag neighbours = SimulationEnvironment.brcEnvironment.getNeighborsExactlyWithinDistance(loc,
-								2.0,false);
-						
-						if(!neighbours.isEmpty()) 
-						{
-
-							//choose a random cell
-							int random_index = Settings.RNG.nextInt(neighbours.size());
-							//now we need to look for connections we can make
-							
-							if(neighbours.get(random_index) instanceof Stroma && !neighbours.get(random_index).equals(sc) && !sc.getM_Nodes().contains(neighbours.get(random_index))){
-								
-								Stroma neighbour = (Stroma) neighbours.get(random_index);
-								connections.add(neighbour);
-						
-							}
-							
-							for(Stroma sc2 : connections){
-								Double3D neighbourloc = sc2.getM_Location();
 	
-								StromaEdge seEdge = new StromaEdge(loc, neighbourloc, StromaEdge.TYPE.MRC_edge);
-								seEdge.setObjectLocation(seEdge.getPoint1());
-	
-								SimulationEnvironment.scheduleStoppableCell(seEdge);
-	
-								sc.getM_Edges().add(seEdge);
-								sc2.getM_Edges().add(seEdge);
-								
-								seEdge.m_Nodes.add(sc);
-								seEdge.m_Nodes.add(sc2);
-							}
-							
-							FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(sc);
-								
-						}	
-					}
-					
-					*/
-					
-					
 				}
 			}
 			

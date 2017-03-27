@@ -5,6 +5,7 @@ package integrationtests;
 
 import static org.junit.Assert.*;
 
+import org.junit.After;
 import org.junit.Test;
 
 import sim.util.Bag;
@@ -13,6 +14,7 @@ import sim3d.SimulationEnvironment;
 import sim3d.cell.BC;
 import sim3d.cell.cognateBC;
 import sim3d.cell.cognateBC.TYPE;
+import sim3d.diffusion.Chemokine;
 import sim3d.util.IO;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -23,6 +25,8 @@ import static org.hamcrest.Matchers.*;
 public class SystemTests {
 
 	
+	
+	
 	/*
 	 * Make sure that B cells can become primed
 	 */
@@ -32,23 +36,24 @@ public class SystemTests {
 		
 		long steps = 0;
 		long seed = System.currentTimeMillis();
+		SimulationEnvironment.simulation = null;
 		SimulationEnvironment.simulation= new SimulationEnvironment(
 				seed,
 				IO.openXMLFile("/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml"));
 
 		
-		
+
 		// set the appropriate parameters
 
 		Settings.HEIGHT = 40;
 		Settings.WIDTH = 40;
 		Settings.DEPTH = 10;
-		Settings.BC.COGNATECOUNT = 100;
+		//Settings.BC.COGNATECOUNT = 100;
 	
-		Settings.BC.COUNT = 0;
+		//Settings.BC.COUNT = 0;
 		Settings.BC.COGNATECOUNT = 100;
 		SimulationEnvironment.steadyStateReached = true;
-		Settings.EXPERIMENTLENGTH = 400;
+		//Settings.EXPERIMENTLENGTH = 400;
 		SimulationEnvironment.simulation.start();
 		
 

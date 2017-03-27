@@ -99,8 +99,8 @@ public class consoleRun {
 		 
 		if(Settings.calculateTopologyData){
 		 
-			outputToCSV.writeDistMatrixToFile(outputPath + "dist.csv", SimulationEnvironment.distMatrix);
-			outputToCSV.writeAdjacencyMatrixToFile(outputPath + "adjacency.csv", SimulationEnvironment.a_matrix);
+			outputToCSV.writeMatrixToFile(outputPath + "dist.csv", SimulationEnvironment.distMatrix);
+			outputToCSV.writeMatrixToFile(outputPath + "adjacency.csv", SimulationEnvironment.a_matrix);
 			outputToCSV.writeNodeInformationToFile(outputPath + "nodeInfo.csv", 
 					Stroma.getNodes());
 		}

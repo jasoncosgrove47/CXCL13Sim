@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.w3c.dom.Document;
 import dataLogger.Controller;
-import dataLogger.outputToCSV;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -29,9 +28,7 @@ import sim3d.stroma.StromaEdge;
 
 public class SimulationEnvironment extends SimState {
 
-	
 
-	
 	/**
 	 * this is the size of the FDC network
 	 */
@@ -78,10 +75,10 @@ public class SimulationEnvironment extends SimState {
 	
 	static double[][] distMatrix;
 	
-	static int[][] a_matrix ;
-	static int[][] fdc_a_matrix ;
-	static int[][] brc_a_matrix ;
-	static int[][] mrc_a_matrix ;
+	static double[][] a_matrix ;
+	static double[][] fdc_a_matrix ;
+	static double[][] brc_a_matrix ;
+	static double[][] mrc_a_matrix ;
 	
 	/**
 	 * Instance of the CXCL13 class
@@ -244,13 +241,11 @@ public class SimulationEnvironment extends SimState {
 		
 		if(Settings.calculateTopologyData){
 		
-			a_matrix = Controller.generateAdjacencyMatrix();
-			a_matrix = Controller.updateAdjacencyMatrix(a_matrix);
-			distMatrix = Controller.createAndUpdateDistanceMatrix();
+			a_matrix = Controller.createMatrix(false);
+			distMatrix = Controller.createMatrix(true);
+
 		
 		}
-		//TODO need to sort it out so that we have celltype specific adjacency matrices
-		//cant have two types of network index
 
 		
 	}

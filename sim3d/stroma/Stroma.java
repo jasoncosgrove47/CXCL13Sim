@@ -4,11 +4,7 @@ package sim3d.stroma;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.media.j3d.TransformGroup;
@@ -29,7 +25,7 @@ import sim3d.cell.DrawableCell3D;
 import sim3d.collisiondetection.Collidable;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.diffusion.Chemokine;
-import sim3d.stroma.Stroma.TYPE;
+
 
 /**
  * TO do cell profiler analysis of raw image files then neural network classification
@@ -325,6 +321,18 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		//no connection so return false
 		return false;
 	}
+	
+	/**
+	 * Once we create a stroma node we need to 
+	 * add it to the relevant grids and update 
+	 * connections etc
+	 * @param sc
+	 */
+	public void addStromaNodeToSim(Stroma sc){
+		
+		//TODO need to make this method
+	}
+	
 	
 	
 	@Override

@@ -28,7 +28,6 @@ public class cognateBCTest {
 		
 	}
 
-
 	/**
 	 * Assert that a cognate BC can update its position with
 	 * the controller

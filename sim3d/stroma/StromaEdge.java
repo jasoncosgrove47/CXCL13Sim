@@ -97,8 +97,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		stopper.stop();
 	}
 	
-	
-	private Double3D m_point2;
+
 	
 	
 	@Override
@@ -176,7 +175,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	/**
 	 * The midpoint of the edge, used for creating branches
 	 */
-	private Double3D midpoint;
+	//private Double3D midpoint;
 
 	/**
 	 * Divide each dendrite in two so that a B cell must be at the correct part
@@ -230,16 +229,9 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		
 		//an edge can have other edges if connected by a branch
 		this.m_Edges = new LinkedHashSet<StromaEdge>();
-		
-		//TODO make this an array with just two nodes
 		this.m_Nodes = new LinkedHashSet<Stroma>();
 		
-		
-		
-		
-		//this.m_Nodes = new ArrayList<Stroma>();
-		//this.m_Branches = new ArrayList<StromaEdge>();
-		//this.m_Edges = new ArrayList<StromaEdge>();
+
 		
 		Color col = new Color(165, 0, 0, 100);
 		Color col2 = new Color(215,230,230, 0);
@@ -256,8 +248,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		}
 
 		
-		
-		
 		// location of stroma is static so easiest to specify it's location in
 		// the constructor
 		x = d3Point1.x;
@@ -267,13 +257,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		// vector representing the stromal edge
 		m_d3Edge = d3Point2.subtract(d3Point1);
 
-		
-		
-
-		
-		// the midpoint of the vector
-		//midpoint = new Double3D((d3Point1.x + d3Point2.x) / 2,
-		//		(d3Point1.y + d3Point2.y) / 2, (d3Point1.z + d3Point2.z) / 2);
 		
 		switch (type) {
 		case FDC_edge: 
@@ -345,6 +328,31 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		
 	}
 
+	/**
+	 * Once we create a stroma node we need to 
+	 * add it to the relevant grids and update 
+	 * connections etc
+	 * @param sc
+	 */
+	public void addStromaEdgeToSim(StromaEdge sc){
+		
+		//TODO need to make this method
+	}
+	
+	
+	/**
+	 * Once we create a stroma node we need to 
+	 * add it to the relevant grids and update 
+	 * connections etc
+	 * @param sc
+	 */
+	public void addStromaBranchToSim(StromaEdge sc){
+		
+		//TODO need to make this method
+	}
+	
+	
+	
 	@Override
 	public void addCollisionPoint(Int3D i3Point) {
 		return; // We're not interested in collisions as we're static
@@ -531,11 +539,11 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		
 		//we also need to update the midpoint at this point
 		
-		Double3D p1 = this.getPoint1();
-		Double3D p2 = this.getPoint2();
+		//Double3D p1 = this.getPoint1();
+		//Double3D p2 = this.getPoint2();
 		
-		this.setMidpoint(new Double3D((p1.x + p2.x) / 2,
-						(p1.y + p2.y) / 2, (p1.z + p2.z) / 2));
+		//this.setMidpoint(new Double3D((p1.x + p2.x) / 2,
+		//				(p1.y + p2.y) / 2, (p1.z + p2.z) / 2));
 
 		getDrawEnvironment().setObjectLocation(this, new Double3D(x, y, z));
 		
@@ -636,9 +644,9 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	}
 
 
-	public void setMidpoint(Double3D midpoint) {
-		this.midpoint = midpoint;
-	}
+	//public void setMidpoint(Double3D midpoint) {
+		//this.midpoint = midpoint;
+	//}
 
 
 	public boolean isM_isStatic() {

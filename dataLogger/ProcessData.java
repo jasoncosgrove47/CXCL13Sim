@@ -114,8 +114,6 @@ public class ProcessData {
 			Double3D nextLocation = calculateNextLocation(i, Coords);
 			Double3D previousLocation = calculatePreviousLocation(i, Coords);
 
-	
-
 			double turningAngle;
 
 			if (nextLocation != null && previousLocation != null) {
@@ -208,12 +206,6 @@ public class ProcessData {
 		return miCorrected;
 	}
 
-	
-
-	
-	
-	
-	
 	
 	/**
 	 * Calculates the velocity of a cell
