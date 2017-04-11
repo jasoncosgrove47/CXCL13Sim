@@ -67,7 +67,7 @@ public class consoleRun {
 
 			// run the simulation for 500 steps to allow it to reach
 			// steady-state
-			if (steps == 150) {
+			if (steps == 100) {
 
 				// update the steadyState guard to begin recording data
 				SimulationEnvironment.steadyStateReached = true;
@@ -98,7 +98,7 @@ public class consoleRun {
 		 outputToCSV.writeDataToFile(outputPath + outputFileName);
 		 
 		if(Settings.calculateTopologyData){
-		 
+		   outputToCSV.writeDegreesToFile(outputPath + "degrees.csv", Controller.degrees);
 			outputToCSV.writeMatrixToFile(outputPath + "dist.csv", SimulationEnvironment.distMatrix);
 			outputToCSV.writeMatrixToFile(outputPath + "adjacency.csv", SimulationEnvironment.a_matrix);
 			outputToCSV.writeNodeInformationToFile(outputPath + "nodeInfo.csv", 

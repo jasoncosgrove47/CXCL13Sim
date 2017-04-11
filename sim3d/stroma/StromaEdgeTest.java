@@ -20,9 +20,6 @@ import sim3d.util.IO;
 
 public class StromaEdgeTest {
 
-	
-	
-
 	/**
 	 * We need to make sure that all stromaEdges location
 	 * is equal to point 1 and also need to check that point 2
@@ -39,8 +36,6 @@ public class StromaEdgeTest {
 				seed,
 				IO.openXMLFile("/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml"));
 
-		
-
 		// set the appropriate parameters
 		Settings.BC.COUNT = 0;
 		Settings.BC.COGNATECOUNT = 100;
@@ -48,7 +43,6 @@ public class StromaEdgeTest {
 		Settings.EXPERIMENTLENGTH = 400;
 		SimulationEnvironment.simulation.start();
 		
-
 		// run the simulation for 400 steps
 		do {
 			steps = SimulationEnvironment.simulation.schedule.getSteps();
@@ -56,11 +50,8 @@ public class StromaEdgeTest {
 				break;
 		} while (steps < 10);
 		
-		
 		boolean correctLocation = true;
-		
 		Bag stroma= SimulationEnvironment.getAllStroma();
-		
 		
 		//check that for each stromaedge the location is 
 		// set to point 1
@@ -71,19 +62,12 @@ public class StromaEdgeTest {
 				if(se.getPoint1().distance(se.getM_Location()) > 0.1){//if they arent in the same place then
 					// update to false
 					correctLocation = false;
-					
 					break;
 				}
-			}
-			
-			
+			}	
 		}
-		
 		assertTrue(correctLocation);
-		
 	}
-	
-	
 	
 	
 	/**
@@ -98,7 +82,6 @@ public class StromaEdgeTest {
 				1, 1), StromaEdge.TYPE.FDC_edge);
 		TransformGroup localTG = se.getModel(se, null);
 		assertTrue(localTG instanceof TransformGroup);
-
 	}
 
 	/**
@@ -122,8 +105,6 @@ public class StromaEdgeTest {
 				1, 1), StromaEdge.TYPE.FDC_edge);
 		assertTrue(se.getAntigenLevel() == 400);
 	}
-
-
 
 	/**
 	 * Test that registerCollisions updates m_i3lCollsionPoints

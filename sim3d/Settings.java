@@ -20,7 +20,6 @@ import ec.util.MersenneTwisterFast;
 public class Settings {
 	
 
-	
 	public static void loadParameters(Document params) {
 		// Simulation Tag
 		Element paramOElement = (Element) params.getElementsByTagName("O")
@@ -50,9 +49,9 @@ public class Settings {
 		Node gridN = gridNL.item(0);
 		GRID_SIZE = Double.parseDouble(gridN.getTextContent());
 		
-		NodeList sbNL = paramOElement.getElementsByTagName("SIGNALLING_BIAS");
-		Node sbN = sbNL.item(0);
-		SIGNALLING_BIAS= Double.parseDouble(sbN.getTextContent());
+	//	NodeList sbNL = paramOElement.getElementsByTagName("SIGNALLING_BIAS");
+	//	Node sbN = sbNL.item(0);
+	//	SIGNALLING_BIAS= Double.parseDouble(sbN.getTextContent());
 	
 	}
 
@@ -74,13 +73,7 @@ public class Settings {
 	 */
 	public static int NUM_THREADS;
 	
-	
-	/*
-	 * strength of CXCL13 in comparison with EBI2
-	 * less than 1 favours CXCL13, greater than one
-	 * favours EBI2
-	 */
-	public static double SIGNALLING_BIAS;
+
 	
 	
 	/**
@@ -107,31 +100,6 @@ public class Settings {
 	public static double GRID_SIZE; // 1E-05 = 10 micron
 
 
-	/**
-	 * subclass containing all of the TC parameters
-	 */
-	public static class TC{
-		/**
-		 * This loads the parameters from an XML file for high throughput
-		 * analyses
-		 * 
-		 * @param params
-		 */
-		public static void loadParameters(Document params) {
-			Element paramTCElement = (Element) params
-					.getElementsByTagName("TC").item(0);
-
-			NodeList countNL = paramTCElement.getElementsByTagName("COUNT");
-			Node countN = countNL.item(0);
-			COUNT = Integer.parseInt(countN.getTextContent());
-		}
-		/**
-		 * Number of TCs to generate
-		 */
-		public static int COUNT;
-		
-	}
-	
 	
 	/**
 	 * Subclass containing all the BC parameters
@@ -342,11 +310,6 @@ public class Settings {
 				Ka = scaleKa();
 
 				
-				NodeList KaENL = paramODEElement.getElementsByTagName("Ka_EBI2");
-				Node KaEN = KaENL.item(0);
-				Ka_EBI2 = Double.parseDouble(KaEN.getTextContent());
-				
-				
 				NodeList KrNL = paramODEElement.getElementsByTagName("Kr");
 				Node KrN = KrNL.item(0);
 				Kr = Double.parseDouble(KrN.getTextContent());
@@ -397,7 +360,6 @@ public class Settings {
 			
 			public static double Kdes;
 			
-			public static double Ka_EBI2;
 			
 			/**
 			 * binding constant for receptor-ligand
@@ -461,9 +423,6 @@ public class Settings {
 			Node alN = alNL.item(0);
 			STARTINGANTIGENLEVEL = Integer.parseInt(alN.getTextContent());
 
-			NodeList countNL = paramFDCElement.getElementsByTagName("FDCCOUNT");
-			Node countN = countNL.item(0);
-			COUNT = Integer.parseInt(countN.getTextContent());
 
 			NodeList discretisationNL = paramFDCElement
 					.getElementsByTagName("DISCRETISATION");
@@ -505,11 +464,6 @@ public class Settings {
 		 */
 		public static int STARTINGANTIGENLEVEL;
 
-		/**
-		 * Number of FDCs to generate NOTE: this is just a maximum. If there's
-		 * no room to fit them all, it won't keep trying
-		 */
-		public static int COUNT;
 
 		/**
 		 * used by Continuous3D - related to getting neighbours; the size of the
@@ -612,12 +566,6 @@ public class Settings {
 			Element paramMRCElement = (Element) params.getElementsByTagName(
 					"MRC").item(0);
 
-			NodeList ebi2lNL = paramMRCElement
-					.getElementsByTagName("EBI2L_EMITTED_MRC");
-			Node ebi2lN = ebi2lNL.item(0);
-			emissionrate_ebi2l = Double.parseDouble(ebi2lN.getTextContent());
-
-			EBI2L_EMITTED = FDC.scaleEmissionRate(emissionrate_ebi2l);
 			
 			NodeList countNL = paramMRCElement.getElementsByTagName("MRCCOUNT");
 			Node countN = countNL.item(0);
@@ -638,8 +586,7 @@ public class Settings {
 		}
 
 		public static int COUNT;
-		
-		private static double emissionrate_ebi2l;
+
 		
 		private static double emissionrate_cxcl13;
 
@@ -738,159 +685,8 @@ public class Settings {
 		public static int DIFFUSION_STEPS;
 	}
 	
-	/**
-	 * subclass containing all of the CCL19 parameters
-	 */
-	public static class CCL19 {
 
-		public static void loadParameters(Document params) {
-			// Simulation Tag
-			Element paramCCL19Element = (Element) params.getElementsByTagName(
-					"CCL19").item(0);
 
-			NodeList ccl19NL = paramCCL19Element
-					.getElementsByTagName("DECAY_CONSTANT_CCL19");
-			Node ccl19N = ccl19NL.item(0);
-			DECAY_CONSTANT = Double.parseDouble(ccl19N.getTextContent());
-			
-			NodeList diffusionNL = paramCCL19Element
-					.getElementsByTagName("DIFFUSION_COEFFICIENT_CCL19");
-			Node diffusionN = diffusionNL.item(0);
-			DIFFUSION_COEFFICIENT_PREFIX = Double.parseDouble(diffusionN
-					.getTextContent());
-
-			// this must be computed here otherwise these values get set to zero
-			DIFFUSION_COEFFICIENT = scaleDIFFUSION_COEFFICIENT();
-			DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
-			DIFFUSION_STEPS = calculateDIFFUSION_STEPS();
-		}
-		/*
-		 * Scale the diffusion coefficient
-		 */
-		static double scaleDIFFUSION_COEFFICIENT() {
-
-			return (DIFFUSION_COEFFICIENT_PREFIX * (1e-12));
-		}
-		
-		
-		/*
-		 * Calculates the appropriate timestep for diffusion
-		 */
-		static double calculateDIFFUSION_TIMESTEP() {
-			return (Math.pow(GRID_SIZE, 2) / (10 * DIFFUSION_COEFFICIENT));
-		}
-		
-
-		/**
-		 * multiply by 60 as we want to update diffusion in seconds and not minutes
-		 * @return
-		 */
-		static int calculateDIFFUSION_STEPS() {
-			return (int) (60 / DIFFUSION_TIMESTEP);
-		}
-		
-		/**
-		 * the rate of protein decay per timestep
-		 */
-		public static double DECAY_CONSTANT;
-		
-		
-		/**
-		 * Speed of diffusion, used by DiffusionAlgorithm need to specify the units
-		 * so we know what we are dealing with
-		 */
-		public static double DIFFUSION_COEFFICIENT;
-		public static double DIFFUSION_COEFFICIENT_PREFIX;
-		
-		/**
-		 * How much time a single iteration of the diffusion process will take us
-		 * forward
-		 * 
-		 * @see http
-		 *      ://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
-		 *      /Notes_Diffusion.pdf
-		 */
-		public static double DIFFUSION_TIMESTEP;
-		public static int DIFFUSION_STEPS;
-	}
-	
-	/**
-	 * subclass containing all of the EBI2L parameters
-	 */
-	public static class EBI2L {
-
-		public static void loadParameters(Document params) {
-			// Simulation Tag
-			Element paramEBI2LElement = (Element) params.getElementsByTagName(
-					"EBI2L").item(0);
-
-			NodeList stromaedgeNL = paramEBI2LElement
-					.getElementsByTagName("DECAY_CONSTANT_EBI2L");
-			Node stromaedgeN = stromaedgeNL.item(0);
-			DECAY_CONSTANT = Double.parseDouble(stromaedgeN.getTextContent());
-			
-			NodeList diffusionNL = paramEBI2LElement
-					.getElementsByTagName("DIFFUSION_COEFFICIENT_EBI2L");
-			Node diffusionN = diffusionNL.item(0);
-			DIFFUSION_COEFFICIENT_PREFIX = Double.parseDouble(diffusionN
-					.getTextContent());
-
-			// this must be computed here otherwise these values get set to zero
-			DIFFUSION_COEFFICIENT = scaleDIFFUSION_COEFFICIENT();
-			DIFFUSION_TIMESTEP = calculateDIFFUSION_TIMESTEP();
-			DIFFUSION_STEPS = calculateDIFFUSION_STEPS();
-			
-		}
-
-		
-		/*
-		 * Scale the diffusion coefficient
-		 */
-		static double scaleDIFFUSION_COEFFICIENT() {
-
-			return (DIFFUSION_COEFFICIENT_PREFIX * (1e-12));
-		}
-		
-		
-		/*
-		 * Calculates the appropriate timestep for diffusion
-		 */
-		static double calculateDIFFUSION_TIMESTEP() {
-			return (Math.pow(GRID_SIZE, 2) / (10 * DIFFUSION_COEFFICIENT));
-		}
-		
-
-		/**
-		 * multiply by 60 as we want to update diffusion in seconds and not minutes
-		 * @return
-		 */
-		static int calculateDIFFUSION_STEPS() {
-			return (int) (60 / DIFFUSION_TIMESTEP);
-		}
-		
-		/**
-		 * Speed of diffusion, used by DiffusionAlgorithm need to specify the units
-		 * so we know what we are dealing with
-		 */
-		public static double DIFFUSION_COEFFICIENT;
-		public static double DIFFUSION_COEFFICIENT_PREFIX;
-		
-		/**
-		 * the rate of protein decay per timestep
-		 */
-		public static double DECAY_CONSTANT;
-		
-		/**
-		 * How much time a single iteration of the diffusion process will take us
-		 * forward
-		 * 
-		 * @see http
-		 *      ://physics-server.uoregon.edu/~raghu/TeachingFiles/Winter08Phys352
-		 *      /Notes_Diffusion.pdf
-		 */
-		public static double DIFFUSION_TIMESTEP;
-		public static int DIFFUSION_STEPS;
-	}
 	
 	
 

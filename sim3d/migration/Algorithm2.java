@@ -15,7 +15,7 @@ import sim3d.util.Vector3DHelper;
 public class Algorithm2 implements MigrationAlgorithm {
 
 	// less than 1 favours CXCL13, greater than one favours EBI2L
-	double signallingBias = Settings.SIGNALLING_BIAS;
+	double signallingBias = 1.0;
 
 	/**
 	 * At each timestep, a lymphocyte stores its putative movements in an array

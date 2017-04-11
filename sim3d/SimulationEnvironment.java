@@ -14,7 +14,6 @@ import sim3d.diffusion.Chemokine;
 import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
 
-
 /**
  * This class sets up and runs the simulation absent of any GUI related function
  * as a MASON design pattern, in line with the MASON (Model/View/Controller).
@@ -28,12 +27,11 @@ import sim3d.stroma.StromaEdge;
 
 public class SimulationEnvironment extends SimState {
 
-
 	/**
 	 * this is the size of the FDC network
 	 */
-	public static int fdcNetRadius = 11;
-	
+	public static int fdcNetRadius = 13;//was 11
+
 	private static final long serialVersionUID = 1;
 
 	/**
@@ -59,12 +57,11 @@ public class SimulationEnvironment extends SimState {
 	public static SimulationEnvironment simulation;
 
 	/**
-	 * an arraylist containing all unique edges 
-	 * Sometimes the generator leads to overlapping edges
-	 * so we remove these 
+	 * an arraylist containing all unique edges Sometimes the generator leads to
+	 * overlapping edges so we remove these
 	 */
 	ArrayList<StromaEdge> m_edges;
-	
+
 	/*
 	 * 3D grid for Stroma
 	 */
@@ -72,26 +69,14 @@ public class SimulationEnvironment extends SimState {
 	public static Continuous3D brcEnvironment;
 	public static Continuous3D mrcEnvironment;
 
-	
-	static double[][] distMatrix;
-	
-	static double[][] a_matrix ;
-	static double[][] fdc_a_matrix ;
-	static double[][] brc_a_matrix ;
-	static double[][] mrc_a_matrix ;
-	
+	public static double[][] distMatrix;
+	public static double[][] a_matrix;
+
 	/**
 	 * Instance of the CXCL13 class
 	 */
 	public static Chemokine CXCL13;
-	
-	
-	/**
-	 * Instance of the EBI2 class
-	 */
-	//public static Chemokine EBI2L;
 
-	
 	/*
 	 * Parameter file: XML format
 	 */
@@ -105,7 +90,6 @@ public class SimulationEnvironment extends SimState {
 	}
 
 	public TYPE celltype;
-	
 
 	/**
 	 * Constructor for the simulation environment
@@ -121,24 +105,20 @@ public class SimulationEnvironment extends SimState {
 								// Options class so we can access it everywhere
 	}
 
-	
 	/**
 	 * Load parameters from an external xml file to the static Options class
 	 */
 	public void setupSimulationParameters() {
 		Settings.loadParameters(parameters);
 		Settings.BC.loadParameters(parameters);
-		Settings.TC.loadParameters(parameters);
 		Settings.FDC.loadParameters(parameters);
 		Settings.bRC.loadParameters(parameters);
 		Settings.MRC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
 		Settings.CXCL13.loadParameters(parameters);
-		Settings.CCL19.loadParameters(parameters);
-		Settings.EBI2L.loadParameters(parameters);
+
 	}
 
-	
 	/**
 	 * Destroy resources after use
 	 */
@@ -155,7 +135,7 @@ public class SimulationEnvironment extends SimState {
 		return Chemokine.getDisplayLevel() + 1;
 
 	}
-	
+
 	/**
 	 * Setter for the current display level
 	 */
@@ -171,64 +151,60 @@ public class SimulationEnvironment extends SimState {
 	 */
 	public void scheduleStoppableCell(Lymphocyte cell) {
 		cell.setStopper(simulation.schedule.scheduleRepeating((Steppable) cell));
-		
+
 	}
 
 	/**
-	 * Override this method for stroma as they need to be later in the schedule than
-	 * lymphocytes because they secrete chemokine, Otherwise you can get some
-	 * weird artefacts
+	 * Override this method for stroma as they need to be later in the schedule
+	 * than lymphocytes because they secrete chemokine, Otherwise you can get
+	 * some weird artefacts
+	 * 
 	 * @param cell
 	 */
 	public static void scheduleStoppableCell(Stroma cell) {
-		cell.setStopper(simulation.schedule.scheduleRepeating((Steppable) cell, 2, 1));	
+		cell.setStopper(simulation.schedule.scheduleRepeating((Steppable) cell, 2, 1));
 	}
-	
+
 	/**
-	 * Override this method for stroma as they need to be later in the schedule than
-	 * lymphocytes because they secrete chemokine, Otherwise you can get some
-	 * weird artefacts
-	 * @param cell
+	 * Override this method for stroma as they need to be later in the schedule
+	 * than lymphocytes because they secrete chemokine, Otherwise you can get
+	 * some weird artefacts
+	 * 
+	 * @param edge the edge to schedule
 	 */
-	public static void scheduleStoppableCell(StromaEdge cell) {
-		cell.setStopper(simulation.schedule.scheduleRepeating((Steppable) cell, 2, 1));	
+	public static void scheduleStoppableEdge(StromaEdge edge) {
+		edge.setStopper(simulation.schedule.scheduleRepeating((Steppable) edge, 2, 1));
 	}
-	
-	
+
 	/**
 	 * Sets up a simulation run and initialises the environments.
 	 */
 	public void start() {
 		// start the simulation
 		super.start();
-		
-		// Initialise the stromal grid
-		fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
-				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
 
-		mrcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
-				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
-		
-		brcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION,
-				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
-		
+		// Initialise the stromal grid
+		fdcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
+
+		mrcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
+
+		brcEnvironment = new Continuous3D(Settings.FDC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
+
 		// Initialise the B cell grid
-		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION,
-				Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
+		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, Settings.WIDTH, Settings.HEIGHT,
+				Settings.DEPTH);
 		BC.drawEnvironment = BC.bcEnvironment;
 
 		// initialise chemokines
-		CXCL13 = new Chemokine(schedule, Chemokine.TYPE.CXCL13, Settings.WIDTH,
-				Settings.HEIGHT, Settings.DEPTH);
-		
-		// Initialise the CollisionGrid
-		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH,
-				Settings.HEIGHT, Settings.DEPTH, 1);
-		schedule.scheduleRepeating(cgGrid, 3, 1); 
+		CXCL13 = new Chemokine(schedule, Chemokine.TYPE.CXCL13, Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH);
 
-		//intialise the follicleEnvironment
+		// Initialise the CollisionGrid
+		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH, 1);
+		schedule.scheduleRepeating(cgGrid, 3, 1);
+
+		// intialise the follicleEnvironment
 		FollicleInitialiser.initialiseFollicle(cgGrid);
-				
+
 		// BCs will need to update their collision profile each
 		// step so tell them what collision grid to use
 		BC.m_cgGrid = cgGrid;
@@ -237,20 +213,16 @@ public class SimulationEnvironment extends SimState {
 		seedCells(CELLTYPE.B);
 		seedCells(CELLTYPE.cB);
 
-		///this should throw an error now because we dont have a useful index
-		
-		if(Settings.calculateTopologyData){
-		
+		/// this should throw an error now because we dont have a useful index
+
+		if (Settings.calculateTopologyData) {
 			a_matrix = Controller.createMatrix(false);
 			distMatrix = Controller.createMatrix(true);
 
-		
 		}
 
-		
 	}
 
-	
 	/**
 	 * Tests whether co-ordinates x,y are in the circle centered at
 	 * circleCentreX, circleCentreY with a specified radius
@@ -258,8 +230,7 @@ public class SimulationEnvironment extends SimState {
 	 * @return boolean determining whether inside (false) or outside (true) the
 	 *         circle
 	 */
-	public static boolean isWithinCircle(double x, double y, double circleCentreX,
-			double circleCentreY, int radius) {
+	public static boolean isWithinCircle(double x, double y, double circleCentreX, double circleCentreY, int radius) {
 
 		// squared distance from test.x to center.x
 		double termOne = Math.pow((x - circleCentreX), 2);
@@ -278,7 +249,7 @@ public class SimulationEnvironment extends SimState {
 	 * Seeds B cells into the FDC network
 	 */
 	void seedCells(CELLTYPE celltype) {
-		
+
 		int count = 0; // the number of cells to seed
 
 		// set the number of cells to seed
@@ -286,11 +257,8 @@ public class SimulationEnvironment extends SimState {
 			count = Settings.BC.COUNT;
 		} else if (celltype == CELLTYPE.cB) {
 			count = Settings.BC.COGNATECOUNT;
-		} else if (celltype == CELLTYPE.T) {
-			count = Settings.TC.COUNT;
 		}
 
-		
 		// seed the cells
 		for (int i = 0; i < count; i++) {
 			switch (celltype) {
@@ -311,13 +279,6 @@ public class SimulationEnvironment extends SimState {
 				scheduleStoppableCell(cbc);
 				break;
 
-			case T:
-				TC tc = new TC();
-				tc.setObjectLocation(generateCoordinateOutsideCircle(fdcNetRadius));
-
-				scheduleStoppableCell(tc);
-				break;
-
 			default:
 				break;
 			}
@@ -330,18 +291,16 @@ public class SimulationEnvironment extends SimState {
 	Double3D generateCoordinateWithinCircle(int circleRadius) {
 
 		int x, y, z;
-		
+
 		// keep generating new values while they are outside of the circle
 		// the radius of the circle is 13 and it is inside this that we seed
 		// the b cells
-		
 		do {
 			x = random.nextInt(Settings.WIDTH - 2) + 1;
 			y = random.nextInt(Settings.HEIGHT - 2) + 1;
 			z = random.nextInt(Settings.DEPTH - 2) + 1;
 
-		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1,
-				(Settings.HEIGHT / 2) + 1, circleRadius) == false);
+		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1, (Settings.HEIGHT / 2) + 1, circleRadius) == false);
 
 		return new Double3D(x, y, z);
 	}
@@ -360,97 +319,87 @@ public class SimulationEnvironment extends SimState {
 			// keep generating new values while they are outside of the circle
 			// the radius of the circle is 13 and it is inside this that we seed
 			// the b cells
-		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1,
-				(Settings.HEIGHT / 2) + 1, circleRadius) == true);
+		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1, (Settings.HEIGHT / 2) + 1, circleRadius) == true);
 
 		return new Double3D(x, y, z);
 	}
-	
-
-
-	
-
 
 	/**
 	 * Return all objects on the 3 stroma grids
+	 * 
 	 * @return a bag containing all stromal cells in the sim
 	 */
-	public static Bag getAllStroma(){
+	public static Bag getAllStroma() {
 
 		Bag stroma = new Bag();
-		
-		//TODO surely there is a better way to do this???
-		if(fdcEnvironment != null){
+		if (fdcEnvironment != null) {
 			stroma.addAll(fdcEnvironment.getAllObjects());
 		}
-		if(brcEnvironment != null){
+		if (brcEnvironment != null) {
 			stroma.addAll(brcEnvironment.getAllObjects());
 		}
-		if(mrcEnvironment != null){
+		if (mrcEnvironment != null) {
 			stroma.addAll(mrcEnvironment.getAllObjects());
 		}
-		
-		
+
 		return stroma;
 	}
-	
-	
+
 	/**
 	 * Return all objects on the 3 stroma grids within a threshold distance
+	 * 
 	 * @return a bag containing all stromal cells in the sim
 	 */
-	public static Bag getAllStromaWithinDistance(Double3D loc, double dist){
-		
+	public static Bag getAllStromaWithinDistance(Double3D loc, double dist) {
+
 		Bag stroma = new Bag();
-		
-		if(fdcEnvironment != null){
+
+		if (fdcEnvironment != null) {
 			stroma.addAll(fdcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
 		}
-		if(brcEnvironment != null){
+		if (brcEnvironment != null) {
 			stroma.addAll(brcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
 		}
-		if(mrcEnvironment != null){
+		if (mrcEnvironment != null) {
 			stroma.addAll(mrcEnvironment.getNeighborsExactlyWithinDistance(loc, dist));
 		}
-		
+
 		return stroma;
 	}
 
-
 	/**
-	 * 	this calculates the total number of stromal cells and the edges 
-	 *  but is not a measure of theprotrusions or of the topology
+	 * this calculates the total number of stromal cells and the edges but is
+	 * not a measure of theprotrusions or of the topology
 	 */
-	public static int[] calculateNodesAndEdges(){
-		
+	public static int[] calculateNodesAndEdges() {
+
 		int nodes = 0;
 		int edges = 0;
 		int[] output = new int[2];
-		
+
 		Bag stroma = getAllStroma();
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof StromaEdge) {
-			
-				edges ++;
+
+				edges++;
 			}
-		
-			if(stroma.get(i) instanceof Stroma){
-				if(((Stroma)stroma.get(i)).getStromatype()!=Stroma.TYPE.LEC){
-					nodes ++;
+
+			if (stroma.get(i) instanceof Stroma) {
+				if (((Stroma) stroma.get(i)).getStromatype() != Stroma.TYPE.LEC) {
+					nodes++;
 				}
 			}
 		}
-		
+
 		output[0] = nodes;
 		output[1] = edges;
 
 		return output;
 	}
-	
-	
+
 	@SuppressWarnings("unused")
-	private int calculateTotalNumberOfAPCs(){
-		
+	private int calculateTotalNumberOfAPCs() {
+
 		Bag stroma = getAllStroma();
 		int FDCcounter = 0;
 
@@ -458,12 +407,11 @@ public class SimulationEnvironment extends SimState {
 		// we need to know how many FDC nodes there are
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof Stroma) {
-				
-				
+
 				Stroma.TYPE type = ((Stroma) stroma.get(i)).getStromatype();
-				
-				//we want to include FDCs, MRCs and bRCs
-				if (type != Stroma.TYPE.bRC ) {
+
+				// we want to include FDCs, MRCs and bRCs
+				if (type != Stroma.TYPE.bRC) {
 					FDCcounter += 1;
 				}
 			}

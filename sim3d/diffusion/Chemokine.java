@@ -50,6 +50,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	private static final long serialVersionUID = 1;
 
 	
+	
 	/**
 	 * Add or remove chemokine from a grid space
 	 * 
@@ -175,7 +176,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	
 	
 	/**
-	 * Records the diffusion timestep for adative diffusion
+	 * Records the diffusion timestep for adaptive diffusion
 	 */
 	private double m_diffTime;
 
@@ -224,22 +225,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 			m_diffusionTimestep = Settings.CXCL13.DIFFUSION_TIMESTEP;
 			
 		}
-		else if(pType == Chemokine.TYPE.CCL19){
-			diffusionconstant = Settings.CCL19.DIFFUSION_COEFFICIENT;
-			decayrate = Settings.CCL19.DECAY_CONSTANT;
-			m_diffusionTimestep = Settings.CCL19.DIFFUSION_TIMESTEP;
-		}
-		else if(pType == Chemokine.TYPE.EBI2L){
-			diffusionconstant = Settings.EBI2L.DIFFUSION_COEFFICIENT;
-			decayrate = Settings.EBI2L.DECAY_CONSTANT;
-			m_diffusionTimestep = Settings.EBI2L.DIFFUSION_TIMESTEP;
-		}
 
-		
-		
-		//setM_daDiffusionAlgorithm(new sim3d.diffusion.algorithms.Grajdeanu(
-		//		Settings.DIFFUSION_COEFFICIENT, iWidth, iHeight, iDepth));
-		
 		setM_daDiffusionAlgorithm(new sim3d.diffusion.algorithms.Grajdeanu(
 				diffusionconstant, iWidth, iHeight, iDepth,Settings.NUM_THREADS,m_diffusionTimestep));
 
@@ -247,7 +233,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		ms_pParticles[ms_emTypeMap.get(pType)] = this;
 
 
-		
 		// 3 so out of sync with agents
 		schedule.scheduleRepeating(this, 3, 1);
 		
@@ -375,8 +360,8 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 
 		//this is the volume of the entire compartment in liters
 		//need to know what total compartmental volume is
-		double vol = 7.84e-9;
-		
+		//double vol = 7.84e-9;
+		double vol = 1.44e-9;
 		@SuppressWarnings("unused")
 		double molarconc = calculateMolarConcentration(vol, totalChemokineinMoles);
 		//System.out.println( "total chemokine (Molar) is: " + totalChemokineinMoles/vol);		
@@ -424,7 +409,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 			//number of steps taken per second, if fast diffusion then the timestep is small
 			// if slow then timestep is large, we divide by 60 because the diffusion coefficient
 			// is in seconds...divide by 60 because we want this in seconds.
-			setM_diffTime(getM_diffTime() + m_diffusionTimestep/60); //used to divide by 60
+			setM_diffTime(getM_diffTime() + m_diffusionTimestep/60); 
 			decay();	
 		}
 		

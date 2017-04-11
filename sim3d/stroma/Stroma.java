@@ -223,7 +223,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				
 				SpherePortrayal3D s = new SpherePortrayal3D(
 						col,
-						Settings.FDC.STROMA_NODE_RADIUS * 3.5, 6);
+						Settings.FDC.STROMA_NODE_RADIUS , 6);
 				s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 				TransformGroup localTG = s.getModel(obj, null);
 
@@ -242,7 +242,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 					
 					SpherePortrayal3D s = new SpherePortrayal3D(
 							col,
-							Settings.FDC.STROMA_NODE_RADIUS * 3, 6);
+							Settings.FDC.STROMA_NODE_RADIUS, 6);
 					s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 					TransformGroup localTG = s.getModel(obj, null);
 
@@ -262,7 +262,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				
 					SpherePortrayal3D s = new SpherePortrayal3D(
 							col,
-							Settings.FDC.STROMA_NODE_RADIUS * 4, 6);
+							Settings.FDC.STROMA_NODE_RADIUS, 6);
 					s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 					TransformGroup localTG = s.getModel(obj, null);
 

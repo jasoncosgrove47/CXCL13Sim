@@ -97,9 +97,51 @@ public class FollicleInitialiserTest {
 	
 	@Test
 	public void testForMultipleGrids() {
-		fail("not yet implemented");
+		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
+				31);
+
+		SimulationEnvironment.brcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
+				31);
+	
+		Double3D p1 = new Double3D(0,0,0);
+		Double3D p2 = new Double3D(1,1,1);
+		Double3D p3 = new Double3D(2,2,2);
+		
+		Stroma n1 = new Stroma(Stroma.TYPE.FDC, p1);
+		Stroma n2 = new Stroma(Stroma.TYPE.bRC, p2);
+		Stroma n3 = new Stroma(Stroma.TYPE.FDC, p3);
+		
+		n1.setObjectLocation(p1);
+		n2.setObjectLocation(p2);
+		n3.setObjectLocation(p3);
+		
+		StromaEdge se1 = new StromaEdge(p1,p2,StromaEdge.TYPE.FDC_edge);
+		StromaEdge se2 = new StromaEdge(p2,p3,StromaEdge.TYPE.FDC_edge);
+
+		se1.setObjectLocation(se1.getPoint1());
+		se2.setObjectLocation(se2.getPoint1());
+		
+		//update the protrusions
+		n1.getM_Edges().add(se1);
+		n2.getM_Edges().add(se1);
+		n2.getM_Edges().add(se2);
+		n3.getM_Edges().add(se2);
+		
+		
+		assertFalse(n1.getM_Nodes().contains(n2));
+		FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(n1);
+		assertTrue(n1.getM_Nodes().contains(n2));
+		assertFalse(n1.getM_Nodes().contains(n3));
+		
+	
+		assertFalse(n2.getM_Nodes().contains(n3));
+		FollicleInitialiser.updateNodeConnectionForNodeOtherGrids(n2);
+		assertTrue(n2.getM_Nodes().contains(n3));
+		
 	}
 
+	
+	
 	
 	@Test
 	public void testUpdateNodeConnections() {

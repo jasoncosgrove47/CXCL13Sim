@@ -60,7 +60,7 @@ public class StromaGeneratorTest {
 		dTotal /= selEdges.size();
 
 		// Value taken from literature + radius of cell*2
-		assertEquals(2.163, dTotal, 0.2); // assert that dTotal must equal 2.163
+		assertEquals(2.5, dTotal, 0.2); // assert that dTotal must equal 2.163
 											// with 0.2 error for margin
 	}
 
@@ -90,7 +90,7 @@ public class StromaGeneratorTest {
 		double dEdgesPerFDC = (double) iEdgeCount / (double) iCellCount;
 
 		// Value taken from literature
-		assertEquals(4, dEdgesPerFDC, 0.2); // 4 edges per FDC is determined
+		assertEquals(6, dEdgesPerFDC, 0.2); // 4 edges per FDC is determined
 											// from exptl data
 	}
 

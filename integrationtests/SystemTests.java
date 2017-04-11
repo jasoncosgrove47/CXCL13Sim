@@ -4,17 +4,14 @@
 package integrationtests;
 
 import static org.junit.Assert.*;
-
-import org.junit.After;
 import org.junit.Test;
-
 import sim.util.Bag;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
 import sim3d.cell.BC;
 import sim3d.cell.cognateBC;
 import sim3d.cell.cognateBC.TYPE;
-import sim3d.diffusion.Chemokine;
+import sim3d.stroma.Stroma;
 import sim3d.util.IO;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -24,9 +21,6 @@ import static org.hamcrest.Matchers.*;
  */
 public class SystemTests {
 
-	
-	
-	
 	/*
 	 * Make sure that B cells can become primed
 	 */
@@ -41,10 +35,7 @@ public class SystemTests {
 				seed,
 				IO.openXMLFile("/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml"));
 
-		
-
 		// set the appropriate parameters
-
 		Settings.HEIGHT = 40;
 		Settings.WIDTH = 40;
 		Settings.DEPTH = 10;
@@ -56,7 +47,6 @@ public class SystemTests {
 		//Settings.EXPERIMENTLENGTH = 400;
 		SimulationEnvironment.simulation.start();
 		
-
 		// run the simulation for 400 steps
 		do {
 			steps = SimulationEnvironment.simulation.schedule.getSteps();
@@ -78,8 +68,7 @@ public class SystemTests {
 
 				if (cBC.type == TYPE.PRIMED) {
 					primedCount += 1;
-				}
-				
+				}	
 			}
 		}
 
@@ -90,4 +79,77 @@ public class SystemTests {
 		SimulationEnvironment.simulation.finish();
 	}
 
+
+	@Test
+	public void testNetworkConnections() {
+		long steps = 0;
+		long seed = System.currentTimeMillis();
+		SimulationEnvironment.simulation = null;
+		SimulationEnvironment.simulation= new SimulationEnvironment(
+				seed,
+				IO.openXMLFile("/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml"));
+
+		// set the appropriate parameters
+		Settings.HEIGHT = 40;
+		Settings.WIDTH = 40;
+		Settings.DEPTH = 10;
+		//Settings.BC.COGNATECOUNT = 100;
+	
+		//Settings.BC.COUNT = 0;
+		Settings.BC.COGNATECOUNT = 100;
+		SimulationEnvironment.steadyStateReached = true;
+		//Settings.EXPERIMENTLENGTH = 400;
+		SimulationEnvironment.simulation.start();
+		
+		// run the simulation for 400 steps
+		do {
+			steps = SimulationEnvironment.simulation.schedule.getSteps();
+			if (!SimulationEnvironment.simulation.schedule.step(SimulationEnvironment.simulation))
+				break;
+		} while (steps < 10);
+		
+		
+		Bag stroma = SimulationEnvironment.getAllStroma();
+		
+		boolean differentSubtypesConnected = false;
+		boolean MatrixCorrect = false;
+		for(int i=0; i < stroma.size(); i ++){
+			if(stroma.get(i) instanceof Stroma){
+				Stroma sc = (Stroma) stroma.get(i);
+				
+				if(sc.getStromatype() == Stroma.TYPE.MRC){
+					for(Stroma node : sc.getM_Nodes()){
+						if(node.getStromatype() != sc.getStromatype()){
+							
+							System.out.println(node.getStromatype());
+							
+							
+							//MRCS are only connecting with MRCs
+							//need to sort it out now
+							
+							/*
+							differentSubtypesConnected = true;
+							System.out.println("diff subtypes are connected");
+							double val1 = SimulationEnvironment.a_matrix[sc.getM_index()][node.getM_index()];
+							double val2 = SimulationEnvironment.a_matrix[node.getM_index()][sc.getM_index()];
+							double val3 = SimulationEnvironment.distMatrix[sc.getM_index()][node.getM_index()];
+							double val4 = SimulationEnvironment.distMatrix[node.getM_index()][sc.getM_index()];
+							if(val1 != 1 && val2 != 1){
+								System.out.println("there is an error adjMatrix");
+							}
+							if(val3 < 1 && val4 < 1){
+								System.out.println("there is an error distMatrix");
+							}
+							*/
+						}
+					}
+				}
+			}
+		}
+		
+		assertTrue(differentSubtypesConnected);
+		//assertTrue(MatrixCorrect);
+		
+	}
+	
 }

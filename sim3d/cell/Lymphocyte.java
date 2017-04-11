@@ -56,6 +56,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	
 	
 	
+	
 	public void initialiseReceptors(){
 		
 		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(4));
@@ -156,7 +157,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	/*
 	 * Determines the position of a BC on a stromal edge
 	 */
-	private Algorithm1 a2 = new Algorithm1();
+	private Algorithm1 a1 = new Algorithm1();
 	
 	/*
 	 * Determines how many collisions a BC has had this timestep necessary to
@@ -206,7 +207,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	@Override
 	public void step(final SimState state)// why is this final here
 	{
-		migrate(a2);
+		migrate(a1);
 	}
 
 	/**

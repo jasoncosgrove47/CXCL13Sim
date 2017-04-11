@@ -18,15 +18,38 @@ public final class outputToCSV {
 
 	
 	
-	public static void writeNodeInformationToFile(String filename, ArrayList<Stroma> nodeinformation){
+	public static void writeDegreesToFile(String filename, ArrayList<Integer> degrees){
 		FileWriter processedDataWriter;
-
 
 		try {
 
-			processedDataWriter = new FileWriter(filename);
-
+			processedDataWriter = new FileWriter(filename);			
+			processedDataWriter.append("degree");
+			processedDataWriter.append('\n');
 			
+			for (Integer temp : degrees) {
+				
+				processedDataWriter.append(Integer.toString(temp));
+
+				processedDataWriter.append('\n');
+			}
+			
+			// close the file stream
+			processedDataWriter.flush();
+			processedDataWriter.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public static void writeNodeInformationToFile(String filename, ArrayList<Stroma> nodeinformation){
+		FileWriter processedDataWriter;
+
+		try {
+
+			processedDataWriter = new FileWriter(filename);			
 			processedDataWriter.append("x");
 			processedDataWriter.append(',');
 			processedDataWriter.append("y");
@@ -38,14 +61,13 @@ public final class outputToCSV {
 			processedDataWriter.append("subset");
 			processedDataWriter.append('\n');
 			
-			
 			for (Stroma temp : nodeinformation) {
 				
-				processedDataWriter.append(Double.toString(temp.getM_Location().x));
+				processedDataWriter.append(Double.toString(temp.getM_Location().x * 10));
 				processedDataWriter.append(',');
-				processedDataWriter.append(Double.toString(temp.getM_Location().y));
+				processedDataWriter.append(Double.toString(temp.getM_Location().y* 10));
 				processedDataWriter.append(',');
-				processedDataWriter.append(Double.toString(temp.getM_Location().z));
+				processedDataWriter.append(Double.toString(temp.getM_Location().z* 10));
 				processedDataWriter.append(',');
 				processedDataWriter.append(Integer.toString(temp.getM_index()));
 				processedDataWriter.append(',');
@@ -53,7 +75,6 @@ public final class outputToCSV {
 				processedDataWriter.append('\n');
 			}
 			
-	
 			// close the file stream
 			processedDataWriter.flush();
 			processedDataWriter.close();
@@ -61,8 +82,6 @@ public final class outputToCSV {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 	
@@ -73,7 +92,6 @@ public final class outputToCSV {
 	 */
 	public static void writeMatrixToFile(String filename,double[][] a_matrix){
 		FileWriter processedDataWriter;
-
 
 		try {
 
@@ -96,8 +114,6 @@ public final class outputToCSV {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 
@@ -155,7 +171,6 @@ public final class outputToCSV {
 				processedDataWriter.append(',');
 				processedDataWriter.append(Double.toString(networkScanned));
 				processedDataWriter.append('\n');
-
 			}
 
 			// close the file stream

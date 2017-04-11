@@ -33,7 +33,6 @@ public class ProcessData {
 		double totalDisplacement = 0.0; // total path length
 		double netDisplacement = 0.0;   // euclidean distance between start and
 										// end points
-
 		double x = 0, y = 0, z = 0;
 
 		// for each timepoint
@@ -145,9 +144,7 @@ public class ProcessData {
 	 * Calculate the motility coefficient of a cell
 	 */
 	private static double calculateMotilityCoefficient(double netDisplacement, double time) {
-
 		return (Math.pow(netDisplacement, 2) / (6 * time));
-
 	}
 
 	/*
@@ -156,7 +153,6 @@ public class ProcessData {
 	private static Double3D calculatePreviousLocation(int i, ArrayList<Double3D> Coords) {
 
 		if (i > 0) {
-
 			double x = Coords.get(i - 1).x * 10;
 			double y = Coords.get(i - 1).y * 10;
 			double z = Coords.get(i - 1).z * 10;
@@ -165,14 +161,12 @@ public class ProcessData {
 
 		} else
 			return null;
-
 	}
 
 	/*
 	 * Obtain the next set of cooordinates in the arraylist
 	 */
 	private static Double3D calculateNextLocation(int i, ArrayList<Double3D> Coords) {
-
 		if (i < Coords.size() - 1) {
 			//we multiply by 10 here to get the x,y and z coordinates
 			// in microns
@@ -182,10 +176,8 @@ public class ProcessData {
 
 			return new Double3D(x, y, z);
 		}
-
 		else
 			return null;
-
 	}
 
 	/**
@@ -270,8 +262,6 @@ public class ProcessData {
 		}
 
 	}
-	
-	
 	
 
 
