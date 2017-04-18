@@ -112,7 +112,6 @@ public class SystemTests {
 		Bag stroma = SimulationEnvironment.getAllStroma();
 		
 		boolean differentSubtypesConnected = false;
-		boolean MatrixCorrect = false;
 		for(int i=0; i < stroma.size(); i ++){
 			if(stroma.get(i) instanceof Stroma){
 				Stroma sc = (Stroma) stroma.get(i);
@@ -123,24 +122,7 @@ public class SystemTests {
 							
 							System.out.println(node.getStromatype());
 							
-							
-							//MRCS are only connecting with MRCs
-							//need to sort it out now
-							
-							/*
-							differentSubtypesConnected = true;
-							System.out.println("diff subtypes are connected");
-							double val1 = SimulationEnvironment.a_matrix[sc.getM_index()][node.getM_index()];
-							double val2 = SimulationEnvironment.a_matrix[node.getM_index()][sc.getM_index()];
-							double val3 = SimulationEnvironment.distMatrix[sc.getM_index()][node.getM_index()];
-							double val4 = SimulationEnvironment.distMatrix[node.getM_index()][sc.getM_index()];
-							if(val1 != 1 && val2 != 1){
-								System.out.println("there is an error adjMatrix");
-							}
-							if(val3 < 1 && val4 < 1){
-								System.out.println("there is an error distMatrix");
-							}
-							*/
+
 						}
 					}
 				}

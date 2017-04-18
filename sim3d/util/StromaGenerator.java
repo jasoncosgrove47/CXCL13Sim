@@ -134,7 +134,6 @@ public class StromaGenerator {
 			}
 		}
 		
-
 		
 		//now remove all of the overlapping edges in the removal list
 		for(int x = 0; x < edgesToRemove.size(); x ++){
@@ -465,7 +464,7 @@ public class StromaGenerator {
 
 			// just check we aren't making a huge edge!
 			//TODO this looks like its the wrong way around??
-		} while (!bFail && d3aReturn[0].length() > 4.8 //TODO was 4
+		} while (!bFail && d3aReturn[0].length() > 4.25 //TODO was 4
 				&& d3aReturn[0].length() < 1.0);//TODO put this back as it was 0.5
 
 		
@@ -481,9 +480,10 @@ public class StromaGenerator {
 		
 		 if(celltype == Stroma.TYPE.bRC){
 
-						
+			 
+			 
 				return Math.max(0,Math.min(iRemainingCells,
-					(int) Settings.RNG.nextInt(2) + 3)
+					4)// was 2 + 3
 				 		- frcNextCell.m_iEdges);
 			 
 		
@@ -509,13 +509,23 @@ public class StromaGenerator {
 			//			(int) (Math.pow(Settings.RNG.nextDouble(),
 			//					1.5) * (2.1) + 4.9))
 			//			- frcNextCell.m_iEdges);
-
+			 //int target =  (int) (Settings.RNG.nextGaussian() * 0.1 + 4);
+			 int target;
+			 if(Settings.RNG.nextDouble() > 0.5){
+				 target = 3;
+			 }
+			 else{
+				 target = 4;
+			 }
+			 
+			 
 			 return Math.max(0,Math.min(iRemainingCells,
-						(int) Settings.RNG.nextInt(1) + 4)
-					 		- frcNextCell.m_iEdges);
+						target)- frcNextCell.m_iEdges);
 	
-
+			
 	
+			 
+			 
 			 
 			 //return Math.max(0,Math.min(iRemainingCells,
 			//			(int) (Math.pow(Settings.RNG.nextDouble(),
@@ -545,7 +555,7 @@ public class StromaGenerator {
 				//return (1.3 + length * 3.5);
 				//System.out.println("edgeLengths are: " + (1.3 + length * 3.5));
 				//return (1.0 + length * 3.0);
-				return Settings.RNG.nextGaussian()*0.4 + 3.4;
+				return Settings.RNG.nextGaussian()*0.1 + 3.5;
 				//way too many numbers lets just make it gaussian for now
 				//return(Settings.RNG.nextGaussian()*4.0+0.1);
 				
@@ -564,7 +574,7 @@ public class StromaGenerator {
 				
 				//return (1.8 + length * 3.5);
 				//return Settings.RNG.nextGaussian()*0.2 + 3.5;
-				return Settings.RNG.nextGaussian()*0.2 + 4.0;
+				return Settings.RNG.nextGaussian()*0.1 + 3.25;
 				
 		 }
 		 

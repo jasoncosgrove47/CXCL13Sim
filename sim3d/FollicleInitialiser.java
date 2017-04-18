@@ -2,8 +2,7 @@ package sim3d;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+
 
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
@@ -43,11 +42,7 @@ public final class FollicleInitialiser {
 
 		GenerateSCS.seedSCS();
 		generateStromalNetwork(cgGrid);
-		GenerateSCS.generateMRCNetwork(); // The MRC network is
-											// generatedseparately to BRCs and
-											// MRCs
-
-		
+		GenerateSCS.generateMRCNetwork(); 
 		shapeFDCNetwork(cgGrid);
 		
 		
@@ -56,9 +51,12 @@ public final class FollicleInitialiser {
 			// connections
 
 			
-			
-			generateBranches(cgGrid, true, true, true);
+			//dont allow branches near the MRCs
+			generateBranches(cgGrid, true, true, false);
 
+
+			
+			
 			printNodeNumbers();
 		}
 		// do a final updateNodeConnections to be safe
@@ -84,22 +82,19 @@ public final class FollicleInitialiser {
 
 		
 		if (FDC) {
-			generateBranchesDynamically(cgGrid,SimulationEnvironment.fdcEnvironment, StromaEdge.TYPE.FDC_edge, 16, 3,14);
+			generateBranchesDynamically(cgGrid,SimulationEnvironment.fdcEnvironment, StromaEdge.TYPE.FDC_edge, 16, 3,16);
 		}
 		
 		if (BRC) {
-			generateBranchesDynamically(cgGrid, SimulationEnvironment.brcEnvironment, StromaEdge.TYPE.RC_edge, 6,2,
+			generateBranchesDynamically(cgGrid, SimulationEnvironment.brcEnvironment, StromaEdge.TYPE.RC_edge, 7,2,
 					6); 
 		}
 
 		if (MRC) {
-			generateBranchesDynamically(cgGrid, SimulationEnvironment.mrcEnvironment, StromaEdge.TYPE.MRC_edge, 5,0,
+			generateBranchesDynamically(cgGrid, SimulationEnvironment.mrcEnvironment, StromaEdge.TYPE.MRC_edge, 4,0,
 					4);
 
-		}
-
-
-		
+		}	
 	}
 
 	
@@ -108,33 +103,37 @@ public final class FollicleInitialiser {
 	
 	private static void shapeFDCNetwork(CollisionGrid cgGrid){
 		
-	
 		Bag FRCs = SimulationEnvironment.fdcEnvironment.getAllObjects();
-
 		ArrayList<StromaEdge> edgesToDelete = new ArrayList<StromaEdge>();
-		
+		ArrayList<Stroma> nodesToDelete = new ArrayList<Stroma>();
+		int counter = 0;
 		for (int i = 0; i < FRCs.size(); i++) {
 			if (FRCs.get(i) instanceof Stroma) {
-				
+				counter +=1;
 				Stroma frc = (Stroma) FRCs.get(i);
 				//should only have protrusions at this point
+				
 				for(StromaEdge se: frc.getM_Edges()){
-			
-					edgesToDelete.add(se);
+				
+						edgesToDelete.add(se);		
 					
-							
+				}
+				
+				if(counter > 250){
+					nodesToDelete.add(frc);
 				}
 			}
 		}
 		
-		
-		for(StromaEdge se: edgesToDelete){
+	
+		for(StromaEdge se : edgesToDelete){
 			deleteSEdge(se);
 		}
-		
+		for(Stroma sc : nodesToDelete){
+			deleteSC(sc);
+		}
 
 	
-		
 		Bag FDCs2 = SimulationEnvironment.fdcEnvironment.getAllObjects();
 		
 		for(int i = 0; i < FDCs2.size(); i++){
@@ -142,10 +141,10 @@ public final class FollicleInitialiser {
 				Stroma sc = (Stroma) FDCs2.get(i);
 				
 				
-				Bag neighbours = SimulationEnvironment.getAllStromaWithinDistance(sc.getM_Location(), 3.5);
+				Bag neighbours = SimulationEnvironment.getAllStromaWithinDistance(sc.getM_Location(), 3);
 				
 				//Bag neighbours = SimulationEnvironment.fdcEnvironment.
-					//	getNeighborsExactlyWithinDistance(sc.getM_Location(), 3.5);
+				//		getNeighborsExactlyWithinDistance(sc.getM_Location(), 3.0);
 				
 				for(int j = 0; j < neighbours.size(); j ++){
 					if(neighbours.get(j) instanceof Stroma){
@@ -155,8 +154,9 @@ public final class FollicleInitialiser {
 							if(neighbour.getStromatype()== Stroma.TYPE.FDC){
 							
 								if(doesEdgeAlreadyExist(sc, neighbour)==false){
-									if(checkForPointsInTheWay(sc,neighbour,2.0) == false){
+									if(checkForPointsInTheWay(sc,neighbour,5) == false){
 									
+										
 										StromaEdge senew = new StromaEdge(sc.getM_Location(), neighbour.getM_Location(), StromaEdge.TYPE.FDC_edge);
 										
 										senew.setObjectLocation(new Double3D(senew.x, senew.y, senew.z));
@@ -171,16 +171,15 @@ public final class FollicleInitialiser {
 										neighbour.getM_Edges().add(senew);
 										sc.getM_Nodes().add(neighbour);
 										neighbour.getM_Nodes().add(sc);
+									
 									}
 								}	
 							}
 							
-							else if(neighbour.getStromatype()== Stroma.TYPE.bRC && Settings.RNG.nextDouble() > 0.7){
-								
-								
+							else if(neighbour.getStromatype()== Stroma.TYPE.bRC && Settings.RNG.nextDouble() > 0.0){
 								
 								if(doesEdgeAlreadyExist(sc, neighbour)==false){
-									if(checkForPointsInTheWay(sc,neighbour,2.0) == false){
+									if(checkForPointsInTheWay(sc,neighbour,1.0) == false){
 									
 										StromaEdge senew = new StromaEdge(sc.getM_Location(), neighbour.getM_Location(), StromaEdge.TYPE.FDC_edge);
 										
@@ -188,7 +187,6 @@ public final class FollicleInitialiser {
 					
 										SimulationEnvironment.scheduleStoppableEdge(senew);
 										senew.registerCollisions(cgGrid);
-										
 										
 										senew.m_Nodes.add(sc);
 										senew.m_Nodes.add(neighbour);
@@ -208,32 +206,13 @@ public final class FollicleInitialiser {
 				}
 			}
 		}
-			
 
 	}
 	
 	
 	
-	private static void updateConnections(Continuous3D env) {
 
-		Bag stroma = env.getAllObjects();
-		for (int i = 0; i < stroma.size(); i++) {
-			if (stroma.get(i) instanceof Stroma) {
-				Stroma sc = (Stroma) stroma.get(i);
 
-					updateNodeConnectionForNodeOtherGrids(sc);
-				}
-		}
-	}
-	
-	private static StromaEdge pickRandomEdge(Stroma sc){
-		
-		ArrayList<StromaEdge> seList = new ArrayList<StromaEdge>();
-		seList.addAll(sc.getM_Edges());
-		
-		return seList.get(Settings.RNG.nextInt(sc.getM_Edges().size()));
-	
-	}
 		
 
 	
@@ -468,7 +447,7 @@ public final class FollicleInitialiser {
 			for (Stroma neighbour : nodeConnectionsToAdd) {
 				boolean doesBranchExist = doesEdgeAlreadyExist(sc, neighbour);
 				if(!doesBranchExist){
-				addProtrusion(neighbour, loc, cgGrid, type, sc);
+					addProtrusion(neighbour, loc, cgGrid, type, sc);
 				}
 			}
 		}
@@ -480,41 +459,64 @@ public final class FollicleInitialiser {
 			StromaEdge neighbour = (StromaEdge) neighbours.get(random_index);
 			StromaEdge nearestProtrusion = getClosestProtrusion(sc, neighbour);
 
-			
-			
-			
 			if(nearestProtrusion != null){
 			
-			// need to see if there is not already a branch in place
-			boolean doesBranchExist = doesBranchAlreadyExist(neighbour, nearestProtrusion);
-
-			Double3D branchloc = new Double3D((neighbour.getMidpoint().x + nearestProtrusion.x )/2 ,
-					(neighbour.getMidpoint().y + nearestProtrusion.y )/2, 
-					(neighbour.getMidpoint().z + nearestProtrusion.z )/2);
-			
-			Bag stromaInVicinity = sc.getDrawEnvironment().getNeighborsExactlyWithinDistance(branchloc, 1);
-			
-			
-			if (!doesBranchExist && stromaInVicinity.size() < 6) {
-
-				
-					StromaEdge branch = new StromaEdge(neighbour.getMidpoint(), nearestProtrusion.getMidpoint(), type);
-					branch.setObjectLocation(new Double3D(branch.x, branch.y, branch.z));
-
-					SimulationEnvironment.scheduleStoppableEdge(branch);
-
-					branch.registerCollisions(cgGrid);
-					neighbour.m_Branches.add(branch);
-					nearestProtrusion.m_Branches.add(branch);
-					branch.m_Edges.add(neighbour);
-					branch.m_Edges.add(nearestProtrusion);
+				boolean proceed = true;
+				if(sc.getStromatype()== Stroma.TYPE.MRC){
+					
+					for(Stroma node :neighbour.m_Nodes){
+						if(node.getStromatype() ==  Stroma.TYPE.MRC){
+							proceed = false;
+						}
+					}
+						
+					for(Stroma node :nearestProtrusion.m_Nodes){
+						if(node.getStromatype() ==  Stroma.TYPE.MRC){
+							proceed = false;
+						}
+					}	
 				}
-
-				updateNodeConnectionForNodeOtherGrids(sc);
+			
+				if(proceed){
+					// need to see if there is not already a branch in place
+					boolean doesBranchExist = doesBranchAlreadyExist(neighbour, nearestProtrusion);
+		
+					Double3D branchloc = new Double3D((neighbour.getMidpoint().x + nearestProtrusion.x )/2 ,
+							(neighbour.getMidpoint().y + nearestProtrusion.y )/2, 
+							(neighbour.getMidpoint().z + nearestProtrusion.z )/2);
+					
+					Bag stromaInVicinity = sc.getDrawEnvironment().getNeighborsExactlyWithinDistance(branchloc, 1);
+					
+					double threshold = 0;
+					if(sc.getStromatype() == Stroma.TYPE.FDC){
+						threshold =4;
+					}
+					else{
+						threshold = 4;
+					}
+					
+					
+					if (!doesBranchExist && stromaInVicinity.size() < threshold) {
+		
+							StromaEdge branch = new StromaEdge(neighbour.getMidpoint(), nearestProtrusion.getMidpoint(), type);
+							branch.setObjectLocation(new Double3D(branch.x, branch.y, branch.z));
+		
+							SimulationEnvironment.scheduleStoppableEdge(branch);
+		
+							branch.registerCollisions(cgGrid);
+							neighbour.m_Branches.add(branch);
+							nearestProtrusion.m_Branches.add(branch);
+							branch.m_Edges.add(neighbour);
+							branch.m_Edges.add(nearestProtrusion);
+						}
+		
+						updateNodeConnectionForNodeOtherGrids(sc);
+					
+					}
+				}
 			}
-		}
 
-	}
+		}
 
 
 	
@@ -548,20 +550,33 @@ public final class FollicleInitialiser {
 				Stroma sc = (Stroma) RCs.get(i);
 				if (sc.getStromatype() != Stroma.TYPE.LEC) {
 
-					// dont allow negative numbers hi
-					int targetConnections = (int) (Settings.RNG.nextGaussian() * sd + mean); 
+					int targetConnections =0;
 					
+					if(sc.getStromatype() == Stroma.TYPE.FDC){
+						//targetConnections = 20;
+						
+						targetConnections = (int) (Settings.RNG.nextInt(12) + 20);
+						
+					}
+					else if(sc.getStromatype() == Stroma.TYPE.bRC){
+						targetConnections = (int) (Settings.RNG.nextInt(3) + 5);
+						//targetConnections = 8;
+					}
+					else{
+					// dont allow negative numbers hi
+						targetConnections = (int) (Settings.RNG.nextGaussian() * sd + mean); 
+					}
 					Double3D loc = sc.getM_Location(); // get the midpoint of
 														// the edge
 
 					Bag neighbours = new Bag();
-					//neighbours = env.getNeighborsExactlyWithinDistance(loc,3.0, false);
+					neighbours = env.getNeighborsExactlyWithinDistance(loc,2.8, false);
 					//lets query the other grids for the lawls
-					neighbours = SimulationEnvironment.getAllStromaWithinDistance(loc, 3.0);
+					//neighbours = SimulationEnvironment.getAllStromaWithinDistance(loc, 3.5);
 					
 					int count = 0;
 
-					while (sc.getM_Nodes().size() < targetConnections && count < 150) {
+					while (sc.getM_Nodes().size() < targetConnections && count < 200) {
 						count += 1;
 						//what do we do if its a branch
 						addConnections(neighbours, sc, loc, type, cgGrid);
@@ -596,6 +611,8 @@ public final class FollicleInitialiser {
 			for (StromaEdge branch : se.m_Branches) {
 				branchesToRemove.add(branch);
 			}
+			
+
 			// now actually get rid of the nodes
 			for (StromaEdge branch : branchesToRemove) {
 				if (sc.getM_Nodes().size() < maxVal)
@@ -657,9 +674,6 @@ public final class FollicleInitialiser {
 	 */
 	private static void updateNodeConnections() {
 
-		int fdcCounter = 0;
-		int connections = 0;
-
 		Bag stroma = SimulationEnvironment.getAllStroma();
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof Stroma) {
@@ -668,11 +682,6 @@ public final class FollicleInitialiser {
 				if (sc.getStromatype() != Stroma.TYPE.LEC) {
 					updateNodeConnectionForNodeOtherGrids(sc);
 				}
-				if (sc.getStromatype() == Stroma.TYPE.FDC) {
-					fdcCounter += 1;
-					connections += sc.getM_Nodes().size();
-				}
-
 			}
 		}
 	}
@@ -781,7 +790,7 @@ public final class FollicleInitialiser {
 				// if there is a stromal cell at this location
 
 				// if there are no nodes blocking the way, lets say stroma nodes are 13 microns diameter
-				if (checkForPointsInTheWay(sc, neighbour, Settings.FDC.STROMA_NODE_RADIUS* 2) == false) { //was 0.35
+				if (checkForPointsInTheWay(sc, neighbour, 0.35) == false) { //was 0.35
 
 					//lets constrain the distances we can add to be less than 100 microns
 					//in marios analysis you cant tell if they are connected once a certain distance apart so easiest
@@ -916,25 +925,7 @@ public final class FollicleInitialiser {
 		for (StromaGenerator.StromalCelltemp sc : stromalCellLocations) {
 
 			seedStromaNode(sc, cgGrid, sealEdges);
-			
-	
-			//if(sc.m_type == Stroma.TYPE.FDC){
-			
-				//double random = Settings.RNG.nextDouble();
-				//if(random > 0.6){
-					//seedStromaNode(sc, cgGrid, sealEdges);
-				//}
 				
-				
-			//}
-			//else{
-				//double random = Settings.RNG.nextDouble();
-				//if(random > 0.5){
-				//	seedStromaNode(sc, cgGrid, sealEdges);
-				//}
-			//}
-		
-		
 		}
 
 		// when we instantiate the edges we change their location, so this needs
@@ -952,7 +943,6 @@ public final class FollicleInitialiser {
 
 				if (sc.getStromatype() != Stroma.TYPE.LEC) {
 					// the MRC protrusions are assigned in the other class
-
 					assignProtrusions(updatedEdges, sc);
 
 				}
