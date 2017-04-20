@@ -480,10 +480,16 @@ public class StromaGenerator {
 		
 		 if(celltype == Stroma.TYPE.bRC){
 
-			 
+			 int target = 0;
+			 if(Settings.RNG.nextDouble() > 0.5){
+				 target = 3;
+			 }
+			 else{
+				 target = 4;
+			 }
 			 
 				return Math.max(0,Math.min(iRemainingCells,
-					4)// was 2 + 3
+					target)// was 2 + 3
 				 		- frcNextCell.m_iEdges);
 			 
 		
@@ -512,7 +518,7 @@ public class StromaGenerator {
 			 //int target =  (int) (Settings.RNG.nextGaussian() * 0.1 + 4);
 			 int target;
 			 if(Settings.RNG.nextDouble() > 0.5){
-				 target = 3;
+				 target = 4;
 			 }
 			 else{
 				 target = 4;
@@ -574,7 +580,7 @@ public class StromaGenerator {
 				
 				//return (1.8 + length * 3.5);
 				//return Settings.RNG.nextGaussian()*0.2 + 3.5;
-				return Settings.RNG.nextGaussian()*0.1 + 3.25;
+				return Settings.RNG.nextGaussian()*0.1 + 5.0;
 				
 		 }
 		 

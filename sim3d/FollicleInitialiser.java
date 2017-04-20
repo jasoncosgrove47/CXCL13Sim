@@ -130,7 +130,7 @@ public final class FollicleInitialiser {
 			deleteSEdge(se);
 		}
 		for(Stroma sc : nodesToDelete){
-			deleteSC(sc);
+			//deleteSC(sc);
 		}
 
 	
@@ -141,10 +141,10 @@ public final class FollicleInitialiser {
 				Stroma sc = (Stroma) FDCs2.get(i);
 				
 				
-				Bag neighbours = SimulationEnvironment.getAllStromaWithinDistance(sc.getM_Location(), 3);
+				Bag neighbours = SimulationEnvironment.getAllStromaWithinDistance(sc.getM_Location(), 3.5);
 				
 				//Bag neighbours = SimulationEnvironment.fdcEnvironment.
-				//		getNeighborsExactlyWithinDistance(sc.getM_Location(), 3.0);
+					//	getNeighborsExactlyWithinDistance(sc.getM_Location(), 3.5);
 				
 				for(int j = 0; j < neighbours.size(); j ++){
 					if(neighbours.get(j) instanceof Stroma){
@@ -176,7 +176,7 @@ public final class FollicleInitialiser {
 								}	
 							}
 							
-							else if(neighbour.getStromatype()== Stroma.TYPE.bRC && Settings.RNG.nextDouble() > 0.0){
+							else if(neighbour.getStromatype()== Stroma.TYPE.bRC && Settings.RNG.nextDouble() > 0.7){
 								
 								if(doesEdgeAlreadyExist(sc, neighbour)==false){
 									if(checkForPointsInTheWay(sc,neighbour,1.0) == false){
@@ -489,10 +489,10 @@ public final class FollicleInitialiser {
 					
 					double threshold = 0;
 					if(sc.getStromatype() == Stroma.TYPE.FDC){
-						threshold =4;
+						threshold = 1;
 					}
 					else{
-						threshold = 4;
+						threshold = 1;
 					}
 					
 					
@@ -543,7 +543,7 @@ public final class FollicleInitialiser {
 		for (int i = 0; i < RCs.size(); i++) {
 			if (RCs.get(i) instanceof Stroma) {
 
-				if(i % 10 == 0){
+				if(i % 5 == 0){
 					updateNodeConnections();
 				}
 				
@@ -570,7 +570,7 @@ public final class FollicleInitialiser {
 														// the edge
 
 					Bag neighbours = new Bag();
-					neighbours = env.getNeighborsExactlyWithinDistance(loc,2.8, false);
+					neighbours = env.getNeighborsExactlyWithinDistance(loc,3.5, false);
 					//lets query the other grids for the lawls
 					//neighbours = SimulationEnvironment.getAllStromaWithinDistance(loc, 3.5);
 					
