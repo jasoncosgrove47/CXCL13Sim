@@ -9,13 +9,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.w3c.dom.Document;
-
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double3D;
-import sim3d.Settings.FDC;
-import sim3d.cell.BC;
 import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
 import sim3d.util.IO;
@@ -24,7 +20,7 @@ public class FollicleInitialiserTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		SimulationEnvironment.simulation = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 		SimulationEnvironment.simulation.setupSimulationParameters();
@@ -34,6 +30,9 @@ public class FollicleInitialiserTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
 	}
 
 	@Before
@@ -42,6 +41,9 @@ public class FollicleInitialiserTest {
 
 	@After
 	public void tearDown() throws Exception {
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
 	}
 
 	@Test
@@ -73,8 +75,7 @@ public class FollicleInitialiserTest {
 		Stroma n1 = new Stroma(Stroma.TYPE.FDC, p2);	
 		n1.setObjectLocation(p2);
 		
-		
-		//System.out.println("node loc: " + n1.getM_Location());
+	
 		
 		FollicleInitialiser.assignProtrusions(edges,n1);
 		
@@ -82,8 +83,7 @@ public class FollicleInitialiserTest {
 		assertTrue(n1.getM_Edges().contains(se2));
 		assertFalse(n1.getM_Edges().contains(se3));
 		
-		//TODO also want to see if it can add nodes correctly, but lets do that in another test
-		fail("not yet implemented");
+
 	}
 	
 	
@@ -445,7 +445,7 @@ public class FollicleInitialiserTest {
 		StromaEdge se1 = new StromaEdge(p1,p2,StromaEdge.TYPE.FDC_edge);
 		StromaEdge se2 = new StromaEdge(p3,p4,StromaEdge.TYPE.FDC_edge);
 		//now make a branch between them
-		StromaEdge se3 = new StromaEdge(se1.getMidpoint(),se2.getMidpoint(),StromaEdge.TYPE.FDC_branch);
+		StromaEdge se3 = new StromaEdge(se1.getMidpoint(),se2.getMidpoint(),StromaEdge.TYPE.FDC_edge);
 		
 		
 		//set the edge locations

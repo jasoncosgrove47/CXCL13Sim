@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import sim.util.Bag;
 import sim.util.Double3D;
+import sim3d.collisiondetection.CollisionGrid;
 import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
 
@@ -55,10 +56,9 @@ public class GenerateSCS {
 		int iCounter = 0;
 
 		do {
+			//pick a random location on the SCS
 			double test_x = Settings.RNG.nextDouble() * Settings.WIDTH;
 			double test_z = 0.5 + Settings.RNG.nextDouble() * (Settings.DEPTH - 2.5);
-			// double x = Settings.RNG.nextInt(Settings.WIDTH);
-			// double z = 1 + Settings.RNG.nextInt(Settings.DEPTH - 2);
 			Double3D loc = new Double3D(test_x, Settings.HEIGHT - (Settings.bRC.SCSDEPTH + 0.5), test_z);
 
 			// make sure that the mrcs are not to close to one another
@@ -74,6 +74,7 @@ public class GenerateSCS {
 		} while (iCounter < NumberOfNodes);
 	}
 
+	
 	/**
 	 * See if there are any MRCs at double3D loc 
 	 * 
@@ -84,8 +85,6 @@ public class GenerateSCS {
 	private static boolean checkForMRCsAtLocation(Double3D loc) {
 
 		// make sure that the cells arent too close to one another.
-		// Bag bagMrcs =
-		// SimulationEnvironment.mrcEnvironment.getObjectsAtLocation(loc);
 		Bag bagMrcs = SimulationEnvironment.mrcEnvironment.getNeighborsExactlyWithinDistance(loc, 1.25);
 		boolean bMrcAtLocation = false;
 
@@ -149,7 +148,7 @@ public class GenerateSCS {
 	 * Generates the MRC network, this is done separately to the BRCs and FDCs
 	 * as it is also connected to the SCS
 	 */
-	static void generateMRCNetwork() {
+	static void generateMRCNetwork(CollisionGrid cgGrid) {
 
 		// get all elements of the MRC grid, this will contain MRC
 		// nodes and edges and LEC nodes
@@ -173,37 +172,36 @@ public class GenerateSCS {
 			}
 		}
 
-		// now instantiate the connections and connect the MRC network to the
-		// BRC network
-		
 		//we need to do checks here that the node connections is below a certain threshold
 		seedMRCEdges(connectionsToAdd);
-		connectToRC();
-		pruneNetwork();
-		//pruneNetwork();
+		connectToRC(cgGrid);
+		pruneNetwork(cgGrid);
 	}
 
 	
-	private static void pruneNetwork(){
+	private static void pruneNetwork(CollisionGrid cgGrid){
 		Bag stroma = SimulationEnvironment.mrcEnvironment.getAllObjects();
 
 		// iterate through all the stroma cells and check each MRC node
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof Stroma) {
 				Stroma sc = (Stroma) stroma.get(i);
+				
+				//if the MRCs have too many connections then delete some of them
 				if (sc.getStromatype() == Stroma.TYPE.MRC) {
 					if(sc.getM_Nodes().size() > 8){
 						
 						FollicleInitialiser.deleteSEdge(pickRandomEdge(sc));
 							
 					}
+					//if the MRCs dont have enough connection then add some additional connections
 					if(sc.getM_Nodes().size() < 4){
 						Bag neighbours = SimulationEnvironment.mrcEnvironment.
 								getNeighborsExactlyWithinDistance(sc.getM_Location(), 4.5);
 						
 						Stroma neighbour = findClosestMRC(neighbours, sc);
 						if(neighbour!= null){	
-							addMRCEdge(neighbour,sc);
+							addMRCEdge(neighbour,sc, cgGrid);
 						}
 					}
 					
@@ -213,19 +211,28 @@ public class GenerateSCS {
 	}
 		
 		
+	/**
+	 * Given a stromal cell, return a random edge connected to the stroma node
+	 * @param sc 
+	 * 		a stromal cell
+	 * @return
+	 * 		a random edge belonging to the node
+	 */
 	private static StromaEdge pickRandomEdge(Stroma sc){
 		
 		ArrayList<StromaEdge> seList = new ArrayList<StromaEdge>();
 		seList.addAll(sc.getM_Edges());
-		
 		return seList.get(Settings.RNG.nextInt(sc.getM_Edges().size()));
 	
 	}
 	
-	
+
+
 	/**
 	 * 
-	 * @return an arraylist of BRCs above a threshold height
+	 * @param threshold
+	 * 		The value on the Y-axis above which we will return all BRC/FDC nodes
+	 * @return
 	 */
 	private static ArrayList<Stroma> getBRCsAboveThresholdYCoord(double threshold) {
 		Bag brcs = SimulationEnvironment.brcEnvironment.getAllObjects();
@@ -237,16 +244,13 @@ public class GenerateSCS {
 				Stroma sc = ((Stroma) brcs.get(i));
 				// we only want the nodes closest to the mrc network
 
-				if (sc.getM_Location().y > threshold) { // height greater than
-														// 30 is close to the
-														// scs
+				if (sc.getM_Location().y > threshold) { 
 					brcNodes.add(sc);
 				}
 			}
 		}
 
 		return brcNodes;
-
 	}
 
 	
@@ -291,42 +295,6 @@ public class GenerateSCS {
 		return nodeToConnectTo;
 	}
 
-	/**
-	 * Given a bag of neighbours, find the closest MRC_edge to the stromal cell
-	 * brc
-	 * 
-	 * @param neighbours
-	 *            bag of stromal cells
-	 * @param brc
-	 *            the cell which we want to connect to
-	 * @return the closest mrc to brc
-	 */
-	private static StromaEdge findClosestEdge(Bag neighbours, StromaEdge seEdge) {
-
-		StromaEdge edgeToConnectTo = null;
-
-		if (!neighbours.isEmpty()) {
-
-			double minDist = 5;
-
-			for (int i = 0; i < neighbours.size(); i++) {
-				if (neighbours.get(i) instanceof StromaEdge) {
-
-					StromaEdge se = (StromaEdge) neighbours.get(i);
-					if (!seEdge.equals(se)) {
-						double dist = seEdge.getM_Location().distance(se.getM_Location());
-						if (dist < minDist) {
-							minDist = dist;
-							edgeToConnectTo = se;
-
-						}
-					}
-				}
-			}
-		}
-
-		return edgeToConnectTo;
-	}
 
 	/**
 	 * This method may exist elsewhere but im pretty sure MRC is a special case,
@@ -334,12 +302,14 @@ public class GenerateSCS {
 	 * 
 	 * @return
 	 */
-	private static StromaEdge addMRCEdge(Stroma brc, Stroma nodeToConnectTo) {
+	private static StromaEdge addMRCEdge(Stroma brc, Stroma nodeToConnectTo, CollisionGrid cgGrid) {
 		StromaEdge seEdge = new StromaEdge(brc.getM_Location(), nodeToConnectTo.getM_Location(),
 				StromaEdge.TYPE.MRC_edge);
 		seEdge.setObjectLocation(seEdge.getPoint1());
 
 		SimulationEnvironment.scheduleStoppableEdge(seEdge);
+		
+		seEdge.registerCollisions(cgGrid);
 
 		brc.getM_Nodes().add(nodeToConnectTo);
 		nodeToConnectTo.getM_Nodes().add(brc);
@@ -356,30 +326,31 @@ public class GenerateSCS {
 
 	
 	/**
-	 * TODO add comments
+	 * COnnect the MRC network to the BRC network
 	 * 
 	 */
-	private static void connectToRC() {
+	private static void connectToRC(CollisionGrid cgGrid) {
 
+		//get all BRCs above a certain threshold Y value
 		ArrayList<Stroma> brcNodes = getBRCsAboveThresholdYCoord(Settings.HEIGHT - 5);
 
-		// now for each of these brcs add a connection to the closest mrc hi
+		//for each BRC make a connection to an MRC if it lies within a threshold distance
 		for (Stroma brc : brcNodes) {
 
-			for (int x = 0; x < 1; x++) {
+			//get all MRCs within 30 microns away
+			Bag neighbours = SimulationEnvironment.mrcEnvironment
+					.getNeighborsExactlyWithinDistance(brc.getM_Location(), 3);
 
-				Bag neighbours = SimulationEnvironment.mrcEnvironment
-						.getNeighborsExactlyWithinDistance(brc.getM_Location(), 3);
-
-				Stroma nodeToConnectTo = null;
-				nodeToConnectTo = findClosestMRC(neighbours, brc);
-				if (nodeToConnectTo != null ) {
-
-					if( nodeToConnectTo.getM_Nodes().size() < 9){
-						addMRCEdge(brc, nodeToConnectTo);
-					}
+			//pick the closest MRC available and if not already connected then
+			//make a connection between the two. 
+			Stroma nodeToConnectTo = null;
+			nodeToConnectTo = findClosestMRC(neighbours, brc);
+			if (nodeToConnectTo != null ) {
+				//dont add a connection if the MRC already has 8 connections or more
+				if( nodeToConnectTo.getM_Nodes().size() < 9){
+					addMRCEdge(brc, nodeToConnectTo,cgGrid);
 				}
-			}
+			}	
 		}
 	}
 

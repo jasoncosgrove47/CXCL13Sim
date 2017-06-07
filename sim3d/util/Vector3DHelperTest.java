@@ -14,6 +14,7 @@ import org.junit.Test;
 import ec.util.MersenneTwisterFast;
 import sim.util.Double3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 
 public class Vector3DHelperTest {
 
@@ -33,6 +34,9 @@ public class Vector3DHelperTest {
 
 	@After
 	public void tearDown() throws Exception {
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
 	}
 
 	// This function should return a random point on the surface of a r=1

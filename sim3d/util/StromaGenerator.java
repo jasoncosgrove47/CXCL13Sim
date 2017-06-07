@@ -1,11 +1,7 @@
 package sim3d.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
@@ -464,7 +460,7 @@ public class StromaGenerator {
 
 			// just check we aren't making a huge edge!
 			//TODO this looks like its the wrong way around??
-		} while (!bFail && d3aReturn[0].length() > 4.25 //TODO was 4
+		} while (!bFail && d3aReturn[0].length() > 5.0 //TODO was 4
 				&& d3aReturn[0].length() < 1.0);//TODO put this back as it was 0.5
 
 		
@@ -482,64 +478,34 @@ public class StromaGenerator {
 
 			 int target = 0;
 			 if(Settings.RNG.nextDouble() > 0.5){
-				 target = 3;
+				 target = 3;//was 3
 			 }
 			 else{
-				 target = 4;
+				 target = 4;//was 4
 			 }
 			 
 				return Math.max(0,Math.min(iRemainingCells,
 					target)// was 2 + 3
 				 		- frcNextCell.m_iEdges);
 			 
-		
-			 /*
-			 return Math.max(0,Math.min(iRemainingCells,
-										(int) (Math.pow(Settings.RNG.nextDouble(),
-												1.5) * (2.1) + 2.9))
-										- frcNextCell.m_iEdges);
-										
-		//return Math.max(0,Math.min(iRemainingCells,
-				(int) (Math.pow(Settings.RNG.nextDouble(),
-							1.5) * (2.1) + 7))
-					- frcNextCell.m_iEdges);
-		
-			 */
 		 }
 		 //add 3 to the number of FDC edges as they have much higher connectivity
 		 //TODO: we will need to update this to get it how we want it. dont like 
 		 // the way we have it currently but anyway
 		 else if(celltype == Stroma.TYPE.FDC){
 			 
-			// return Math.max(0,Math.min(iRemainingCells,
-			//			(int) (Math.pow(Settings.RNG.nextDouble(),
-			//					1.5) * (2.1) + 4.9))
-			//			- frcNextCell.m_iEdges);
-			 //int target =  (int) (Settings.RNG.nextGaussian() * 0.1 + 4);
+
 			 int target;
 			 if(Settings.RNG.nextDouble() > 0.5){
-				 target = 4;
+				 target = 3;
 			 }
 			 else{
 				 target = 4;
 			 }
 			 
-			 
 			 return Math.max(0,Math.min(iRemainingCells,
 						target)- frcNextCell.m_iEdges);
 	
-			
-	
-			 
-			 
-			 
-			 //return Math.max(0,Math.min(iRemainingCells,
-			//			(int) (Math.pow(Settings.RNG.nextDouble(),
-			//					1.5) * (2.1) + 6))
-			//		 		- frcNextCell.m_iEdges);
-			 
-
-
 		 }
 		 
 		 return 0;
@@ -549,38 +515,12 @@ public class StromaGenerator {
 		
 		 if(celltype == Stroma.TYPE.bRC){
 				
-			
-			
-			 	double length = Settings.RNG.nextDouble() * 2.6;
-				length = 0.00180148 * Math.pow(length, 5) - 0.0270696
-						* Math.pow(length, 4) + 0.151204 * Math.pow(length, 3)
-						- 0.342923 * Math.pow(length, 2) + 0.392281 * length;
-
-				// Yay! More magic numbers
-				//TODO just overwriting this to see if we can change the shape of the network
-				//return (1.3 + length * 3.5);
-				//System.out.println("edgeLengths are: " + (1.3 + length * 3.5));
-				//return (1.0 + length * 3.0);
-				return Settings.RNG.nextGaussian()*0.1 + 3.5;
-				//way too many numbers lets just make it gaussian for now
-				//return(Settings.RNG.nextGaussian()*4.0+0.1);
+				return Settings.RNG.nextGaussian()*0.1 + 3.2;
 				
 		 }
 		 else if(celltype == Stroma.TYPE.FDC){
-			 double length = Settings.RNG.nextDouble() * 2.6;
-				length = 0.00180148 * Math.pow(length, 5) - 0.0270696
-						* Math.pow(length, 4) + 0.151204 * Math.pow(length, 3)
-						- 0.342923 * Math.pow(length, 2) + 0.392281 * length;
-
-				// Yay! More magic numbers
-				//TODO just overwriting this to see if we can change the shape of the network
-				//we can make this smaller for the lawls
-				//return (1.3 + length * 3.5) + 2.5;
-				//System.out.println("fdc edge length: " + (1.8 + length * 3.5));
-				
-				//return (1.8 + length * 3.5);
-				//return Settings.RNG.nextGaussian()*0.2 + 3.5;
-				return Settings.RNG.nextGaussian()*0.1 + 5.0;
+		
+				return Settings.RNG.nextGaussian()*0.1 + 3.8;	
 				
 		 }
 		 
@@ -874,8 +814,6 @@ public class StromaGenerator {
 			return Stroma.TYPE.FDC;
 		}
 		else return Stroma.TYPE.bRC;
-		
-		
 	}
 	
 	

@@ -18,9 +18,9 @@ import sim3d.diffusion.algorithms.DiffusionAlgorithmMultiThread;
  */
 public class Chemokine extends DoubleGrid3D implements Steppable {
 
-	int stepsCounter = 0;
+	int stepsCounter = 0; //counter required to keep track of adaptive diffusion
 	
-	double decayrate;
+	double m_decayrate; //the decay rate of a class member
 	
 	
 	/**
@@ -174,7 +174,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	 */
 	private int m_iHeight;
 	
-	
+
 	/**
 	 * Records the diffusion timestep for adaptive diffusion
 	 */
@@ -221,7 +221,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		
 		if(pType == Chemokine.TYPE.CXCL13){
 			diffusionconstant = Settings.CXCL13.DIFFUSION_COEFFICIENT;
-			decayrate = Settings.CXCL13.DECAY_CONSTANT;
+			m_decayrate = Settings.CXCL13.DECAY_CONSTANT;
 			m_diffusionTimestep = Settings.CXCL13.DIFFUSION_TIMESTEP;
 			
 		}
@@ -231,7 +231,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 
 		// setup up stepping
 		ms_pParticles[ms_emTypeMap.get(pType)] = this;
-
 
 		// 3 so out of sync with agents
 		schedule.scheduleRepeating(this, 3, 1);
@@ -266,7 +265,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		// determine how much is left after decay per timestep
 		// done it this way as it is easier to caompare
 		// to experimental data
-		double amountLeft = 1 - this.decayrate;
+		double amountLeft = 1 - this.m_decayrate;
 		//
 		for (int x = 0; x < m_iWidth; x++) {
 			for (int y = 0; y < m_iHeight; y++) {
@@ -360,11 +359,28 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 
 		//this is the volume of the entire compartment in liters
 		//need to know what total compartmental volume is
-		//double vol = 7.84e-9;
-		double vol = 1.44e-9;
+		double vol = 1.44e-8;
 		@SuppressWarnings("unused")
 		double molarconc = calculateMolarConcentration(vol, totalChemokineinMoles);
 		//System.out.println( "total chemokine (Molar) is: " + totalChemokineinMoles/vol);		
+	}
+
+	
+	public double[][] recordChemokineField() {
+
+		double[][] chemokinefield = new double[20][20];
+
+		
+		
+		for (int x = 10; x < 30; x++) {
+			for (int y = 10; y < 30; y++) {
+		
+				
+					chemokinefield[x-10][y-10] = this.field[x][y][m_iDepth/2];
+				
+			}
+		}
+		return chemokinefield;
 	}
 
 	
@@ -383,13 +399,10 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 			for (int y = 0; y < m_iHeight; y++) {
 				for (int z = 0; z < m_iDepth; z++) {
 					totalChemokineValue += this.field[x][y][z];
-					
-					
 				}
 			}
 		}
 		return totalChemokineValue;
-
 	}
 
 
@@ -408,13 +421,10 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 
 			//number of steps taken per second, if fast diffusion then the timestep is small
 			// if slow then timestep is large, we divide by 60 because the diffusion coefficient
-			// is in seconds...divide by 60 because we want this in seconds.
+			// in seconds.
 			setM_diffTime(getM_diffTime() + m_diffusionTimestep/60); 
 			decay();	
 		}
-		
-		
-		//System.out.println("mDifftime: " + m_diffTime);
 	}
 	
 	

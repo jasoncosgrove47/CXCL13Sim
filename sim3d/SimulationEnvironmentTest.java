@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -28,13 +29,24 @@ public class SimulationEnvironmentTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
+		
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		SimulationEnvironment.simulation = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 		SimulationEnvironment.simulation.setupSimulationParameters();
 		
 	}
 
+	@After
+	public void tearDown() throws Exception {
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
+	}
+	
 	/*
 	 * test that the parameters are read in by asserting that
 	 * the depth of the grid is greater than zero
@@ -54,16 +66,14 @@ public class SimulationEnvironmentTest {
 	@Test
 	public void testNetworkGenerationForZeroLengthEdges(){
 		
-		
-
 		Document parameters;
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
 		
 		SimulationEnvironment.simulation = new SimulationEnvironment(123,parameters);
 		SimulationEnvironment.simulation.start();
 	
-		boolean anyNodesHaveLengthZero = false;
+		boolean anyEdgesHaveLengthZero = false;
 		
 		Bag stroma = SimulationEnvironment.getAllStroma();
 		for (int i = 0; i < stroma.size(); i++) {
@@ -73,13 +83,15 @@ public class SimulationEnvironmentTest {
 					Double3D p2 = ((StromaEdge) stroma.get(i)).getPoint2();
 					
 					if(p1.distance(p2) < Settings.DOUBLE3D_PRECISION){	
-						anyNodesHaveLengthZero = true;
-						System.out.println("edge type: " + ((StromaEdge)stroma.get(i)).getStromaedgetype());
+						System.out.println("stromaedge type: " + 
+								((StromaEdge) stroma.get(i)).getStromaedgetype());
+						anyEdgesHaveLengthZero = true;
+					
 					}
 			}
 		}
-		
-		assertFalse(anyNodesHaveLengthZero);
+	
+		assertFalse(anyEdgesHaveLengthZero);
 	}
 	
 	
@@ -89,7 +101,7 @@ public class SimulationEnvironmentTest {
 		
 		
 		Document parameters;
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
 		
 		SimulationEnvironment.simulation = new SimulationEnvironment(123,parameters);
@@ -130,7 +142,7 @@ public class SimulationEnvironmentTest {
 	@Test
 	public void testScheduleStoppableCell() {
 
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		Document parameters = IO.openXMLFile(paramFile);
 		Settings.BC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
@@ -215,13 +227,10 @@ public class SimulationEnvironmentTest {
 	 */
 	@Test
 	public void testGenerateCoordinatesWithinCircle() {
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
-		SimulationEnvironment sim = new SimulationEnvironment(0,
-				IO.openXMLFile(paramFile));
 
 		int radius = 13;
 		
-		Double3D test = sim.generateCoordinateWithinCircle(radius);
+		Double3D test = SimulationEnvironment.generateCoordinateWithinCircle(radius);
 
 		assertEquals(true, SimulationEnvironment.isWithinCircle((int) test.x, (int) test.y,
 				(Settings.WIDTH / 2) + 1, (Settings.HEIGHT / 2) + 1, radius));
@@ -233,7 +242,7 @@ public class SimulationEnvironmentTest {
 	 */
 	@Test
 	public void testInitialiseFDC() {
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		SimulationEnvironment sim = new SimulationEnvironment(0,
 				IO.openXMLFile(paramFile));
 

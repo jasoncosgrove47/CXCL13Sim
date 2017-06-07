@@ -18,6 +18,7 @@ import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.cell.BC;
 import sim3d.cell.Lymphocyte;
 import sim3d.diffusion.Chemokine;
@@ -31,13 +32,14 @@ public class Algorithm2Test {
 	private Chemokine m_pParticle2;
 	public static Document parameters;
 
+
 	
 	/**
 	 * Initialise the simulation parameters
 	 */
 	private static void loadParameters() {
 
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
 		Settings.BC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
@@ -99,6 +101,12 @@ public class Algorithm2Test {
 		m_pParticle = null;
 		Chemokine.reset();
 		BC.drawEnvironment = null;
+		
+		
+			if(SimulationEnvironment.simulation != null){
+				SimulationEnvironment.simulation.finish();
+			}
+		
 	}
 
 

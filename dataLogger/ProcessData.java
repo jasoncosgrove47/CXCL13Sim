@@ -13,6 +13,7 @@ public class ProcessData {
 	 * single cell tracking experiments
 	 */
 
+	
 	/**
 	 * Helper method which calculates the speed, motility coefficient and
 	 * meandering index for each cell
@@ -26,13 +27,13 @@ public class ProcessData {
 
 		ArrayList<Double3D> Coords = Controller.getInstance().getCoordinates().get(key);
 
-		Double3D startLocation = null;  // starting position
-		Double3D endLocation = null;    // final position
-		Double3D previousLocation = null; // location at the previous timestep
-		Double3D thisLocation = null;   // location at this timestep
-		double totalDisplacement = 0.0; // total path length
-		double netDisplacement = 0.0;   // euclidean distance between start and
-										// end points
+		Double3D startLocation = null; 		// starting position
+		Double3D endLocation = null; 		// final position
+		Double3D previousLocation = null;   // location at the previous timestep
+		Double3D thisLocation = null; 		// location at this timestep
+		double totalDisplacement = 0.0; 	// total path length
+		double netDisplacement = 0.0; 	    // euclidean distance between start and
+											// end points
 		double x = 0, y = 0, z = 0;
 
 		// for each timepoint
@@ -168,15 +169,14 @@ public class ProcessData {
 	 */
 	private static Double3D calculateNextLocation(int i, ArrayList<Double3D> Coords) {
 		if (i < Coords.size() - 1) {
-			//we multiply by 10 here to get the x,y and z coordinates
+			// we multiply by 10 here to get the x,y and z coordinates
 			// in microns
 			double x = Coords.get(i + 1).x * 10;
 			double y = Coords.get(i + 1).y * 10;
 			double z = Coords.get(i + 1).z * 10;
 
 			return new Double3D(x, y, z);
-		}
-		else
+		} else
 			return null;
 	}
 
@@ -198,7 +198,6 @@ public class ProcessData {
 		return miCorrected;
 	}
 
-	
 	/**
 	 * Calculates the velocity of a cell
 	 * 
@@ -214,9 +213,8 @@ public class ProcessData {
 
 	/*
 	 * Calculate turning angle: taken from matlab script provided by Jens Stein
-	 * from the University of Bern. The
-	 * angle between two 3D vectors is given by the acos of the dot product of
-	 * two normalised vectors.
+	 * from the University of Bern. The angle between two 3D vectors is given by
+	 * the acos of the dot product of two normalised vectors.
 	 * 
 	 *
 	 * the angle between two vectors P and Q is: arcos((P.Q)/(|P||Q|))
@@ -262,7 +260,5 @@ public class ProcessData {
 		}
 
 	}
-	
-
 
 }

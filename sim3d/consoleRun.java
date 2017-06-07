@@ -2,7 +2,6 @@ package sim3d;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-
 import dataLogger.Controller;
 import dataLogger.outputToCSV;
 import sim3d.stroma.Stroma;
@@ -16,7 +15,6 @@ import sim3d.util.IO;
  * 
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  */
-
 
 public class consoleRun {
 
@@ -33,7 +31,7 @@ public class consoleRun {
 	/**
 	 * Run the simulation
 	 */
-	
+
 	public static void main(String[] args) {
 
 		// output the start time
@@ -49,17 +47,14 @@ public class consoleRun {
 		String paramFile = args[0];
 		outputPath = args[1];
 		outputFileName = args[2];
-		SimulationEnvironment.simulation = new SimulationEnvironment(seed,
-				IO.openXMLFile(paramFile));
+		SimulationEnvironment.simulation = new SimulationEnvironment(seed, IO.openXMLFile(paramFile));
 
 		// start the simulation
 		long steps = 0;
 		SimulationEnvironment.simulation.start();
 		System.out.println("FollicleSim v1.0 - Console Version");
-		System.out
-				.println("\nAuthor: Jason Cosgrove, York Computational Immunology Lab");
+		System.out.println("\nAuthor: Jason Cosgrove, York Computational Immunology Lab");
 
-		
 		// the main loop which controls how long the simulation runs for
 		do {
 			steps = SimulationEnvironment.simulation.schedule.getSteps();
@@ -67,64 +62,64 @@ public class consoleRun {
 
 			// run the simulation for 500 steps to allow it to reach
 			// steady-state
-			if (steps == 10) {
+			if (steps == 150) {
 
 				// update the steadyState guard to begin recording data
 				SimulationEnvironment.steadyStateReached = true;
 
-				System.out
-						.println("System has a reached a steady state, saving steady state information");
+				System.out.println("System has a reached a steady state, saving steady state information");
 
 				// instantiate the experimental controller and
 				// start to record data
-				SimulationEnvironment.simulation.schedule
-						.scheduleRepeating(Controller.getInstance());
+				SimulationEnvironment.simulation.schedule.scheduleRepeating(Controller.getInstance());
 
 				System.out.println("The experiment will now begin");
 			}
-			
-			if (!SimulationEnvironment.simulation.schedule
-					.step(SimulationEnvironment.simulation))
+
+			if (!SimulationEnvironment.simulation.schedule.step(SimulationEnvironment.simulation))
 				break;
 		} while (SimulationEnvironment.experimentFinished == false); //
 
-		
 		// finish the simulation
 		SimulationEnvironment.simulation.finish();
 		System.out.println("\nSimulation completed successfully!\n\n");
 
 		// write the recorded data and raw data to a .csv file
-		 outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv" );
-		 outputToCSV.writeDataToFile(outputPath + outputFileName);
-		 
-		if(Settings.calculateTopologyData){
-		   outputToCSV.writeDegreesToFile(outputPath + "degrees.csv", Controller.degrees);
+		//outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv");
+		outputToCSV.writeDataToFile(outputPath + outputFileName);
+
+		if (Settings.calculateTopologyData) {
+			
+			outputToCSV.writeDegreesToFile(outputPath + "degrees.csv", Controller.degrees);
 			outputToCSV.writeMatrixToFile(outputPath + "dist.csv", SimulationEnvironment.distMatrix);
 			outputToCSV.writeMatrixToFile(outputPath + "adjacency.csv", SimulationEnvironment.a_matrix);
-			outputToCSV.writeNodeInformationToFile(outputPath + "nodeInfo.csv", 
-					Stroma.getNodes());
+			outputToCSV.writeNodeInformationToFile(outputPath + "nodeInfo.csv", Stroma.getNodes());
+			outputToCSV.writeMatrixToFile(outputPath + "chemokineField.csv", Controller.getChemokinefield());
 		}
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
 
-
 		System.out.println(calculateRunTime(starttime, endtime, sdf));
-		
+
 		System.exit(0);
 	}
 
-	private static String calculateRunTime(long startTime, long endTime, SimpleDateFormat sdf){
-		
+	
+	/**
+	 * Helper method to see how long a simulation takes to run
+	 * @param startTime
+	 * @param endTime
+	 * @param sdf
+	 * @return
+	 */
+	private static String calculateRunTime(long startTime, long endTime, SimpleDateFormat sdf) {
+
 		Date formattedendtime = new Date(endTime);
 		System.out.println("endtime: " + sdf.format(formattedendtime));
 		long totaltime = endTime - startTime;
 		// convert milliseconds to minutes
-		return("total time taken to run: " + totaltime / 60000
-				+ " minutes and " + (totaltime % 60000) / 1000 + " seconds");
-		
-		
-		
+		return ("total time taken to run: " + totaltime / 60000 + " minutes and " + 
+				(totaltime % 60000) / 1000 + " seconds");
 	}
-
-
+	
 }

@@ -2,6 +2,7 @@ package sim3d.cell;
 
 
 import sim.engine.*;
+import sim3d.Settings;
 import sim3d.migration.Algorithm1;
 
 
@@ -16,8 +17,6 @@ import sim3d.migration.Algorithm1;
  */
 public class BC extends Lymphocyte{
 	
-	
-
 	/**
 	 * Need a serial ID or you get a warning
 	 */
@@ -27,7 +26,7 @@ public class BC extends Lymphocyte{
 	/*
 	 * This is the algorithm which controls BC migration
 	 */
-	private Algorithm1 a2 = new Algorithm1();
+	private Algorithm1 a1 = new Algorithm1();
 
 	
 	/**
@@ -40,8 +39,12 @@ public class BC extends Lymphocyte{
 	public void step(final SimState state)// why is this final here
 	{
 		
-		migrate(a2);
+	
 		
+		migrate(a1);	
+		
+		//System.out.println(this.getM_Rf(Lymphocyte.Receptor.CXCR5) + this.getM_Ri(Lymphocyte.Receptor.CXCR5) 
+		//+ this.getM_Rd(Lymphocyte.Receptor.CXCR5) + this.getM_LR(Lymphocyte.Receptor.CXCR5) );
 	}
 
 

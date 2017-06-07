@@ -55,8 +55,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	}
 	
 	
-	
-	
 	public void initialiseReceptors(){
 		
 		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(4));
@@ -334,11 +332,8 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				// where they have collided. 
 				if (collideStromaNode((Stroma) cCell, iCollisionMovement)) {
 					
-					//TODO this should never be -1, so need to add an additional check
 					iCollisionMovement = getM_d3aMovements().size() - 1;
-					//iCollisionMovement = Math.max(0, getM_d3aMovements().size() - 1);
-					
-					
+										
 					bCollision = true;
 				}
 				break;
@@ -1066,24 +1061,16 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 
 			// does this sub movement go out of bounds
 			if (dTempPosY + d3Movement.y < 1
-					//TODO this needs to be set to the SCS height , wherever you see a 3
-					|| dTempPosY + d3Movement.y > Settings.HEIGHT- (Settings.bRC.SCSDEPTH)) {
-				
-				//if (dTempPosY + d3Movement.y < 1
-						//TODO this needs to be set to the SCS height , wherever you see a 3
-					//	|| dTempPosY + d3Movement.y > Settings.HEIGHT) {
-				
+					|| dTempPosY + d3Movement.y > Settings.HEIGHT- (Settings.bRC.SCSDEPTH - Settings.bRC.SCSDEPTH)) {
 				
 				// Figure out at which point it goes out
 				double dCutOff = 1;
 				if (dTempPosY + d3Movement.y < 1) {
 					dCutOff = (1 - dTempPosY) / d3Movement.y;
 				} else {
-					dCutOff = ((Settings.HEIGHT- (Settings.bRC.SCSDEPTH) ) - dTempPosY) //
+					dCutOff = ((Settings.HEIGHT- (Settings.bRC.SCSDEPTH- Settings.bRC.SCSDEPTH) ) - dTempPosY) //
 							/ d3Movement.y;
-					
-					//dCutOff = (Settings.HEIGHT - dTempPosY) //
-						//	/ d3Movement.y;
+
 				}
 
 				// Create 2 new vectors split at the cutoff point, the

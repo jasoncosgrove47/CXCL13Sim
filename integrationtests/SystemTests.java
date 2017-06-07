@@ -4,6 +4,8 @@
 package integrationtests;
 
 import static org.junit.Assert.*;
+
+import org.junit.After;
 import org.junit.Test;
 import sim.util.Bag;
 import sim3d.Settings;
@@ -21,6 +23,13 @@ import static org.hamcrest.Matchers.*;
  */
 public class SystemTests {
 
+	@After
+	public void tearDown() throws Exception {
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
+	}
+	
 	/*
 	 * Make sure that B cells can become primed
 	 */
@@ -33,7 +42,7 @@ public class SystemTests {
 		SimulationEnvironment.simulation = null;
 		SimulationEnvironment.simulation= new SimulationEnvironment(
 				seed,
-				IO.openXMLFile("/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml"));
+				IO.openXMLFile("/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml"));
 
 		// set the appropriate parameters
 		Settings.HEIGHT = 40;
@@ -87,18 +96,15 @@ public class SystemTests {
 		SimulationEnvironment.simulation = null;
 		SimulationEnvironment.simulation= new SimulationEnvironment(
 				seed,
-				IO.openXMLFile("/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml"));
+				IO.openXMLFile("/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml"));
 
 		// set the appropriate parameters
 		Settings.HEIGHT = 40;
 		Settings.WIDTH = 40;
 		Settings.DEPTH = 10;
-		//Settings.BC.COGNATECOUNT = 100;
-	
-		//Settings.BC.COUNT = 0;
+
 		Settings.BC.COGNATECOUNT = 100;
 		SimulationEnvironment.steadyStateReached = true;
-		//Settings.EXPERIMENTLENGTH = 400;
 		SimulationEnvironment.simulation.start();
 		
 		// run the simulation for 400 steps
@@ -120,7 +126,7 @@ public class SystemTests {
 					for(Stroma node : sc.getM_Nodes()){
 						if(node.getStromatype() != sc.getStromatype()){
 							
-							System.out.println(node.getStromatype());
+							 differentSubtypesConnected = true;
 							
 
 						}
@@ -129,9 +135,7 @@ public class SystemTests {
 			}
 		}
 		
-		assertTrue(differentSubtypesConnected);
-		//assertTrue(MatrixCorrect);
-		
+		assertTrue(differentSubtypesConnected);		
 	}
 	
 }

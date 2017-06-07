@@ -7,12 +7,14 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import ec.util.MersenneTwisterFast;
 import sim.util.Double3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.stroma.StromaEdge;
 import sim3d.util.StromaGenerator.StromalCelltemp;
 
@@ -27,9 +29,17 @@ public class StromaGeneratorTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		SimulationEnvironment.simulation = null;
 		Settings.RNG = new MersenneTwisterFast();
 	}
 
+	@After
+	public void tearDown() throws Exception {
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
+	}
+	
 	/**
 	 * Test method for
 	 * {@link sim3d.util.StromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}
@@ -41,7 +51,8 @@ public class StromaGeneratorTest {
 	public void testEdgeLength() {
 		ArrayList<StromalCelltemp> d3lCellLocations = new ArrayList<StromalCelltemp>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		StromaGenerator.generateStroma3D_Updated(100, 100, 100, 5000,
+		
+		StromaGenerator.generateStroma3D_Updated(30, 30, 30, 2000,
 				d3lCellLocations, selEdges);
 
 		double dTotal = 0;
@@ -60,7 +71,7 @@ public class StromaGeneratorTest {
 		dTotal /= selEdges.size();
 
 		// Value taken from literature + radius of cell*2
-		assertEquals(2.5, dTotal, 0.2); // assert that dTotal must equal 2.163
+		assertEquals(3.0, dTotal, 1.5); // assert that dTotal must equal 2.163
 											// with 0.2 error for margin
 	}
 
@@ -91,7 +102,7 @@ public class StromaGeneratorTest {
 		double dEdgesPerFDC = (double) iEdgeCount / (double) iCellCount;
 
 		// Value taken from literature
-		assertEquals(6, dEdgesPerFDC, 0.2); // 4 edges per FDC is determined
+		assertEquals(5, dEdgesPerFDC, 2); // 4 edges per FDC is determined
 											// from exptl data
 	}
 
@@ -134,34 +145,4 @@ public class StromaGeneratorTest {
 
 	}
 
-	/**
-	 * Test method for
-	 * {@link sim3d.util.FRCStromaGenerator#generateStroma3D(int, int, int, int, java.util.List)}
-	 * . /
-	 * 
-	 * @Test public void testGenerateStroma3D() { fail( "Not yet implemented" );
-	 *       }
-	 * 
-	 *       /** Test method for
-	 *       {@link sim3d.util.FRCStromaGenerator#createNewCells(int, int, int, java.util.ArrayList, boolean[][][], sim.util.Int3D, sim.util.Double3D[])}
-	 *       . /
-	 * @Test public void testCreateNewCells() { fail( "Not yet implemented" ); }
-	 * 
-	 *       /** Test method for
-	 *       {@link sim3d.util.FRCStromaGenerator#generateDirections(int, int, int, boolean[][][], sim.util.Int3D, int)}
-	 *       . /
-	 * @Test public void testGenerateDirections() { fail( "Not yet implemented"
-	 *       ); }
-	 * 
-	 *       /** Test method for
-	 *       {@link sim3d.util.FRCStromaGenerator#pickNextCell(int, int, int, java.util.ArrayList, boolean[][][])}
-	 *       . /
-	 * @Test public void testPickNextCell() { fail( "Not yet implemented" ); }
-	 * 
-	 *       /** Test method for
-	 *       {@link sim3d.util.FRCStromaGenerator#getAdjacentCells(int, int, int, boolean[][][], sim.util.Int3D, int)}
-	 *       . /
-	 * @Test public void testGetAdjacentCells() { fail( "Not yet implemented" );
-	 *       }
-	 */
 }

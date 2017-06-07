@@ -6,20 +6,18 @@ package sim3d.stroma;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
-
 import java.util.ArrayList;
-
 import javax.media.j3d.TransformGroup;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-
 import ec.util.MersenneTwisterFast;
 import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 import sim3d.diffusion.Chemokine;
@@ -31,16 +29,18 @@ public class StromaTest {
 	@Before
 	public void setUp() throws Exception {
 		Settings.RNG = new MersenneTwisterFast();
-		// Initialise the stromal grid
-		Continuous3D fdcEnvironment = new Continuous3D(
-				Settings.FDC.DISCRETISATION, 60, 60, 10);
-
 	}
 
+	@After
+	public void tearDown() throws Exception {
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
+	}
 	
 	/*
-	 * Make sure that the FDC can display antigen
-	 * TODO make sure that MRCs and the rest of them
+	 * Make sure that the FDC/MRC can display antigen
+	 * and make sure that BRCs and the rest of them
 	 * don't display antigen
 	 */
 	@Test
@@ -54,20 +54,20 @@ public class StromaTest {
 		StromaEdge fdcbranch = new StromaEdge(new Double3D(0,0,0),new Double3D(0,0,0), StromaEdge.TYPE.FDC_edge);
 		assertThat(fdcbranch.getAntigenLevel(), greaterThan(0));
 		
+		StromaEdge mrcbranch = new StromaEdge(new Double3D(0,0,0),new Double3D(0,0,0), StromaEdge.TYPE.MRC_edge);
+		assertThat(mrcbranch.getAntigenLevel(), greaterThan(0));
+		
 		ArrayList<StromalCelltemp> d3lCellLocations = new ArrayList<StromalCelltemp>();
 		ArrayList<StromaEdge> selEdges = new ArrayList<StromaEdge>();
-		
 		
 		
 		StromaGenerator.generateStroma3D_Updated(50, 50, 5, 350, d3lCellLocations,
 				selEdges);
 		
-
-	
-		
 		for (StromaEdge seEdge : selEdges) {
 			seEdge.getAntigenLevel();
-			if(seEdge.getStromaedgetype() == StromaEdge.TYPE.FDC_edge){
+			if(seEdge.getStromaedgetype() == StromaEdge.TYPE.FDC_edge 
+					|| seEdge.getStromaedgetype() == StromaEdge.TYPE.MRC_edge ){
 				assertThat(seEdge.getAntigenLevel(), greaterThan(0));
 			}
 		}
@@ -87,7 +87,6 @@ public class StromaTest {
 		assertTrue(mrc.isStatic());
 		Stroma lec = new Stroma(Stroma.TYPE.LEC,loc);
 		assertTrue(lec.isStatic());
-		
 		
 		Stroma fdc = new Stroma(Stroma.TYPE.FDC,loc);
 		assertTrue(fdc.isStatic());
@@ -110,7 +109,6 @@ public class StromaTest {
 
 		for (StromaEdge seEdge : selEdges2) {
 
-			// int antigenLevel = seEdge.getAntigen();
 			seEdge.setAntigenLevel(seEdge.getAntigenLevel() - 1);
 			assertThat(seEdge.getAntigenLevel(), lessThan(100));
 		}
@@ -160,13 +158,10 @@ public class StromaTest {
 	}
 
 	/**
-	 * test that the FDC can secrete chemokine
-	 * 
-	 * TODO tests that ensure that each cell type
-	 * secretes the correct type of chemokine.
+	 * test that the MRC can secrete chemokine
 	 */
 	@Test
-	public void testCXCL13SECRETING() {
+	public void testFDCCXCL13SECRETING() {
 
 		Double3D loc = new Double3D(0,0,0);
 		
@@ -174,11 +169,11 @@ public class StromaTest {
 		Schedule schedule = new Schedule();
 		Continuous3D fdcEnvironment = new Continuous3D(
 				Settings.FDC.DISCRETISATION, 60, 60, 10);
-//		Stroma.drawEnvironment = fdcEnvironment;
-		Chemokine m_pParticle = new Chemokine(schedule,
+		new Chemokine(schedule,
 				Chemokine.TYPE.CXCL13, 60, 60, 10);
 		Settings.FDC.CXCL13_EMITTED = 100;
 		Stroma fdc = new Stroma(Stroma.TYPE.FDC,loc);
+		fdc.m_drawEnvironment = fdcEnvironment;
 		fdc.setObjectLocation(new Double3D(15, 15, 5));
 
 		// assert that there is currently no chemokine on the grid
@@ -199,10 +194,90 @@ public class StromaTest {
 		assertThat(chemokine[1][1][1], greaterThan(0.0));
 
 		Chemokine.reset();
-		//Stroma.drawEnvironment = null;
 
 	}
 
+	/**
+	 * test that the BRC can secrete chemokine
+	 */
+	@Test
+	public void testBRCCXCL13SECRETING() {
+
+		Double3D loc = new Double3D(0,0,0);
+		
+		// initialise the system
+		Schedule schedule = new Schedule();
+		Continuous3D fdcEnvironment = new Continuous3D(
+				Settings.FDC.DISCRETISATION, 60, 60, 10);
+		new Chemokine(schedule,
+				Chemokine.TYPE.CXCL13, 60, 60, 10);
+		Settings.bRC.CXCL13_EMITTED = 100;
+		Stroma brc = new Stroma(Stroma.TYPE.bRC,loc);
+		brc.m_drawEnvironment = fdcEnvironment;
+		brc.setObjectLocation(new Double3D(15, 15, 5));
+
+		// assert that there is currently no chemokine on the grid
+		double[][][] chemokinebefore = Chemokine.get(
+				Chemokine.TYPE.CXCL13, 15, 15, 5);
+		assertThat(chemokinebefore[1][1][1], equalTo(0.0));
+
+		// step the FDC
+		brc.step(null);
+		brc.step(null);
+		brc.step(null);
+		brc.step(null);
+		brc.step(null);
+
+		// assert that there is now chemokine on the grid.
+		double[][][] chemokine = Chemokine.get(Chemokine.TYPE.CXCL13,
+				15, 15, 5);
+		assertThat(chemokine[1][1][1], greaterThan(0.0));
+
+		Chemokine.reset();
+
+	}
+	
+	/**
+	 * test that the MRC can secrete chemokine
+	 */
+	@Test
+	public void testMRCCXCL13SECRETING() {
+
+		Double3D loc = new Double3D(0,0,0);
+		
+		// initialise the system
+		Schedule schedule = new Schedule();
+		Continuous3D fdcEnvironment = new Continuous3D(
+				Settings.FDC.DISCRETISATION, 60, 60, 10);
+		new Chemokine(schedule,
+				Chemokine.TYPE.CXCL13, 60, 60, 10);
+		Settings.MRC.CXCL13_EMITTED = 100;
+		Stroma mrc = new Stroma(Stroma.TYPE.MRC,loc);
+		mrc.m_drawEnvironment = fdcEnvironment;
+		mrc.setObjectLocation(new Double3D(15, 15, 5));
+
+		// assert that there is currently no chemokine on the grid
+		double[][][] chemokinebefore = Chemokine.get(
+				Chemokine.TYPE.CXCL13, 15, 15, 5);
+		assertThat(chemokinebefore[1][1][1], equalTo(0.0));
+
+		// step the FDC
+		mrc.step(null);
+		mrc.step(null);
+		mrc.step(null);
+		mrc.step(null);
+		mrc.step(null);
+
+		// assert that there is now chemokine on the grid.
+		double[][][] chemokine = Chemokine.get(Chemokine.TYPE.CXCL13,
+				15, 15, 5);
+		assertThat(chemokine[1][1][1], greaterThan(0.0));
+
+		Chemokine.reset();
+
+	}
+	
+	
 	/**
 	 * Make sure that getCollsionClass returns the correct enum type
 	 */

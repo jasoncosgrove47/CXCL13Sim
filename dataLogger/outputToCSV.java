@@ -4,7 +4,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
 import sim3d.SimulationEnvironment;
 import sim3d.stroma.Stroma;
 
@@ -17,23 +16,29 @@ public final class outputToCSV {
 	 */
 
 	
-	
-	public static void writeDegreesToFile(String filename, ArrayList<Integer> degrees){
+	/**
+	 * This method writes out a .csv file with the number of edges connected to a given node
+	 * @param 
+	 * 		filename where to send the csv
+	 * @param 
+	 * 		degrees an arraylist containing the number of edges per node
+	 */
+	public static void writeDegreesToFile(String filename, ArrayList<Integer> degrees) {
 		FileWriter processedDataWriter;
 
 		try {
 
-			processedDataWriter = new FileWriter(filename);			
+			processedDataWriter = new FileWriter(filename);
 			processedDataWriter.append("degree");
 			processedDataWriter.append('\n');
-			
+
 			for (Integer temp : degrees) {
-				
+
 				processedDataWriter.append(Integer.toString(temp));
 
 				processedDataWriter.append('\n');
 			}
-			
+
 			// close the file stream
 			processedDataWriter.flush();
 			processedDataWriter.close();
@@ -42,14 +47,23 @@ public final class outputToCSV {
 			e.printStackTrace();
 		}
 	}
+
 	
-	
-	public static void writeNodeInformationToFile(String filename, ArrayList<Stroma> nodeinformation){
+	/**
+	 * This method writes all of the node details to file. details include the node ID, 
+	 * subset type and 3D coordinates
+	 * @param 
+	 * 		filename where to send the .csv
+	 * @param 
+	 * 		nodeinformation a Stroma arraylist containing all key information
+	 */
+	public static void writeNodeInformationToFile(String filename, ArrayList<Stroma> nodeinformation) {
 		FileWriter processedDataWriter;
 
 		try {
 
-			processedDataWriter = new FileWriter(filename);			
+			
+			processedDataWriter = new FileWriter(filename);
 			processedDataWriter.append("x");
 			processedDataWriter.append(',');
 			processedDataWriter.append("y");
@@ -60,21 +74,21 @@ public final class outputToCSV {
 			processedDataWriter.append(',');
 			processedDataWriter.append("subset");
 			processedDataWriter.append('\n');
-			
+
 			for (Stroma temp : nodeinformation) {
-				
+
 				processedDataWriter.append(Double.toString(temp.getM_Location().x * 10));
 				processedDataWriter.append(',');
-				processedDataWriter.append(Double.toString(temp.getM_Location().y* 10));
+				processedDataWriter.append(Double.toString(temp.getM_Location().y * 10));
 				processedDataWriter.append(',');
-				processedDataWriter.append(Double.toString(temp.getM_Location().z* 10));
+				processedDataWriter.append(Double.toString(temp.getM_Location().z * 10));
 				processedDataWriter.append(',');
 				processedDataWriter.append(Integer.toString(temp.getM_index()));
 				processedDataWriter.append(',');
 				processedDataWriter.append(temp.getStromatype().toString());
 				processedDataWriter.append('\n');
 			}
-			
+
 			// close the file stream
 			processedDataWriter.flush();
 			processedDataWriter.close();
@@ -83,30 +97,32 @@ public final class outputToCSV {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	/**
 	 * Write a matrix out to .csv file
-	 * @param filename where to export the matrix
-	 * @param a_matrix the matrix to export
+	 * 
+	 * @param filename
+	 *            where to export the matrix
+	 * @param a_matrix
+	 *            the matrix to export
 	 */
-	public static void writeMatrixToFile(String filename,double[][] a_matrix){
+	public static void writeMatrixToFile(String filename, double[][] a_matrix) {
 		FileWriter processedDataWriter;
 
 		try {
 
 			processedDataWriter = new FileWriter(filename);
 
-			for(int j = 0; j < a_matrix.length ; j++){
-				for(int k = 0; k < a_matrix.length ;k++){
-					
+			for (int j = 0; j < a_matrix.length; j++) {
+				for (int k = 0; k < a_matrix.length; k++) {
+
 					processedDataWriter.append(Double.toString(a_matrix[j][k]));
 					processedDataWriter.append(',');
-					
-				}	
+
+				}
 				processedDataWriter.append('\n');
 			}
-			
+
 			// close the file stream
 			processedDataWriter.flush();
 			processedDataWriter.close();
@@ -115,9 +131,7 @@ public final class outputToCSV {
 			e.printStackTrace();
 		}
 	}
-	
 
-	
 	/**
 	 * processes migration data and sends processed data to csv files
 	 */
@@ -126,9 +140,16 @@ public final class outputToCSV {
 		FileWriter processedDataWriter;
 
 		// the number of unique dendrites visited
-		double dendritesVisited;
+		double fdcdendritesVisited;
+
+		// the number of unique dendrites visited
+		double mrcdendritesVisited;
+
 		// the percentage of the network the B-cell has scanned
-		double networkScanned;
+		double fdcnetworkScanned;
+
+		// the percentage of the network the B-cell has scanned
+		double mrcnetworkScanned;
 
 		try {
 
@@ -144,7 +165,9 @@ public final class outputToCSV {
 			processedDataWriter.append(',');
 			processedDataWriter.append("Speed");
 			processedDataWriter.append(',');
-			processedDataWriter.append("dendritesVisited");
+			processedDataWriter.append("fdcdendritesVisited");
+			processedDataWriter.append(',');
+			processedDataWriter.append("mrcdendritesVisited");
 			processedDataWriter.append('\n');
 
 			// for each tracker cell
@@ -152,11 +175,22 @@ public final class outputToCSV {
 				double[] results = ProcessData.processMigrationData(key);
 
 				// calculate the percentage of the network scanned
-				dendritesVisited = (double) Controller.getInstance().getDendritesVisited().get(key);
+				fdcdendritesVisited = (double) Controller.getInstance().getFDCDendritesVisited().get(key);
 
 				// divide the number of dendrites visited by the total number of
 				// dendrites
-				networkScanned = (dendritesVisited / SimulationEnvironment.totalNumberOfAPCs);
+				fdcnetworkScanned = (fdcdendritesVisited / SimulationEnvironment.totalNumberOfFDCEdges);
+
+				
+				// calculate the percentage of the network scanned
+				mrcdendritesVisited = (double) Controller.getInstance().getMRCDendritesVisited().get(key);
+
+				// divide the number of dendrites visited by the total number of
+				// dendrites
+
+			
+				mrcnetworkScanned = (mrcdendritesVisited / SimulationEnvironment.totalNumberOfMRCEdges);
+				
 
 				// write the data out to the file
 				processedDataWriter.append(Integer.toString(key));
@@ -169,7 +203,9 @@ public final class outputToCSV {
 				processedDataWriter.append(',');
 				processedDataWriter.append(Double.toString(results[3]));
 				processedDataWriter.append(',');
-				processedDataWriter.append(Double.toString(networkScanned));
+				processedDataWriter.append(Double.toString(fdcnetworkScanned));
+				processedDataWriter.append(',');
+				processedDataWriter.append(Double.toString(mrcnetworkScanned));
 				processedDataWriter.append('\n');
 			}
 
@@ -183,7 +219,7 @@ public final class outputToCSV {
 	}
 
 	/**
-	 * Write the unprocessed raw data to .csv files
+	 * Write the unprocessed migration data to .csv files
 	 */
 	public static void writeRawDataToFile(String rawFileName) {
 

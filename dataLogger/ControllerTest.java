@@ -4,14 +4,12 @@
 package dataLogger;
 
 import static org.junit.Assert.*;
-
 import java.util.ArrayList;
-import java.util.Collections;
 
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
-
 import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.SimulationEnvironment;
@@ -25,11 +23,19 @@ public class ControllerTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
 		Settings.calculateTopologyData = true;
 	}
 	
+	@After
+	public void tearDown() throws Exception {
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
+	}
 
-	
 	@Test
 	public void testIsPointBetween(){
 	
@@ -54,7 +60,7 @@ public class ControllerTest {
 	@Test
 	public void testForZeroEdgeNodes(){
 		Document parameters;
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
 		
 		SimulationEnvironment.simulation = new SimulationEnvironment(1234,parameters);
@@ -69,26 +75,18 @@ public class ControllerTest {
 		//we need to start from two because the 1st row will have a one in it
 		for (int i = 2; i<test.length; i++){
 			
-			 int count = 0;
-		     for (int j = 2; j<test.length; j++){
-		        
-		    	 System.out.println("i: " + i + " j: " + j);
-		    	 
-		    	 if(test[i][j]  == 1){
-		    		 count +=1;
-		    	 } 
-		     }
+			int count = 0;
+		    for (int j = 2; j<test.length; j++){
+		    	if(test[i][j]  == 1){
+		    		count +=1;
+		    	} 
+		    }
 		     
-		     if(count == 0){
+		    if(count == 0){
 		    	 numOfZeroEdgeNodes +=1;
-		     }
-		     
-		     //no count value should be less than zero
-		     //assertTrue(count > 0);
-		     numEdgesPerNode.add(count);
-		        
+		    }
+		     numEdgesPerNode.add(count);       
 		}
-		System.out.println("number of zero edge nodes: " + numOfZeroEdgeNodes);
 	}
 	
 	
@@ -97,7 +95,7 @@ public class ControllerTest {
 	public void testNumberOfDegreesPerNode(){
 		
 		Document parameters;
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
 		
 		SimulationEnvironment.simulation = new SimulationEnvironment(1234,parameters);
@@ -108,21 +106,15 @@ public class ControllerTest {
 		
 		//we need to start from two because the 1st row will have a one in it
 		for (int i = 2; i<test.length; i++){
-			
 			 int count = 0;
 		     for (int j = 2; j<test.length; j++){
 		        
-		    	 System.out.println("i: " + i + " j: " + j);
-		    	 
 		    	 if(test[i][j]  == 1){
 		    		 count +=1;
 		    	 } 
 		     }
 		     numEdgesPerNode.add(count);   
 		}
-		//what is the biggest degree value in the network
-		System.out.println("max number of connections: " + Collections.max(numEdgesPerNode));
-		System.out.println("min number of connections: " + Collections.min(numEdgesPerNode));
 	}
 	
 	
@@ -132,7 +124,7 @@ public class ControllerTest {
 	public void testGenerateAdjacencyMatrix(){
 		
 		Document parameters;
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
 		
 		SimulationEnvironment.simulation = new SimulationEnvironment(123,parameters);
@@ -149,15 +141,12 @@ public class ControllerTest {
 		
 		//we need to start from two because the 1st row will have a one in it
 		for (int i = 2; i<test.length; i++){
-			     for (int j = 2; j<test.length; j++){
-			        
-			    	 System.out.println("i: " + i + " j: " + j);
-			    	 
-			    	 if(test[i][j]  == 1){
-			    		 noUpdates = false;
-			    	 } 
-			     }
+			 for (int j = 2; j<test.length; j++){
+			    if(test[i][j]  == 1){
+			    	noUpdates = false;
+			    } 
 			}
+		}
 		
 		//now make sure there are no 1's in the dataframe
 		assertTrue(noUpdates);

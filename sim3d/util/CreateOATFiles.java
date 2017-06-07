@@ -79,17 +79,17 @@ public class CreateOATFiles {
 		/**
 		 * Where parameter file generated in SPARTAN is
 		 */
-		String lhcParamsForRunsFilePathBase = "/Users/jc1571/Desktop/OAT/";
+		String lhcParamsForRunsFilePathBase = "/Users/jc1571/Desktop/ResultsModel/MOO/validate__Pareto_Front/";
 
 		/**
 		 * The original, calibrated parameter file
 		 */
-		String paramsMetaDataFilePath = "/Users/jc1571/Desktop/OAT/LymphSimParameters.xml";
+		String paramsMetaDataFilePath = "/Users/jc1571/Desktop/ResultsModel/MOO/validate__Pareto_Front/parameters-master.xml";
 
 		/**
 		 * Folder where you want adapted parameter files to be stored
 		 */
-		String paramFileOutputFolder = "/Users/jc1571/Desktop/OAT/inputfiles/";
+		String paramFileOutputFolder = "/Users/jc1571/Desktop/ResultsModel/MOO/validate__Pareto_Front/";
 
 		/**
 		 * Number of parameter sets generated

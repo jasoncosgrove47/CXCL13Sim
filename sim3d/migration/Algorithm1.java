@@ -14,13 +14,11 @@ import sim3d.util.Vector3DHelper;
 
 public class Algorithm1 implements MigrationAlgorithm {
 
-
-
 	/**
 	 * At each timestep, a lymphocyte stores its putative movements in an array
 	 * (M_d3aMovements). In this method we perform those movements subject to
 	 * there being free space available
-	 *  
+	 * 
 	 * @param lymphocyte
 	 */
 	public void performSavedMovements(Lymphocyte lymphocyte) {
@@ -43,7 +41,6 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 	}
 
-	
 	/**
 	 * Determines if there is space to move to a target destination at
 	 * coordinates x,y,z.
@@ -56,7 +53,6 @@ public class Algorithm1 implements MigrationAlgorithm {
 	 * @param z
 	 * @return
 	 */
-
 	public boolean determineSpaceToMove(double x, double y, double z) {
 		Double3D putativeLocation = new Double3D(x, y, z);
 
@@ -68,7 +64,7 @@ public class Algorithm1 implements MigrationAlgorithm {
 		int otherCells = cells.numObjs - 1;
 
 		// need to account for in
-		double pmove = Math.exp(-otherCells);
+		double pmove = Math.exp(-(otherCells));
 
 		double random = Settings.RNG.nextDouble();
 
@@ -104,7 +100,7 @@ public class Algorithm1 implements MigrationAlgorithm {
 		ODESolver.solveODE(Settings.BC.ODE.K_a(), Settings.BC.ODE.K_r(), Settings.BC.ODE.K_i(), Settings.BC.ODE.Koff,
 				Settings.BC.ODE.Kdes, chemokine1, lymphocyte);
 
-
+		
 
 		lymphocyte.registerCollisions(Lymphocyte.m_cgGrid); // Register the new
 															// movement with the
@@ -127,27 +123,48 @@ public class Algorithm1 implements MigrationAlgorithm {
 		bc.getM_d3aCollisions().clear();
 		bc.setM_d3aMovements(new ArrayList<Double3D>());
 
-		double CXCR5signalling = bc.getM_receptorMap().get(Receptor.CXCR5).get(0);
-
-		double receptorsSignalling = CXCR5signalling ;
 		
-		//the Rf remains the same for ecah so dont need to do an individual scalar for each
+		
+		
+		
+		int CXCR5signalling = bc.getM_LR(Lymphocyte.Receptor.CXCR5) ;
+
+		
+		//int CXCR5free = bc.getM_receptorMap().get(Receptor.CXCR5).get(1);
+		//int CXCR5internal = bc.getM_receptorMap().get(Receptor.CXCR5).get(2);
+		//int CXCR5desens = bc.getM_receptorMap().get(Receptor.CXCR5).get(3);
+		
+		//int receptors = bc.getM_LR(Lymphocyte.Receptor.CXCR5) + bc.getM_Rd(Lymphocyte.Receptor.CXCR5) +
+		//bc.getM_Ri(Lymphocyte.Receptor.CXCR5) + bc.getM_Rf(Lymphocyte.Receptor.CXCR5);
+		
+		
+		
+		
+		
+		//System.out.println("total receptors: " + CXCR5signalling + CXCR5free + CXCR5internal + CXCR5desens);
+		double receptorsSignalling = CXCR5signalling;
+		
+		//System.out.println("CXCR5 signalling: " + CXCR5signalling);
+
+		// the Rf remains the same for ecah so dont need to do an individual
+		// scalar for each
 		double percentageSignalling = receptorsSignalling / Settings.BC.ODE.Rf;
 
+		
+		//System.out.println("percentage receptors signalling:" + percentageSignalling);
+		
 		double speedScalar = 0;
 
-		
 		if (percentageSignalling > 0) {
 
-			//need to constrain speed scalar between 0 and 1
+			// need to constrain speed scalar between 0 and 1
 			speedScalar = (percentageSignalling * Settings.BC.SPEED_SCALAR);
 		}
-		
 
 		double travelDistance = Settings.BC.TRAVEL_DISTANCE();
-		
-		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
 
+		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
+		//bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
 	}
 
 	/**
@@ -232,7 +249,6 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 		double[] iaBoundReceptors1 = calculateLigandBound(lymphocyte, chemokine1);
 
-
 		// the new direction for the cell to move
 		Double3D vMovement1 = new Double3D();
 
@@ -242,8 +258,6 @@ public class Algorithm1 implements MigrationAlgorithm {
 		vMovement1 = vMovement1.add(new Double3D(0, 1, 0).multiply(iaBoundReceptors1[2] - iaBoundReceptors1[3]));
 		// Z
 		vMovement1 = vMovement1.add(new Double3D(0, 0, 1).multiply(iaBoundReceptors1[4] - iaBoundReceptors1[5]));
-
-
 
 		return vMovement1;
 	}
@@ -277,11 +291,11 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
-				
+
 				// if there's sufficient directional bias
 				// can affect cell polarity
 				persistence = Settings.BC.POLARITY;
-				
+
 				Double3D newdirection = vMovement.normalize();
 				// scale the new vector with respect to the old vector,
 				// values less than 1 favour the old vector, values greater than
@@ -292,6 +306,10 @@ public class Algorithm1 implements MigrationAlgorithm {
 				// update the direction that the cell is facing
 				vMovement = lymphocyte.getM_d3Face().add(newdirection);
 
+				//now add some noise to the movement
+				//vMovement = vMovement.add(Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
+				//		Settings.BC.DIRECTION_ERROR()));
+				
 				// normalise the vector
 				if (vMovement.lengthSq() > 0) {
 					vMovement = vMovement.normalize();
@@ -318,11 +336,12 @@ public class Algorithm1 implements MigrationAlgorithm {
 					Settings.BC.MAX_TURN_ANGLE());
 
 			// we need to scale this new direction or it will assume the old one
-			// is equal we were really forcing the new vector such that there was really
+			// is equal we were really forcing the new vector such that there
+			// was really
 			// no previous directional bias and perhaps more of a gas like
 			// diffusion??
 			newdirection = newdirection.multiply(persistence);
-			
+
 			// update the direction that the cell is facing
 			vMovement = lymphocyte.getM_d3Face().add(newdirection);
 

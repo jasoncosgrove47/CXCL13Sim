@@ -30,7 +30,7 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * this is the size of the FDC network
 	 */
-	public static int fdcNetRadius = 12;//was 11
+	public static int fdcNetRadius = 12;// was 11
 
 	private static final long serialVersionUID = 1;
 
@@ -49,7 +49,8 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * Total number of dendrites in the FDC network
 	 */
-	public static int totalNumberOfAPCs = 0;
+	public static int totalNumberOfFDCEdges = 0;
+	public static int totalNumberOfMRCEdges = 0;
 
 	/**
 	 * A static instance of the simulation that only get's set here
@@ -126,6 +127,9 @@ public class SimulationEnvironment extends SimState {
 		Chemokine.reset();
 	}
 
+	
+	
+	
 	/**
 	 * Accessor for the current display level - a z-index to use for displaying
 	 * the diffusion
@@ -170,7 +174,8 @@ public class SimulationEnvironment extends SimState {
 	 * than lymphocytes because they secrete chemokine, Otherwise you can get
 	 * some weird artefacts
 	 * 
-	 * @param edge the edge to schedule
+	 * @param edge
+	 *            the edge to schedule
 	 */
 	public static void scheduleStoppableEdge(StromaEdge edge) {
 		edge.setStopper(simulation.schedule.scheduleRepeating((Steppable) edge, 2, 1));
@@ -202,6 +207,7 @@ public class SimulationEnvironment extends SimState {
 		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH, 1);
 		schedule.scheduleRepeating(cgGrid, 3, 1);
 
+		
 		// intialise the follicleEnvironment
 		FollicleInitialiser.initialiseFollicle(cgGrid);
 
@@ -218,8 +224,11 @@ public class SimulationEnvironment extends SimState {
 		if (Settings.calculateTopologyData) {
 			a_matrix = Controller.createMatrix(false);
 			distMatrix = Controller.createMatrix(true);
-
 		}
+		
+		totalNumberOfFDCEdges = calculateTotalNumberOfAntigenPresentingDendrites(StromaEdge.TYPE.FDC_edge);
+
+		totalNumberOfMRCEdges = calculateTotalNumberOfAntigenPresentingDendrites(StromaEdge.TYPE.MRC_edge);
 
 	}
 
@@ -265,7 +274,12 @@ public class SimulationEnvironment extends SimState {
 
 			case B:
 				BC bc = new BC();
-				bc.setObjectLocation(generateCoordinateWithinCircle(fdcNetRadius));
+				
+				int x = 1+ Settings.RNG.nextInt(Settings.WIDTH-2);
+				int y = 1+Settings.RNG.nextInt(Settings.HEIGHT-2);
+				int z = 1+Settings.RNG.nextInt(Settings.DEPTH-2);
+				
+				bc.setObjectLocation(new Double3D(x,y,z));
 				scheduleStoppableCell(bc);
 				// so we only have 1 BC updating the ODE graph
 				if (i == 0) {
@@ -275,7 +289,11 @@ public class SimulationEnvironment extends SimState {
 
 			case cB:
 				cognateBC cbc = new cognateBC(i);
-				cbc.setObjectLocation(generateCoordinateWithinCircle(fdcNetRadius));
+				int x1 = 1+Settings.RNG.nextInt(1+Settings.WIDTH-2);
+				int y1 = 1+Settings.RNG.nextInt(1+Settings.HEIGHT-2);
+				int z1 = 1+ Settings.RNG.nextInt(1+Settings.DEPTH-2);
+				cbc.setObjectLocation(new Double3D(x1,y1,z1));
+				//cbc.setObjectLocation(generateCoordinateWithinCircle(fdcNetRadius));
 				scheduleStoppableCell(cbc);
 				break;
 
@@ -288,7 +306,7 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * @return a random Double3D inside a circle
 	 */
-	Double3D generateCoordinateWithinCircle(int circleRadius) {
+	static Double3D generateCoordinateWithinCircle(int circleRadius) {
 
 		int x, y, z;
 
@@ -296,9 +314,9 @@ public class SimulationEnvironment extends SimState {
 		// the radius of the circle is 13 and it is inside this that we seed
 		// the b cells
 		do {
-			x = random.nextInt(Settings.WIDTH - 2) + 1;
-			y = random.nextInt(Settings.HEIGHT - 2) + 1;
-			z = random.nextInt(Settings.DEPTH - 2) + 1;
+			x = Settings.RNG.nextInt(Settings.WIDTH - 2) + 1;
+			y = Settings.RNG.nextInt(Settings.HEIGHT - 2) + 1;
+			z = Settings.RNG.nextInt(Settings.DEPTH - 2) + 1;
 
 		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1, (Settings.HEIGHT / 2) + 1, circleRadius) == false);
 
@@ -306,26 +324,9 @@ public class SimulationEnvironment extends SimState {
 	}
 
 	/**
-	 * @return a random Double3D inside a circle
-	 */
-	private Double3D generateCoordinateOutsideCircle(int circleRadius) {
-
-		int x, y, z;
-		do {
-			x = random.nextInt(Settings.WIDTH - 2) + 1;
-			y = random.nextInt(Settings.HEIGHT - 2) + 1;
-			z = random.nextInt(Settings.DEPTH - 2) + 1;
-
-			// keep generating new values while they are outside of the circle
-			// the radius of the circle is 13 and it is inside this that we seed
-			// the b cells
-		} while (isWithinCircle(x, y, (Settings.WIDTH / 2) + 1, (Settings.HEIGHT / 2) + 1, circleRadius) == true);
-
-		return new Double3D(x, y, z);
-	}
-
-	/**
-	 * Return all objects on the 3 stroma grids
+	 * 
+	 * 
+	 * /** Return all objects on the 3 stroma grids
 	 * 
 	 * @return a bag containing all stromal cells in the sim
 	 */
@@ -397,26 +398,26 @@ public class SimulationEnvironment extends SimState {
 		return output;
 	}
 
-	@SuppressWarnings("unused")
-	private int calculateTotalNumberOfAPCs() {
+
+	private int calculateTotalNumberOfAntigenPresentingDendrites(StromaEdge.TYPE edgetype) {
 
 		Bag stroma = getAllStroma();
-		int FDCcounter = 0;
+		int APcounter = 0;
 
 		// we want to count only branches and dendrites so
 		// we need to know how many FDC nodes there are
 		for (int i = 0; i < stroma.size(); i++) {
-			if (stroma.get(i) instanceof Stroma) {
+			if (stroma.get(i) instanceof StromaEdge) {
 
-				Stroma.TYPE type = ((Stroma) stroma.get(i)).getStromatype();
+				StromaEdge.TYPE type = ((StromaEdge) stroma.get(i)).getStromaedgetype();
 
 				// we want to include FDCs, MRCs and bRCs
-				if (type != Stroma.TYPE.bRC) {
-					FDCcounter += 1;
+				if (type == edgetype) {
+					APcounter += 1;
 				}
 			}
 		}
-		return FDCcounter;
+		return APcounter;
 	}
 
 }

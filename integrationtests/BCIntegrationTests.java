@@ -16,6 +16,7 @@ import sim.engine.Schedule;
 import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.cell.BC;
 import sim3d.cell.cognateBC;
 import sim3d.collisiondetection.CollisionGrid;
@@ -31,31 +32,33 @@ import static org.hamcrest.Matchers.*;
  */
 public class BCIntegrationTests {
 
-	
 	// a new schedule to step the tests
 	private Schedule schedule = new Schedule();
 	private Chemokine m_pParticle; // an instance of particle moles
 	public static Document parameters; // parameter file in .xml format
 
-	
-
 	/**
 	 * Load simulation parameters
 	 */
 	private static void loadParameters() {
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
 		Settings.BC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
 		Settings.FDC.loadParameters(parameters);
 	}
 
+
+	
 	@BeforeClass
 	public static void oneTimeSetUp() {
 
-		
 		// load in all of the BC and FDC parameters but overwrite some of the
 		// options parameters to make the tests faster
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
+		
 		loadParameters();
 		Settings.RNG = new MersenneTwisterFast();
 		Settings.WIDTH = 31;
@@ -63,10 +66,9 @@ public class BCIntegrationTests {
 		Settings.DEPTH = 31;
 		Settings.CXCL13.DIFFUSION_COEFFICIENT = 0.0000000000076;
 		Settings.GRID_SIZE = 0.00001;
-		Settings.CXCL13.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2) / (10.00 * Settings.CXCL13.DIFFUSION_COEFFICIENT));
+		Settings.CXCL13.DIFFUSION_TIMESTEP = (Math.pow(Settings.GRID_SIZE, 2)
+				/ (10.00 * Settings.CXCL13.DIFFUSION_COEFFICIENT));
 		Settings.CXCL13.DIFFUSION_STEPS = (int) (60 / Settings.CXCL13.DIFFUSION_TIMESTEP);
-
-
 
 	}
 
@@ -74,22 +76,16 @@ public class BCIntegrationTests {
 	public void setUp() throws Exception {
 
 		// instantiate particlemoles
-		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CXCL13,
-				31, 31, 31);
-	
-		
-		
+		m_pParticle = new Chemokine(schedule, Chemokine.TYPE.CXCL13, 31, 31, 31);
 
 		// initialise the BC environment
-		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
-				31);
+		BC.bcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31, 31);
 		BC.drawEnvironment = BC.bcEnvironment;
 
 		// set receptors back to normal levels
 		Settings.BC.ODE.LR = 0;
 		Settings.BC.ODE.Rf = 30000;
 		Settings.BC.ODE.Ri = 0;
-		
 
 	}
 
@@ -99,6 +95,9 @@ public class BCIntegrationTests {
 		m_pParticle = null;
 		Chemokine.reset();
 		BC.drawEnvironment = null;
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
 	}
 
 	/*
@@ -109,17 +108,11 @@ public class BCIntegrationTests {
 	@Test
 	public void testCXCL13SENSITIVE() {
 
-		
-
-
-	
-
 		m_pParticle.field[15][15][15] = (1 * Math.pow(10, -16));
 
 		// make the BCs highly sensitive to chemokine
 		Settings.CXCL13.DECAY_CONSTANT = 0.005;
 		Settings.BC.SIGNAL_THRESHOLD = 1;
-
 
 		// Let's diffuse a little
 		Settings.CXCL13.DIFFUSION_STEPS = 2;
@@ -133,8 +126,7 @@ public class BCIntegrationTests {
 		for (int i = 0; i < 100; i++) {
 			bcCells[i] = new BC();
 
-			bcCells[i].setObjectLocation(new Double3D(
-					Settings.RNG.nextInt(14) + 8, Settings.RNG.nextInt(14) + 8,
+			bcCells[i].setObjectLocation(new Double3D(Settings.RNG.nextInt(14) + 8, Settings.RNG.nextInt(14) + 8,
 					Settings.RNG.nextInt(14) + 8));
 		}
 		// Let them move a bit
@@ -151,8 +143,8 @@ public class BCIntegrationTests {
 
 		// calculate the distance between a BC and the chemokine source
 		for (int i = 0; i < 100; i++) {
-			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15,
-					bcCells[i].z - 15); // see how far they are from origin
+			//how far are the cells from the center grid
+			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15, bcCells[i].z - 15); 
 
 			avDistance += bcLoc.length();
 		}
@@ -181,8 +173,7 @@ public class BCIntegrationTests {
 		// instantiate a BC and a stromal edge and get them to interact
 		cognateBC cBC = new cognateBC(1);
 		Settings.FDC.STARTINGANTIGENLEVEL = 400;
-		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1,
-				1, 1),StromaEdge.TYPE.FDC_edge);
+		StromaEdge se = new StromaEdge(new Double3D(0, 0, 0), new Double3D(1, 1, 1), StromaEdge.TYPE.FDC_edge);
 		cBC.acquireAntigenEdge(se);
 
 		// assert that the BC is now primed
@@ -205,7 +196,7 @@ public class BCIntegrationTests {
 		iEdges--;
 		for (int i = 0; i < iEdges; i++) {
 			points[i + 1] = points[i + 1].multiply(3).add(d3Centre);
-			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1],StromaEdge.TYPE.FDC_edge);
+			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1], StromaEdge.TYPE.FDC_edge);
 			seEdge.registerCollisions(cgGrid);
 		}
 
@@ -229,8 +220,7 @@ public class BCIntegrationTests {
 		double avDistance = 0;
 
 		for (int i = 0; i < 100; i++) {
-			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15,
-					bcCells[i].z - 15);
+			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15, bcCells[i].z - 15);
 
 			avDistance += bcLoc.length();
 		}
@@ -240,8 +230,6 @@ public class BCIntegrationTests {
 
 	}
 
-	
-	
 	/*
 	 * This test makes sure that BCs and Reticular Cells collide correctly
 	 */
@@ -258,7 +246,7 @@ public class BCIntegrationTests {
 		iEdges--;
 		for (int i = 0; i < iEdges; i++) {
 			points[i + 1] = points[i + 1].multiply(3).add(d3Centre);
-			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1],StromaEdge.TYPE.FDC_edge);
+			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1], StromaEdge.TYPE.FDC_edge);
 			seEdge.registerCollisions(cgGrid);
 		}
 
@@ -269,7 +257,6 @@ public class BCIntegrationTests {
 			bcCells[i].setObjectLocation(d3Centre);
 		}
 
-		
 		// Let them move a bit
 		for (int i = 0; i < 100; i++) {
 			for (int j = 0; j < 100; j++) {
@@ -283,8 +270,7 @@ public class BCIntegrationTests {
 		double avDistance = 0;
 
 		for (int i = 0; i < 100; i++) {
-			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15,
-					bcCells[i].z - 15);
+			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15, bcCells[i].z - 15);
 
 			avDistance += bcLoc.length();
 		}
@@ -293,8 +279,7 @@ public class BCIntegrationTests {
 		assertThat(avDistance / 100, lessThan(3.0));
 
 	}
-	
-	
+
 	/*
 	 * This test makes sure that BCs and Reticular Cells collide correctly
 	 */
@@ -311,7 +296,7 @@ public class BCIntegrationTests {
 		iEdges--;
 		for (int i = 0; i < iEdges; i++) {
 			points[i + 1] = points[i + 1].multiply(3).add(d3Centre);
-			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1],StromaEdge.TYPE.RC_edge);
+			StromaEdge seEdge = new StromaEdge(points[i], points[i + 1], StromaEdge.TYPE.RC_edge);
 			seEdge.registerCollisions(cgGrid);
 		}
 
@@ -335,8 +320,7 @@ public class BCIntegrationTests {
 		double avDistance = 0;
 
 		for (int i = 0; i < 100; i++) {
-			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15,
-					bcCells[i].z - 15);
+			Double3D bcLoc = new Double3D(bcCells[i].x - 15, bcCells[i].y - 15, bcCells[i].z - 15);
 
 			avDistance += bcLoc.length();
 		}
@@ -345,8 +329,7 @@ public class BCIntegrationTests {
 		assertThat(avDistance / 100, lessThan(3.0));
 
 	}
-	
-	
+
 	/**
 	 * 
 	 * * We want to test that the cell doesn't perfect go towards the chemokine
@@ -401,16 +384,10 @@ public class BCIntegrationTests {
 		int[] iaResults = new int[5];
 		for (int i = 0; i < 250; i++) {
 
-
-			
 			iaResults[(int) (5 * (bcCells[i].z - 1) / 29.0)]++;
-			
-			
-			
-		}
-		
 
-		
+		}
+
 		assertEquals("0-6", 50, iaResults[0], 15.0);
 		assertEquals("6-12", 50, iaResults[1], 15.0);
 		assertEquals("12-18", 50, iaResults[2], 15.0);
@@ -424,23 +401,21 @@ public class BCIntegrationTests {
 	 * concentration of chemokine, i.e. the stromal network
 	 * 
 	 * Can fail on occasion due to chance so needs to be run multiple times.
-	 *  TODO we really need to reassess this.it passes even when they have receptors :(
+	 * TODO we really need to reassess this.it passes even when they have
+	 * receptors :(
 	 * 
 	 */
 	@Test
 	public void testNONCXCR5EXPRESSINGequalsDESENSITISED() {
-		
+
 		for (int i = 0; i < 31; i++) {
-			m_pParticle.field[15][15][i] = 0;//10e-30;
-	
+			m_pParticle.field[15][15][i] = 0;// 10e-30;
 		}
 
 		// get rid of all CXCR5
 		Settings.BC.ODE.LR = 00;
 		Settings.BC.ODE.Rf = 00;
 		Settings.BC.ODE.Ri = 00;
-		
-
 
 		// Let's diffuse a little
 		Settings.CXCL13.DIFFUSION_STEPS = 2;
@@ -466,8 +441,7 @@ public class BCIntegrationTests {
 		}
 
 		// Let them move a bit
-		
-	
+
 		for (int i = 0; i < 500; i++) {
 			for (int j = 0; j < 250; j++) {
 				bcCells[j].step(null);
@@ -475,18 +449,16 @@ public class BCIntegrationTests {
 
 			// chemokine diffuses faster than cells are updated
 			for (int k = 0; k < 31; k++) {
-				m_pParticle.field[15][15][k] = 0;// (1.7 * Math.pow(10, -22));
+				m_pParticle.field[15][15][k] = 0;
 			}
 			m_pParticle.step(null);
 		}
-	
 
 		// determine where all of the cells are localised
 		int[] iaResults = new int[5];
 		for (int i = 0; i < 250; i++) {
-	
-			iaResults[(int) (5 * (bcCells[i].z - 1) / 29.0)]++;
 
+			iaResults[(int) (5 * (bcCells[i].z - 1) / 29.0)]++;
 
 		}
 		assertEquals("0-6", 50, iaResults[0], 15.0);
@@ -494,7 +466,7 @@ public class BCIntegrationTests {
 		assertEquals("12-18", 50, iaResults[2], 15.0);
 		assertEquals("18-24", 50, iaResults[3], 15.0);
 		assertEquals("24-30", 50, iaResults[4], 15.0);
-		
+
 	}
 
 }

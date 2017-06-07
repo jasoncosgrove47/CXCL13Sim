@@ -38,10 +38,8 @@ public class Controller implements Steppable {
 	 * @author Jason Cosgrove
 	 */
 
-	
-	
 	public static ArrayList<Integer> degrees = new ArrayList<Integer>();
-	
+
 	/**
 	 * The single instance of the class
 	 */
@@ -74,22 +72,23 @@ public class Controller implements Steppable {
 	 */
 	private int experimentTimer = 0;
 
-	
 	/*
 	 * The duration of an in silico experiment
 	 */
 	private int lengthOfExperiment;
 
+	
 	/**
 	 * Coordinate maps Key: the index of each individual cognateBC Value: An
 	 * arraylist containing the cells position in a given dimension for a given
 	 * timestep
 	 */
 	private Map<Integer, ArrayList<Double3D>> Coordinates = new HashMap<Integer, ArrayList<Double3D>>();
-	private Map<Integer, Integer> dendritesVisited = new HashMap<Integer, Integer>();
+	private Map<Integer, Integer> fdcdendritesVisited = new HashMap<Integer, Integer>();
+	private Map<Integer, Integer> mrcdendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
 
-
+	private static double[][] chemokinefield;
 	
 	/**
 	 * Controls the length of an experiment and signals to the main class when
@@ -100,27 +99,31 @@ public class Controller implements Steppable {
 		// increment the experiment timer
 		experimentTimer++;
 
+		if(experimentTimer == 5){
+			setChemokinefield(SimulationEnvironment.CXCL13.recordChemokineField());
+		}
 		// stop the experiment once the counter reaches
 		// lengthOfExperiment
 		if (experimentTimer > lengthOfExperiment) {
 			SimulationEnvironment.experimentFinished = true;
+		
 		}
+		
 	}
-	
 
 	/**
 	 * Initialise the network adjacency matrix, required for outputting to .csv
 	 * later.
 	 * 
-	 * @return an n * n adjacency matrix where n is the amount of stroma + 1
-	 *         for the column and row labels
+	 * @return an n * n adjacency matrix where n is the amount of stroma + 1 for
+	 *         the column and row labels
 	 */
 	public static double[][] generateAdjacencyMatrix() {
 
 		// calcualte the number of nodes in the network
 		int[] nodesandedges = SimulationEnvironment.calculateNodesAndEdges();
 		int numberofnodes = nodesandedges[0];
-		
+
 		// we add a plus one because we also want an index for each one
 		double[][] adjacencyMatrix = new double[numberofnodes + 1][numberofnodes + 1];
 
@@ -132,64 +135,53 @@ public class Controller implements Steppable {
 
 	}
 
-	
 	/**
-	 * This method creates and updates adjacency and distance matrices
-	 * for analysing stroma topology
+	 * This method creates and updates adjacency and distance matrices for
+	 * analysing stroma topology
+	 * 
 	 * @param matrix
 	 * @param dist
 	 * @return
 	 */
-	public static double[][] createMatrix( boolean dist){
-		//this initialises the matrix
+	public static double[][] createMatrix(boolean dist) {
+		// this initialises the matrix
 		double[][] matrix = generateAdjacencyMatrix();
-		
-		
-		
 		Bag stroma = SimulationEnvironment.getAllStroma();
 
+		// iterate through all of the stromal cells and
+		// update their positions in the adjacency matrix
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof Stroma) {
-				
+
 				Stroma sc = (Stroma) stroma.get(i);
 				if (sc.getStromatype() != Stroma.TYPE.LEC) {
 
-					
 					int counter = 0;
-					//don't add any self connections	
-					//there should be no LECs in the node list, must be MRCs.
-					for(Stroma stromalcell : sc.getM_Nodes()){
-						
-						if(!stromalcell.equals(sc)){
-						
-						
-							if(dist){
+					// don't add any self connections
+					// there should be no LECs in the node list, must be MRCs.
+					for (Stroma stromalcell : sc.getM_Nodes()) {
+						if (!stromalcell.equals(sc)) {
 
-								//multiply by 10 because we want it in microns
-								double distance = sc.getM_Location().distance(stromalcell.getM_Location())* 10;
+							if (dist) {
+
+								// multiply by 10 because we want it in microns
+								double distance = sc.getM_Location().distance(stromalcell.getM_Location()) * 10;
 								matrix[sc.getM_index()][stromalcell.getM_index()] = distance;
 								matrix[stromalcell.getM_index()][sc.getM_index()] = distance;
-								
-							}
-							else{
-						
-								counter +=1;
+							} else {
+								counter += 1;
 								matrix[sc.getM_index()][stromalcell.getM_index()] = 1;
 								matrix[stromalcell.getM_index()][sc.getM_index()] = 1;
 							}
 						}
-											
 					}
-					
 					degrees.add(counter);
 				}
 			}
 		}
 		return matrix;
-		
 	}
-	
-	
+
 	/**
 	 * Add the nodes to the matrix headers, update the nodeinfo arraylist and
 	 * the nodeIndexMap
@@ -201,14 +193,13 @@ public class Controller implements Steppable {
 
 		// the unique IDcode for each stroma node
 		int nodeindex = 1;
-		
+
 		Bag stroma = SimulationEnvironment.getAllStroma();
 		for (int i = 0; i < stroma.size(); i++) {
 			if (stroma.get(i) instanceof Stroma) {
-				//LECs are not included in topological analysis
+				// LECs are not included in topological analysis
 				if (((Stroma) stroma.get(i)).getStromatype() != Stroma.TYPE.LEC) {
 					((Stroma) stroma.get(i)).setM_index(nodeindex);
-					
 
 					// give it a unique ID number and store the location
 					adjacencyMatrix[0][nodeindex] = nodeindex;
@@ -219,22 +210,19 @@ public class Controller implements Steppable {
 			}
 		}
 		return adjacencyMatrix;
-		
 	}
 
-	
 	/**
-	 * To determine if the path between two nodes is blocked by another node 
-	 * we do the following:
+	 * To determine if the path between two nodes is blocked by another node we
+	 * do the following:
 	 * 
-	 * Check if the points are collinear
-	 * 	Collinear when the cross product of b-a and c-a is 0 (all 3 components are zero)  
+	 * Check if the points are collinear Collinear when the cross product of b-a
+	 * and c-a is 0 (all 3 components are zero)
 	 * 
-	 *  If so, also need to check if  if c's
-	 * coordinates are between a's and b's.
+	 * If so, also need to check if if c's coordinates are between a's and b's.
 	 * 
-	 * This is true when the dot product of b-a and c-a 
-	 * is positive and is less than the squared distance between a and b
+	 * This is true when the dot product of b-a and c-a is positive and is less
+	 * than the squared distance between a and b
 	 * 
 	 * @param a
 	 * @param b
@@ -247,16 +235,13 @@ public class Controller implements Steppable {
 		Double3D b_a = new Double3D(b.x - a.x, b.y - a.y, b.z - a.z);
 
 		Double3D crossproduct = Vector3DHelper.crossProduct(c_a, b_a);
-		
+
 		double dotproduct = Vector3DHelper.dotProduct(b_a, c_a);
 
 		double squaredLength = Math.pow(a.distance(b), 2);
 
-		// this is our threshold needs to be the width of an edge i suppose so
-		// lets say 3 microns
-		// TODO we need to revisit this and see if its sensible
-		double epsilon = Settings.FDC.STROMA_EDGE_RADIUS*2;
-
+		// a threshold value that equals 10 microns
+		double epsilon = 1;
 		// check to see if they are collinear
 
 		if (crossproduct.length() > epsilon) {
@@ -273,28 +258,33 @@ public class Controller implements Steppable {
 		} else
 			return true;
 	}
-	 
-	
-	
+
 	/**
-	 * Check if two nodes are already connected on the basis of the adjacency matrix
-	 * @param adjacencyMatrix the adjacency matrix to query
-	 * @param sc1 stromal cell one
-	 * @param sc2 stromal cell two
+	 * Check if two nodes are already connected on the basis of the adjacency
+	 * matrix
+	 * 
+	 * @param adjacencyMatrix
+	 *            the adjacency matrix to query
+	 * @param sc1
+	 *            stromal cell one
+	 * @param sc2
+	 *            stromal cell two
 	 * @return true if the nodes are connected
 	 */
-	static boolean checkIfConnected(double[][] adjacencyMatrix, Stroma sc1, Stroma sc2){
-			 
-		 if (adjacencyMatrix[sc1.getM_index()][sc2.getM_index()] == 1) {
-			 return true;
-		 }
-		 return false;	 
-	}
-		
-		 
+	static boolean checkIfConnected(double[][] adjacencyMatrix, Stroma sc1, Stroma sc2) {
 
-	public Map<Integer, Integer> getDendritesVisited() {
-		return dendritesVisited;
+		if (adjacencyMatrix[sc1.getM_index()][sc2.getM_index()] == 1) {
+			return true;
+		}
+		return false;
+	}
+
+	public Map<Integer, Integer> getFDCDendritesVisited() {
+		return fdcdendritesVisited;
+	}
+	
+	public Map<Integer, Integer> getMRCDendritesVisited() {
+		return mrcdendritesVisited;
 	}
 
 	public Map<Integer, ArrayList<Integer>> getReceptors() {
@@ -305,6 +295,12 @@ public class Controller implements Steppable {
 		return Coordinates;
 	}
 
+	public static double[][] getChemokinefield() {
+		return chemokinefield;
+	}
 
+	public void setChemokinefield(double[][] chemokinefield) {
+		this.chemokinefield = chemokinefield;
+	}
 
 }

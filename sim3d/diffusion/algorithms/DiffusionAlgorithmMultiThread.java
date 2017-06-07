@@ -108,7 +108,6 @@ public class DiffusionAlgorithmMultiThread
 		
 		// Precalculate these values for the edge checks inside the for loops
 		// so we don't have to keep recalculating them
-		
 		if ( m_iThreads > 1 )
 		{
 			ExecutorService es = Executors.newCachedThreadPool();
@@ -131,26 +130,26 @@ public class DiffusionAlgorithmMultiThread
 			// Loop through the grid spaces ignoring borders for now
 			diffuseLoop(pSpace, ia3Concentrations, 1,1,1, m_iWidth-1, m_iHeight-1, m_iDepth-1);
 		}
-		
-		
+
 			enforceBoundaryCondition(pSpace);
-		
 	}
 	
 	/**
 	 * Enforce the boundary condition so all of the chemokine will bounce back in...
 	 * @param pSpace
+	 * 
+	 * TODO we bounce chemokine back in, not sure if this is correct...
+	 * TODO, need to revisit this code
 	 */
 	private void enforceBoundaryCondition(Chemokine pSpace){
 		
 		// you want to iterate through 1 to gridwidth,height depth -1 so we
 		// precalculate for efficiency
 		int iWidth = m_iWidth - 1;
-		int iHeight = m_iHeight - 1 ; //to do well need to have a think abhout this
+		int iHeight = m_iHeight - 1 ; 
 		int iDepth = m_iDepth - 1;
 
 		// Now enforce the boundary condition
-		// Code is a little inefficient, but it's clean at least
 		int xEdge = -1, yEdge = -1, zEdge = -1;
 
 		for (int x = 0; x < m_iWidth; x++) {
@@ -181,22 +180,14 @@ public class DiffusionAlgorithmMultiThread
 					}
 
 					if (xEdge != -1 || yEdge != -1 || zEdge != -1) {
-						// just bounce it all back in
-
-						// this is a tertiary operator, bit like quick if
-						// statement
-
+						// bounce it all back in
 						// chooses the x coordinate, then the y and so on
 						// if the edge is -1 return x, else return xEdge
-						// all of this should be on one line really
-						pSpace.field[(xEdge == -1) ? x : xEdge] // if it's -1,
-																// set it to the
-																// current x val
-						[(yEdge == -1) ? y : yEdge] // etc.
-						[(zEdge == -1) ? z : zEdge] // i.e. this one isn't on
-													// the edge
-								
-					
+						
+						//TODO pretty sure we can comment this out but need to ccheck with Simon.
+						pSpace.field[(xEdge == -1) ? x : xEdge] 
+						[(yEdge == -1) ? y : yEdge] 
+						[(zEdge == -1) ? z : zEdge]
 						+= pSpace.field[x][y][z];
 						
 						// the actual boundary is zero but we are only
@@ -309,10 +300,6 @@ public class DiffusionAlgorithmMultiThread
 									pSpace.field[x][y][z] -= iDelta;
 								}
 								
-								// Keep track of how many particles we've
-								// diffused
-								//iCount += (int) (m_adDiffusionCoefficients[r + 1][s + 1][t + 1]
-								//		* (ia3Concentrations[x][y][z]));
 							}
 						}
 					}
@@ -323,7 +310,6 @@ public class DiffusionAlgorithmMultiThread
 		}
 	}
 		
-	
 }
 
 

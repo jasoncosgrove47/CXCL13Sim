@@ -135,7 +135,12 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	}
 	
 	
-	//TODO need to sort out what the draw environment is...
+
+	/**
+	 * Initialiser for Stroma
+	 * @param type
+	 * @param loc
+	 */
 	public Stroma(TYPE type, Double3D loc){
 		
 		
@@ -280,21 +285,9 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			if (transf == null) {
 			
 				transf = new TransformGroup();
-
-				
-				//Appearance aAppearance = new Appearance();
-				//Color col = Color.white;
-				//aAppearance.setColoringAttributes(new ColoringAttributes(col
-				//		.getRed() / 255f, col.getGreen() / 255f,
-				//		col.getBlue() / 255f, ColoringAttributes.FASTEST));
 				Color col =  new Color(200, 130, 40);
-				
-
 				CubePortrayal3D s = new CubePortrayal3D(col,1.0);
 
-				//SpherePortrayal3D s = new SpherePortrayal3D(
-				//		Settings.FDC.DRAW_COLOR(),
-				//		Settings.FDC.STROMA_NODE_RADIUS * 4, 6);
 				s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 				TransformGroup localTG = s.getModel(obj, null);
 
@@ -303,11 +296,8 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			}
 			
 			break;
-		
 		}
 		
-		
-
 		return transf;
 	}
 
@@ -322,16 +312,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		return false;
 	}
 	
-	/**
-	 * Once we create a stroma node we need to 
-	 * add it to the relevant grids and update 
-	 * connections etc
-	 * @param sc
-	 */
-	public void addStromaNodeToSim(Stroma sc){
-		
-		//TODO need to make this method
-	}
+
 	
 	
 	
@@ -355,8 +336,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	public void step(final SimState state) {
 
 		
-		//System.out.println(this.m_dendrites.size());
-		
 		if(m_CXCL13){
 			
 			if(this.m_type == Stroma.TYPE.FDC){
@@ -375,12 +354,10 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 		//for now we dont care about CCL19
 		if(m_CCL19){
-			//Chemokine.add(Chemokine.TYPE.CCL19, (int) x, (int) y, (int) z,
-			//		FRCsecretionRate_CCL19);
+
 		}
 		if(m_EBI2L){
-			//Chemokine.add(Chemokine.TYPE.EBI2L, (int) x, (int) y, (int) z,
-				//	MRCsecretionRate_EBI2L);
+
 		}
 
 	}
@@ -420,14 +397,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	public void setCellsCollidedWith(ArrayList<Integer> cellsCollidedWith) {
 		this.cellsCollidedWith = cellsCollidedWith;
 	}
-
-	//public static ArrayList<Stroma> getNodeinformation() {
-		//return nodeinformation;
-	//}
-
-	//public static void setNodeinformation(ArrayList<Stroma> nodeinformation) {
-		//Stroma.nodeinformation = nodeinformation;
-	//}
 
 	public int getM_index() {
 		return m_index;
@@ -469,6 +438,5 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		this.m_isStatic = m_isStatic;
 	}
 
-	
 	
 }

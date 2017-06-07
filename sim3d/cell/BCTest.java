@@ -20,6 +20,7 @@ import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 import sim3d.diffusion.Chemokine;
@@ -36,12 +37,14 @@ public class BCTest {
 	private Chemokine m_pParticle;
 	public static Document parameters;
 
+
+	
 	/**
 	 * Initialise the simulation parameters
 	 */
 	private static void loadParameters() {
 
-		String paramFile = "/Users/jc1571/Dropbox/EBI2Sim/Simulation/LymphSimParameters.xml";
+		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
 		parameters = IO.openXMLFile(paramFile);
 		Settings.BC.loadParameters(parameters);
 		Settings.BC.ODE.loadParameters(parameters);
@@ -107,6 +110,9 @@ public class BCTest {
 		m_pParticle = null;
 		Chemokine.reset();
 		BC.drawEnvironment = null;
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
 	}
 
 	/**
@@ -160,7 +166,6 @@ public class BCTest {
 	/**
 	 * Tests that register collisions can add data to the collisionGrid
 	 * 
-	 * TODO needs refining
 	 */
 	@Test
 	public void testRegisterCollisions() {
@@ -172,10 +177,7 @@ public class BCTest {
 		// generate some coordinates and register collisions
 		BC bc = new BC();
 		Double3D loc1 = new Double3D(5, 5, 5);
-
-	
 		bc.getM_d3aMovements().add(loc1);
-		//bc.m_d3aMovements.add(loc2);
 		bc.registerCollisions(cgGrid);
 
 		// assert that the collision data is added
@@ -185,7 +187,6 @@ public class BCTest {
 		Int3D validate = new Int3D(5, 5, 5);
 		assertTrue(cgGrid.getM_i3lCollisionPoints().contains(validate));
 			
-		
 	}
 
 	/**
@@ -279,8 +280,7 @@ public class BCTest {
 	}
 
 	/**
-	 * Assert that calculate SNew returns a non-zero output TODO need to make
-	 * sure that the correct data is being returned
+	 * Assert that calculate SNew returns a non-zero output
 	 */
 	@Test
 	public void testCalculateSNew() {
@@ -300,7 +300,6 @@ public class BCTest {
 
 	/**
 	 * Assert that calculate FindClosestPointsBetween returns a non-zero output
-	 * TODO need to make sure that the correct data is being returned.
 	 */
 	@Test
 	public void testFindClosestPointsBetween() {
@@ -440,12 +439,17 @@ public class BCTest {
 	 */
 	@Test
 	public void testReceptorStepConservation() {
-		m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -9));
+		m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -7));
 
-		Settings.BC.ODE.Rf = 1000;
-		Settings.BC.ODE.Ri = 1000;
-		Settings.BC.ODE.LR = 1000;
-		Settings.CXCL13.DECAY_CONSTANT = 0.5;
+		Settings.BC.ODE.Rf = 15764;
+		Settings.BC.ODE.Ri = 0000;
+		Settings.BC.ODE.LR = 000;
+		Settings.BC.ODE.Ka = 6.51374353592237;
+		Settings.BC.ODE.Ki = 0.00755425970891421;
+		Settings.BC.ODE.Kr = 0.00585580220986041;
+		Settings.BC.ODE.Koff = 0.329095537811448;
+		Settings.BC.ODE.Kdes = 0.0241877634243085;
+		Settings.CXCL13.DECAY_CONSTANT = 0.05;
 		Settings.BC.SIGNAL_THRESHOLD = 10;
 		Settings.CXCL13.DIFFUSION_STEPS = 2;
 
@@ -463,7 +467,7 @@ public class BCTest {
 		m_pParticle.step(null);
 		m_pParticle.step(null);
 
-		// Randomly place a BCs
+		// Randomly place a BC
 		BC[] bcCells = new BC[1];
 		for (int i = 0; i < 1; i++) {
 			bcCells[i] = new BC();
@@ -472,12 +476,13 @@ public class BCTest {
 					Settings.RNG.nextInt(14) + 8, Settings.RNG.nextInt(14) + 8,
 					Settings.RNG.nextInt(14) + 8));
 		}
-		// Let it move a bit
+		// Let it migrate for 100 timesteps, 
 		for (int i = 0; i < 100; i++) {
 			for (int j = 0; j < 1; j++) {
 				bcCells[j].step(null);// why are you passing in null
 			}
-			m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -9));
+			//add more chemokine to the field
+			m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -7));
 			m_pParticle.step(null);
 		}
 
@@ -485,8 +490,15 @@ public class BCTest {
 		int totalReceptorSim = (bcCells[0].getM_LR(Lymphocyte.Receptor.CXCR5) + bcCells[0].getM_Rd(Lymphocyte.Receptor.CXCR5) +
 				bcCells[0].getM_Ri(Lymphocyte.Receptor.CXCR5) + bcCells[0].getM_Rf(Lymphocyte.Receptor.CXCR5));
 
-		assertEquals(totalReceptorSim, totalReceptorParams);// why is this
-															// condition here?
+		//check for conservation of total receptor numbers
+		assertEquals(totalReceptorSim, totalReceptorParams);
+		
+		assertTrue(bcCells[0].getM_LR(Lymphocyte.Receptor.CXCR5) > 0);
+		assertTrue(bcCells[0].getM_Rd(Lymphocyte.Receptor.CXCR5) > 0);
+		assertTrue(bcCells[0].getM_Ri(Lymphocyte.Receptor.CXCR5) > 0);
+		assertTrue(bcCells[0].getM_Rf(Lymphocyte.Receptor.CXCR5) > 0);
+		
+
 	}
 
 }

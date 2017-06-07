@@ -79,36 +79,41 @@ public class Create_LHC_Param_Files {
 		/**
 		 * Where parameter file generated in SPARTAN is
 		 */
-		String lhcParamsForRunsFilePath = "/Users/jc1571/Desktop/blah/LHC_Parameters_for_Runs_FInalised.csv";
+		String lhcParamsForRunsFilePath = "/Users/jc1571/Desktop/ResultsModel/MOO/validate_Pareto_FrontYARCC/denormalised_parametersKO.csv";
 
 		/**
 		 * The original, calibrated parameter file
 		 */
-		String paramsMetaDataFilePath = "/Users/jc1571/Desktop/blah/GCSimParameters.xml";
+		String paramsMetaDataFilePath = "/Users/jc1571/Desktop/ResultsModel/MOO/validate_Pareto_FrontYARCC/parameters-master.xml";
 
 		/**
 		 * Folder where you want adapted parameter files to be stored
 		 */
-		String paramFileOutputFolder = "/Users/jc1571/Desktop/LHC3/";
+		String paramFileOutputFolder = "/Users/jc1571/Desktop/ResultsModel/MOO/validate_Pareto_FrontYARCC/KOParamFiles";
 
 		/**
 		 * Number of parameter sets generated
 		 */
-		int numSamples = 500;
+		int numSamples = 100;
 
 		/**
 		 * Arraylist of the names of the measures of interest in the analysis.
 		 */
 		ArrayList<String> simMeasures = new ArrayList<String>();
-		simMeasures.add("maxAgeBCell");
-		simMeasures.add("maxNonInteractiveTime");
-		simMeasures.add("differentiationProbability");
-		simMeasures.add("centroblastLifeSpan");
-		simMeasures.add("maxAge");
-		simMeasures.add("dedifferentiationProbability");
-		simMeasures.add("centrocyteLifeSpan");
-		simMeasures.add("maxNonInteractingThreshold");
-		simMeasures.add("maxAgeTFh");
+		simMeasures.add("TRAVEL_DISTANCE");
+		simMeasures.add("POLARITY");
+		simMeasures.add("SPEED_SCALAR");
+		simMeasures.add("Rf");
+		simMeasures.add("Ka");
+		simMeasures.add("Ki");
+		simMeasures.add("Kr");
+		simMeasures.add("Koff");
+		simMeasures.add("Kdes");
+		simMeasures.add("CXCL13_EMITTED_FDC");
+		simMeasures.add("CXCL13_EMITTED_FRC");
+		simMeasures.add("CXCL13_EMITTED_MRC");
+		simMeasures.add("DECAY_CONSTANT_CXCL13");
+		simMeasures.add("DIFFUSION_COEFFICIENT_CXCL13");
 
 		try {
 			// Read in the spartan generated latin-hypercube file

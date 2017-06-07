@@ -49,10 +49,6 @@ public class Settings {
 		Node gridN = gridNL.item(0);
 		GRID_SIZE = Double.parseDouble(gridN.getTextContent());
 		
-	//	NodeList sbNL = paramOElement.getElementsByTagName("SIGNALLING_BIAS");
-	//	Node sbN = sbNL.item(0);
-	//	SIGNALLING_BIAS= Double.parseDouble(sbN.getTextContent());
-	
 	}
 
 	public static boolean calculateTopologyData =  true;
@@ -98,7 +94,6 @@ public class Settings {
 	 * Size of one edge of a grid space in meters
 	 */
 	public static double GRID_SIZE; // 1E-05 = 10 micron
-
 
 	
 	/**
@@ -324,10 +319,9 @@ public class Settings {
 				
 				NodeList KoffNL = paramODEElement.getElementsByTagName("Koff");
 				Node KoffN = KoffNL.item(0);
-				Koff_PREFIX = Double.parseDouble(KoffN.getTextContent());
+				Koff = Double.parseDouble(KoffN.getTextContent());
 				
-				Koff = scaleKoff();
-				
+	
 			}
 
 			/**
@@ -379,17 +373,13 @@ public class Settings {
 			
 			public static double Koff;
 			
-			public static double Koff_PREFIX;
-			
-			private static double scaleKoff() {
-				return (Koff_PREFIX * 1);
-			}
+
 			
 			
 			/**
 			 * rate of receptor recycling from an internal pool
 			 */
-			static double Kr;
+			public static double Kr;
 
 			public static double K_r() {
 				return Kr;
@@ -398,7 +388,7 @@ public class Settings {
 			/**
 			 * rate of receptor internalisation
 			 */
-			static double Ki;
+			public static double Ki;
 
 			public static double K_i() {
 				return Ki;
@@ -631,7 +621,7 @@ public class Settings {
 			Node stromaedgeN = stromaedgeNL.item(0);
 			DECAY_CONSTANT = Double.parseDouble(stromaedgeN.getTextContent());
 			
-			
+
 		}
 
 		/*
@@ -649,7 +639,6 @@ public class Settings {
 			return (Math.pow(GRID_SIZE, 2) / (10 * DIFFUSION_COEFFICIENT));
 		}
 		
-
 
 		/**
 		 * multiply by 60 as we want to update diffusion in seconds and not minutes
@@ -684,10 +673,6 @@ public class Settings {
 		public static double DIFFUSION_TIMESTEP;
 		public static int DIFFUSION_STEPS;
 	}
-	
-
-
-	
 	
 
 }

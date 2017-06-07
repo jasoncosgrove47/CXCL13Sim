@@ -5,13 +5,14 @@ import static org.junit.Assert.*;
 
 import javax.media.j3d.TransformGroup;
 
-
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import sim.field.continuous.Continuous3D;
 import sim.util.Double3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.cell.cognateBC.TYPE;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.stroma.StromaEdge;
@@ -28,6 +29,12 @@ public class cognateBCTest {
 		
 	}
 
+	@After
+	public void tearDown() throws Exception {
+		if(SimulationEnvironment.simulation != null){
+			SimulationEnvironment.simulation.finish();
+		}
+	}
 	/**
 	 * Assert that a cognate BC can update its position with
 	 * the controller
@@ -72,12 +79,12 @@ public class cognateBCTest {
 		StromaEdge se = new StromaEdge(new Double3D(0,0,0), new Double3D(1,1,1),StromaEdge.TYPE.FDC_edge);
 		cBC.acquireAntigenEdge(se);
 		
-		int test = Controller.getInstance().getDendritesVisited().get(cBC.getIndex());
+		int test = Controller.getInstance().getFDCDendritesVisited().get(cBC.getIndex());
 		assertEquals(1, test);
 		
 		//test that the cBC can only acquire antigen from a unique stromal cell once
 		cBC.acquireAntigenEdge(se);
-		int test2 = Controller.getInstance().getDendritesVisited().get(cBC.getIndex());
+		int test2 = Controller.getInstance().getFDCDendritesVisited().get(cBC.getIndex());
 		assertEquals(1, test2);
 		
 		//test the cBC has captured antigen and is now primed
