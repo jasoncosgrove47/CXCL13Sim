@@ -61,8 +61,8 @@ public final class FollicleInitialiser {
 	private static void generateBranches(CollisionGrid cgGrid, boolean FDC, boolean BRC, boolean MRC) {
 
 		if (FDC) {
-			generateBranchesDynamically(cgGrid, SimulationEnvironment.fdcEnvironment, StromaEdge.TYPE.FDC_edge, 18, 5,
-					5);
+			generateBranchesDynamically(cgGrid, SimulationEnvironment.fdcEnvironment, StromaEdge.TYPE.FDC_edge, 19, 5,
+					8);
 		}
 
 		if (BRC) {

@@ -85,7 +85,7 @@ public class GenerateSCS {
 	private static boolean checkForMRCsAtLocation(Double3D loc) {
 
 		// make sure that the cells arent too close to one another.
-		Bag bagMrcs = SimulationEnvironment.mrcEnvironment.getNeighborsExactlyWithinDistance(loc, 1.25);
+		Bag bagMrcs = SimulationEnvironment.mrcEnvironment.getNeighborsExactlyWithinDistance(loc, 1.4);
 		boolean bMrcAtLocation = false;
 
 		// make sure we're not placing cells in the same location.
@@ -123,7 +123,7 @@ public class GenerateSCS {
 			for (Stroma neighbour : neighbours) {
 
 				if (!sc.equals(neighbour) && !Stroma.AreStromaNodesConnected(sc, neighbour)
-						&& sc.getM_Nodes().size() < 9 && neighbour.getM_Nodes().size() < 9) {
+						&& sc.getM_Nodes().size() < 7 && neighbour.getM_Nodes().size() < 7) {
 
 					Double3D loc = sc.getM_Location();
 					Double3D neighbourloc = neighbour.getM_Location();
@@ -164,7 +164,7 @@ public class GenerateSCS {
 				Stroma sc = (Stroma) stroma.get(i);
 				if (sc.getStromatype() == Stroma.TYPE.MRC) {
 					Bag neighbours = SimulationEnvironment.mrcEnvironment
-							.getNeighborsExactlyWithinDistance(sc.getM_Location(), 4, false);
+							.getNeighborsExactlyWithinDistance(sc.getM_Location(), 4.5, false);
 
 					// update the connections between neighbouring MRC nodes
 					connectionsToAdd = addMRCConnections(neighbours, sc, connectionsToAdd);
@@ -197,7 +197,7 @@ public class GenerateSCS {
 					//if the MRCs dont have enough connection then add some additional connections
 					if(sc.getM_Nodes().size() < 4){
 						Bag neighbours = SimulationEnvironment.mrcEnvironment.
-								getNeighborsExactlyWithinDistance(sc.getM_Location(), 4.5);
+								getNeighborsExactlyWithinDistance(sc.getM_Location(), 5);
 						
 						Stroma neighbour = findClosestMRC(neighbours, sc);
 						if(neighbour!= null){	
@@ -339,7 +339,7 @@ public class GenerateSCS {
 
 			//get all MRCs within 30 microns away
 			Bag neighbours = SimulationEnvironment.mrcEnvironment
-					.getNeighborsExactlyWithinDistance(brc.getM_Location(), 3);
+					.getNeighborsExactlyWithinDistance(brc.getM_Location(), 3.5);
 
 			//pick the closest MRC available and if not already connected then
 			//make a connection between the two. 

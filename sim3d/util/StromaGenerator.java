@@ -460,7 +460,7 @@ public class StromaGenerator {
 
 			// just check we aren't making a huge edge!
 			//TODO this looks like its the wrong way around??
-		} while (!bFail && d3aReturn[0].length() > 5.0 //TODO was 4
+		} while (!bFail && d3aReturn[0].length() > 5.2 //TODO was 4
 				&& d3aReturn[0].length() < 1.0);//TODO put this back as it was 0.5
 
 		
@@ -515,12 +515,12 @@ public class StromaGenerator {
 		
 		 if(celltype == Stroma.TYPE.bRC){
 				
-				return Settings.RNG.nextGaussian()*0.1 + 3.2;
+				return Settings.RNG.nextGaussian()*0.1 + 2.2;
 				
 		 }
 		 else if(celltype == Stroma.TYPE.FDC){
 		
-				return Settings.RNG.nextGaussian()*0.1 + 3.8;	
+				return Settings.RNG.nextGaussian()*0.1 + 5.0;	
 				
 		 }
 		 
