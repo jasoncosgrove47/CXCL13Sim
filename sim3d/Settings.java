@@ -518,6 +518,12 @@ public class Settings {
 			Node countSC = countSCS.item(0);
 			SCSDEPTH = Integer.parseInt(countSC.getTextContent());
 			
+			NodeList stromaedgeNL = paramFRCElement
+					.getElementsByTagName("STROMA_EDGE_RADIUS");
+			Node stromaedgeN = stromaedgeNL.item(0);
+			STROMA_EDGE_RADIUS = Double.parseDouble(stromaedgeN
+					.getTextContent());
+			
 			NodeList cxcl13NL = paramFRCElement
 					.getElementsByTagName("CXCL13_EMITTED_FRC");
 			Node cxcl13N = cxcl13NL.item(0);
@@ -534,6 +540,11 @@ public class Settings {
 		public static double CXCL13_EMITTED() {
 			return CXCL13_EMITTED;
 		}
+		
+		/**
+		 * The radius of the cylinder edge that will collide with things.
+		 */
+		public static double STROMA_EDGE_RADIUS;
 		
 		private static double emissionrate;
 

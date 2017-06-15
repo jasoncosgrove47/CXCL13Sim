@@ -144,12 +144,22 @@ public final class outputToCSV {
 
 		// the number of unique dendrites visited
 		double mrcdendritesVisited;
+		
+		double brcdendritesVisited;
+		
+		double totaldendritesVisited;
 
 		// the percentage of the network the B-cell has scanned
 		double fdcnetworkScanned;
 
 		// the percentage of the network the B-cell has scanned
 		double mrcnetworkScanned;
+		
+		// the percentage of the network the B-cell has scanned
+		double brcnetworkScanned;
+		
+		// the percentage of the network the B-cell has scanned
+		double totalnetworkScanned;
 
 		try {
 
@@ -168,6 +178,10 @@ public final class outputToCSV {
 			processedDataWriter.append("fdcdendritesVisited");
 			processedDataWriter.append(',');
 			processedDataWriter.append("mrcdendritesVisited");
+			processedDataWriter.append(',');
+			processedDataWriter.append("brcdendritesVisited");
+			processedDataWriter.append(',');
+			processedDataWriter.append("totaldendritesVisited");
 			processedDataWriter.append('\n');
 
 			// for each tracker cell
@@ -191,6 +205,23 @@ public final class outputToCSV {
 			
 				mrcnetworkScanned = (mrcdendritesVisited / SimulationEnvironment.totalNumberOfMRCEdges);
 				
+				// calculate the percentage of the network scanned
+				brcdendritesVisited = (double) Controller.getInstance().getRcdendritesVisited().get(key);
+
+				// divide the number of dendrites visited by the total number of
+				// dendrites
+
+			
+				brcnetworkScanned = (brcdendritesVisited / SimulationEnvironment.totalNumberOfBRCEdges);
+				
+				totaldendritesVisited = (double) Controller.getInstance().getTotaldendritesVisited().get(key);
+
+				// divide the number of dendrites visited by the total number of
+				// dendrites
+
+			
+				totalnetworkScanned = (totaldendritesVisited / SimulationEnvironment.totalNumberOfEdges);
+				
 
 				// write the data out to the file
 				processedDataWriter.append(Integer.toString(key));
@@ -206,6 +237,10 @@ public final class outputToCSV {
 				processedDataWriter.append(Double.toString(fdcnetworkScanned));
 				processedDataWriter.append(',');
 				processedDataWriter.append(Double.toString(mrcnetworkScanned));
+				processedDataWriter.append(',');
+				processedDataWriter.append(Double.toString(brcnetworkScanned));
+				processedDataWriter.append(',');
+				processedDataWriter.append(Double.toString(totalnetworkScanned));
 				processedDataWriter.append('\n');
 			}
 

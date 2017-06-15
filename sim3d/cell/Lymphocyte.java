@@ -243,6 +243,8 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 */
 	private Stoppable stopper = null;
 
+	public boolean m_isChemotactic;
+
 	/**
 	 * Method to change the value of the stopper this is the stoppabkle object
 	 * so we can access its stop method stoppable can acess BC but not the other
@@ -292,7 +294,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		// don't let a b cell collide more than collisionThreshold times
 		// otherwise you get in an infinite loop where a B cell continues
 		// bouncing indefinitely
-		int iCollisionThreshold = 50;
+		int iCollisionThreshold = 50; //was 50
 		if (getM_i3lCollisionPoints().size() == 0
 				|| getCollisionCounter() > iCollisionThreshold) {
 			return;

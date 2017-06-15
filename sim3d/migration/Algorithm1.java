@@ -7,7 +7,6 @@ import sim.util.Double3D;
 import sim3d.Settings;
 import sim3d.cell.BC;
 import sim3d.cell.Lymphocyte;
-import sim3d.cell.Lymphocyte.Receptor;
 import sim3d.diffusion.Chemokine;
 import sim3d.util.ODESolver;
 import sim3d.util.Vector3DHelper;
@@ -130,15 +129,6 @@ public class Algorithm1 implements MigrationAlgorithm {
 		int CXCR5signalling = bc.getM_LR(Lymphocyte.Receptor.CXCR5) ;
 
 		
-		//int CXCR5free = bc.getM_receptorMap().get(Receptor.CXCR5).get(1);
-		//int CXCR5internal = bc.getM_receptorMap().get(Receptor.CXCR5).get(2);
-		//int CXCR5desens = bc.getM_receptorMap().get(Receptor.CXCR5).get(3);
-		
-		//int receptors = bc.getM_LR(Lymphocyte.Receptor.CXCR5) + bc.getM_Rd(Lymphocyte.Receptor.CXCR5) +
-		//bc.getM_Ri(Lymphocyte.Receptor.CXCR5) + bc.getM_Rf(Lymphocyte.Receptor.CXCR5);
-		
-		
-		
 		
 		
 		//System.out.println("total receptors: " + CXCR5signalling + CXCR5free + CXCR5internal + CXCR5desens);
@@ -148,23 +138,35 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 		// the Rf remains the same for ecah so dont need to do an individual
 		// scalar for each
-		double percentageSignalling = receptorsSignalling / Settings.BC.ODE.Rf;
+		//double percentageSignalling = receptorsSignalling / Settings.BC.ODE.Rf;
 
 		
 		//System.out.println("percentage receptors signalling:" + percentageSignalling);
 		
 		double speedScalar = 0;
 
-		if (percentageSignalling > 0) {
+		if (bc.m_isChemotactic == true) {
 
 			// need to constrain speed scalar between 0 and 1
-			speedScalar = (percentageSignalling * Settings.BC.SPEED_SCALAR);
+			
+			speedScalar = - Math.log(Settings.BC.POLARITY)/Settings.BC.SPEED_SCALAR;
+		}
+		
+		else {
+
+			// need to constrain speed scalar between 0 and 1
+			
+			//speedScalar = - Math.log(Settings.BC.RANDOM_POLARITY)/Settings.BC.SPEED_SCALAR;
 		}
 
-		double travelDistance = Settings.BC.TRAVEL_DISTANCE();
 
+		
+		double travelDistance = Settings.BC.TRAVEL_DISTANCE() ;
+
+		
+		
 		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
-		//bc.getM_d3aMovements().add(vMovement.multiply(travelDistance));
+
 	}
 
 	/**
@@ -292,6 +294,9 @@ public class Algorithm1 implements MigrationAlgorithm {
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
 
+				
+				
+				lymphocyte.m_isChemotactic =true;
 				// if there's sufficient directional bias
 				// can affect cell polarity
 				persistence = Settings.BC.POLARITY;
@@ -307,8 +312,8 @@ public class Algorithm1 implements MigrationAlgorithm {
 				vMovement = lymphocyte.getM_d3Face().add(newdirection);
 
 				//now add some noise to the movement
-				//vMovement = vMovement.add(Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
-				//		Settings.BC.DIRECTION_ERROR()));
+				vMovement = vMovement.add(Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
+						Settings.BC.DIRECTION_ERROR()));
 				
 				// normalise the vector
 				if (vMovement.lengthSq() > 0) {
@@ -329,6 +334,8 @@ public class Algorithm1 implements MigrationAlgorithm {
 			// was just used to set speed so need to redefine this function...
 			// speaking of which this should be in the model documentation
 
+			lymphocyte.m_isChemotactic =false;
+			
 			persistence = Settings.BC.RANDOM_POLARITY;
 
 			// lets try the new way

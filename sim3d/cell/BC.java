@@ -43,8 +43,11 @@ public class BC extends Lymphocyte{
 		
 		migrate(a1);	
 		
-		//System.out.println(this.getM_Rf(Lymphocyte.Receptor.CXCR5) + this.getM_Ri(Lymphocyte.Receptor.CXCR5) 
-		//+ this.getM_Rd(Lymphocyte.Receptor.CXCR5) + this.getM_LR(Lymphocyte.Receptor.CXCR5) );
+		//System.out.println("Rf: " + this.getM_Rf(Lymphocyte.Receptor.CXCR5));
+		//System.out.println("Ri: " + this.getM_Ri(Lymphocyte.Receptor.CXCR5));
+		//System.out.println("Rd: " + this.getM_Rd(Lymphocyte.Receptor.CXCR5));
+		//System.out.println("LR: " + this.getM_LR(Lymphocyte.Receptor.CXCR5));
+
 	}
 
 

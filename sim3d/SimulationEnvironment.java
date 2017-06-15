@@ -51,6 +51,8 @@ public class SimulationEnvironment extends SimState {
 	 */
 	public static int totalNumberOfFDCEdges = 0;
 	public static int totalNumberOfMRCEdges = 0;
+	public static int totalNumberOfBRCEdges = 0;
+	public static int totalNumberOfEdges = 0;
 
 	/**
 	 * A static instance of the simulation that only get's set here
@@ -229,7 +231,10 @@ public class SimulationEnvironment extends SimState {
 		totalNumberOfFDCEdges = calculateTotalNumberOfAntigenPresentingDendrites(StromaEdge.TYPE.FDC_edge);
 
 		totalNumberOfMRCEdges = calculateTotalNumberOfAntigenPresentingDendrites(StromaEdge.TYPE.MRC_edge);
+		
+		totalNumberOfBRCEdges = calculateTotalNumberOfAntigenPresentingDendrites(StromaEdge.TYPE.RC_edge);
 
+		totalNumberOfEdges = totalNumberOfFDCEdges + totalNumberOfMRCEdges + totalNumberOfBRCEdges;
 	}
 
 	/**

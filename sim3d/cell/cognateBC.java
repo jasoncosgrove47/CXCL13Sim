@@ -64,6 +64,16 @@ public class cognateBC extends BC {
 	int mrcdendritesVisited = 0;
 	
 	/**
+	 * The number of unique dendrites visited by a cBC
+	 */
+	int rcdendritesVisited = 0;
+	
+	/**
+	 * The number of unique dendrites visited by a cBC
+	 */
+	int totaldendritesVisited = 0;
+	
+	/**
 	 * Counter used to increment time in a cell migration experiment
 	 */
 	int counter = 0;
@@ -82,7 +92,6 @@ public class cognateBC extends BC {
 	@Override
 	public void step(final SimState state) {
 
-		
 		super.step(state);
 		// once the system has reached steady state the BC can start to record
 		// it's position
@@ -166,6 +175,25 @@ public class cognateBC extends BC {
 					.put(this.index, this.mrcdendritesVisited);
 
 		}
+		
+		if (this.rcdendritesVisited == 0
+				& Controller.getInstance().getRcdendritesVisited()
+						.containsKey(this.index) == false) {
+
+			Controller.getInstance().getRcdendritesVisited()
+					.put(this.index, this.rcdendritesVisited);
+
+		}
+		
+		
+		if (this.totaldendritesVisited == 0
+				& Controller.getInstance().getTotaldendritesVisited()
+						.containsKey(this.index) == false) {
+
+			Controller.getInstance().getTotaldendritesVisited()
+					.put(this.index, this.totaldendritesVisited);
+
+		}
 
 
 		// don't let a b cell collide more than collisionThreshold times
@@ -198,7 +226,6 @@ public class cognateBC extends BC {
 								// they won't be moving
 				StromaEdge.TYPE type =  ((StromaEdge) cCell).getStromaedgetype();
 				
-				if(type == StromaEdge.TYPE.FDC_edge || type == StromaEdge.TYPE.MRC_edge){
 					
 					if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
 						iCollisionMovement = getM_d3aMovements().size() - 1;
@@ -210,7 +237,7 @@ public class cognateBC extends BC {
 							acquireAntigenEdge(cCell);
 						}
 
-				}
+				
 							
 			}
 				break;
@@ -260,14 +287,30 @@ public class cognateBC extends BC {
 
 				if(sEdge.getStromaedgetype() == StromaEdge.TYPE.FDC_edge){
 					this.fdcdendritesVisited += 1;
+					this.totaldendritesVisited += 1;
 					Controller.getInstance().getFDCDendritesVisited()
 						.put(this.index, this.fdcdendritesVisited);
+					
+					Controller.getInstance().getTotaldendritesVisited()
+					.put(this.index, this.totaldendritesVisited);
 				}
 				else if(sEdge.getStromaedgetype() == StromaEdge.TYPE.MRC_edge){
-					
+					this.totaldendritesVisited += 1;
 					this.mrcdendritesVisited += 1;
 					Controller.getInstance().getMRCDendritesVisited()
 						.put(this.index, this.mrcdendritesVisited);
+					
+					Controller.getInstance().getTotaldendritesVisited()
+					.put(this.index, this.totaldendritesVisited);
+				}
+				else if(sEdge.getStromaedgetype() == StromaEdge.TYPE.RC_edge){
+					this.totaldendritesVisited += 1;
+					this.rcdendritesVisited += 1;
+					Controller.getInstance().getRcdendritesVisited()
+						.put(this.index, this.mrcdendritesVisited);
+					
+					Controller.getInstance().getTotaldendritesVisited()
+					.put(this.index, this.totaldendritesVisited);
 				}
 
 				// increment the cBC antigen captured counter

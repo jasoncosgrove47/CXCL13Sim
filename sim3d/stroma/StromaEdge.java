@@ -48,6 +48,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	private boolean m_isStatic = true;
 	
 	
+	private double m_edgeRadius;
+	
 	//dont want duplicate entries so use a set
 	//dont think ordering matters so probably dont need a linked hashset
 	public Set<StromaEdge> m_Branches;
@@ -201,6 +203,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		case FDC_edge: 
 			setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
 			
+			this.m_edgeRadius = Settings.FDC.STROMA_EDGE_RADIUS;
+			
 			this.m_drawEnvironment = SimulationEnvironment.fdcEnvironment;
 			setM_col(col2);
 
@@ -211,6 +215,9 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			
 		case MRC_edge:
 			setAntigenLevel(Settings.FDC.STARTINGANTIGENLEVEL);
+			
+			this.m_edgeRadius = Settings.bRC.STROMA_EDGE_RADIUS;
+			
 			setM_col(col);
 			this.setBranch(false);
 			
@@ -220,6 +227,9 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		
 		case RC_edge:
 			setM_col(col);
+			
+			this.m_edgeRadius = Settings.bRC.STROMA_EDGE_RADIUS;
+			
 			setAntigenLevel(0);	
 			this.setBranch(false);
 			this.m_drawEnvironment = SimulationEnvironment.brcEnvironment;
@@ -269,8 +279,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			
 			LineAttributes la = new LineAttributes();
 			
-			double fdcEdgeRadius = Settings.FDC.STROMA_EDGE_RADIUS * 10;
-			double rcEdgeRadius = Settings.FDC.STROMA_EDGE_RADIUS * 20;
+			double fdcEdgeRadius = Settings.FDC.STROMA_EDGE_RADIUS*6;
+			double rcEdgeRadius = Settings.bRC.STROMA_EDGE_RADIUS*6;
 			
 			switch (this.getStromaedgetype()) {
 			case FDC_edge: 
@@ -380,11 +390,11 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		return isM_isStatic();
 	}
 
-	@Override
+
 	public void registerCollisions(CollisionGrid cgGrid) {
 		cgGrid.addLineToGrid(this, new Double3D(x, y, z), new Double3D(x
 				+ m_d3Edge.x, y + m_d3Edge.y, z + m_d3Edge.z),
-				Settings.FDC.STROMA_EDGE_RADIUS);
+				this.m_edgeRadius);
 	}
 
 	/*

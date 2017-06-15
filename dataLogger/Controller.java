@@ -86,6 +86,8 @@ public class Controller implements Steppable {
 	private Map<Integer, ArrayList<Double3D>> Coordinates = new HashMap<Integer, ArrayList<Double3D>>();
 	private Map<Integer, Integer> fdcdendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> mrcdendritesVisited = new HashMap<Integer, Integer>();
+	private Map<Integer, Integer> rcdendritesVisited = new HashMap<Integer, Integer>();
+	private Map<Integer, Integer> totaldendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
 
 	private static double[][] chemokinefield;
@@ -300,7 +302,23 @@ public class Controller implements Steppable {
 	}
 
 	public void setChemokinefield(double[][] chemokinefield) {
-		this.chemokinefield = chemokinefield;
+		Controller.chemokinefield = chemokinefield;
+	}
+
+	public Map<Integer, Integer> getRcdendritesVisited() {
+		return rcdendritesVisited;
+	}
+
+	public void setRcdendritesVisited(Map<Integer, Integer> rcdendritesVisited) {
+		this.rcdendritesVisited = rcdendritesVisited;
+	}
+
+	public Map<Integer, Integer> getTotaldendritesVisited() {
+		return totaldendritesVisited;
+	}
+
+	public void setTotaldendritesVisited(Map<Integer, Integer> totaldendritesVisited) {
+		this.totaldendritesVisited = totaldendritesVisited;
 	}
 
 }

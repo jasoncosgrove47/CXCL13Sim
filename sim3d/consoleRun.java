@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import dataLogger.Controller;
 import dataLogger.outputToCSV;
-import sim3d.stroma.Stroma;
 import sim3d.util.IO;
 
 /**
@@ -15,7 +14,6 @@ import sim3d.util.IO;
  * 
  * @author Jason Cosgrove - {@link jc1571@york.ac.uk}
  */
-
 public class consoleRun {
 
 	/*
@@ -85,16 +83,16 @@ public class consoleRun {
 		System.out.println("\nSimulation completed successfully!\n\n");
 
 		// write the recorded data and raw data to a .csv file
-		//outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv");
+		outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv");
 		outputToCSV.writeDataToFile(outputPath + outputFileName);
 
 		if (Settings.calculateTopologyData) {
 			
-			outputToCSV.writeDegreesToFile(outputPath + "degrees.csv", Controller.degrees);
-			outputToCSV.writeMatrixToFile(outputPath + "dist.csv", SimulationEnvironment.distMatrix);
-			outputToCSV.writeMatrixToFile(outputPath + "adjacency.csv", SimulationEnvironment.a_matrix);
-			outputToCSV.writeNodeInformationToFile(outputPath + "nodeInfo.csv", Stroma.getNodes());
-			outputToCSV.writeMatrixToFile(outputPath + "chemokineField.csv", Controller.getChemokinefield());
+			//outputToCSV.writeDegreesToFile(outputPath + "degrees.csv", Controller.degrees);
+			//outputToCSV.writeMatrixToFile(outputPath + "dist.csv", SimulationEnvironment.distMatrix);
+			//outputToCSV.writeMatrixToFile(outputPath + "adjacency.csv", SimulationEnvironment.a_matrix);
+			//outputToCSV.writeNodeInformationToFile(outputPath + "nodeInfo.csv", Stroma.getNodes());
+			//outputToCSV.writeMatrixToFile(outputPath + "chemokineField.csv", Controller.getChemokinefield());
 		}
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();
