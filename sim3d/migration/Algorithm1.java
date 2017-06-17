@@ -68,11 +68,22 @@ public class Algorithm1 implements MigrationAlgorithm {
 		double random = Settings.RNG.nextDouble();
 
 		if (random < pmove) {
+			
+			
 			return true;
 		}
 
 		else
-			return false;
+			
+			//there are situations where all cells can become gridlocked, so we need to allow moves on occasion
+			// to prevent this from happening even in limited space
+			if(Settings.RNG.nextDouble() < 0.9){
+			
+				return false;
+			}
+		
+			else
+				return true;
 	}
 
 	@Override

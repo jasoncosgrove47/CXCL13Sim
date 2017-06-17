@@ -362,7 +362,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		double vol = 1.44e-8;
 		@SuppressWarnings("unused")
 		double molarconc = calculateMolarConcentration(vol, totalChemokineinMoles);
-		//System.out.println( "total chemokine (Molar) is: " + totalChemokineinMoles/vol);		
+		System.out.println( "total chemokine (Molar) is: " + totalChemokineinMoles/vol);		
 	}
 
 	
