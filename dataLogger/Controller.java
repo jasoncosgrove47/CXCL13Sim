@@ -88,6 +88,7 @@ public class Controller implements Steppable {
 	private Map<Integer, Integer> mrcdendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> rcdendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> totaldendritesVisited = new HashMap<Integer, Integer>();
+	private Map<Integer, Integer> checkpointsReached = new HashMap<Integer, Integer>();
 	private Map<Integer, ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
 
 	private static double[][] chemokinefield;
@@ -319,6 +320,14 @@ public class Controller implements Steppable {
 
 	public void setTotaldendritesVisited(Map<Integer, Integer> totaldendritesVisited) {
 		this.totaldendritesVisited = totaldendritesVisited;
+	}
+
+	public Map<Integer, Integer> getCheckpointsReached() {
+		return checkpointsReached;
+	}
+
+	public void setCheckpointsReached(Map<Integer, Integer> checkpointsReached) {
+		this.checkpointsReached = checkpointsReached;
 	}
 
 }

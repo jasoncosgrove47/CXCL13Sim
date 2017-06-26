@@ -160,6 +160,9 @@ public final class outputToCSV {
 		
 		// the percentage of the network the B-cell has scanned
 		double totalnetworkScanned;
+		
+		// the percentage of the network the B-cell has scanned
+		int checkPointsReached;
 
 		try {
 
@@ -182,12 +185,18 @@ public final class outputToCSV {
 			processedDataWriter.append("brcdendritesVisited");
 			processedDataWriter.append(',');
 			processedDataWriter.append("totaldendritesVisited");
+			processedDataWriter.append(',');
+			processedDataWriter.append("checkPointsReached");
 			processedDataWriter.append('\n');
 
 			// for each tracker cell
 			for (Integer key : Controller.getInstance().getCoordinates().keySet()) {
 				double[] results = ProcessData.processMigrationData(key);
 
+				
+				
+				checkPointsReached = Controller.getInstance().getCheckpointsReached().get(key);
+				
 				// calculate the percentage of the network scanned
 				fdcdendritesVisited = (double) Controller.getInstance().getFDCDendritesVisited().get(key);
 
@@ -241,6 +250,8 @@ public final class outputToCSV {
 				processedDataWriter.append(Double.toString(brcnetworkScanned));
 				processedDataWriter.append(',');
 				processedDataWriter.append(Double.toString(totalnetworkScanned));
+				processedDataWriter.append(',');
+				processedDataWriter.append(Double.toString(checkPointsReached));
 				processedDataWriter.append('\n');
 			}
 

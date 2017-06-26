@@ -75,6 +75,12 @@ public class SimulationEnvironment extends SimState {
 	public static double[][] distMatrix;
 	public static double[][] a_matrix;
 
+	
+	public static boolean checkPoints[][][];
+	
+	//public static ArrayList<Int3D> checkPoints = new ArrayList<Int3D>();
+	
+	
 	/**
 	 * Instance of the CXCL13 class
 	 */
@@ -210,6 +216,8 @@ public class SimulationEnvironment extends SimState {
 		schedule.scheduleRepeating(cgGrid, 3, 1);
 
 		
+		initialiseCheckpoints();
+		
 		// intialise the follicleEnvironment
 		FollicleInitialiser.initialiseFollicle(cgGrid);
 
@@ -237,6 +245,28 @@ public class SimulationEnvironment extends SimState {
 		totalNumberOfEdges = totalNumberOfFDCEdges + totalNumberOfMRCEdges + totalNumberOfBRCEdges;
 	}
 
+	
+	
+	public void initialiseCheckpoints(){
+		
+		checkPoints = new boolean[Settings.WIDTH][Settings.HEIGHT][Settings.DEPTH];
+		
+		
+		int checkpointsPlaced = 0;
+		while(checkpointsPlaced < 5000){
+			int x = Settings.RNG.nextInt(Settings.WIDTH);
+			int y = Settings.RNG.nextInt(Settings.HEIGHT);
+			int z = Settings.RNG.nextInt(Settings.DEPTH);
+			if(checkPoints[x][y][z] == false){
+				checkPoints[x][y][z] = true;
+				
+				checkpointsPlaced +=1;
+			}	
+		}
+	}
+	
+	
+	
 	/**
 	 * Tests whether co-ordinates x,y are in the circle centered at
 	 * circleCentreX, circleCentreY with a specified radius

@@ -84,7 +84,7 @@ public class consoleRun {
 
 		// write the recorded data and raw data to a .csv file
 		outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv");
-		outputToCSV.writeDataToFile(outputPath + outputFileName);
+		//outputToCSV.writeDataToFile(outputPath + outputFileName);
 
 		if (Settings.calculateTopologyData) {
 			

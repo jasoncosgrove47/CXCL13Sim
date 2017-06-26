@@ -1,8 +1,12 @@
 package sim3d.cell;
 
 
+import java.util.ArrayList;
+
 import sim.engine.*;
+import sim.util.Int3D;
 import sim3d.Settings;
+import sim3d.SimulationEnvironment;
 import sim3d.migration.Algorithm1;
 
 
@@ -29,6 +33,10 @@ public class BC extends Lymphocyte{
 	private Algorithm1 a1 = new Algorithm1();
 
 	
+    
+	
+
+	
 	/**
 	 * Controls what a B cell agent does for each time step Each Bcell registers
 	 * its intended path on the collision grid, once all B cells register the
@@ -51,7 +59,13 @@ public class BC extends Lymphocyte{
 	}
 
 
-	
+
+		
+		
+		
+		
+		
+
 
 	
 }

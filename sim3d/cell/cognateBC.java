@@ -22,6 +22,9 @@ import sim3d.stroma.StromaEdge;
 public class cognateBC extends BC {
 
 	
+	
+	public ArrayList<Int3D> m_checkPointsVisited = new ArrayList<Int3D>();
+	
 	/**
 	 * A cognateBC is a type of B-cell which can bind to antigen. Within an in
 	 * silico experiment we track only this cell type
@@ -92,10 +95,15 @@ public class cognateBC extends BC {
 	@Override
 	public void step(final SimState state) {
 
+		
+		
+		
 		super.step(state);
 		// once the system has reached steady state the BC can start to record
 		// it's position
 		if (SimulationEnvironment.steadyStateReached == true) {
+			
+			assessNewCheckPointReached();
 			updateReceptors();
 			// the experiment runs for 12 hours but only
 			// need to record migration data for 30 mins
@@ -111,7 +119,22 @@ public class cognateBC extends BC {
 	
 	
 	
+	private void assessNewCheckPointReached(){
+		
+		Int3D loc = this.getDiscretizedLocation(this.getDrawEnvironment());
+		
+	
+		if(SimulationEnvironment.checkPoints[loc.x][loc.y][loc.z]== true){
+			
+			if(!this.m_checkPointsVisited.contains(loc)){
+			
+				this.m_checkPointsVisited.add(loc);
+			}
+		}
+		
+		Controller.getInstance().getCheckpointsReached().put(this.getIndex(), this.m_checkPointsVisited.size());
 
+	}
 	
 	
 	/**

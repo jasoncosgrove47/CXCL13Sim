@@ -7,7 +7,7 @@
 		<WIDTH>38</WIDTH> <!--was 36 -->
 		<HEIGHT>38</HEIGHT><!--was 36 -->
 		<DEPTH>10</DEPTH><!--was 10 -->
-		<EXPERIMENTLENGTH>40</EXPERIMENTLENGTH>
+		<EXPERIMENTLENGTH>50</EXPERIMENTLENGTH>
 		<NUM_THREADS>6</NUM_THREADS>
 	</O>
 	
@@ -20,21 +20,21 @@
 		<TRAVEL_DISTANCE_SD>0</TRAVEL_DISTANCE_SD>
 		<SIGNAL_THRESHOLD>10</SIGNAL_THRESHOLD>
 		<MAX_TURN_ANGLE>180.0</MAX_TURN_ANGLE>
-		<DIRECTION_ERROR>45.0</DIRECTION_ERROR>
-		<POLARITY>0.475</POLARITY>
-		<RANDOM_POLARITY>2.7</RANDOM_POLARITY>
-		<SPEED_SCALAR>1.1</SPEED_SCALAR>
+		<DIRECTION_ERROR>0.0</DIRECTION_ERROR>
+		<POLARITY>0.5</POLARITY>
+		<RANDOM_POLARITY>4.0</RANDOM_POLARITY>
+		<SPEED_SCALAR>1.0</SPEED_SCALAR>
 	</BC>
 
 	<ODE> 
 		<LR>0000</LR>
-		<Rf>30000</Rf><!--was 50000 -->
+		<Rf>30000</Rf><!--was 30000 -->
 		<Ri>0000</Ri>
 		<Ka>4.8</Ka><!--was 5.0 -->
 		<Ki>0.0033</Ki>
 		<Kr>0.004</Kr>
 		<Koff>0.0048</Koff><!-- was 0.37 -->
-		<Kdes>0.075</Kdes><!-- go back to the old ODE and see how it goes -->
+		<Kdes>0.085</Kdes><!-- go back to the old ODE and see how it goes -->
 	</ODE>
 
 	<FDC>
