@@ -39,6 +39,10 @@ public class cognateBC extends BC {
 	 */
 	private ArrayList<Double3D> coordinates = new ArrayList<Double3D>();
 	private ArrayList<Integer> receptors = new ArrayList<Integer>();
+	private ArrayList<Integer> freereceptors = new ArrayList<Integer>();
+	private ArrayList<Integer> desensitisedreceptors = new ArrayList<Integer>();
+	private ArrayList<Integer> internalisedreceptors = new ArrayList<Integer>();
+	private ArrayList<Integer> signallingreceptors = new ArrayList<Integer>();
 
 	/**
 	 * Unique identifier of each cBC
@@ -97,11 +101,12 @@ public class cognateBC extends BC {
 
 		
 		
-		
 		super.step(state);
 		// once the system has reached steady state the BC can start to record
 		// it's position
 		if (SimulationEnvironment.steadyStateReached == true) {
+			
+
 			
 			assessNewCheckPointReached();
 			updateReceptors();
@@ -142,10 +147,26 @@ public class cognateBC extends BC {
 	 */
 	void updateReceptors() {
 	
-		receptors.add(this.getM_Rf(Lymphocyte.Receptor.CXCR5));
+		//receptors.add(this.getM_Rf(Lymphocyte.Receptor.CXCR5));
+		freereceptors.add(this.getM_Rf(Lymphocyte.Receptor.CXCR5));
+		desensitisedreceptors.add(this.getM_Rd(Lymphocyte.Receptor.CXCR5));
+		internalisedreceptors.add(this.getM_Ri(Lymphocyte.Receptor.CXCR5));
+		signallingreceptors.add(this.getM_LR(Lymphocyte.Receptor.CXCR5));
 		
-		Controller.getInstance().getReceptors()
-				.put(this.getIndex(), this.getReceptors());
+		//Controller.getInstance().getReceptors()
+		//		.put(this.getIndex(), this.getReceptors());
+		
+		Controller.getInstance().getFreereceptors()
+		.put(this.getIndex(), this.getFreereceptors());
+		
+		Controller.getInstance().getDesensitisedreceptors()
+		.put(this.getIndex(), this.getDesensitisedreceptors());
+		
+		Controller.getInstance().getInternalisedreceptors()
+		.put(this.getIndex(), this.getInternalisedreceptors());
+		
+		Controller.getInstance().getSignallingreceptors()
+		.put(this.getIndex(), this.getSignallingreceptors());
 
 	}
 
@@ -404,6 +425,38 @@ public class cognateBC extends BC {
 	
 	public void setIndex(Integer index) {
 		this.index = index;
+	}
+
+	public ArrayList<Integer> getFreereceptors() {
+		return freereceptors;
+	}
+
+	public void setFreereceptors(ArrayList<Integer> freereceptors) {
+		this.freereceptors = freereceptors;
+	}
+
+	public ArrayList<Integer> getDesensitisedreceptors() {
+		return desensitisedreceptors;
+	}
+
+	public void setDesensitisedreceptors(ArrayList<Integer> desensitisedreceptors) {
+		this.desensitisedreceptors = desensitisedreceptors;
+	}
+
+	public ArrayList<Integer> getInternalisedreceptors() {
+		return internalisedreceptors;
+	}
+
+	public void setInternalisedreceptors(ArrayList<Integer> internalisedreceptors) {
+		this.internalisedreceptors = internalisedreceptors;
+	}
+
+	public ArrayList<Integer> getSignallingreceptors() {
+		return signallingreceptors;
+	}
+
+	public void setSignallingreceptors(ArrayList<Integer> signallingreceptors) {
+		this.signallingreceptors = signallingreceptors;
 	}
 
 }

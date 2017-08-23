@@ -60,7 +60,7 @@ public class consoleRun {
 
 			// run the simulation for 500 steps to allow it to reach
 			// steady-state
-			if (steps == 60) {
+			if (steps == 100) {
 
 				// update the steadyState guard to begin recording data
 				SimulationEnvironment.steadyStateReached = true;
@@ -84,7 +84,7 @@ public class consoleRun {
 
 		// write the recorded data and raw data to a .csv file
 		outputToCSV.writeRawDataToFile("/Users/jc1571/Desktop/raw.csv");
-		//outputToCSV.writeDataToFile(outputPath + outputFileName);
+		outputToCSV.writeDataToFile(outputPath + outputFileName);
 
 		if (Settings.calculateTopologyData) {
 			
@@ -92,7 +92,7 @@ public class consoleRun {
 			//outputToCSV.writeMatrixToFile(outputPath + "dist.csv", SimulationEnvironment.distMatrix);
 			//outputToCSV.writeMatrixToFile(outputPath + "adjacency.csv", SimulationEnvironment.a_matrix);
 			//outputToCSV.writeNodeInformationToFile(outputPath + "nodeInfo.csv", Stroma.getNodes());
-			//outputToCSV.writeMatrixToFile(outputPath + "chemokineField.csv", Controller.getChemokinefield());
+			outputToCSV.writeMatrixToFile(outputPath + "chemokineField.csv", Controller.getChemokinefield());
 		}
 		// Output the time taken for simulation to run
 		long endtime = System.currentTimeMillis();

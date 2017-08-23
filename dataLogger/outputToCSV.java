@@ -285,7 +285,13 @@ public final class outputToCSV {
 			rawDataWriter.append(',');
 			rawDataWriter.append("CentroidZ");
 			rawDataWriter.append(',');
-			rawDataWriter.append("Receptor");
+			rawDataWriter.append("FreeReceptor");
+			rawDataWriter.append(',');
+			rawDataWriter.append("SignallingReceptor");
+			rawDataWriter.append(',');
+			rawDataWriter.append("InternalisedReceptor");
+			rawDataWriter.append(',');
+			rawDataWriter.append("DesensitisedReceptor");
 			rawDataWriter.append(',');
 			rawDataWriter.append("turningAngle");
 			rawDataWriter.append('\n');

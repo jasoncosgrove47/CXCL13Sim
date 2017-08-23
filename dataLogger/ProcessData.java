@@ -92,12 +92,18 @@ public class ProcessData {
 	 */
 	static void processRawData(Integer key, FileWriter rawDataWriter) throws IOException {
 
-		ArrayList<Integer> Receptors = Controller.getInstance().getReceptors().get(key);
+		ArrayList<Integer> FreeReceptors = Controller.getInstance().getFreereceptors().get(key);
+		ArrayList<Integer> SignallingReceptors = Controller.getInstance().getSignallingreceptors().get(key);
+		ArrayList<Integer> InternalisedReceptors = Controller.getInstance().getInternalisedreceptors().get(key);
+		ArrayList<Integer> DesensitisedReceptors = Controller.getInstance().getDesensitisedreceptors().get(key);
 
 		ArrayList<Double3D> Coords = Controller.getInstance().getCoordinates().get(key);
 
 		double x = 0, y = 0, z = 0;
-		int r = 0;
+		int r_f = 0;
+		int r_i = 0;
+		int r_s = 0;
+		int r_d = 0;
 
 		// for each timepoint
 		for (int i = 0; i < Coords.size(); i++) {
@@ -108,7 +114,10 @@ public class ProcessData {
 			x = Coords.get(i).x * 10;
 			y = Coords.get(i).y * 10;
 			z = Coords.get(i).z * 10;
-			r = Receptors.get(i);
+			r_f = FreeReceptors.get(i);
+			r_s = SignallingReceptors.get(i);
+			r_d = DesensitisedReceptors.get(i);
+			r_i = InternalisedReceptors.get(i);
 
 			Double3D thisLocation = new Double3D(x, y, z);
 			Double3D nextLocation = calculateNextLocation(i, Coords);
@@ -133,7 +142,13 @@ public class ProcessData {
 			rawDataWriter.append(',');
 			rawDataWriter.append(Double.toString(z));
 			rawDataWriter.append(',');
-			rawDataWriter.append(Integer.toString(r));
+			rawDataWriter.append(Integer.toString(r_f));
+			rawDataWriter.append(',');
+			rawDataWriter.append(Integer.toString(r_s));
+			rawDataWriter.append(',');
+			rawDataWriter.append(Integer.toString(r_i));
+			rawDataWriter.append(',');
+			rawDataWriter.append(Integer.toString(r_d));
 			rawDataWriter.append(',');
 			rawDataWriter.append(Double.toString(turningAngle));
 			rawDataWriter.append('\n');

@@ -1,6 +1,7 @@
 package sim3d;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.w3c.dom.Document;
 import dataLogger.Controller;
@@ -250,8 +251,18 @@ public class SimulationEnvironment extends SimState {
 	public void initialiseCheckpoints(){
 		
 		checkPoints = new boolean[Settings.WIDTH][Settings.HEIGHT][Settings.DEPTH];
+
 		
 		
+		for(int a = 0; a < Settings.WIDTH; a++) {
+		    for(int b = 0; b < Settings.HEIGHT; b++) {
+		        for(int c = 0; c < Settings.DEPTH; c++) {
+		            checkPoints[a][b][c] = true;
+		        }
+		    }
+		}
+		
+		/*
 		int checkpointsPlaced = 0;
 		while(checkpointsPlaced < 5000){
 			int x = Settings.RNG.nextInt(Settings.WIDTH);
@@ -263,6 +274,7 @@ public class SimulationEnvironment extends SimState {
 				checkpointsPlaced +=1;
 			}	
 		}
+		*/
 	}
 	
 	

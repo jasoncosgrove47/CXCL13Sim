@@ -89,7 +89,11 @@ public class Controller implements Steppable {
 	private Map<Integer, Integer> rcdendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> totaldendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> checkpointsReached = new HashMap<Integer, Integer>();
-	private Map<Integer, ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
+	//private Map<Integer, ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
+	private Map<Integer, ArrayList<Integer>> freereceptors = new HashMap<Integer, ArrayList<Integer>>();
+	private Map<Integer, ArrayList<Integer>> signallingreceptors = new HashMap<Integer, ArrayList<Integer>>();
+	private Map<Integer, ArrayList<Integer>> desensitisedreceptors = new HashMap<Integer, ArrayList<Integer>>();
+	private Map<Integer, ArrayList<Integer>> internalisedreceptors = new HashMap<Integer, ArrayList<Integer>>();
 
 	private static double[][] chemokinefield;
 	
@@ -290,9 +294,9 @@ public class Controller implements Steppable {
 		return mrcdendritesVisited;
 	}
 
-	public Map<Integer, ArrayList<Integer>> getReceptors() {
-		return receptors;
-	}
+	//public Map<Integer, ArrayList<Integer>> getReceptors() {
+		//return receptors;
+	//}
 
 	public Map<Integer, ArrayList<Double3D>> getCoordinates() {
 		return Coordinates;
@@ -328,6 +332,38 @@ public class Controller implements Steppable {
 
 	public void setCheckpointsReached(Map<Integer, Integer> checkpointsReached) {
 		this.checkpointsReached = checkpointsReached;
+	}
+
+	public Map<Integer, ArrayList<Integer>> getFreereceptors() {
+		return freereceptors;
+	}
+
+	public void setFreereceptors(Map<Integer, ArrayList<Integer>> freereceptors) {
+		this.freereceptors = freereceptors;
+	}
+
+	public Map<Integer, ArrayList<Integer>> getSignallingreceptors() {
+		return signallingreceptors;
+	}
+
+	public void setSignallingreceptors(Map<Integer, ArrayList<Integer>> signallingreceptors) {
+		this.signallingreceptors = signallingreceptors;
+	}
+
+	public Map<Integer, ArrayList<Integer>> getDesensitisedreceptors() {
+		return desensitisedreceptors;
+	}
+
+	public void setDesensitisedreceptors(Map<Integer, ArrayList<Integer>> desensitisedreceptors) {
+		this.desensitisedreceptors = desensitisedreceptors;
+	}
+
+	public Map<Integer, ArrayList<Integer>> getInternalisedreceptors() {
+		return internalisedreceptors;
+	}
+
+	public void setInternalisedreceptors(Map<Integer, ArrayList<Integer>> internalisedreceptors) {
+		this.internalisedreceptors = internalisedreceptors;
 	}
 
 }

@@ -79,22 +79,22 @@ public class Create_LHC_Param_Files {
 		/**
 		 * Where parameter file generated in SPARTAN is
 		 */
-		String lhcParamsForRunsFilePath = "/Users/jc1571/Desktop/ResultsModel/MOO/validate_Pareto_FrontYARCC/denormalised_parametersKO.csv";
+		String lhcParamsForRunsFilePath = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/Emulation/MOO_2/validateParetoFronts/CXCR5params.csv";
 
 		/**
 		 * The original, calibrated parameter file
 		 */
-		String paramsMetaDataFilePath = "/Users/jc1571/Desktop/ResultsModel/MOO/validate_Pareto_FrontYARCC/parameters-master.xml";
+		String paramsMetaDataFilePath = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/Emulation/MOO_2/validateParetoFronts/LymphSimParameters.xml";
 
 		/**
 		 * Folder where you want adapted parameter files to be stored
 		 */
-		String paramFileOutputFolder = "/Users/jc1571/Desktop/ResultsModel/MOO/validate_Pareto_FrontYARCC/KOParamFiles";
+		String paramFileOutputFolder = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/Emulation/MOO_2/validateParetoFronts/CXCR5Params";
 
 		/**
 		 * Number of parameter sets generated
 		 */
-		int numSamples = 100;
+		int numSamples = 200;
 
 		/**
 		 * Arraylist of the names of the measures of interest in the analysis.
@@ -102,7 +102,6 @@ public class Create_LHC_Param_Files {
 		ArrayList<String> simMeasures = new ArrayList<String>();
 		simMeasures.add("TRAVEL_DISTANCE");
 		simMeasures.add("POLARITY");
-		simMeasures.add("SPEED_SCALAR");
 		simMeasures.add("Rf");
 		simMeasures.add("Ka");
 		simMeasures.add("Ki");

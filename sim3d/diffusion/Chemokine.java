@@ -362,21 +362,23 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		double vol = 1.44e-8;
 		@SuppressWarnings("unused")
 		double molarconc = calculateMolarConcentration(vol, totalChemokineinMoles);
-		//System.out.println( "total chemokine (Molar) is: " + totalChemokineinMoles/vol);		
+
+
 	}
 
 	
+	/**
+	 * Record the concentrations from a 200 micron squared section from the center of the follicle
+	 * @return
+	 */
 	public double[][] recordChemokineField() {
 
 		double[][] chemokinefield = new double[20][20];
 
-		
-		
 		for (int x = 10; x < 30; x++) {
 			for (int y = 10; y < 30; y++) {
 		
-				
-					chemokinefield[x-10][y-10] = this.field[x][y][m_iDepth/2];
+				chemokinefield[x-10][y-10] = this.field[x][y][m_iDepth/2];
 				
 			}
 		}
