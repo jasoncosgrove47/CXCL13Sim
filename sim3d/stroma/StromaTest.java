@@ -6,6 +6,8 @@ package sim3d.stroma;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+
+import java.awt.Color;
 import java.util.ArrayList;
 import javax.media.j3d.TransformGroup;
 
@@ -121,13 +123,27 @@ public class StromaTest {
 	@Test
 	public void testGetModel() {
 		Double3D loc = new Double3D(0,0,0);
+		
 		Stroma c = new Stroma(Stroma.TYPE.FDC,loc);
 		TransformGroup localTG = c.getModel(c, null);
 		assertTrue(localTG instanceof TransformGroup);
+		
+		Stroma c2 = new Stroma(Stroma.TYPE.bRC,loc);
+		TransformGroup localTG2 = c2.getModel(c2, null);
+		assertTrue(localTG2 instanceof TransformGroup);
+		
+		Stroma c3 = new Stroma(Stroma.TYPE.MRC,loc);
+		TransformGroup localTG3 = c3.getModel(c3, null);
+		assertTrue(localTG3 instanceof TransformGroup);
+		
+		Stroma c4 = new Stroma(Stroma.TYPE.LEC,loc);
+		TransformGroup localTG4 = c4.getModel(c4, null);
+		assertTrue(localTG4 instanceof TransformGroup);
 	}
 
 	/**
 	 * Test that registerCollisions updates m_i3lCollisionPoints
+	 * TODO need to test the other cell types
 	 */
 	@Test
 	public void testRegisterCollisions() {
@@ -307,4 +323,23 @@ public class StromaTest {
 		assertEquals(fdcbranch.getCollisionClass(), CLASS.STROMA_EDGE);
 	}
 
+	
+	@Test
+	public void testGetM_col() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public void testGet_antigenLevel() {
+		fail("not yet implemented");
+	}
+
+	@Test
+	public void testGetCellsCollidedWith() {
+		fail("not yet implemented");
+	}
+	@Test
+	public void testRemoveDeadCell(){
+		fail("not yet implemented");
+	}
 }

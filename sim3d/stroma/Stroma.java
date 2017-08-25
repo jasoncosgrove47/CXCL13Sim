@@ -41,11 +41,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	 */
 	private static ArrayList<Stroma> nodes = new ArrayList<Stroma>();
 	
-	/*
-	 * This contains each node locaiton and their node id, helps us do analysis later on
-	 */
-	//public static Map<Double3D,Integer> NodeIndex = new HashMap<Double3D, Integer>();
-	
 	
 	//the collision grid doesnt deal with
 	//no static objects so just set to static to
@@ -59,10 +54,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	double MRCsecretionRate_EBI2L  = Settings.MRC.EBI2L_EMITTED();
 	
 
-	//public ArrayList<StromaEdge> m_Edges; 
-	
-	//the other nodes a stromal cell is connected to
-	//public ArrayList<Stroma> m_Nodes; 
 	
 	//dont want duplicate entries
 	private Set<Stroma> m_Nodes;
@@ -76,7 +67,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	 * of the dendrite to acquire antigen
 	 */
 	private int m_antigenLevel;
-	
 	
 	
 	//the index used for the adjacency matriz
@@ -213,6 +203,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 
 	// Create a model to visualising the stroma node in 3D
+	//TODO test the other types apart from FDC
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
 		
 
@@ -372,7 +363,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		this.m_type = stromatype;
 	}
 
-
+	//TODO NEED TESTS FOR THIS
 	public Color getM_col() {
 		return m_col;
 	}
@@ -381,7 +372,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	public void setM_col(Color m_col) {
 		this.m_col = m_col;
 	}
-
+	//TODO need tests for this
 	public int get_antigenLevel() {
 		return m_antigenLevel;
 	}
@@ -389,7 +380,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	public void set_antigenLevel(int m_antigenLevel) {
 		this.m_antigenLevel = m_antigenLevel;
 	}
-	
+	//TODO need tests for this
 	public ArrayList<Integer> getCellsCollidedWith() {
 		return cellsCollidedWith;
 	}

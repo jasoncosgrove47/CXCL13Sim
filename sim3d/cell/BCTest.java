@@ -24,6 +24,7 @@ import sim3d.SimulationEnvironment;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.collisiondetection.Collidable.CLASS;
 import sim3d.diffusion.Chemokine;
+import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
 import sim3d.util.IO;
 import sim3d.util.Vector3DHelper;
@@ -133,8 +134,77 @@ public class BCTest {
 
 	
 	
+	@Test
+	public void testCollideStromaNode(){
+		
+		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
+				31);
+		BC bc = new BC();
+
+		Double3D loc1 = new Double3D(0, 0, 0);
+		Double3D loc2 = new Double3D(1, 1, 1);
+		bc.setObjectLocation(loc1);
+		Stroma se = new Stroma(Stroma.TYPE.FDC, loc2);
+		se.setObjectLocation(loc2);
+		bc.getM_d3aMovements().add(new Double3D(loc2));
+
+		// assert that the stroma and BC collide
+		boolean test = bc.collideStromaNode(se, 1);
+		assertEquals(true, test);
+
+		BC bc2 = new BC();
+		
+
+		// assert that the stroma and BC don't collide
+		Double3D loc3 = new Double3D(5, 5, 5);
+		Double3D loc4 = new Double3D(4, 4, 4);
+		bc2.setObjectLocation(loc3);
+		bc2.getM_d3aMovements().add(new Double3D(loc4));
+		
+		boolean test2 = bc2.collideStromaNode(se, 1);
+		assertEquals(false, test2);
+		
+		
+	}
+	
 
 	
+	@Test
+	public void testProportionAlongVector(){
+		
+		Double3D p1 = new Double3D(0.5,0.5,0.5);
+		Double3D q1 = new Double3D(0,0,0);
+		Double3D q2 = new Double3D(1,1,1);
+		
+		assertEquals(0.5,Lymphocyte.proportionAlongVector(p1, q1, q2),0.01);
+		
+	}
+	
+	@Test
+	public void testUpdateToAccountForCollisionWithNode(){
+		
+		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
+				31);
+		BC bc = new BC();
+
+		Double3D loc1 = new Double3D(1, 1, 1);
+		Double3D loc2 = new Double3D(1.2, 1.1, 1.2);
+		bc.setObjectLocation(loc1);
+		Stroma se = new Stroma(Stroma.TYPE.FDC, loc2);
+		se.setObjectLocation(loc2);
+		bc.getM_d3aMovements().add(new Double3D(loc2));
+
+		
+		assertEquals(loc2, bc.getM_d3aMovements().get(0));
+		// assert that the stroma and BC collide
+		 boolean test = bc.collideStromaNode(se, 1);
+
+		//TODO need to have a think about this one, the method is not behaving as we expect, might need to rewrite hi. 
+		assertNotEquals(loc2, bc.getM_d3aMovements().get(0));
+		
+
+
+	}
 
 	/**
 	 * Test that getCollisionClass returns the correct enum for a B cell
@@ -188,6 +258,9 @@ public class BCTest {
 		assertTrue(cgGrid.getM_i3lCollisionPoints().contains(validate));
 			
 	}
+
+
+
 
 	/**
 	 * If a B cell doesn't collide with a stromal grid then it should return a

@@ -9,7 +9,6 @@ import javax.media.j3d.TransformGroup;
 import dataLogger.Controller;
 import sim.engine.SimState;
 import sim.portrayal3d.simple.SpherePortrayal3D;
-import sim.util.Bag;
 import sim.util.Double3D;
 import sim.util.Int3D;
 import sim3d.Settings;
@@ -268,7 +267,7 @@ public class cognateBC extends BC {
 			
 			case STROMA_EDGE: // These first two are the more likely hits as
 								// they won't be moving
-				StromaEdge.TYPE type =  ((StromaEdge) cCell).getStromaedgetype();
+
 				
 					
 					if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
@@ -401,7 +400,8 @@ public class cognateBC extends BC {
 	}
 
 	/**
-	 * Getters and setters
+	 * Getters and setters 
+	 * TODO need to test these
 	 */
 	public int getAntigenCaptured() {
 		return antigenCaptured;

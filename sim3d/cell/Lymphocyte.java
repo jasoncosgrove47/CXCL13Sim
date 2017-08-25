@@ -412,7 +412,8 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 			//determine the point on the line which is the shortest distance between
 			// the stromal cell and the movement vector
 			Double3D shortestPoint = closestPointToStroma(p1,d1,stromaLoc);
-			double length = shortestDistanceToSegment(shortestPoint, stromaLoc);
+			double length = shortestPoint.distance(stromaLoc);
+				
 			
 			if(length < BC_SC_COLLIDE_DIST_SQ){
 				iCollisionMovement = getM_d3aMovements().size() - 1;
@@ -434,41 +435,14 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return hasCollided;
 	}
 	
-	
-	/*
-    * Returns the distance of p3 to the segment defined by p1,p2;
-    * 
-    * @param p1
-    *                First point of the segment
-    * @param p2
-    *                Second point of the segment
-    * @param p3
-    *                Point to which we want to know the distance of the segment
-    *                defined by p1,p2
-    * @return The distance of p3 to the segment defined by p1,p2
-    * 
-    * Works on the fact that shortest point between the point and the line
-    * is where they are orthogonal, ie where the dot product equals 0
-    * 
-    * the distance is thus the distance between the poiint and where
-    * the orthogonal tangent meets the line. 
-    * 
-    * http://paulbourke.net/geometry/pointlineplane/
-    * http://paulbourke.net/geometry/pointlineplane/DistancePoint.java
-    * 
-    */
-    public static double shortestDistanceToSegment(Double3D closestPoint, Double3D p3) {
 
-    	return closestPoint.distance(p3);
-    }
-	
     
     
     /**
      * Given a point p1 on a line q1-q2 return the proportion of the distance from
      * q1-p1 to the distance from q1-12
      */
-    private static double proportionAlongVector(Double3D p1, Double3D q1, Double3D q2){
+    static double proportionAlongVector(Double3D p1, Double3D q1, Double3D q2){
     	
     	double lengthOfLine = q1.distance(q2);
     	double distToClosestPoint = q1.distance(p1);
@@ -701,10 +675,14 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		// We hit bang in the middle so just bounce - unlikely!
 		if (length == 0) {
 
+			
+			
 			// The cell bounces back to it's original position so
 			// no need to updated its coordinates.
 			d3NewDir = d3MovementNormal;
 
+			System.out.println(d3NewDir);
+			
 		} else {
 
 			// Calculate the direction from the stroma collision point to the BC
@@ -723,7 +701,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		}
 
 		double s = proportionAlongVector(closestPoint,p1,d1);
-		
+		System.out.println(s);
 		// Set the new movement 
 		d1 = d1.multiply(s); //what does multiplying by s give us??
 
@@ -748,6 +726,9 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				.dotProduct(d3NewDir, d3MovementNormal)) / 3;
 		d3NewDir = d3NewDir.multiply(dNewLength);
 
+		System.out.println("final coord:" + d3NewDir);
+		System.out.println("length:" + d3NewDir.lengthSq());
+		
 		if (d3NewDir.lengthSq() > 0) {
 			getM_d3aMovements().add(d3NewDir);
 		}

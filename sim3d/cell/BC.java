@@ -1,12 +1,9 @@
 package sim3d.cell;
 
 
-import java.util.ArrayList;
+
 
 import sim.engine.*;
-import sim.util.Int3D;
-import sim3d.Settings;
-import sim3d.SimulationEnvironment;
 import sim3d.migration.Algorithm1;
 
 
@@ -32,9 +29,6 @@ public class BC extends Lymphocyte{
 	 */
 	private Algorithm1 a1 = new Algorithm1();
 
-	
-    
-	
 
 	
 	/**
@@ -45,27 +39,8 @@ public class BC extends Lymphocyte{
 	 */
 	@Override
 	public void step(final SimState state)// why is this final here
-	{
-		
-	
-		
+	{		
 		migrate(a1);	
-		
-		//System.out.println("Rf: " + this.getM_Rf(Lymphocyte.Receptor.CXCR5));
-		//System.out.println("Ri: " + this.getM_Ri(Lymphocyte.Receptor.CXCR5));
-		//System.out.println("Rd: " + this.getM_Rd(Lymphocyte.Receptor.CXCR5));
-		//System.out.println("LR: " + this.getM_LR(Lymphocyte.Receptor.CXCR5));
-
 	}
-
-
-
-		
-		
-		
-		
-		
-
-
 	
 }

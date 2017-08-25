@@ -1,4 +1,4 @@
-package sim3d.migration;
+package sim3d.util;
 
 import java.util.ArrayList;
 
@@ -9,8 +9,7 @@ import sim3d.cell.BC;
 import sim3d.cell.Lymphocyte;
 import sim3d.cell.Lymphocyte.Receptor;
 import sim3d.diffusion.Chemokine;
-import sim3d.util.ODESolver;
-import sim3d.util.Vector3DHelper;
+import sim3d.migration.MigrationAlgorithm;
 
 public class Algorithm2 implements MigrationAlgorithm {
 
@@ -229,7 +228,7 @@ public class Algorithm2 implements MigrationAlgorithm {
 	 * 
 	 * @return The new direction for the cell to move
 	 */
-	Double3D getMoveDirection(Lymphocyte lymphocyte, Chemokine.TYPE chemokine1, Chemokine.TYPE chemokine2) {
+	public Double3D getMoveDirection(Lymphocyte lymphocyte, Chemokine.TYPE chemokine1, Chemokine.TYPE chemokine2) {
 
 		double[] iaBoundReceptors1 = calculateLigandBound(lymphocyte, chemokine1);
 		double[] iaBoundReceptors2 = calculateLigandBound(lymphocyte, chemokine2);

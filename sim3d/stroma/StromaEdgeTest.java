@@ -78,6 +78,7 @@ public class StromaEdgeTest {
 
 	/**
 	 * Test that getModel returns a TransformGroup object
+	 * TODO account for the other stromal edge types
 	 */
 	@Test
 	public void testGetModel() {

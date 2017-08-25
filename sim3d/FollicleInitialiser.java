@@ -1,6 +1,6 @@
 package sim3d;
 
-import java.io.IOException;
+
 import java.util.ArrayList;
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
@@ -9,7 +9,6 @@ import sim3d.cell.Lymphocyte;
 import sim3d.collisiondetection.CollisionGrid;
 import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
-import sim3d.util.ParseStromaLocations;
 import sim3d.util.StromaGenerator;
 
 /**
@@ -423,7 +422,7 @@ public final class FollicleInitialiser {
 		for (int i = 0; i < RCs.size(); i++) {
 			if (RCs.get(i) instanceof Stroma) {
 
-				if (i % 30 == 0) {//TODO was 30
+				if (i % 30 == 0) {
 					updateNodeConnections();
 				}
 
@@ -433,7 +432,7 @@ public final class FollicleInitialiser {
 					int targetConnections = 0;
 
 					if (sc.getStromatype() == Stroma.TYPE.FDC) {
-						// targetConnections = 20;
+
 
 						targetConnections = (int) (Settings.RNG.nextInt(sd) + mean);
 
@@ -521,6 +520,7 @@ public final class FollicleInitialiser {
 	 *            the type of stromal cell
 	 * @param loc
 	 *            the location of the stromal cell
+	 *            
 	 */
 	static void instantiateStromalCell(CollisionGrid cgGrid, Stroma.TYPE type, Double3D loc) {
 		Stroma sc = new Stroma(type, loc);
@@ -564,6 +564,7 @@ public final class FollicleInitialiser {
 	 */
 	static boolean checkForPointsInTheWay(Stroma sc, Stroma neighbour, double threshold) {
 
+	
 		// check to see if there are any cells blocking the path.
 		Double3D midpoint = new Double3D((sc.x + neighbour.x) / 2, (sc.y + neighbour.y) / 2, (sc.z + neighbour.z) / 2);
 
@@ -852,7 +853,7 @@ public final class FollicleInitialiser {
 		Stroma stromalcell = new Stroma(sc.m_type, d3loc);
 		stromalcell.setObjectLocation(d3loc);
 		SimulationEnvironment.scheduleStoppableCell(stromalcell);
-		// stromalcell.registerCollisions(cgGrid);
+
 
 	}
 
@@ -908,6 +909,7 @@ public final class FollicleInitialiser {
 	 * 
 	 * @param frc
 	 *            the stromal cell to delete
+	 *            
 	 */
 	public static void deleteSC(Stroma sc) {
 
@@ -1109,58 +1111,6 @@ public final class FollicleInitialiser {
 		}
 	}
 
-	/**
-	 * In case we evr need to just read the stroma in straight from the node
-	 * data
-	 * 
-	 * @param cgGrid
-	 */
-	@SuppressWarnings("unused")
-	private void readInStromaFromData(CollisionGrid cgGrid) {
 
-		ArrayList<Double3D> mrcnodes = new ArrayList<Double3D>();
-		ArrayList<Double3D> fdcnodes = new ArrayList<Double3D>();
-		ArrayList<Double3D> brcnodes = new ArrayList<Double3D>();
-
-		try {
-			mrcnodes = ParseStromaLocations.readStroma("/Users/jc1571/Desktop/mrcnodes.csv");
-			fdcnodes = ParseStromaLocations.readStroma("/Users/jc1571/Desktop/fdcnodes.csv");
-			brcnodes = ParseStromaLocations.readStroma("/Users/jc1571/Desktop/brcnodes.csv");
-
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		for (int i = 0; i < mrcnodes.size(); i++) {
-
-			Stroma mrc = new Stroma(Stroma.TYPE.MRC,
-					new Double3D(mrcnodes.get(i).x, mrcnodes.get(i).y, mrcnodes.get(i).z));
-			mrc.setObjectLocation(new Double3D(mrcnodes.get(i).x, mrcnodes.get(i).y, mrcnodes.get(i).z));
-			mrc.registerCollisions(cgGrid);
-			SimulationEnvironment.scheduleStoppableCell(mrc);
-		}
-
-		for (int i = 0; i < fdcnodes.size(); i++) {
-
-			Stroma fdc = new Stroma(Stroma.TYPE.FDC,
-					new Double3D(fdcnodes.get(i).x, fdcnodes.get(i).y, fdcnodes.get(i).z));
-			fdc.setObjectLocation(new Double3D(fdcnodes.get(i).x, fdcnodes.get(i).y, fdcnodes.get(i).z));
-			fdc.registerCollisions(cgGrid);
-			SimulationEnvironment.scheduleStoppableCell(fdc);
-
-		}
-
-		for (int i = 0; i < brcnodes.size(); i++) {
-
-			Stroma brc = new Stroma(Stroma.TYPE.bRC,
-					new Double3D(brcnodes.get(i).x, brcnodes.get(i).y, brcnodes.get(i).z));
-			brc.setObjectLocation(new Double3D(brcnodes.get(i).x, brcnodes.get(i).y, brcnodes.get(i).z));
-			brc.registerCollisions(cgGrid);
-			SimulationEnvironment.scheduleStoppableCell(brc);
-		}
-
-	}
 
 }

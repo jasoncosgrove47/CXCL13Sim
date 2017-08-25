@@ -134,48 +134,16 @@ public class Algorithm1 implements MigrationAlgorithm {
 		bc.setM_d3aMovements(new ArrayList<Double3D>());
 
 		
-		
-		
-		
-		int CXCR5signalling = bc.getM_LR(Lymphocyte.Receptor.CXCR5) ;
-
-		
-		
-		
-		//System.out.println("total receptors: " + CXCR5signalling + CXCR5free + CXCR5internal + CXCR5desens);
-		double receptorsSignalling = CXCR5signalling;
-		
-		//System.out.println("CXCR5 signalling: " + CXCR5signalling);
-
-		// the Rf remains the same for ecah so dont need to do an individual
-		// scalar for each
-		//double percentageSignalling = receptorsSignalling / Settings.BC.ODE.Rf;
-
-		
-		//System.out.println("percentage receptors signalling:" + percentageSignalling);
-		
 		double speedScalar = 0;
 
 		if (bc.m_isChemotactic == true) {
 
 			// need to constrain speed scalar between 0 and 1
-			
 			speedScalar = - Math.log(Settings.BC.POLARITY)/Settings.BC.SPEED_SCALAR;
 		}
 		
-		else {
 
-			// need to constrain speed scalar between 0 and 1
-			
-			//speedScalar = - Math.log(Settings.BC.RANDOM_POLARITY)/Settings.BC.SPEED_SCALAR;
-		}
-
-
-		
 		double travelDistance = Settings.BC.TRAVEL_DISTANCE() ;
-
-		
-		
 		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
 
 	}

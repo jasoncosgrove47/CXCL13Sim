@@ -5,6 +5,8 @@ package dataLogger;
 
 import static org.junit.Assert.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -180,5 +182,100 @@ public class ControllerTest {
 		// check that the experiment finished guard has been updated
 		assertEquals("experimentFinished should be false", true, SimulationEnvironment.experimentFinished);
 	}
+	
+	//TODO all of these tests need to be better
+	
+	@Test
+	public void testGetFDCDendritesVisited() {
+		Controller controller = new Controller();			
+		Map<Integer, Integer> fdcdendritesVisited = controller.getFDCDendritesVisited();
+		assertNotNull(fdcdendritesVisited);	
+	}
+	
+	@Test
+	public void testGetMRCDendritesVisited() {
+		Controller controller = new Controller();
+		Map<Integer, Integer> fdcdendritesVisited = controller.getFDCDendritesVisited();
+		assertNotNull(fdcdendritesVisited);
+	}
+	
+	@Test
+	public void getRcdendritesVisited() {
+		Controller controller = new Controller();
+		Map<Integer, Integer> fdcdendritesVisited = controller.getFDCDendritesVisited();
+		assertNotNull(fdcdendritesVisited);
+	}
+
+	@Test
+	public void getCoordinates() {
+		Controller controller = new Controller();
+		Map<Integer, ArrayList<Double3D>> coords = controller.getCoordinates();
+		assertNotNull(coords);
+	}
+
+	@Test
+	public void testGetChemokinefield() {
+		Controller controller = new Controller();
+		double[][] chemokineField = new double[1][1];
+		controller.setChemokinefield(chemokineField);
+		double[][] cF = Controller.getChemokinefield();
+		assertNotNull(cF);
+		
+	}
+
+
+	@Test
+	public void testGetTotaldendritesVisited() {
+		Controller controller = new Controller();
+		Map<Integer, ArrayList<Double3D>> coords = controller.getCoordinates();
+		assertNotNull(coords);
+	}
+
+
+	@Test
+	public void testGetCheckpointsReached() {
+		Controller controller = new Controller();
+		Map<Integer, Integer> checkpoints = new HashMap<Integer, Integer>();
+		controller.setCheckpointsReached(checkpoints);	
+		assertNotNull(controller);
+	}
+
+	@Test
+	public void testGetFreereceptors() {
+		Controller controller = new Controller();
+		Map<Integer, ArrayList<Integer>> freereceptors = new HashMap<Integer, ArrayList<Integer>>();
+		controller.setFreereceptors(freereceptors);
+		assertNotNull(controller.getFreereceptors());
+	}
+
+
+	@Test
+	public void testGetSignallingreceptors() {
+		Controller controller = new Controller();
+		Map<Integer, ArrayList<Integer>> freereceptors = new HashMap<Integer, ArrayList<Integer>>();
+		controller.setSignallingreceptors(freereceptors);
+		assertNotNull(controller.getSignallingreceptors());
+	}
+
+
+	@Test
+	public void testGetDesensitisedreceptors() {
+		Controller controller = new Controller();
+		Map<Integer, ArrayList<Integer>> freereceptors = new HashMap<Integer, ArrayList<Integer>>();
+		controller.setDesensitisedreceptors(freereceptors);
+		assertNotNull(controller.getDesensitisedreceptors());
+	}
+
+
+	@Test
+	public void testGetInternalisedreceptors() {
+		Controller controller = new Controller();
+		Map<Integer, ArrayList<Integer>> freereceptors = new HashMap<Integer, ArrayList<Integer>>();
+		controller.setInternalisedreceptors(freereceptors);
+		assertNotNull(controller.getInternalisedreceptors());
+	}
+
+
+
 
 }

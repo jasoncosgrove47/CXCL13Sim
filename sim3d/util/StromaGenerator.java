@@ -76,19 +76,14 @@ public class StromaGenerator {
 	}
 
 	
-	//TODO think we need a processing step where we make sure that the relevant fields are updated
-	// such as the type based on anatomical location and we do some processing to make sure no duplicate
-	// or zero length edges. 
-	
-	
+
+
 	/**
-	 * CHECK THE STROMAEDGE ARRAY TO MAKE SURE THERE ARE NO DUPLICATES
 	 * 
 	 * When generated stroma we can get overlapping edges, this method
 	 * checks for overlaps and returns a new arraylist with all duplicated
 	 * edges removed. 
 	 * 
-	 * TODO: might be cleaner to have this in the generate stroma class
 	 * @param sealEdges
 	 * @return
 	 */
@@ -173,7 +168,7 @@ public class StromaGenerator {
 			}
 		}
 
-		// Add one in the centre, TODO input this as a parameter
+
 		StromalCelltemp stromalInitialCell = new StromalCelltemp(iWidth / 2.0, iHeight / 2.0,
 				iDepth / 2.0, Stroma.TYPE.FDC);
 		stromalUnbranchedCells.add(stromalInitialCell);
@@ -279,62 +274,12 @@ public class StromaGenerator {
 		//now we need to process the stroma making sure there are no overlapping edges or zero length edges
 		selEdges = removeOverlappingEdges(selEdges);
 		
-		//TODO we may need to consider deleting their edges but i think that its fine for now
-		//Dont want to remove any near the SCS
-		//removeUnexpandedNodes(stromalCellLocations, selEdges);
-		
-		//i would like to remove any unexpanded nodes also...
+
 		
 		return iCellCount - iRemainingCells;
 	}
 	
-	
-	/**
-	 * Some edges dont get expanded and this messes up the topology so need to filter these out. 
-	 * @param stromalCellLocations
-	 * @param selEdges
-	 * @return a list of stromalcellLocations with the unexpanded nodes removed. 
-	 */
-	private static ArrayList<StromalCelltemp> removeUnexpandedNodes(ArrayList<StromalCelltemp> stromalCellLocations,
-			List<StromaEdge> selEdges){
-	
-		ArrayList<StromalCelltemp> nodesToDelete = new ArrayList<StromalCelltemp>();
-		
-		for(StromalCelltemp sc : stromalCellLocations){
-		
-			int numOfProtrusions = 0;
-			Double3D loc = sc.m_d3Location;
-			// update the node and edge connections for all edges
-			for (StromaEdge seEdge : selEdges) {
-			    Double3D edgeloc = new Double3D(seEdge.getPoint1().x, seEdge.getPoint1().y,
-						seEdge.getPoint1().z );
-				Double3D edgeloc2 = new Double3D(seEdge.getPoint2().x, seEdge.getPoint2().y,
-						seEdge.getPoint2().z);
-	
-				if (loc.distance(edgeloc) < Settings.DOUBLE3D_PRECISION) {
-						numOfProtrusions += 1;
-					
-				}else if (loc.distance(edgeloc2) < Settings.DOUBLE3D_PRECISION) {
-						numOfProtrusions += 1;
-				}
-			}
-			//TODO there needs to be a min and max protrusion value, keep the ones that are under the SCS
-			if(numOfProtrusions < 2 && loc.y < Settings.HEIGHT - 7){
-				nodesToDelete.add(sc);				
-			}
-			
 
-		}
-		
-		//now remove all of the overlapping edges in the removal list
-		for(int x = 0; x < nodesToDelete.size(); x ++){
-
-			stromalCellLocations.remove(nodesToDelete.get(x));
-		}
-		//return the updated array
-		return stromalCellLocations;
-		
-	}
 	
 	
 	/**
@@ -439,7 +384,7 @@ public class StromaGenerator {
 			// If there are any cells too close to the final edge, try it all
 			// again!
 			if (getAdjacentCells(iWidth, iHeight, iDepth, frcla3CellLocations,
-					new StromalCelltemp(frcLocation.m_d3Location.add(d3aReturn[0])), 1.2)//TODO was 1.2
+					new StromalCelltemp(frcLocation.m_d3Location.add(d3aReturn[0])), 1.2)
 					.size() > 0) {
 				bFail = true;
 				continue;
@@ -459,9 +404,8 @@ public class StromaGenerator {
 			}
 
 			// just check we aren't making a huge edge!
-			//TODO this looks like its the wrong way around??
-		} while (!bFail && d3aReturn[0].length() > 5.2 //TODO was 4
-				&& d3aReturn[0].length() < 1.0);//TODO put this back as it was 0.5
+		} while (!bFail && d3aReturn[0].length() > 5.2 
+				&& d3aReturn[0].length() < 1.0);
 
 		
 		return d3aReturn;
@@ -489,9 +433,8 @@ public class StromaGenerator {
 				 		- frcNextCell.m_iEdges);
 			 
 		 }
+		 
 		 //add 3 to the number of FDC edges as they have much higher connectivity
-		 //TODO: we will need to update this to get it how we want it. dont like 
-		 // the way we have it currently but anyway
 		 else if(celltype == Stroma.TYPE.FDC){
 			 
 
@@ -620,10 +563,6 @@ public class StromaGenerator {
 	/**
 	 * Add cells to the grid and add the edges to reach them
 	 * 
-	 * TODO: im pretty sure this one is the culprit
-	 * 
-	 *
-	 * 
 	 * @param iWidth
 	 *            Width of the space
 	 * @param iHeight
@@ -645,7 +584,6 @@ public class StromaGenerator {
 			ArrayList<StromalCelltemp>[][][] frcla3CellLocations, StromalCelltemp frcOrigin,
 			Double3D[] d3aDirections) {
 		
-	
 	
 		int iCellsCreated = 0;
 
@@ -689,14 +627,10 @@ public class StromaGenerator {
 							/ d3aDirections[i].z);
 				}
 
-				// TODO how do we handle the edges?
-				/*
-				 * if ( false && dCoeff > 0 ) { d3aDirections[i] =
-				 * d3aDirections[i].multiply( dCoeff ); } else {/
-				 */
+
 				// Set it to null so the parent knows it's not been created
 				d3aDirections[i] = null;
-				/* }/ * */
+
 
 				frcOrigin.m_iEdges++;
 
@@ -717,8 +651,6 @@ public class StromaGenerator {
 				StromalCelltemp newLoc = d3lAdjacent.get(Settings.RNG
 						.nextInt(d3lAdjacent.size()));
 				
-				//TODO need to make sure that they are not too close!!!
-				//but the problem doesnt seem to be here....
 
 				while (newLoc == frcOrigin ) {
 					newLoc = d3lAdjacent.get(Settings.RNG.nextInt(d3lAdjacent
@@ -816,8 +748,6 @@ public class StromaGenerator {
 		else return Stroma.TYPE.bRC;
 	}
 	
-	
-
 	
 	
 }

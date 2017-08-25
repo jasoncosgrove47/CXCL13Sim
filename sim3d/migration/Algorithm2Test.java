@@ -22,7 +22,11 @@ import sim3d.SimulationEnvironment;
 import sim3d.cell.BC;
 import sim3d.cell.Lymphocyte;
 import sim3d.diffusion.Chemokine;
+import sim3d.util.Algorithm2;
 import sim3d.util.IO;
+
+
+//TODO this needs to be a test class for algorithm1 , put algotihm2 in the utilities for safe keeping
 
 public class Algorithm2Test {
 
@@ -241,6 +245,8 @@ public class Algorithm2Test {
 	 * 
 	 * 
 	 */
+	
+
 	@Test
 	public void testGetMoveDirection() {
 

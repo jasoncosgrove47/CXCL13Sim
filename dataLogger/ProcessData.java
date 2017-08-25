@@ -13,7 +13,7 @@ public class ProcessData {
 	 * single cell tracking experiments
 	 */
 
-	
+	//TODO test all of these methods below, bar calculate turning angle
 	/**
 	 * Helper method which calculates the speed, motility coefficient and
 	 * meandering index for each cell
@@ -159,14 +159,14 @@ public class ProcessData {
 	/**
 	 * Calculate the motility coefficient of a cell
 	 */
-	private static double calculateMotilityCoefficient(double netDisplacement, double time) {
+	static double calculateMotilityCoefficient(double netDisplacement, double time) {
 		return (Math.pow(netDisplacement, 2) / (6 * time));
 	}
 
 	/*
 	 * Determine the previous x,y and z coordinates in the arraylist
 	 */
-	private static Double3D calculatePreviousLocation(int i, ArrayList<Double3D> Coords) {
+	static Double3D calculatePreviousLocation(int i, ArrayList<Double3D> Coords) {
 
 		if (i > 0) {
 			double x = Coords.get(i - 1).x * 10;
@@ -182,7 +182,7 @@ public class ProcessData {
 	/*
 	 * Obtain the next set of cooordinates in the arraylist
 	 */
-	private static Double3D calculateNextLocation(int i, ArrayList<Double3D> Coords) {
+	static Double3D calculateNextLocation(int i, ArrayList<Double3D> Coords) {
 		if (i < Coords.size() - 1) {
 			// we multiply by 10 here to get the x,y and z coordinates
 			// in microns
@@ -203,7 +203,7 @@ public class ProcessData {
 	 * @param time
 	 * @return
 	 */
-	private static double calculateMeanderingIndex(double totalDisplacement, double netDisplacement, double time) {
+	static double calculateMeanderingIndex(double totalDisplacement, double netDisplacement, double time) {
 		// calculate meandering index
 		double mi = netDisplacement / totalDisplacement;
 		// correct for time dependency of tracking
@@ -222,7 +222,7 @@ public class ProcessData {
 	 *            total duration of tracking expt
 	 * @return the velocity
 	 */
-	private static double calculateSpeed(double totalDisplacement, double time) {
+	static double calculateSpeed(double totalDisplacement, double time) {
 		return totalDisplacement / time;
 	}
 

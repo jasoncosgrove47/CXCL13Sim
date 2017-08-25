@@ -162,6 +162,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	private int antigenLevel;
 	
 
+	
 	/**
 	 * @param d3Point1
 	 * @param d3Point2
@@ -262,6 +263,8 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 * 
 	 * @see sim.portrayal3d.SimplePortrayal3D#getModel(java.lang.Object,
 	 * javax.media.j3d.TransformGroup)
+	 * 
+	 * TODO test
 	 */
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
@@ -408,6 +411,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		this.antigenLevel = antigenLevel;
 	}
 
+	//TODO test
 	public ArrayList<Integer> getCellsCollidedWith() {
 		return cellsCollidedWith;
 	}

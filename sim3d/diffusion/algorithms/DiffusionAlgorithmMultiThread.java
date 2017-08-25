@@ -138,8 +138,6 @@ public class DiffusionAlgorithmMultiThread
 	 * Enforce the boundary condition so all of the chemokine will bounce back in...
 	 * @param pSpace
 	 * 
-	 * TODO we bounce chemokine back in, not sure if this is correct...
-	 * TODO, need to revisit this code
 	 */
 	private void enforceBoundaryCondition(Chemokine pSpace){
 		

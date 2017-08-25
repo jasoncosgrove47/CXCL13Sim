@@ -1,7 +1,7 @@
 package sim3d;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+
 
 import org.w3c.dom.Document;
 import dataLogger.Controller;
@@ -35,6 +35,7 @@ public class SimulationEnvironment extends SimState {
 
 	private static final long serialVersionUID = 1;
 
+	
 	/**
 	 * Boolean which is true when the system has reached a steady state which
 	 * signals the start of an experiment
@@ -262,19 +263,7 @@ public class SimulationEnvironment extends SimState {
 		    }
 		}
 		
-		/*
-		int checkpointsPlaced = 0;
-		while(checkpointsPlaced < 5000){
-			int x = Settings.RNG.nextInt(Settings.WIDTH);
-			int y = Settings.RNG.nextInt(Settings.HEIGHT);
-			int z = Settings.RNG.nextInt(Settings.DEPTH);
-			if(checkPoints[x][y][z] == false){
-				checkPoints[x][y][z] = true;
-				
-				checkpointsPlaced +=1;
-			}	
-		}
-		*/
+
 	}
 	
 	

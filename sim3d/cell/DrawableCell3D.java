@@ -49,7 +49,5 @@ public abstract class DrawableCell3D extends SimplePortrayal3D {
 	}
 	
 	
-	
 
-	
 }

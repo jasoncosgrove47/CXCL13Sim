@@ -33,8 +33,6 @@ public class Controller implements Steppable {
 	 * View: GUIrun or consoleRun are responsible for running the model and
 	 * instantiate OutputToCSV or Grapher to display the data
 	 * 
-	 * 
-	 * 
 	 * @author Jason Cosgrove
 	 */
 
@@ -89,7 +87,6 @@ public class Controller implements Steppable {
 	private Map<Integer, Integer> rcdendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> totaldendritesVisited = new HashMap<Integer, Integer>();
 	private Map<Integer, Integer> checkpointsReached = new HashMap<Integer, Integer>();
-	//private Map<Integer, ArrayList<Integer>> receptors = new HashMap<Integer, ArrayList<Integer>>();
 	private Map<Integer, ArrayList<Integer>> freereceptors = new HashMap<Integer, ArrayList<Integer>>();
 	private Map<Integer, ArrayList<Integer>> signallingreceptors = new HashMap<Integer, ArrayList<Integer>>();
 	private Map<Integer, ArrayList<Integer>> desensitisedreceptors = new HashMap<Integer, ArrayList<Integer>>();
@@ -277,6 +274,8 @@ public class Controller implements Steppable {
 	 * @param sc2
 	 *            stromal cell two
 	 * @return true if the nodes are connected
+	 * 
+	 * TODO need to test this method
 	 */
 	static boolean checkIfConnected(double[][] adjacencyMatrix, Stroma sc1, Stroma sc2) {
 
@@ -285,6 +284,8 @@ public class Controller implements Steppable {
 		}
 		return false;
 	}
+	
+	//TODO test the getters and setters
 
 	public Map<Integer, Integer> getFDCDendritesVisited() {
 		return fdcdendritesVisited;
@@ -294,12 +295,14 @@ public class Controller implements Steppable {
 		return mrcdendritesVisited;
 	}
 
-	//public Map<Integer, ArrayList<Integer>> getReceptors() {
-		//return receptors;
-	//}
 
 	public Map<Integer, ArrayList<Double3D>> getCoordinates() {
 		return Coordinates;
+	}
+	
+	public void setCoordinates(Map<Integer, ArrayList<Double3D>> coords) {
+		this.Coordinates = coords;
+
 	}
 
 	public static double[][] getChemokinefield() {

@@ -409,40 +409,5 @@ public class GenerateSCS {
 
 
 
-	/**
-	 * Fit a quadratic regression line using a set of coefficients This is done
-	 * to set the SCS if we read in the network directly from the data.
-	 * 
-	 * Bo = intercept B1 = the 1st regression coefficient B2 = the 2nd
-	 * regression coefficient
-	 * 
-	 * For the moment we use the coeffs: y = 9.5266687 -(0.5291553 * i) +
-	 * (0.0206240* Math.pow(i, 2));
-	 */
-	@SuppressWarnings("unused")
-	private static void fitSCS(double Bo, double B1, double B2, int xMin, int xMax) {
-
-		for (int i = xMin; i < xMax; i++) {
-
-			// these numbers were obtained by fitting a polynomial
-			// regression (2nd order) to the X and Y coordinates
-			// of the MRCs
-			double y = Bo + (B1 * i) - (B2 * Math.pow(i, 2));
-
-			for (int j = 0; j < 10; j++) {
-
-				// Stroma flec = new Stroma(Stroma.TYPE.LEC);
-				Stroma clec = new Stroma(Stroma.TYPE.LEC, new Double3D(i, y + 1, j));
-				// we add the 0.5 to the y as we dont want the LECs on the MRCs
-				// but just above them
-				clec.setObjectLocation(new Double3D(i, y + 1, j));
-				// Stroma flec = new Stroma(Stroma.TYPE.LEC);
-				Stroma flec = new Stroma(Stroma.TYPE.LEC, new Double3D(i, y - 1, j));
-				// we add the 0.5 to the y as we dont want the LECs on teh MRCs
-				// but just above them
-				flec.setObjectLocation(new Double3D(i, y - 1, j));
-			}
-		}
-	}
 
 }

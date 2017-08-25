@@ -12,6 +12,7 @@ import org.junit.Test;
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double3D;
+import sim3d.collisiondetection.CollisionGrid;
 import sim3d.stroma.Stroma;
 import sim3d.stroma.StromaEdge;
 import sim3d.util.IO;
@@ -39,6 +40,7 @@ public class FollicleInitialiserTest {
 	public void setUp() throws Exception {
 	}
 
+	
 	@After
 	public void tearDown() throws Exception {
 		if(SimulationEnvironment.simulation != null){
@@ -90,10 +92,103 @@ public class FollicleInitialiserTest {
 	
 	@Test
 	public void testCheckForPointsInTheWay() {
-		fail("not yet implemented");
+		
+		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
+				31);
+		
+		Double3D loc1 = new Double3D(0,0,0);
+		Double3D loc2 = new Double3D(1,1,1);
+		Double3D loc3 = new Double3D(2,2,2);
+		
+		Stroma sc = new Stroma(Stroma.TYPE.FDC,loc1);
+		Stroma neighbour = new Stroma(Stroma.TYPE.FDC, loc3);
+		sc.m_drawEnvironment = SimulationEnvironment.fdcEnvironment;
+		neighbour.m_drawEnvironment = SimulationEnvironment.fdcEnvironment;
+		sc.setObjectLocation(loc1);
+		neighbour.setObjectLocation(loc3);
+		
+		double threshold = 10;
+		boolean test = FollicleInitialiser.checkForPointsInTheWay( sc, neighbour,  threshold);
+		
+		assertFalse(test);
+		
+
+		Stroma neighbour2 = new Stroma(Stroma.TYPE.FDC, loc2);
+		neighbour2.m_drawEnvironment = SimulationEnvironment.fdcEnvironment;
+		neighbour2.setObjectLocation(loc2);
+		boolean test2 = false;
+		test2 = FollicleInitialiser.checkForPointsInTheWay( sc, neighbour,  threshold);
+		
+		assertTrue(test2);
+		
 	}
 	
 	
+	
+	@Test
+	public void testInstantiateStromalCell() {
+		
+		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
+				31);
+		
+		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
+		
+		assertEquals(SimulationEnvironment.fdcEnvironment.getAllObjects().size(), 0);
+		
+		FollicleInitialiser.instantiateStromalCell(cgGrid, Stroma.TYPE.FDC, new Double3D(1,1,1));
+		
+		
+		assertEquals(SimulationEnvironment.fdcEnvironment.getAllObjects().size(), 1);
+		
+
+	}
+	
+	@Test
+	public void testDeleteSC() {
+		
+		SimulationEnvironment.fdcEnvironment = new Continuous3D(Settings.BC.DISCRETISATION, 31, 31,
+				31);
+		
+		CollisionGrid cgGrid = new CollisionGrid(31, 31, 31, 1);
+		
+		assertEquals(SimulationEnvironment.fdcEnvironment.getAllObjects().size(), 0);
+		
+		FollicleInitialiser.instantiateStromalCell(cgGrid, Stroma.TYPE.FDC, new Double3D(1,1,1));
+		
+		
+		assertEquals(SimulationEnvironment.fdcEnvironment.getAllObjects().size(), 1);
+		
+		Stroma sc = (Stroma) SimulationEnvironment.fdcEnvironment.getAllObjects().get(0);
+		
+		FollicleInitialiser.deleteSC(sc);
+		
+		assertEquals(SimulationEnvironment.fdcEnvironment.getAllObjects().size(), 0);
+		
+	}
+	
+	@Test
+	public void testCountProtrusions() {
+		
+		
+		ArrayList<StromaEdge> edges = new ArrayList<StromaEdge>();
+		
+		Double3D loc1 = new Double3D(0,0,0);
+		Double3D loc2 = new Double3D(1,1,1);
+		Double3D loc3 = new Double3D(2,2,2);
+		
+		StromaEdge se1 = new StromaEdge(loc1,loc2,StromaEdge.TYPE.FDC_edge);
+		StromaEdge se2 = new StromaEdge(loc2,loc3,StromaEdge.TYPE.FDC_edge);
+		edges.add(se1);
+		edges.add(se2);
+		
+		Stroma sc =  new Stroma(Stroma.TYPE.FDC, loc2);
+		
+		int numofprotrusions = FollicleInitialiser.countProtrusions(edges, sc);
+		
+		assertEquals(numofprotrusions,2);
+		
+
+	}
 	
 	@Test
 	public void testForMultipleGrids() {
