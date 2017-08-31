@@ -72,7 +72,6 @@ public class GUIrun extends GUIState {
 	 * Color map which is used to visualise chemokine concentration concentration
 	 * Best to keep range witin one order of magnitude. vol of one gridspace is 1e-12 L
 	 */
-	//set max saturation value to 25nM, lowest to 1nM
 	public SimpleColorMap CXCL13ColorMap = new SimpleColorMap(1.0e-21, 25e-21,
 			lightred, red);
 

@@ -235,7 +235,6 @@ public class BCTest {
 
 	/**
 	 * Tests that register collisions can add data to the collisionGrid
-	 * 
 	 */
 	@Test
 	public void testRegisterCollisions() {
@@ -508,7 +507,7 @@ public class BCTest {
 	}
 
 	/**
-	 * Assert that the total number of receptors remains constant TODO simplify
+	 * Assert that the total number of receptors remains constant 
 	 */
 	@Test
 	public void testReceptorStepConservation() {

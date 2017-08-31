@@ -401,8 +401,6 @@ public class BCIntegrationTests {
 	 * concentration of chemokine, i.e. the stromal network
 	 * 
 	 * Can fail on occasion due to chance so needs to be run multiple times.
-	 * TODO we really need to reassess this.it passes even when they have
-	 * receptors :(
 	 * 
 	 */
 	@Test

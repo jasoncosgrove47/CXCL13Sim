@@ -29,7 +29,6 @@ public class consoleRun {
 	/**
 	 * Run the simulation
 	 */
-
 	public static void main(String[] args) {
 
 		// output the start time
@@ -105,10 +104,15 @@ public class consoleRun {
 	
 	/**
 	 * Helper method to see how long a simulation takes to run
+	 * 
 	 * @param startTime
+	 * 			the time a simulation execution begins
 	 * @param endTime
+	 * 			the time a simulation execution ends
 	 * @param sdf
-	 * @return
+	 * 			a simple data format object
+	 * @return	
+	 * 			the formatted run time
 	 */
 	private static String calculateRunTime(long startTime, long endTime, SimpleDateFormat sdf) {
 

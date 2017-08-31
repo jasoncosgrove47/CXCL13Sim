@@ -105,8 +105,6 @@ public class cognateBC extends BC {
 		// it's position
 		if (SimulationEnvironment.steadyStateReached == true) {
 			
-
-			
 			assessNewCheckPointReached();
 			updateReceptors();
 			// the experiment runs for 12 hours but only
@@ -122,7 +120,9 @@ public class cognateBC extends BC {
 	}
 	
 	
-	
+	/**
+	 * TODO add comments
+	 */
 	private void assessNewCheckPointReached(){
 		
 		Int3D loc = this.getDiscretizedLocation(this.getDrawEnvironment());
@@ -146,14 +146,13 @@ public class cognateBC extends BC {
 	 */
 	void updateReceptors() {
 	
-		//receptors.add(this.getM_Rf(Lymphocyte.Receptor.CXCR5));
+
 		freereceptors.add(this.getM_Rf(Lymphocyte.Receptor.CXCR5));
 		desensitisedreceptors.add(this.getM_Rd(Lymphocyte.Receptor.CXCR5));
 		internalisedreceptors.add(this.getM_Ri(Lymphocyte.Receptor.CXCR5));
 		signallingreceptors.add(this.getM_LR(Lymphocyte.Receptor.CXCR5));
 		
-		//Controller.getInstance().getReceptors()
-		//		.put(this.getIndex(), this.getReceptors());
+
 		
 		Controller.getInstance().getFreereceptors()
 		.put(this.getIndex(), this.getFreereceptors());
@@ -176,8 +175,6 @@ public class cognateBC extends BC {
 	void updatePosition() {
 
 		coordinates.add(new Double3D(this.x,this.y,this.z));
-
-
 		Controller.getInstance().getCoordinates().put(this.getIndex(), this.getCoordinates());
 		
 	}
@@ -200,7 +197,9 @@ public class cognateBC extends BC {
 	public void handleCollisions(CollisionGrid cgGrid) {
 
 		// initialise the dataMap
-	
+		initialiseDataMaps();
+		
+		/*
 		if (this.fdcdendritesVisited == 0
 				& Controller.getInstance().getFDCDendritesVisited()
 						.containsKey(this.index) == false) {
@@ -237,7 +236,7 @@ public class cognateBC extends BC {
 					.put(this.index, this.totaldendritesVisited);
 
 		}
-
+*/
 
 		// don't let a b cell collide more than collisionThreshold times
 		// required to avoid getting in an infinite loop
@@ -303,6 +302,48 @@ public class cognateBC extends BC {
 		}
 	}
 
+	
+	
+	private void initialiseDataMaps(){
+		if (this.fdcdendritesVisited == 0
+				& Controller.getInstance().getFDCDendritesVisited()
+						.containsKey(this.index) == false) {
+
+			Controller.getInstance().getFDCDendritesVisited()
+					.put(this.index, this.fdcdendritesVisited);
+
+		}
+		
+		if (this.mrcdendritesVisited == 0
+				& Controller.getInstance().getMRCDendritesVisited()
+						.containsKey(this.index) == false) {
+
+			Controller.getInstance().getMRCDendritesVisited()
+					.put(this.index, this.mrcdendritesVisited);
+
+		}
+		
+		if (this.rcdendritesVisited == 0
+				& Controller.getInstance().getRcdendritesVisited()
+						.containsKey(this.index) == false) {
+
+			Controller.getInstance().getRcdendritesVisited()
+					.put(this.index, this.rcdendritesVisited);
+
+		}
+		
+		
+		if (this.totaldendritesVisited == 0
+				& Controller.getInstance().getTotaldendritesVisited()
+						.containsKey(this.index) == false) {
+
+			Controller.getInstance().getTotaldendritesVisited()
+					.put(this.index, this.totaldendritesVisited);
+
+		}
+		
+		
+	}
 	
 	
 	/**

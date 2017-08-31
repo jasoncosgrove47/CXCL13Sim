@@ -637,6 +637,7 @@ public class Settings {
 
 		/*
 		 * Scale the diffusion coefficient
+		 * units are microns squared per second
 		 */
 		static double scaleDIFFUSION_COEFFICIENT() {
 

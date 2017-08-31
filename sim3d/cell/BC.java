@@ -1,8 +1,6 @@
 package sim3d.cell;
 
 
-
-
 import sim.engine.*;
 import sim3d.migration.Algorithm1;
 

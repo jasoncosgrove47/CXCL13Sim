@@ -2,7 +2,6 @@ package sim3d;
 
 import java.util.ArrayList;
 
-
 import org.w3c.dom.Document;
 import dataLogger.Controller;
 import sim.engine.*;
@@ -31,11 +30,10 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * this is the size of the FDC network
 	 */
-	public static int fdcNetRadius = 13;// was 11
+	public static int fdcNetRadius = 13;
 
 	private static final long serialVersionUID = 1;
 
-	
 	/**
 	 * Boolean which is true when the system has reached a steady state which
 	 * signals the start of an experiment
@@ -74,15 +72,17 @@ public class SimulationEnvironment extends SimState {
 	public static Continuous3D brcEnvironment;
 	public static Continuous3D mrcEnvironment;
 
+	/**
+	 * Matrices for storing stroma data
+	 */
 	public static double[][] distMatrix;
 	public static double[][] a_matrix;
 
-	
+	/**
+	 * Boolean array to store checkpoints
+	 */
 	public static boolean checkPoints[][][];
-	
-	//public static ArrayList<Int3D> checkPoints = new ArrayList<Int3D>();
-	
-	
+
 	/**
 	 * Instance of the CXCL13 class
 	 */
@@ -137,9 +137,6 @@ public class SimulationEnvironment extends SimState {
 		Chemokine.reset();
 	}
 
-	
-	
-	
 	/**
 	 * Accessor for the current display level - a z-index to use for displaying
 	 * the diffusion
@@ -153,6 +150,15 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * Setter for the current display level
 	 */
+
+	/**
+	 * Setter for the current display level. Would be nice to have a slider to
+	 * scroll up through the z axis
+	 * 
+	 * @param m_iDisplayLevel
+	 *            where on the z axis to visualise the chemokine field
+	 * 
+	 */
 	public void setDisplayLevel(int m_iDisplayLevel) {
 		Chemokine.setDisplayLevel(m_iDisplayLevel - 1);
 		Chemokine.getInstance(Chemokine.TYPE.CXCL13).updateDisplay();
@@ -162,6 +168,8 @@ public class SimulationEnvironment extends SimState {
 	 * Scheduling a cell returns a stoppable object. We store the stoppable
 	 * object as a variable within the BC class. Then the BC can access its
 	 * stopper variable and call the stop method.
+	 * 
+	 * @param cell the lymphocyte to schedule
 	 */
 	public void scheduleStoppableCell(Lymphocyte cell) {
 		cell.setStopper(simulation.schedule.scheduleRepeating((Steppable) cell));
@@ -174,6 +182,7 @@ public class SimulationEnvironment extends SimState {
 	 * some weird artefacts
 	 * 
 	 * @param cell
+	 *            the stromal cell to schedule
 	 */
 	public static void scheduleStoppableCell(Stroma cell) {
 		cell.setStopper(simulation.schedule.scheduleRepeating((Steppable) cell, 2, 1));
@@ -217,9 +226,9 @@ public class SimulationEnvironment extends SimState {
 		CollisionGrid cgGrid = new CollisionGrid(Settings.WIDTH, Settings.HEIGHT, Settings.DEPTH, 1);
 		schedule.scheduleRepeating(cgGrid, 3, 1);
 
-		
+		// initialise checkpoints
 		initialiseCheckpoints();
-		
+
 		// intialise the follicleEnvironment
 		FollicleInitialiser.initialiseFollicle(cgGrid);
 
@@ -237,41 +246,52 @@ public class SimulationEnvironment extends SimState {
 			a_matrix = Controller.createMatrix(false);
 			distMatrix = Controller.createMatrix(true);
 		}
-		
-		totalNumberOfFDCEdges = calculateTotalNumberOfAntigenPresentingDendrites(StromaEdge.TYPE.FDC_edge);
 
-		totalNumberOfMRCEdges = calculateTotalNumberOfAntigenPresentingDendrites(StromaEdge.TYPE.MRC_edge);
-		
-		totalNumberOfBRCEdges = calculateTotalNumberOfAntigenPresentingDendrites(StromaEdge.TYPE.RC_edge);
+		totalNumberOfFDCEdges = calculateEdgesOfType(StromaEdge.TYPE.FDC_edge);
+
+		totalNumberOfMRCEdges = calculateEdgesOfType(StromaEdge.TYPE.MRC_edge);
+
+		totalNumberOfBRCEdges = calculateEdgesOfType(StromaEdge.TYPE.RC_edge);
 
 		totalNumberOfEdges = totalNumberOfFDCEdges + totalNumberOfMRCEdges + totalNumberOfBRCEdges;
 	}
 
-	
-	
-	public void initialiseCheckpoints(){
-		
+	/**
+	 * This methods initialises the checkpoints, the metric we use to quantify
+	 * scanning Currently each gridspace is set to true and thus each gridspace
+	 * is a checkpoint but could adapt to have less in future studies.
+	 */
+	public void initialiseCheckpoints() {
+
 		checkPoints = new boolean[Settings.WIDTH][Settings.HEIGHT][Settings.DEPTH];
 
-		
-		
-		for(int a = 0; a < Settings.WIDTH; a++) {
-		    for(int b = 0; b < Settings.HEIGHT; b++) {
-		        for(int c = 0; c < Settings.DEPTH; c++) {
-		            checkPoints[a][b][c] = true;
-		        }
-		    }
-		}
-		
+		// Currently each gridspace is set to true and thus each gridspace is a
+		// checkpoint
+		// but could adapt to have less in future studies.
 
+		for (int a = 0; a < Settings.WIDTH; a++) {
+			for (int b = 0; b < Settings.HEIGHT; b++) {
+				for (int c = 0; c < Settings.DEPTH; c++) {
+					checkPoints[a][b][c] = true;
+				}
+			}
+		}
 	}
-	
-	
-	
+
 	/**
 	 * Tests whether co-ordinates x,y are in the circle centered at
 	 * circleCentreX, circleCentreY with a specified radius
 	 * 
+	 * @param x
+	 *            the x coordinate of the point to test
+	 * @param y
+	 *            the y coordinate of the point to test
+	 * @param circleCentreX
+	 *            the x coordinate of the circle center
+	 * @param circleCentreY
+	 *            the y coordinate of the circle center
+	 * @param radius
+	 *            the radius of the circle
 	 * @return boolean determining whether inside (false) or outside (true) the
 	 *         circle
 	 */
@@ -290,8 +310,13 @@ public class SimulationEnvironment extends SimState {
 			return false;
 	}
 
+
+	
 	/**
 	 * Seeds B cells into the FDC network
+	 * 
+	 * @param celltype
+	 * 			the cell type to seed
 	 */
 	void seedCells(CELLTYPE celltype) {
 
@@ -310,12 +335,12 @@ public class SimulationEnvironment extends SimState {
 
 			case B:
 				BC bc = new BC();
-				
-				int x = 1+ Settings.RNG.nextInt(Settings.WIDTH-2);
-				int y = 1+Settings.RNG.nextInt(Settings.HEIGHT-2);
-				int z = 1+Settings.RNG.nextInt(Settings.DEPTH-2);
-				
-				bc.setObjectLocation(new Double3D(x,y,z));
+
+				int x = 1 + Settings.RNG.nextInt(Settings.WIDTH - 2);
+				int y = 1 + Settings.RNG.nextInt(Settings.HEIGHT - 2);
+				int z = 1 + Settings.RNG.nextInt(Settings.DEPTH - 2);
+
+				bc.setObjectLocation(new Double3D(x, y, z));
 				scheduleStoppableCell(bc);
 				// so we only have 1 BC updating the ODE graph
 				if (i == 0) {
@@ -325,11 +350,11 @@ public class SimulationEnvironment extends SimState {
 
 			case cB:
 				cognateBC cbc = new cognateBC(i);
-				int x1 = 1+Settings.RNG.nextInt(1+Settings.WIDTH-2);
-				int y1 = 1+Settings.RNG.nextInt(1+Settings.HEIGHT-2);
-				int z1 = 1+ Settings.RNG.nextInt(1+Settings.DEPTH-2);
-				cbc.setObjectLocation(new Double3D(x1,y1,z1));
-				//cbc.setObjectLocation(generateCoordinateWithinCircle(fdcNetRadius));
+				int x1 = 1 + Settings.RNG.nextInt(1 + Settings.WIDTH - 2);
+				int y1 = 1 + Settings.RNG.nextInt(1 + Settings.HEIGHT - 2);
+				int z1 = 1 + Settings.RNG.nextInt(1 + Settings.DEPTH - 2);
+				cbc.setObjectLocation(new Double3D(x1, y1, z1));
+
 				scheduleStoppableCell(cbc);
 				break;
 
@@ -339,8 +364,14 @@ public class SimulationEnvironment extends SimState {
 		}
 	}
 
+	
 	/**
-	 * @return a random Double3D inside a circle
+	 * Generate a random coordinate within a circle located at the center of the environment
+	 * 
+	 * @param circleRadius
+	 * 			the radius of the circle
+	 * @return 
+	 * 		 	a random Double3D inside a circle
 	 */
 	static Double3D generateCoordinateWithinCircle(int circleRadius) {
 
@@ -360,11 +391,10 @@ public class SimulationEnvironment extends SimState {
 	}
 
 	/**
+	 * Return all objects on the 3 stroma grids
 	 * 
-	 * 
-	 * /** Return all objects on the 3 stroma grids
-	 * 
-	 * @return a bag containing all stromal cells in the sim
+	 * @return 
+	 * 			a bag containing all stromal cells in the sim
 	 */
 	public static Bag getAllStroma() {
 
@@ -385,7 +415,8 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * Return all objects on the 3 stroma grids within a threshold distance
 	 * 
-	 * @return a bag containing all stromal cells in the sim
+	 * @return 
+	 * 			a bag containing all stromal cells in the sim
 	 */
 	public static Bag getAllStromaWithinDistance(Double3D loc, double dist) {
 
@@ -407,6 +438,10 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * this calculates the total number of stromal cells and the edges but is
 	 * not a measure of theprotrusions or of the topology
+	 * 
+	 * @return
+	 * 			an int array where the first element is the number of nodes in the sim
+	 * 			and the second element is the number of edges in the sim
 	 */
 	public static int[] calculateNodesAndEdges() {
 
@@ -434,8 +469,14 @@ public class SimulationEnvironment extends SimState {
 		return output;
 	}
 
-
-	private int calculateTotalNumberOfAntigenPresentingDendrites(StromaEdge.TYPE edgetype) {
+	/**
+	 * Measure all edges of a certain type of stromal cell
+	 * 
+	 * @param edgetype
+	 * 		the edge type you want to quantify
+	 * @return number of edges for a given stroma edge type
+	 */
+	private int calculateEdgesOfType(StromaEdge.TYPE edgetype) {
 
 		Bag stroma = getAllStroma();
 		int APcounter = 0;

@@ -13,14 +13,15 @@ public class ProcessData {
 	 * single cell tracking experiments
 	 */
 
-	//TODO test all of these methods below, bar calculate turning angle
+	
 	/**
 	 * Helper method which calculates the speed, motility coefficient and
 	 * meandering index for each cell
 	 * 
 	 * @param key
 	 *            for an individual cell
-	 * @return a double array with relevant motility parameters
+	 * @return 
+	 * 			  a double array with relevant motility parameters
 	 * @throws IOException
 	 */
 	static double[] processMigrationData(Integer key) throws IOException {
@@ -156,15 +157,27 @@ public class ProcessData {
 		}
 	}
 
+
 	/**
-	 * Calculate the motility coefficient of a cell
+	 * 
+	 * @param netDisplacement
+	 * 				the net distance travelled by a cell during a tracking experiment
+	 * @param time
+	 * 				the duration of an experiment
+	 * @return
 	 */
 	static double calculateMotilityCoefficient(double netDisplacement, double time) {
 		return (Math.pow(netDisplacement, 2) / (6 * time));
 	}
 
-	/*
-	 * Determine the previous x,y and z coordinates in the arraylist
+
+	/**
+	 * @param i
+	 * 				a specific position in the arraylist
+	 * @param Coords
+	 * 				an arraylist of double3D coordinates (cell tracks)
+	 * @return
+	 * 				a double3D
 	 */
 	static Double3D calculatePreviousLocation(int i, ArrayList<Double3D> Coords) {
 
@@ -179,8 +192,15 @@ public class ProcessData {
 			return null;
 	}
 
-	/*
-	 * Obtain the next set of cooordinates in the arraylist
+
+	/**
+	 * 
+	 * @param i
+	 * 				a specific position in the arraylist
+	 * @param Coords
+	 * 				an arraylist of double3D coordinates (cell tracks)
+	 * @return
+	 * 				a double3D
 	 */
 	static Double3D calculateNextLocation(int i, ArrayList<Double3D> Coords) {
 		if (i < Coords.size() - 1) {
@@ -199,9 +219,13 @@ public class ProcessData {
 	 * Calculate the meandering index of a cell
 	 * 
 	 * @param totalDisplacement
+	 * 					the total distance a cell has travelled during an experiment, in microns
 	 * @param netDisplacement
+	 * 					the net distance a cell has travelled during an experiment, in microns
 	 * @param time
-	 * @return
+	 * 					the time of an experiment
+	 * 
+	 * @return the meandering index
 	 */
 	static double calculateMeanderingIndex(double totalDisplacement, double netDisplacement, double time) {
 		// calculate meandering index
@@ -220,6 +244,7 @@ public class ProcessData {
 	 *            total distance travelled during a tracking expt
 	 * @param time
 	 *            total duration of tracking expt
+	 *            
 	 * @return the velocity
 	 */
 	static double calculateSpeed(double totalDisplacement, double time) {

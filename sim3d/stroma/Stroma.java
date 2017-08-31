@@ -364,6 +364,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	}
 
 	//TODO NEED TESTS FOR THIS
+	//TODO superfluous
 	public Color getM_col() {
 		return m_col;
 	}

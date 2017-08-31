@@ -14,7 +14,7 @@ import sim3d.util.StromaGenerator;
 /**
  * Initialise the follicle microenvironment, generating stroma and the
  * subcapsular sinus. This class also handles data handling for stroma recording
- * which nodes are connected to which edges and vice versa
+ * which nodes are connected to which edges and vice versa.
  * 
  * @author Jason Cosgrove
  */
@@ -40,6 +40,7 @@ public final class FollicleInitialiser {
 		}
 
 		updateNodeConnections();
+
 
 	}
 
@@ -136,12 +137,16 @@ public final class FollicleInitialiser {
 	 * Select a random edge from a bag of neighbouring cells and add it to an
 	 * arrayList
 	 * 
-	 * 
 	 * @param edgeConnectionsToAdd
+	 * 				an arraylist of stroma edges
 	 * @param neighbours
+	 * 				a bag of stroma
 	 * @param sc
+	 * 				a stromal cell
 	 * @param random_index
+	 * 				a random integer between 0 and the size of the bag
 	 * @return
+	 * 				an arraylist of stroma edges
 	 */
 	private static ArrayList<StromaEdge> updateEdgeConnections(ArrayList<StromaEdge> edgeConnectionsToAdd,
 			Bag neighbours, Stroma sc, int random_index) {
@@ -159,11 +164,16 @@ public final class FollicleInitialiser {
 	 * Select a random node from a bag of neighbouring cells and add it to an
 	 * arrayList
 	 * 
-	 * @param edgeConnectionsToAdd
+	 * @param nodeConnectionsToAdd
+	 * 					an arraylist of stromal cells
 	 * @param neighbours
+	 * 					a Bag of stroma
 	 * @param sc
+	 * 					a stromal cell
 	 * @param random_index
+	 * 					a random value ranging between 0 and the size of the bag
 	 * @return
+	 * 					an arraylist of stromal cells
 	 */
 	private static ArrayList<Stroma> updateNodeList(ArrayList<Stroma> nodeConnectionsToAdd, 
 			Bag neighbours, Stroma sc,int random_index) {
@@ -186,8 +196,11 @@ public final class FollicleInitialiser {
 	 * Check if there is a branch between two stromaEdges.
 	 * 
 	 * @param neighbour
-	 * @param nearestProtrusion
+	 * 			a stromal cell
+	 * @param sc
+	 * 			a stromal cell
 	 * @return
+	 * 			a boolean stating whether an edge exists between two nodes
 	 */
 	private static boolean doesEdgeAlreadyExist(Stroma sc, Stroma neighbour) {
 		// need to see if there is not already a branch in place
@@ -219,8 +232,11 @@ public final class FollicleInitialiser {
 	 * Check if there is a branch between two stromaEdges.
 	 * 
 	 * @param neighbour
+	 * 				a stromal cell
 	 * @param nearestProtrusion
+	 * 				a stromal edge
 	 * @return
+	 * 				a boolean on whether the edge and the node are connected
 	 */
 	private static boolean doesBranchAlreadyExist(StromaEdge neighbour, StromaEdge nearestProtrusion) {
 		// need to see if there is not already a branch in place
@@ -292,6 +308,20 @@ public final class FollicleInitialiser {
 		return nearestProtrusion;
 	}
 
+
+	/**
+	 * add a protrusion between two stromal cells
+	 * @param neighbour
+	 * 					a stromal cell
+	 * @param loc
+	 * 					the location of the stromal cell
+	 * @param cgGrid
+	 * 					the collision grid
+	 * @param type
+	 * 					the type of edge to add
+	 * @param sc
+	 * 					a stromal cell
+	 */
 	private static void addProtrusion(Stroma neighbour, Double3D loc, CollisionGrid cgGrid, StromaEdge.TYPE type,
 			Stroma sc) {
 		Double3D neighbourloc = neighbour.getM_Location();
@@ -310,6 +340,22 @@ public final class FollicleInitialiser {
 		branch.m_Nodes.add(neighbour);
 	}
 
+	
+	
+	/**
+	 * 
+	 * add connections between stromal cells
+	 * @param neighbours
+	 * 			A bag of stroma objects
+	 * @param sc
+	 * 			A stromal cell
+	 * @param loc
+	 * 			a double3D
+	 * @param type
+	 * 			a type of stromal cells
+	 * @param cgGrid
+	 * 			a collision grid
+	 */
 	private static void addConnections(Bag neighbours, Stroma sc, Double3D loc, StromaEdge.TYPE type,
 			CollisionGrid cgGrid) {
 		ArrayList<Stroma> nodeConnectionsToAdd = new ArrayList<Stroma>();
@@ -408,11 +454,17 @@ public final class FollicleInitialiser {
 	 * too high
 	 * 
 	 * @param cgGrid
+	 * 				a collision grid
 	 * @param env
+	 * 				the environment ot query
 	 * @param type
+	 * 				the type of stromal edge
 	 * @param mean
+	 * 				the mean number of branches to make
 	 * @param sd
+	 * 				the standard deviation of branches to make
 	 * @param maxVal
+	 * 				the max number of branches to make
 	 */
 	private static void generateBranchesDynamically(CollisionGrid cgGrid, Continuous3D env, StromaEdge.TYPE type,
 			int mean, int sd, int maxVal) {
@@ -530,11 +582,7 @@ public final class FollicleInitialiser {
 	}
 
 	/**
-	 * Assuming that each node.mEdges() contains all protrusions this method
-	 * determines which nodes the node is connected to
-	 * 
-	 * @param includeBranches
-	 * @return
+	 * update connection data for each node and edge
 	 */
 	private static void updateNodeConnections() {
 
@@ -554,13 +602,15 @@ public final class FollicleInitialiser {
 	 * Given two stroma nodes, check if there are any nodes directly between them 
 	 * i.e. a threshold distance away from a straight line connecting the two nodes 
 	 * 
-	 * 
 	 * note this only checks for one grid, need a method to check across
 	 * multiple grids
 	 * 
 	 * @param sc
+	 * 			a stromal cell
 	 * @param neighbour
+	 * 			a stromal cell
 	 * @return
+	 * 			a boolean on whether there is a node in the way
 	 */
 	static boolean checkForPointsInTheWay(Stroma sc, Stroma neighbour, double threshold) {
 
@@ -602,16 +652,10 @@ public final class FollicleInitialiser {
 	}
 
 	/**
-	 * CHeck to see what nodes our node is connected to.
-	 * 
-	 * OK so as far as i can tell this method works
-	 * 
-	 * 
-	 * also returns the mean number of connections
-	 * 
-	 * now just need to see what happens when i get rid of nodes
+	 * Check to see what nodes our node is connected to.
 	 * 
 	 * @param sc
+	 * 			a stromal cell
 	 */
 	static void updateNodeConnectionForNodeOtherGrids(Stroma sc) {
 
@@ -678,6 +722,13 @@ public final class FollicleInitialiser {
 	/**
 	 * Helper method to update the locations and tempEdges lists with the
 	 * protrusions for each stroma
+	 * 
+	 * @param sc
+	 * 					a stromal cell
+	 * @param locations
+	 * 					an arraylist of double3Ds
+	 * @param tempEdges
+	 * 					an arraylist of stroma edges 
 	 */
 	private static void initialiseConnectionLists(Stroma sc, ArrayList<Double3D> locations,
 			ArrayList<StromaEdge> tempEdges) {
@@ -703,8 +754,11 @@ public final class FollicleInitialiser {
 	 * which nodes are associated together.
 	 * 
 	 * @param otherEdge
+	 * 					a stroma edge
 	 * @param locations
+	 * 					an arraylist of double3Ds
 	 * @param tempEdges
+	 * 					an arraylist of stroma edges 
 	 */
 	private static void updateConnectionLists(StromaEdge otherEdge, ArrayList<Double3D> locations,
 			ArrayList<StromaEdge> tempEdges) {
@@ -725,15 +779,25 @@ public final class FollicleInitialiser {
 
 	/**
 	 * Helper method that looks for all edges associated with another edge
+	 * 
+	 * @param sc
+	 * 			a stromal cell
+	 * @param newloc
+	 * 			a Double3D
+	 * @param locations
+	 * 			an arraylist of locations
+	 * @param tempEdges
+	 *  		an arraylist of stroma edges
+	 * @param allGrids
+	 * 			set to true if you want to query all grids
 	 */
 	private static void addConnectedEdges(Stroma sc, Double3D newloc, ArrayList<Double3D> locations,
 			ArrayList<StromaEdge> tempEdges, boolean allGrids) {
 
 		// this code does not account for branches
 		double threshold = Settings.DOUBLE3D_PRECISION;
+
 		// get the edges connected to this edge
-		// want a good bit of leeway here as the edge could be long, and not
-		// sure how it gets the n
 		Bag otherEdges = new Bag();
 
 		if (allGrids) {
@@ -742,7 +806,9 @@ public final class FollicleInitialiser {
 		} else {
 			otherEdges = sc.getDrawEnvironment().getNeighborsExactlyWithinDistance(newloc, 5);
 		}
-
+		
+		
+		//iterate through and see if the edges are sufficiently close enough to be connected
 		for (int j = 0; j < otherEdges.size(); j++) {
 			if (otherEdges.get(j) instanceof StromaEdge) {
 
@@ -813,7 +879,8 @@ public final class FollicleInitialiser {
 	 *            the grid to query
 	 * @param type
 	 *            the subset of stromal cells to count
-	 * @return the number of stroma of type on a given grid
+	 * @return 
+	 * 				the number of stroma of a given type on a given grid
 	 */
 	private static int countNodes(Continuous3D env, Stroma.TYPE type) {
 
@@ -853,8 +920,6 @@ public final class FollicleInitialiser {
 		Stroma stromalcell = new Stroma(sc.m_type, d3loc);
 		stromalcell.setObjectLocation(d3loc);
 		SimulationEnvironment.scheduleStoppableCell(stromalcell);
-
-
 	}
 
 	/**
@@ -862,9 +927,15 @@ public final class FollicleInitialiser {
 	 * nothing there then return null.
 	 * 
 	 * 
-	 * @param env
-	 * @param loc
-	 * @return
+	 * @param env 
+	 * 				the grid to query
+	 * @param loc 
+	 * 				the Double3D location to query
+	 * @param allGrids 
+	 * 				set to true if you want to query all grids
+	 * 
+	 * @return 	
+	 * 				a stromal cell if it exists, otherwise return null
 	 */
 	private static Stroma getNodeAtLocation(Continuous3D env, Double3D loc, boolean allGrids) {
 
@@ -907,9 +978,8 @@ public final class FollicleInitialiser {
 	/**
 	 * Remove an RC and its associated dendrites from the grid and the schedule
 	 * 
-	 * @param frc
-	 *            the stromal cell to delete
-	 *            
+	 * @param sc
+	 *            the stromal cell to delete          
 	 */
 	public static void deleteSC(Stroma sc) {
 
@@ -929,8 +999,8 @@ public final class FollicleInitialiser {
 	/**
 	 * Remove an RC and its associated dendrites from the grid and the schedule
 	 * 
-	 * @param frc
-	 *            the stromal cell to delete
+	 * @param se
+	 *            the stroma edge to delete
 	 */
 	public static void deleteSEdge(StromaEdge se) {
 
@@ -960,6 +1030,7 @@ public final class FollicleInitialiser {
 	 * @param edges
 	 *            the list of edges to seed, created by StromaGenerator3D
 	 * @return
+	 * 			  an arraylist of stroma edges
 	 */
 	private static ArrayList<StromaEdge> seedEdges(CollisionGrid cgGrid, ArrayList<StromaEdge> edges) {
 
@@ -1054,10 +1125,10 @@ public final class FollicleInitialiser {
 	 * 
 	 * @param edges
 	 *            list of all the edge locations
-	 * @param loc
-	 *            the frcs location
-	 * @param frc
-	 * @return
+	 * @param sc
+	 *            a stromal cell
+	 *            
+	 * @return the number of protrusions from a node
 	 */
 	static int countProtrusions(ArrayList<StromaEdge> edges, Stroma sc) {
 
@@ -1084,9 +1155,8 @@ public final class FollicleInitialiser {
 	 * 
 	 * @param edges
 	 *            list of all the edge locations
-	 * @param loc
-	 *            the frcs location
-	 * @param frc
+	 * @param sc
+	 *            a stromal cell
 	 */
 	static void assignProtrusions(ArrayList<StromaEdge> edges, Stroma sc) {
 

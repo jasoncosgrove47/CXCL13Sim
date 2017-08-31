@@ -20,9 +20,6 @@ public class GenerateSCS {
 	 * 
 	 * iterate through the X and Z axes keeping Y fixed to seed the SCS The MRC
 	 * locations are generated stochastically
-	 * 
-	 * @param cgGrid
-	 *            the collision grid for the stroma
 	 */
 	static void seedSCS() {
 
@@ -80,11 +77,13 @@ public class GenerateSCS {
 	 * 
 	 * @param loc
 	 *            the double3D location to check.
-	 * @return true if there is an MRC at loc
+	 * @return 
+	 * 				true if there is an MRC at loc
 	 */
 	private static boolean checkForMRCsAtLocation(Double3D loc) {
 
 		// make sure that the cells arent too close to one another.
+		//the distance was found by calibrating against exptl data
 		Bag bagMrcs = SimulationEnvironment.mrcEnvironment.getNeighborsExactlyWithinDistance(loc, 1.4);
 		boolean bMrcAtLocation = false;
 
@@ -104,7 +103,6 @@ public class GenerateSCS {
 	}
 
 	/**
-	 * 
 	 * Helper method that takes a map of associated nodes and genereates an edge
 	 * between them
 	 * 
@@ -122,6 +120,7 @@ public class GenerateSCS {
 			// Place an edge between the two associated nodes
 			for (Stroma neighbour : neighbours) {
 
+				
 				if (!sc.equals(neighbour) && !Stroma.AreStromaNodesConnected(sc, neighbour)
 						&& sc.getM_Nodes().size() < 7 && neighbour.getM_Nodes().size() < 7) {
 
@@ -144,9 +143,14 @@ public class GenerateSCS {
 		}
 	}
 
+
+	
 	/**
 	 * Generates the MRC network, this is done separately to the BRCs and FDCs
 	 * as it is also connected to the SCS
+	 * 
+	 * @param cgGrid
+	 * 			the collision grid
 	 */
 	static void generateMRCNetwork(CollisionGrid cgGrid) {
 
@@ -179,6 +183,11 @@ public class GenerateSCS {
 	}
 
 	
+	/**
+	 * TODO comment this
+	 * @param cgGrid
+	 * 				the collision grid
+	 */
 	private static void pruneNetwork(CollisionGrid cgGrid){
 		Bag stroma = SimulationEnvironment.mrcEnvironment.getAllObjects();
 
@@ -229,10 +238,12 @@ public class GenerateSCS {
 
 
 	/**
+	 * Get all BRCs located above a threshold Y position
 	 * 
 	 * @param threshold
 	 * 		The value on the Y-axis above which we will return all BRC/FDC nodes
 	 * @return
+	 * 		an arraylist containing BRCs
 	 */
 	private static ArrayList<Stroma> getBRCsAboveThresholdYCoord(double threshold) {
 		Bag brcs = SimulationEnvironment.brcEnvironment.getAllObjects();
@@ -265,7 +276,8 @@ public class GenerateSCS {
 	 *            bag of stromal cells
 	 * @param brc
 	 *            the cell which we want to connect to
-	 * @return the closest mrc to brc
+	 * @return 
+	 * 			  the closest mrc to brc
 	 */
 	private static Stroma findClosestMRC(Bag neighbours, Stroma brc) {
 
@@ -296,11 +308,20 @@ public class GenerateSCS {
 	}
 
 
+	
 	/**
-	 * This method may exist elsewhere but im pretty sure MRC is a special case,
+	 *  This method may exist elsewhere but im pretty sure MRC is a special case,
 	 * will need to refactor
 	 * 
+	 * 
+	 * @param brc
+	 * 			a stromal cell of type BRC
+	 * @param nodeToConnectTo
+	 * 			another stromal cell to connect to
+	 * @param cgGrid
+	 * 			the collision grid
 	 * @return
+	 * 			a stromal edge of type MRC
 	 */
 	private static StromaEdge addMRCEdge(Stroma brc, Stroma nodeToConnectTo, CollisionGrid cgGrid) {
 		StromaEdge seEdge = new StromaEdge(brc.getM_Location(), nodeToConnectTo.getM_Location(),
@@ -325,9 +346,12 @@ public class GenerateSCS {
 
 
 	
+
+	
 	/**
-	 * COnnect the MRC network to the BRC network
-	 * 
+	 * Connect the MRC network to the BRC network
+	 * @param cgGrid
+	 * 				a collision grid
 	 */
 	private static void connectToRC(CollisionGrid cgGrid) {
 
@@ -369,6 +393,7 @@ public class GenerateSCS {
 	 *            a list of stromal cells and the other stroma that they are
 	 *            connected to
 	 * @return
+	 * 		a map containing which stromal cells to connect to one another
 	 */
 	private static Map<Stroma, ArrayList<Stroma>> addMRCConnections(Bag neighbours, Stroma sc,
 			Map<Stroma, ArrayList<Stroma>> connectionsToAdd) {
