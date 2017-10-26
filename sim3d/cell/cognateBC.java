@@ -199,45 +199,6 @@ public class cognateBC extends BC {
 		// initialise the dataMap
 		initialiseDataMaps();
 		
-		/*
-		if (this.fdcdendritesVisited == 0
-				& Controller.getInstance().getFDCDendritesVisited()
-						.containsKey(this.index) == false) {
-
-			Controller.getInstance().getFDCDendritesVisited()
-					.put(this.index, this.fdcdendritesVisited);
-
-		}
-		
-		if (this.mrcdendritesVisited == 0
-				& Controller.getInstance().getMRCDendritesVisited()
-						.containsKey(this.index) == false) {
-
-			Controller.getInstance().getMRCDendritesVisited()
-					.put(this.index, this.mrcdendritesVisited);
-
-		}
-		
-		if (this.rcdendritesVisited == 0
-				& Controller.getInstance().getRcdendritesVisited()
-						.containsKey(this.index) == false) {
-
-			Controller.getInstance().getRcdendritesVisited()
-					.put(this.index, this.rcdendritesVisited);
-
-		}
-		
-		
-		if (this.totaldendritesVisited == 0
-				& Controller.getInstance().getTotaldendritesVisited()
-						.containsKey(this.index) == false) {
-
-			Controller.getInstance().getTotaldendritesVisited()
-					.put(this.index, this.totaldendritesVisited);
-
-		}
-*/
-
 		// don't let a b cell collide more than collisionThreshold times
 		// required to avoid getting in an infinite loop
 		int collisionThreshold = 10;
@@ -265,25 +226,19 @@ public class cognateBC extends BC {
 			switch (cCell.getCollisionClass()) {
 			
 			case STROMA_EDGE: // These first two are the more likely hits as
-								// they won't be moving
+							  // they won't be moving
 
-				
-					
-					if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
-						iCollisionMovement = getM_d3aMovements().size() - 1;
-						bCollision = true;
+				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
+					iCollisionMovement = getM_d3aMovements().size() - 1;
+					bCollision = true;
 
-						// this guard is here as we don't want the agents to acquire
-						// antigen until controller starts recording
-						if (SimulationEnvironment.steadyStateReached == true) {
-							acquireAntigenEdge(cCell);
-						}
-
-				
-							
-			}
+					// this guard is here as we don't want the agents to acquire
+					// antigen until controller starts recording
+					if (SimulationEnvironment.steadyStateReached == true) {
+						acquireAntigenEdge(cCell);
+					}
+				}
 				break;
-
 
 			case BRANCH:
 
@@ -297,58 +252,50 @@ public class cognateBC extends BC {
 		}
 		if (bCollision) // if the cell has collided
 		{
-			performCollision(cgGrid, iCollisionMovement); // deal with the
-															// collision
+			//deal with the collision
+			performCollision(cgGrid, iCollisionMovement); 
 		}
 	}
 
 	
-	
+	/**
+	 * Helper method to initialise data maps 
+	 */
 	private void initialiseDataMaps(){
 		if (this.fdcdendritesVisited == 0
 				& Controller.getInstance().getFDCDendritesVisited()
 						.containsKey(this.index) == false) {
-
 			Controller.getInstance().getFDCDendritesVisited()
 					.put(this.index, this.fdcdendritesVisited);
-
 		}
 		
 		if (this.mrcdendritesVisited == 0
 				& Controller.getInstance().getMRCDendritesVisited()
 						.containsKey(this.index) == false) {
-
 			Controller.getInstance().getMRCDendritesVisited()
 					.put(this.index, this.mrcdendritesVisited);
-
 		}
 		
 		if (this.rcdendritesVisited == 0
 				& Controller.getInstance().getRcdendritesVisited()
 						.containsKey(this.index) == false) {
-
 			Controller.getInstance().getRcdendritesVisited()
 					.put(this.index, this.rcdendritesVisited);
-
 		}
-		
 		
 		if (this.totaldendritesVisited == 0
 				& Controller.getInstance().getTotaldendritesVisited()
 						.containsKey(this.index) == false) {
-
 			Controller.getInstance().getTotaldendritesVisited()
 					.put(this.index, this.totaldendritesVisited);
-
 		}
-		
-		
 	}
 	
 	
 	/**
 	 * Acquire antigen from a stroma edge
 	 * @param cCell
+	 * 			a collidable object
 	 */
 	public void acquireAntigenEdge(Collidable cCell) {
 		StromaEdge sEdge = (StromaEdge) cCell;
@@ -362,11 +309,6 @@ public class cognateBC extends BC {
 		//if on the upper half of the stroma
 		if (collision == false) 
 		{
-
-			//if (sEdge.getAntigenLevel() > 0) // if the stroma has antigen to present
-			//{
-				// remove antigen from the stromal edge
-				//sEdge.setAntigenLevel(sEdge.getAntigenLevel() - 1);
 				sEdge.getCellsCollidedWith().add(this.index);
 
 				if(sEdge.getStromaedgetype() == StromaEdge.TYPE.FDC_edge){
@@ -397,16 +339,11 @@ public class cognateBC extends BC {
 					.put(this.index, this.totaldendritesVisited);
 				}
 
-				// increment the cBC antigen captured counter
-				//this.setAntigenCaptured(this.getAntigenCaptured() + 1);
-
-			//}
 		} 
 
 		// if the cell is naive then we need to update its status to primed
 		if (this.type == TYPE.NAIVE) {
 			this.type = TYPE.PRIMED;
-
 		}
 	}
 	

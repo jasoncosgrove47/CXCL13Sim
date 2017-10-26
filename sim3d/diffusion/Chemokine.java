@@ -48,8 +48,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	public static Chemokine[] ms_pParticles = new Chemokine[4];
 
 	private static final long serialVersionUID = 1;
-
-	
 	
 	/**
 	 * Add or remove chemokine from a grid space
@@ -121,7 +119,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		ms_pParticles = new Chemokine[4];
 		ms_emTypeMap = new EnumMap<TYPE, Integer>(TYPE.class);
 	}
-
 	
 	/**
 	 * Scale the amount of chemokine in a grid space. NB: does not check if this
@@ -236,7 +233,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		schedule.scheduleRepeating(this, 3, 1);
 		
 	}
-
 	
 	/**
 	 * Add or remove chemokine from a grid space
@@ -363,10 +359,8 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		@SuppressWarnings("unused")
 		double molarconc = calculateMolarConcentration(vol, totalChemokineinMoles);
 
-
 	}
 
-	
 	/**
 	 * Record the concentrations from a 200 micron squared section from the center of the follicle
 	 * @return
@@ -384,15 +378,26 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		}
 		return chemokinefield;
 	}
-
 	
-	
+	/**
+	 * Calculate the molar concentration given a volume (liters) and 
+	 * an amount of chemokine (in moles)
+	 * 
+	 * @param vol
+	 * 			the volume of the compartment
+	 * @param totalChemokineInMoles
+	 * 			the amount of chemokine in moles
+	 * @return the Molar concentration
+	 */
 	private double calculateMolarConcentration(double vol, double totalChemokineInMoles){
 		
 		return totalChemokineInMoles/vol;
 	}
 	
-	
+	/**
+	 * Calculate the total amount of chemokine in the follicle
+	 * @return the amount of chemokine in moles
+	 */
 	public double calculateTotalChemokineLevels() {
 
 		double totalChemokineValue = 0;
@@ -408,11 +413,12 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	}
 
 
-
-	//slow diffusion requires an adaptive timestep
-	// as the slowest you can have is 1 diffusion step
-	// per sim step - you would therefore get errors
-	// if there are 0.5 diffusion steps per sim step
+	/**
+	 * slow diffusion requires an adaptive timestep
+	 * as the slowest you can have is 1 diffusion step
+	 * per sim step - you would therefore get errors
+	 * if there are 0.5 diffusion steps per sim step
+	 */
 	public void adaptiveDiffusion(){
 		
 		long simTime = stepsCounter;
@@ -430,7 +436,6 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	}
 	
 	
-
 	/**
 	 * Updates the 2D display
 	 */
@@ -444,6 +449,12 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 			}
 		}
 	}
+	
+	
+
+	/*
+	 * Getters and setters for the class
+	 */
 
 	public double getM_diffTime() {
 		return m_diffTime;

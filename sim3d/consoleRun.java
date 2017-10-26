@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import dataLogger.Controller;
 import dataLogger.outputToCSV;
+import sim3d.stroma.Stroma;
 import sim3d.util.IO;
 
 /**
@@ -87,10 +88,10 @@ public class consoleRun {
 
 		if (Settings.calculateTopologyData) {
 			
-			//outputToCSV.writeDegreesToFile(outputPath + "degrees.csv", Controller.degrees);
-			//outputToCSV.writeMatrixToFile(outputPath + "dist.csv", SimulationEnvironment.distMatrix);
-			//outputToCSV.writeMatrixToFile(outputPath + "adjacency.csv", SimulationEnvironment.a_matrix);
-			//outputToCSV.writeNodeInformationToFile(outputPath + "nodeInfo.csv", Stroma.getNodes());
+			outputToCSV.writeDegreesToFile(outputPath + "degrees.csv", Controller.degrees);
+			outputToCSV.writeMatrixToFile(outputPath + "dist.csv", SimulationEnvironment.distMatrix);
+			outputToCSV.writeMatrixToFile(outputPath + "adjacency.csv", SimulationEnvironment.a_matrix);
+			outputToCSV.writeNodeInformationToFile(outputPath + "nodeInfo.csv", Stroma.getNodes());
 			outputToCSV.writeMatrixToFile(outputPath + "chemokineField.csv", Controller.getChemokinefield());
 		}
 		// Output the time taken for simulation to run

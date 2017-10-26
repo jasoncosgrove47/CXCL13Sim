@@ -88,8 +88,7 @@ public class Grajdeanu extends DiffusionAlgorithmMultiThread implements Serializ
 		// need to normalise so that the total amount being diffused is less
 		// than or equal to the total amount that exists
 		normaliseChemokine(dTotalDistance);
-		
-		
+			
 	}
 	
 	/*

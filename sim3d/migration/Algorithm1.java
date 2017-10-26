@@ -19,6 +19,7 @@ public class Algorithm1 implements MigrationAlgorithm {
 	 * there being free space available
 	 * 
 	 * @param lymphocyte
+	 * 					the lympocyte agent that is migrating
 	 */
 	public void performSavedMovements(Lymphocyte lymphocyte) {
 
@@ -48,9 +49,12 @@ public class Algorithm1 implements MigrationAlgorithm {
 	 * e^-y where y is the number of cells in the target gridspace.
 	 * 
 	 * @param x
+	 * 			the X component of the target location vector
 	 * @param y
+	 * 			the Y component of the target location vector
 	 * @param z
-	 * @return
+	 * 			the Z component of the target location vector
+	 * @return true if there is space for the cell to move
 	 */
 	public boolean determineSpaceToMove(double x, double y, double z) {
 		Double3D putativeLocation = new Double3D(x, y, z);
@@ -68,22 +72,22 @@ public class Algorithm1 implements MigrationAlgorithm {
 		double random = Settings.RNG.nextDouble();
 
 		if (random < pmove) {
-			
-			
+
 			return true;
 		}
 
 		else
-			
-			//there are situations where all cells can become gridlocked, so we need to allow moves on occasion
-			// to prevent this from happening even in limited space
-			if(Settings.RNG.nextDouble() < 0.9){
-			
-				return false;
-			}
-		
-			else
-				return true;
+
+		// there are situations where all cells can become gridlocked, so we
+		// need to allow moves on occasion
+		// to prevent this from happening even in limited space
+		if (Settings.RNG.nextDouble() < 0.9) {
+
+			return false;
+		}
+
+		else
+			return true;
 	}
 
 	@Override
@@ -110,11 +114,8 @@ public class Algorithm1 implements MigrationAlgorithm {
 		ODESolver.solveODE(Settings.BC.ODE.K_a(), Settings.BC.ODE.K_r(), Settings.BC.ODE.K_i(), Settings.BC.ODE.Koff,
 				Settings.BC.ODE.Kdes, chemokine1, lymphocyte);
 
-		
-
-		lymphocyte.registerCollisions(Lymphocyte.m_cgGrid); // Register the new
-															// movement with the
-															// grid
+		//register the new movement with the grid
+		lymphocyte.registerCollisions(Lymphocyte.m_cgGrid); 
 
 	}
 
@@ -123,9 +124,13 @@ public class Algorithm1 implements MigrationAlgorithm {
 	 * next time step
 	 * 
 	 * @param bc
+	 * 			the cell to move
 	 * @param vMovement
+	 * 			the movement vector
 	 * @param vectorMagnitude
+	 * 			the magnitude of the movement vector
 	 * @param persistence
+	 * 			how much bias should be placed on the cells leading edge. 
 	 */
 	public void updateMigrationData(Lymphocyte bc, Double3D vMovement, double vectorMagnitude, double persistence) {
 
@@ -133,17 +138,15 @@ public class Algorithm1 implements MigrationAlgorithm {
 		bc.getM_d3aCollisions().clear();
 		bc.setM_d3aMovements(new ArrayList<Double3D>());
 
-		
 		double speedScalar = 0;
 
 		if (bc.m_isChemotactic == true) {
 
 			// need to constrain speed scalar between 0 and 1
-			speedScalar = - Math.log(Settings.BC.POLARITY)/Settings.BC.SPEED_SCALAR;
+			speedScalar = -Math.log(Settings.BC.POLARITY) / Settings.BC.SPEED_SCALAR;
 		}
-		
 
-		double travelDistance = Settings.BC.TRAVEL_DISTANCE() ;
+		double travelDistance = Settings.BC.TRAVEL_DISTANCE();
 		bc.getM_d3aMovements().add(vMovement.multiply(travelDistance + speedScalar));
 
 	}
@@ -152,7 +155,9 @@ public class Algorithm1 implements MigrationAlgorithm {
 	 * Set the appropriate receptor given a specific chemokine
 	 * 
 	 * @param chemokine
+	 * 			the type of chemokine that binds the receptor
 	 * @return
+	 * 			the cognate receptor for the chemokine ligand
 	 */
 	private static Lymphocyte.Receptor setReceptor(Chemokine.TYPE chemokine) {
 
@@ -181,8 +186,12 @@ public class Algorithm1 implements MigrationAlgorithm {
 	 * Calculate how many receptors have bound ligand.
 	 * 
 	 * @param lymphocyte
+	 * 				a lymphocyte agent
 	 * @param chemokine
+	 * 				the type of chemokine we wish to assess
 	 * @return
+	 * 				a double array with the number of receptors bound to each
+	 * 				chemokine sampling pseudeopod
 	 */
 	public static double[] calculateLigandBound(Lymphocyte lymphocyte, Chemokine.TYPE chemokine) {
 
@@ -220,11 +229,17 @@ public class Algorithm1 implements MigrationAlgorithm {
 		return iaBoundReceptors;
 	}
 
+
+	
 	/**
 	 * Samples CXCL13 in the vicinity of the cell, and calculates a new movement
 	 * direction.
 	 * 
-	 * @return The new direction for the cell to move
+	 * @param lymphocyte
+	 * 				a lymphocyte agent
+	 * @param chemokine1
+	 * 				the type of chemokine we wish to respond to
+	 * @return the new direction for the cell to move
 	 */
 	Double3D getMoveDirection(Lymphocyte lymphocyte, Chemokine.TYPE chemokine1) {
 
@@ -243,9 +258,9 @@ public class Algorithm1 implements MigrationAlgorithm {
 		return vMovement1;
 	}
 
+
+	
 	/**
-	 * 
-	 * 
 	 * calculate where to move for the next timestep. The algorithm determines
 	 * the chemotactic vector of the cell using the approach developed by Lin et
 	 * al. If the magnitude of the vector (which represents the difference in
@@ -261,7 +276,10 @@ public class Algorithm1 implements MigrationAlgorithm {
 	 * movements array (M_d3aMovements) so the movements can be performed at the
 	 * next timestep
 	 * 
-	 * 
+	 * @param lymphocyte
+	 * 				the lymphocyte agent
+	 * @param chemokine1
+	 * 				the type of chemokine we are sampling
 	 */
 	public void calculateWhereToMoveNext(Lymphocyte lymphocyte, Chemokine.TYPE chemokine1) {
 
@@ -273,9 +291,7 @@ public class Algorithm1 implements MigrationAlgorithm {
 		if (vMovement.lengthSq() > 0) {
 			if (vectorMagnitude >= Settings.BC.SIGNAL_THRESHOLD) {
 
-				
-				
-				lymphocyte.m_isChemotactic =true;
+				lymphocyte.m_isChemotactic = true;
 				// if there's sufficient directional bias
 				// can affect cell polarity
 				persistence = Settings.BC.POLARITY;
@@ -290,10 +306,10 @@ public class Algorithm1 implements MigrationAlgorithm {
 				// update the direction that the cell is facing
 				vMovement = lymphocyte.getM_d3Face().add(newdirection);
 
-				//now add some noise to the movement
-				vMovement = vMovement.add(Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(),
-						Settings.BC.DIRECTION_ERROR()));
-				
+				// now add some noise to the movement
+				vMovement = vMovement.add(
+						Vector3DHelper.getRandomDirectionInCone(vMovement.normalize(), Settings.BC.DIRECTION_ERROR()));
+
 				// normalise the vector
 				if (vMovement.lengthSq() > 0) {
 					vMovement = vMovement.normalize();
@@ -313,8 +329,8 @@ public class Algorithm1 implements MigrationAlgorithm {
 			// was just used to set speed so need to redefine this function...
 			// speaking of which this should be in the model documentation
 
-			lymphocyte.m_isChemotactic =false;
-			
+			lymphocyte.m_isChemotactic = false;
+
 			persistence = Settings.BC.RANDOM_POLARITY;
 
 			// lets try the new way

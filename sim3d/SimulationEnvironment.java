@@ -30,7 +30,7 @@ public class SimulationEnvironment extends SimState {
 	/**
 	 * this is the size of the FDC network
 	 */
-	public static int fdcNetRadius = 13;
+	public static int fdcNetRadius = 12;
 
 	private static final long serialVersionUID = 1;
 

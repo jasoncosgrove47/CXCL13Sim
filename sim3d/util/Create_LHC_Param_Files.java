@@ -79,22 +79,22 @@ public class Create_LHC_Param_Files {
 		/**
 		 * Where parameter file generated in SPARTAN is
 		 */
-		String lhcParamsForRunsFilePath = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/Emulation/MOO_2/validateParetoFronts/CXCR5params.csv";
+		String lhcParamsForRunsFilePath = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/emulation_new/4000/MOO/cxcl13optimisation/CXCL13params/paramsToEvaluate.csv";
 
 		/**
 		 * The original, calibrated parameter file
 		 */
-		String paramsMetaDataFilePath = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/Emulation/MOO_2/validateParetoFronts/LymphSimParameters.xml";
+		String paramsMetaDataFilePath = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/emulation_new/4000/MOO/cxcl13optimisation/LymphSimParameters.xml";
 
 		/**
 		 * Folder where you want adapted parameter files to be stored
 		 */
-		String paramFileOutputFolder = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/Emulation/MOO_2/validateParetoFronts/CXCR5Params";
+		String paramFileOutputFolder = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/emulation_new/4000/MOO/cxcl13optimisation/CXCL13params/";
 
 		/**
 		 * Number of parameter sets generated
 		 */
-		int numSamples = 200;
+		int numSamples = 300;
 
 		/**
 		 * Arraylist of the names of the measures of interest in the analysis.

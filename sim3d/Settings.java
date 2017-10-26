@@ -591,7 +591,6 @@ public class Settings {
 		
 		private static double emissionrate_cxcl13;
 
-		public static double EBI2L_EMITTED;
 		public static double CXCL13_EMITTED;
 		
 		
@@ -599,9 +598,6 @@ public class Settings {
 			return CXCL13_EMITTED;
 		}
 		
-		public static double EBI2L_EMITTED() {
-			return EBI2L_EMITTED;
-		}
 	}
 	
 	/**

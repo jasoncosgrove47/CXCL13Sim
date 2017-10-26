@@ -439,7 +439,7 @@ public class StromaGenerator {
 			 
 
 			 int target;
-			 if(Settings.RNG.nextDouble() > 0.5){
+			 if(Settings.RNG.nextDouble() > 0.4){
 				 target = 3;
 			 }
 			 else{
@@ -458,12 +458,12 @@ public class StromaGenerator {
 		
 		 if(celltype == Stroma.TYPE.bRC){
 				
-				return Settings.RNG.nextGaussian()*0.1 + 2.2;
+				return Settings.RNG.nextGaussian()*0.1 + 3.9;
 				
 		 }
 		 else if(celltype == Stroma.TYPE.FDC){
 		
-				return Settings.RNG.nextGaussian()*0.1 + 5.0;	
+				return Settings.RNG.nextGaussian()*0.4 + 6.5;	//was 0.1 + 6.7
 				
 		 }
 		 

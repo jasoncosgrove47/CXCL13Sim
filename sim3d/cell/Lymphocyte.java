@@ -54,7 +54,9 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		initialiseReceptors();
 	}
 	
-	
+	/**
+	 * Initialise the receptor maps
+	 */
 	public void initialiseReceptors(){
 		
 		this.getM_receptorMap().put(Receptor.CXCR5, new ArrayList<Integer>(4));
@@ -76,7 +78,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		this.getM_receptorMap().get(Receptor.EBI2).add(3,0);	
 	}
 	
-	
+
 	public static enum Receptor {
 		CXCR5, CCR7, EBI2
 	}
@@ -208,15 +210,22 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		migrate(a1);
 	}
 
+
 	/**
-	 * DO NOT DELETE THIS METHOD
+	 * the method controlling cell migration
 	 */
 	@Override
 	public void migrate(MigrationAlgorithm algorithm) {
 		algorithm.performMigration(this);
 	}
 	
-	
+	/**
+	 * Obtain the discrete coordinates of a cell
+	 * @param grid
+	 * 			the grid to query
+	 * @return 
+	 * 			an Int3D
+	 */
 	public Int3D getDiscretizedLocation(Continuous3D grid) {
 		Double3D me = grid.getObjectLocation(this);// obtain coordinates of the
 													// tcell
@@ -288,7 +297,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	/**
 	 * Handles collisions between b cells and stroma
 	 */
-
 	@Override
 	public void handleCollisions(CollisionGrid cgGrid) {
 		// don't let a b cell collide more than collisionThreshold times
@@ -309,7 +317,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				csCollidables.add(cCollidable);
 			}
 		}
-
 		int iCollisionMovement = getM_d3aMovements().size();
 		boolean bCollision = false;
 
@@ -320,10 +327,8 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 			case STROMA_EDGE:
 				// These first two are the more likely hits as
 				// they won't be moving
-
 				if (collideStromaEdge((StromaEdge) cCell, iCollisionMovement)) {
 					iCollisionMovement = getM_d3aMovements().size() - 1;
-					//iCollisionMovement = Math.max(0, getM_d3aMovements().size() - 1);
 					bCollision = true;
 				}
 				break;
@@ -333,9 +338,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				// or do we still need to do the collision check as per collideStromaEdge to determine 
 				// where they have collided. 
 				if (collideStromaNode((Stroma) cCell, iCollisionMovement)) {
-					
-					iCollisionMovement = getM_d3aMovements().size() - 1;
-										
+					iCollisionMovement = getM_d3aMovements().size() - 1;			
 					bCollision = true;
 				}
 				break;
@@ -357,6 +360,10 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	
 	/**
 	 * helper method to perform the actual collision
+	 * @param cgGrid
+	 * 				the collision grid
+	 * @param iCollisionMovement
+	 * 				the index for the specific collision movement
 	 */
 	protected void performCollision(CollisionGrid cgGrid, int iCollisionMovement) {
 		// increment the number of times a B cell has collided this time step
@@ -386,21 +393,20 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 * we then figure out what the closest point between the two objects is,
 	 * if this distance is less than the width of the two cells then we mark it as a collision
 	 * 
-	 * 
-	 * 
 	 * @param cell
+	 * 			a stromal cell
 	 * @param iCollisionMovement
+	 * 			the index for the collisin movement
 	 * @return
+	 * 			a boolean on whether or not the cell has collided with stroma
 	 */
 	protected boolean collideStromaNode(Stroma cell, int iCollisionMovement){
 
-	
 		boolean hasCollided = false;
 		
 		//the cells current location
 		Double3D p1 = this.getDrawEnvironment().getObjectLocation(this);
 
-		
 		//determine the last coordinates of the movement, need to figure out what these various
 		//arraylists contain collisionMovement md3amovement etc
 		for (int i = 0; i < iCollisionMovement; i++) {
@@ -414,40 +420,40 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 			Double3D shortestPoint = closestPointToStroma(p1,d1,stromaLoc);
 			double length = shortestPoint.distance(stromaLoc);
 				
-			
 			if(length < BC_SC_COLLIDE_DIST_SQ){
 				iCollisionMovement = getM_d3aMovements().size() - 1;
 				hasCollided = true;
 			}
 			
-			
-			if (hasCollided) {
-				
-				updateMovementToAccountForCollisionWithNode(length,p1,d1,shortestPoint,stromaLoc,i);
-				
+			if (hasCollided) {	
+				updateMovementToAccountForCollisionWithNode(length,p1,d1,shortestPoint,stromaLoc,i);	
 			} else {
 				// Move the BC location according to full the movement.
 				p1 = p1.add(d1);
 			}
-		
 		}
 		
 		return hasCollided;
 	}
 	
-
-    
-    
-    /**
-     * Given a point p1 on a line q1-q2 return the proportion of the distance from
+	
+	/**
+	 * Given a point p1 on a line q1-q2 return the proportion of the distance from
      * q1-p1 to the distance from q1-12
-     */
+     * 
+	 * @param p1
+	 * 			Double3D the point to assess
+	 * @param q1
+	 * 			first point of a line segment
+	 * @param q2
+	 * 			second point of a line segment
+	 * @return
+	 * 			proportion of the distance p1 is along the line
+	 */
     static double proportionAlongVector(Double3D p1, Double3D q1, Double3D q2){
-    	
     	double lengthOfLine = q1.distance(q2);
     	double distToClosestPoint = q1.distance(p1);
     	return distToClosestPoint/lengthOfLine;
- 
     }
     
 	/*
@@ -477,13 +483,11 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
     	final double xDelta = p2.getX() - p1.getX();
     	final double yDelta = p2.getY() - p1.getY();
     	final double zDelta = p2.getZ() - p1.getZ();
-    	
-
+    
     	if ((xDelta == 0) && (yDelta == 0) && (zDelta == 0)) {
     	    throw new IllegalArgumentException("p1 and p2 cannot be the same point");
     	}
 
-    	
     	final double u = ((p3.getX() - p1.getX()) * xDelta + (p3.getY() - p1.getY()) * yDelta + (p3.getZ() - p1.getZ()) * zDelta) 
     			/ (xDelta * xDelta + yDelta * yDelta + zDelta * zDelta);
 
@@ -497,7 +501,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
     	}
 
     	return closestPoint;
-    	
     }
    
 	
@@ -529,14 +532,12 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		// or in other words where the dot product between the two vectors is equal to zero. 
 		// https://q3k.org/gentoomen/Game%20Development/Programming/Real-Time%20Collision%20Detection.pdf
 		
-		
 		//take a point on the segment and then draw a vector from the
 		// point to the start point P1 of the line
 		// the dot product is just the projection of that vector onto
 		// the line (remember cos gives you the x-axis
 		// we are just making the line the x-axis).
 
-		
 		Double3D p1 = new Double3D(x, y, z);//the start point of the cells movement
 		Double3D p2 = seEdge.getPoint1(); //the start point of the stroma edge
 		Double3D d2 = seEdge.getPoint2().subtract(p2); //Q2 - P2
@@ -547,14 +548,11 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 			// make sure that d1 has a length
 			if (d1.length() > 0) {
 
-			
 				// For some pair of values for s  and t , L1 (s ) and L2 (t ) 
 				// correspond to the closest points on the lines, 
 				//  v (s , t ) describes a vector between them 
-
 				double s = 0;
 				double t = 0;
-
 
 				Double3D r = p1.subtract(p2); // p1 - p2
 				double a = Vector3DHelper.dotProduct(d1, d1); // squared length line 1																
@@ -655,13 +653,28 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 					p1 = p1.add(d1);
 				}
 			}
-
 		}
 
 		return false;
 	}
-
 	
+	
+
+	/**
+	 * @param length
+	 * 		the length of the vector between the edges v(s,t)
+	 * @param p1 
+	 * 			a point on L1
+	 * @param d1
+	 * 			Q1 −  P1 
+	 * @param closestPoint
+	 * 			the point on the line which is the shortest distance 
+	 * 			between the stromal cell and the movement vector
+	 * @param stromaLoc
+	 * 			the location of the stromal cell
+	 * @param i
+	 * 			the index in the movement array
+	 */
 	private void updateMovementToAccountForCollisionWithNode(double length,
 			Double3D p1,Double3D d1,  Double3D closestPoint, 
 			 Double3D stromaLoc,int i) {
@@ -675,13 +688,10 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		// We hit bang in the middle so just bounce - unlikely!
 		if (length == 0) {
 
-			
-			
 			// The cell bounces back to it's original position so
 			// no need to updated its coordinates.
 			d3NewDir = d3MovementNormal;
 
-			System.out.println(d3NewDir);
 			
 		} else {
 
@@ -690,7 +700,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 			Double3D d3BounceNormal = closestPoint
 					.subtract(stromaLoc).normalize();
 
-			
 			// reflect the movement normal about this point (rotate to it, and
 			// apply the same rotation again)
 			d3NewDir = Vector3DHelper.rotateVectorToVector(d3MovementNormal,
@@ -701,7 +710,6 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		}
 
 		double s = proportionAlongVector(closestPoint,p1,d1);
-		System.out.println(s);
 		// Set the new movement 
 		d1 = d1.multiply(s); //what does multiplying by s give us??
 
@@ -726,13 +734,9 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 				.dotProduct(d3NewDir, d3MovementNormal)) / 3;
 		d3NewDir = d3NewDir.multiply(dNewLength);
 
-		System.out.println("final coord:" + d3NewDir);
-		System.out.println("length:" + d3NewDir.lengthSq());
-		
 		if (d3NewDir.lengthSq() > 0) {
 			getM_d3aMovements().add(d3NewDir);
 		}
-
 	}
 	
 	
@@ -741,19 +745,22 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	 * Helper Method to update movement after a collision occurs update the B
 	 * cells m_d3aMovements
 	 * 
-	 * 
-	 * d1 = the values to add to the current location to move it
-	 * d2 = Q2 - P2
-	 * 
-	 * p1 = cells current location
-	 * p2 = start point of line 2
-	 * 
-	 * s and t equal values where 
-	 * L1 (s) and L2 (t) correspond to the closest points on the lines, 
-	 * 
-	 * i is the iteration through the movements array
-	 * 
-	 * 
+	 * @param length
+	 * 			the length of the vector between the edges v(s,t)
+	 * @param d1
+	 * 			Q1 −  P1 
+	 * @param d2
+	 * 			Q2-P2
+	 * @param p1
+	 * 			cells current location
+	 * @param p2
+	 * 			start point of line 2
+	 * @param s 
+	 * 			a point on L1 which is closest to L2
+	 * @param t 
+	 * 			a point on L2 which is closest to L1
+	 * @param i
+	 * 			the index of the movements array
 	 */
 	private void updateMovementToAccountForCollision(double length,
 			Double3D d1, Double3D d2, Double3D p1, Double3D p2, double s,
@@ -818,10 +825,25 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 
 	}
 
+	
 	/**
 	 * Helper method for collide stroma edge
 	 * 
-	 * returns a double, length
+	 * 
+	 * @param length
+	 * 			the length of the vector between the edges v(s,t)
+	 * @param ac
+	 * 			(d1 *  d1)s  * (d1 *  (P1-P2))
+	 * @param bc
+	 * 			(d1 *  d2)t  * (d1 *  (P1-P2))
+	 * @param e
+	 * 			(d2 *  d2)t 
+	 * @param f
+	 * 			(d2 *  (P1-P2))
+	 * @param d2
+	 * 			Q2 −  P2 
+	 * @return
+	 * 			an updated value for length
 	 */
 	double updateLength(double length, Double3D ac, Double3D bc, double e,
 			double f, Double3D d2) {
@@ -839,8 +861,20 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return length;
 	}
 
+	
 	/**
 	 * Helper method that determines the new value of S in collideStromaEdge
+	 * 
+	 * @param s
+	 * 			a point on L1 which is closest to L2
+	 * @param length
+	 * 			the length of the vector between the edges v(s,t)
+	 * @param d1
+	 * 			Q1 −  P1 
+	 * @param d2
+	 * 			Q2 −  P2 
+	 * @return
+	 * 			an updated value of s
 	 */
 	double calculateSNew(double s, double length, Double3D d1, Double3D d2) {
 		double sNew = s;
@@ -956,16 +990,25 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		}
 	}
 
+	
 	/**
 	 * Helper method which handles collisions between a B cell and the
 	 * simulation borders along the X-axis
+	 * 
+	 * @param dPosX
+	 * 			the x component of the movement vector
+	 * 				
+	 * @param iMovementIndex
+	 * 			the index for the movement array
+	 * @return
+	 * 			a boolean that is true if we hit the limit of the x axis
 	 */
 	private boolean handleBounceXaxis(double dPosX, int iMovementIndex) {
 		// There might be multiple vectors, so we need to keep track
 		// of position, and whether we've hit the wall yet or not
 		boolean bBounce = false;
 
-		double dTempPosX = dPosX; // what are these variables keeping track of
+		double dTempPosX = dPosX; 
 
 		boolean bFlipped = false;
 
@@ -1018,11 +1061,18 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return bBounce;
 	}
 
-	/*
+	
+	/**
 	 * Helper method which handles collisions between a B cell and the
 	 * simulation borders along the Y-axis.
+	 * 
+	 * @param dPosY
+	 * 				the y component of the movement vector
+	 * @param iMovementIndex
+	 * 				the index for the movement array
+	 * @return
+	 * 				a boolean that is true if we hit the limit of the y axis
 	 */
-	
 	private boolean handleBounceYaxis(double dPosY, int iMovementIndex) {
 		// There might be multiple vectors now, so we need to keep track
 		// of position, and whether we've hit the wall yet or not
@@ -1083,9 +1133,17 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return bBounce;
 	}
 
-	/*
+	
+	/**
 	 * Helper method which handles collisions between a B cell and the
 	 * simulation borders along the Z-axis
+	 * 
+	 * @param dPosZ
+	 * 				the z component of the movement vector
+	 * @param iMovementIndex
+	 * 				the index for the movement array
+	 * @return
+	 * 				a boolean that is true if we hit the limit of the z axis
 	 */
 	private boolean handleBounceZaxis(double dPosZ, int iMovementIndex) {
 		// There might be multiple vectors now, so we need to keep track
@@ -1176,9 +1234,17 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		return transf;
 	}
 
-	/*
+	
+	/**
 	 * Helper method Model movement of movement and add a white line indicating
 	 * the orientation of the B cell
+	 * 
+	 * @param m_d3aMovements2
+	 * 				a list of Double3Ds
+	 * @param obj
+	 * 				the object to visualise
+	 * @param transf
+	 * 				instance of TransformGroup
 	 */
 	protected void modelMovements(List<Double3D> m_d3aMovements2, Object obj,
 			TransformGroup transf) {
@@ -1220,8 +1286,16 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		}
 	}
 
-	/*
+	
+	/**
 	 * Helper method Modelling collisions as red dots, called by getModel()
+	 * 
+	 * @param m_d3aMovements
+	 * 				a list of Double3Ds
+	 * @param obj
+	 * 				the object to visualise
+	 * @param transf
+	 * 				instance of TransformGroup
 	 */
 	protected void modelCollisions(ArrayList<Double3D> m_d3aCollisions,
 			Object obj, TransformGroup transf) {

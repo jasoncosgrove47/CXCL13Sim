@@ -2,6 +2,9 @@ package sim3d;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double3D;
@@ -42,6 +45,7 @@ public final class FollicleInitialiser {
 		updateNodeConnections();
 
 
+
 	}
 
 	/**
@@ -61,12 +65,12 @@ public final class FollicleInitialiser {
 	private static void generateBranches(CollisionGrid cgGrid, boolean FDC, boolean BRC, boolean MRC) {
 
 		if (FDC) {
-			generateBranchesDynamically(cgGrid, SimulationEnvironment.fdcEnvironment, StromaEdge.TYPE.FDC_edge, 19, 5,
-					8);
+			generateBranchesDynamically(cgGrid, SimulationEnvironment.fdcEnvironment, StromaEdge.TYPE.FDC_edge, 18, 5,
+					9);
 		}
 
 		if (BRC) {
-			generateBranchesDynamically(cgGrid, SimulationEnvironment.brcEnvironment, StromaEdge.TYPE.RC_edge, 5, 4, 5);
+			generateBranchesDynamically(cgGrid, SimulationEnvironment.brcEnvironment, StromaEdge.TYPE.RC_edge, 6, 4, 5);//was 6,4,5
 		}
 
 		if (MRC) {
@@ -76,6 +80,24 @@ public final class FollicleInitialiser {
 		}
 	}
 
+	
+	private static void countEdgeLengths(){
+		Bag FDCs = SimulationEnvironment.fdcEnvironment.getAllObjects();
+
+		
+		Map<String, Double> fdcdendritesVisited = new HashMap<String, Double>();
+		
+		for (int i = 0; i < FDCs.size(); i++) {
+			if (FDCs.get(i) instanceof StromaEdge) {
+			
+			
+			}
+			}
+		
+		
+	}
+	
+	
 	/**
 	 * Initialise the FDC network,
 	 * 
@@ -551,6 +573,18 @@ public final class FollicleInitialiser {
 
 		}
 	}
+	
+	/**
+	 * Print the number of stroma nodes in the simulaiton to console
+	 */
+	private static void countNodeNumbers() {
+
+		int fdcs =  countNodes(SimulationEnvironment.fdcEnvironment, Stroma.TYPE.FDC);
+		int brcs =  countNodes(SimulationEnvironment.brcEnvironment, Stroma.TYPE.bRC);
+		int mrcs =  + countNodes(SimulationEnvironment.mrcEnvironment, Stroma.TYPE.MRC);
+	}
+
+	
 
 	/**
 	 * Print the number of stroma nodes in the simulaiton to console
@@ -856,7 +890,7 @@ public final class FollicleInitialiser {
 		// set thsi to null so we cant use it again anywhere.
 		sealEdges = null;
 
-		// now we'll need to reassign the fucking protrusions
+
 		Bag stroma2 = SimulationEnvironment.getAllStroma();
 		for (int i = 0; i < stroma2.size(); i++) {
 			if (stroma2.get(i) instanceof Stroma) {

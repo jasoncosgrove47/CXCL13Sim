@@ -55,7 +55,7 @@ public class GenerateSCS {
 		do {
 			//pick a random location on the SCS
 			double test_x = Settings.RNG.nextDouble() * Settings.WIDTH;
-			double test_z = 0.5 + Settings.RNG.nextDouble() * (Settings.DEPTH - 2.5);
+			double test_z = 0.5 + Settings.RNG.nextDouble() * (Settings.DEPTH - 1.5);//was 2.5
 			Double3D loc = new Double3D(test_x, Settings.HEIGHT - (Settings.bRC.SCSDEPTH + 0.5), test_z);
 
 			// make sure that the mrcs are not to close to one another
@@ -84,7 +84,7 @@ public class GenerateSCS {
 
 		// make sure that the cells arent too close to one another.
 		//the distance was found by calibrating against exptl data
-		Bag bagMrcs = SimulationEnvironment.mrcEnvironment.getNeighborsExactlyWithinDistance(loc, 1.4);
+		Bag bagMrcs = SimulationEnvironment.mrcEnvironment.getNeighborsExactlyWithinDistance(loc, 1.35);
 		boolean bMrcAtLocation = false;
 
 		// make sure we're not placing cells in the same location.
@@ -103,7 +103,7 @@ public class GenerateSCS {
 	}
 
 	/**
-	 * Helper method that takes a map of associated nodes and genereates an edge
+	 * Helper method that takes a map of associated nodes and generates an edge
 	 * between them
 	 * 
 	 * @param connectionsToAdd
@@ -168,7 +168,7 @@ public class GenerateSCS {
 				Stroma sc = (Stroma) stroma.get(i);
 				if (sc.getStromatype() == Stroma.TYPE.MRC) {
 					Bag neighbours = SimulationEnvironment.mrcEnvironment
-							.getNeighborsExactlyWithinDistance(sc.getM_Location(), 4.5, false);
+							.getNeighborsExactlyWithinDistance(sc.getM_Location(), 5.5, false);
 
 					// update the connections between neighbouring MRC nodes
 					connectionsToAdd = addMRCConnections(neighbours, sc, connectionsToAdd);
@@ -198,13 +198,13 @@ public class GenerateSCS {
 				
 				//if the MRCs have too many connections then delete some of them
 				if (sc.getStromatype() == Stroma.TYPE.MRC) {
-					if(sc.getM_Nodes().size() > 8){
+					if(sc.getM_Nodes().size() > 10){
 						
 						FollicleInitialiser.deleteSEdge(pickRandomEdge(sc));
 							
 					}
 					//if the MRCs dont have enough connection then add some additional connections
-					if(sc.getM_Nodes().size() < 4){
+					if(sc.getM_Nodes().size() < 6){
 						Bag neighbours = SimulationEnvironment.mrcEnvironment.
 								getNeighborsExactlyWithinDistance(sc.getM_Location(), 5);
 						
@@ -363,7 +363,7 @@ public class GenerateSCS {
 
 			//get all MRCs within 30 microns away
 			Bag neighbours = SimulationEnvironment.mrcEnvironment
-					.getNeighborsExactlyWithinDistance(brc.getM_Location(), 3.5);
+					.getNeighborsExactlyWithinDistance(brc.getM_Location(), 4.0);
 
 			//pick the closest MRC available and if not already connected then
 			//make a connection between the two. 
@@ -413,7 +413,7 @@ public class GenerateSCS {
 						// if its an MRC and nodes arent connected already, and
 						// there isnt a point in the way
 						if (!Stroma.AreStromaNodesConnected(sc, neighbour)
-								&& !FollicleInitialiser.checkForPointsInTheWay(sc, neighbour, 1.75)) {
+								&& !FollicleInitialiser.checkForPointsInTheWay(sc, neighbour, 1.4)) { //was 1.75
 
 							// Bags in MASON are read only so seed stroma
 							// outside loop

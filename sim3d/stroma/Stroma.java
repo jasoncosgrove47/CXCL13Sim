@@ -28,9 +28,8 @@ import sim3d.diffusion.Chemokine;
 
 
 /**
- * TO do cell profiler analysis of raw image files then neural network classification
- * can then read the files in directly as an adjacency matrix and need to figure out
- * how to do a voxel-based reconstruction....
+ * This class handles functionality for stromal cell nodes
+ * 
  * @author jc1571
  *
  */
@@ -51,8 +50,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	double FDCsecretionRate_CXCL13 = Settings.FDC.CXCL13_EMITTED();
 	double bRCsecretionRate_CXCL13  = Settings.bRC.CXCL13_EMITTED();
 	double MRCsecretionRate_CXCL13 = Settings.MRC.CXCL13_EMITTED();
-	double MRCsecretionRate_EBI2L  = Settings.MRC.EBI2L_EMITTED();
-	
 
 	
 	//dont want duplicate entries
@@ -69,14 +66,14 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	private int m_antigenLevel;
 	
 	
-	//the index used for the adjacency matriz
+	//the index used for the adjacency matrix
 	private int m_index;
 	
 	/**
 	 * How to remove a BC from the schedule:
 	 * 
 	 * when you schedule the BC it will return a stoppable object we store this
-	 * object so we can access it when we need to stop the object. Then to
+	 * object so we can access it when we need to remove the BC from the schedule. Then to
 	 * remove the object we simply call stop() on the stopper object the BC can
 	 * then be removed by garbage collection
 	 */
@@ -213,10 +210,9 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			
 			if (transf == null) {
 				transf = new TransformGroup();
-				//Color col = new Color(255, 100, 100, 125);
+
 				Color col = new Color(20, 210, 100, 125);
-				//Color col =  new Color(200, 130, 40);
-				
+
 				SpherePortrayal3D s = new SpherePortrayal3D(
 						col,
 						Settings.FDC.STROMA_NODE_RADIUS , 6);
@@ -252,10 +248,8 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				if (transf == null) {
 
 					transf = new TransformGroup();
-
 					Color col = new Color(255, 0, 0, 200);
 					
-				
 					SpherePortrayal3D s = new SpherePortrayal3D(
 							col,
 							Settings.FDC.STROMA_NODE_RADIUS, 6);
@@ -272,16 +266,13 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			
 		case LEC:
 			
-			
 			if (transf == null) {
 			
 				transf = new TransformGroup();
 				Color col =  new Color(200, 130, 40);
 				CubePortrayal3D s = new CubePortrayal3D(col,1.0);
-
 				s.setCurrentFieldPortrayal(getCurrentFieldPortrayal());
 				TransformGroup localTG = s.getModel(obj, null);
-
 				localTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 				transf.addChild(localTG);
 			}

@@ -79,17 +79,17 @@ public class CreateOATFiles {
 		/**
 		 * Where parameter file generated in SPARTAN is
 		 */
-		String lhcParamsForRunsFilePathBase = "/Users/jc1571/Desktop/ResultsModel/MOO/validate__Pareto_Front/";
+		String lhcParamsForRunsFilePathBase = "/Users/jc1571/Dropbox/IEEE_AIS/Generated_Emulations/MOO/constrainedSearch/paramsToEvaluate.csv";
 
 		/**
 		 * The original, calibrated parameter file
 		 */
-		String paramsMetaDataFilePath = "/Users/jc1571/Desktop/ResultsModel/MOO/validate__Pareto_Front/parameters-master.xml";
+		String paramsMetaDataFilePath = "/Users/jc1571/Desktop/ppsim/src/parameters-master.xml/parameters-master.xml";
 
 		/**
 		 * Folder where you want adapted parameter files to be stored
 		 */
-		String paramFileOutputFolder = "/Users/jc1571/Desktop/ResultsModel/MOO/validate__Pareto_Front/";
+		String paramFileOutputFolder = "/Users/jc1571/Dropbox/IEEE_AIS/Generated_Emulations/MOO/constrainedSearch/parameters";
 
 		/**
 		 * Number of parameter sets generated
@@ -99,17 +99,15 @@ public class CreateOATFiles {
 		/**
 		 * Arraylist of the names of the measures of interest in the analysis.
 		 */
+	
 		ArrayList<String> simMeasures = new ArrayList<String>();
-		simMeasures.add("CHEMOKINESIS_SCALAR");
-		simMeasures.add("COUNT");
-		simMeasures.add("CXCL13_EMITTED");
-		simMeasures.add("DECAY_CONSTANT");
-		simMeasures.add("DIFFUSION_COEFFICIENT");
-		simMeasures.add("Ka");
-		simMeasures.add("Ki");
-		simMeasures.add("Kr");
-		simMeasures.add("Rf");
-		simMeasures.add("TRAVEL_DISTANCE");
+		simMeasures.add("thresholdBindProbability");
+		simMeasures.add("chemoThreshold");
+		simMeasures.add("chemoUpperLinearAdjust");
+		simMeasures.add("chemoLowerLinearAdjust");
+		simMeasures.add("maxVCAMeffectProbabilityCutoff");
+		simMeasures.add("vcamSlope");
+
 
 		Iterator<String> params = simMeasures.iterator();
 
