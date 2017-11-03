@@ -184,7 +184,6 @@ public class GenerateSCS {
 
 	
 	/**
-	 * TODO comment this
 	 * @param cgGrid
 	 * 				the collision grid
 	 */

@@ -59,7 +59,7 @@ public class ProcessDataTest {
 	
 	
 	/**
-	 * Tests the calculateTurningAngle method
+	 * Tests the calculateMotilityCoefficient method
 	 */
 	@Test
 	public void testCalculateMotilityCoefficient() {
@@ -73,7 +73,7 @@ public class ProcessDataTest {
 	
 	
 	/**
-	 * Tests the calculateTurningAngle method
+	 * Tests the calculateMeanderingIndex method
 	 */
 	@Test
 	public void testCalculateMeanderingIndex() {

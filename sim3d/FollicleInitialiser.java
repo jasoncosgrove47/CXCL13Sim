@@ -2,9 +2,6 @@ package sim3d;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double3D;
@@ -44,8 +41,6 @@ public final class FollicleInitialiser {
 
 		updateNodeConnections();
 
-
-
 	}
 
 	/**
@@ -81,21 +76,7 @@ public final class FollicleInitialiser {
 	}
 
 	
-	private static void countEdgeLengths(){
-		Bag FDCs = SimulationEnvironment.fdcEnvironment.getAllObjects();
 
-		
-		Map<String, Double> fdcdendritesVisited = new HashMap<String, Double>();
-		
-		for (int i = 0; i < FDCs.size(); i++) {
-			if (FDCs.get(i) instanceof StromaEdge) {
-			
-			
-			}
-			}
-		
-		
-	}
 	
 	
 	/**
@@ -574,15 +555,6 @@ public final class FollicleInitialiser {
 		}
 	}
 	
-	/**
-	 * Print the number of stroma nodes in the simulaiton to console
-	 */
-	private static void countNodeNumbers() {
-
-		int fdcs =  countNodes(SimulationEnvironment.fdcEnvironment, Stroma.TYPE.FDC);
-		int brcs =  countNodes(SimulationEnvironment.brcEnvironment, Stroma.TYPE.bRC);
-		int mrcs =  + countNodes(SimulationEnvironment.mrcEnvironment, Stroma.TYPE.MRC);
-	}
 
 	
 
