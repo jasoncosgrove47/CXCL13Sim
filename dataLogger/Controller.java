@@ -275,7 +275,6 @@ public class Controller implements Steppable {
 	 *            stromal cell two
 	 * @return true if the nodes are connected
 	 * 
-	 * TODO need to test this method
 	 */
 	static boolean checkIfConnected(double[][] adjacencyMatrix, Stroma sc1, Stroma sc2) {
 
@@ -285,7 +284,10 @@ public class Controller implements Steppable {
 		return false;
 	}
 	
-	//TODO test the getters and setters
+	
+	/**
+	 * Getters and setters for the controller class
+	 */
 
 	public Map<Integer, Integer> getFDCDendritesVisited() {
 		return fdcdendritesVisited;
