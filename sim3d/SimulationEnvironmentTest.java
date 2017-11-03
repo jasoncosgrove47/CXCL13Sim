@@ -273,6 +273,7 @@ public class SimulationEnvironmentTest {
 
 		assertTrue(SEcounter > 0);
 		assertTrue(FDCcounter > 0);
+	
 		
 	}
 

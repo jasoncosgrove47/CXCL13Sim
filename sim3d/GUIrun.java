@@ -34,7 +34,7 @@ public class GUIrun extends GUIState {
 	 * Returns the name of the simulation - a MASON thing
 	 */
 	public static String getName() {
-		return "BSim";
+		return "CXCL13Sim";
 	}
 
 	
