@@ -30,6 +30,8 @@ public final class FollicleInitialiser {
 	public static void initialiseFollicle(CollisionGrid cgGrid) {
 
 		GenerateSCS.seedSCS();
+		
+
 		generateStromalNetwork(cgGrid);
 		GenerateSCS.generateMRCNetwork(cgGrid);
 		shapeFDCNetwork(cgGrid);

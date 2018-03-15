@@ -464,7 +464,7 @@ public class StromaGenerator {
 		 }
 		 else if(celltype == Stroma.TYPE.FDC){
 		
-				return Settings.RNG.nextGaussian()*0.3 + 6.2;	//was 0.4 and 6.4
+				return Settings.RNG.nextGaussian()*0.3 + 5.2;	//in generate directions we have a limit on this value, we need to make sure that these two are consistent
 				
 		 }
 		 
