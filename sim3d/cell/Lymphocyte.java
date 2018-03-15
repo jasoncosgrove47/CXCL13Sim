@@ -54,6 +54,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 		initialiseReceptors();
 	}
 	
+	
 	/**
 	 * Initialise the receptor maps
 	 */

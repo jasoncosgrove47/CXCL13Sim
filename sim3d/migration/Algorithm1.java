@@ -90,6 +90,7 @@ public class Algorithm1 implements MigrationAlgorithm {
 			return true;
 	}
 
+	
 	@Override
 	public void performMigration(Lymphocyte lymphocyte) {
 
@@ -119,6 +120,7 @@ public class Algorithm1 implements MigrationAlgorithm {
 
 	}
 
+	
 	/**
 	 * Update the movement array determining where the cell will move in the
 	 * next time step

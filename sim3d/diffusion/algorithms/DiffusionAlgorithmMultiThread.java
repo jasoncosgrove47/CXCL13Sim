@@ -182,7 +182,6 @@ public class DiffusionAlgorithmMultiThread
 						// chooses the x coordinate, then the y and so on
 						// if the edge is -1 return x, else return xEdge
 						
-						//TODO pretty sure we can comment this out but need to ccheck with Simon.
 						pSpace.field[(xEdge == -1) ? x : xEdge] 
 						[(yEdge == -1) ? y : yEdge] 
 						[(zEdge == -1) ? z : zEdge]

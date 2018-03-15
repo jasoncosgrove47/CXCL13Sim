@@ -324,22 +324,5 @@ public class StromaTest {
 	}
 
 	
-	@Test
-	public void testGetM_col() {
-		fail("not yet implemented");
-	}
 
-	@Test
-	public void testGet_antigenLevel() {
-		fail("not yet implemented");
-	}
-
-	@Test
-	public void testGetCellsCollidedWith() {
-		fail("not yet implemented");
-	}
-	@Test
-	public void testRemoveDeadCell(){
-		fail("not yet implemented");
-	}
 }

@@ -213,6 +213,7 @@ public class StromaGenerator {
 			int iEdges = calculateEdgeNumber(celltype, iRemainingCells,nextCell);
 				
 
+		
 			
 			// This is the first time so we want at few edges otherwise
 			// generation will break sometimes
@@ -463,7 +464,7 @@ public class StromaGenerator {
 		 }
 		 else if(celltype == Stroma.TYPE.FDC){
 		
-				return Settings.RNG.nextGaussian()*0.4 + 6.5;	//was 0.1 + 6.7
+				return Settings.RNG.nextGaussian()*0.3 + 6.2;	//was 0.4 and 6.4
 				
 		 }
 		 

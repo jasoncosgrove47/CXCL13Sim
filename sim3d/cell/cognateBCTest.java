@@ -109,44 +109,5 @@ public class cognateBCTest {
 	
 	
 	
-	@Test
-	public void testSetAntigenCaptured() {
-		fail("not yet implemented");
-	}
-
-	@Test
-	public void testGetCoordinates() {
-		fail("not yet implemented");
-	}
-	
-	@Test
-	public void testGetReceptors() {
-		fail("not yet implemented");
-	}
-
-	@Test
-	public void testGetIndex() {
-		fail("not yet implemented");
-	}
-
-	@Test
-	public void testGetFreereceptors() {
-		fail("not yet implemented");
-	}
-
-	@Test
-	public void testGetDesensitisedreceptors() {
-		fail("not yet implemented");
-	}
-
-	@Test
-	public void testGetInternalisedreceptors() {
-		fail("not yet implemented");
-	}
-
-	@Test
-	public void testGetSignallingreceptors() {
-		fail("not yet implemented");
-	}
 
 }

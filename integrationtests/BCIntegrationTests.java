@@ -108,7 +108,7 @@ public class BCIntegrationTests {
 	@Test
 	public void testCXCL13SENSITIVE() {
 
-		m_pParticle.field[15][15][15] = (1 * Math.pow(10, -16));
+		m_pParticle.field[15][15][15] = (1 * Math.pow(10, -17));
 
 		// make the BCs highly sensitive to chemokine
 		Settings.CXCL13.DECAY_CONSTANT = 0.005;
@@ -342,7 +342,7 @@ public class BCIntegrationTests {
 	@Test
 	public void testTRANSIENTSENSITIVITY() {
 		for (int i = 0; i < 31; i++) {
-			m_pParticle.field[15][15][i] = 0;
+			m_pParticle.field[15][15][i] = (1.7 * Math.pow(10, -6));
 		}
 
 		// Let's diffuse a little
@@ -375,7 +375,7 @@ public class BCIntegrationTests {
 			}
 
 			for (int k = 0; k < 31; k++) {
-				m_pParticle.field[15][15][k] = (1.7 * Math.pow(10, -9));
+				m_pParticle.field[15][15][k] = (1.7 * Math.pow(10, -7));
 			}
 			m_pParticle.step(null);
 		}
@@ -388,11 +388,11 @@ public class BCIntegrationTests {
 
 		}
 
-		assertEquals("0-6", 50, iaResults[0], 15.0);
-		assertEquals("6-12", 50, iaResults[1], 15.0);
-		assertEquals("12-18", 50, iaResults[2], 15.0);
-		assertEquals("18-24", 50, iaResults[3], 15.0);
-		assertEquals("24-30", 50, iaResults[4], 15.0);
+		assertEquals("0-6", 50, iaResults[0], 20.0);
+		assertEquals("6-12", 50, iaResults[1], 20.0);
+		assertEquals("12-18", 50, iaResults[2], 20.0);
+		assertEquals("18-24", 50, iaResults[3], 20.0);
+		assertEquals("24-30", 50, iaResults[4], 20.0);
 	}
 
 	/**
@@ -459,11 +459,11 @@ public class BCIntegrationTests {
 			iaResults[(int) (5 * (bcCells[i].z - 1) / 29.0)]++;
 
 		}
-		assertEquals("0-6", 50, iaResults[0], 15.0);
-		assertEquals("6-12", 50, iaResults[1], 15.0);
-		assertEquals("12-18", 50, iaResults[2], 15.0);
-		assertEquals("18-24", 50, iaResults[3], 15.0);
-		assertEquals("24-30", 50, iaResults[4], 15.0);
+		assertEquals("0-6", 50, iaResults[0], 20.0);
+		assertEquals("6-12", 50, iaResults[1], 20.0);
+		assertEquals("12-18", 50, iaResults[2], 20.0);
+		assertEquals("18-24", 50, iaResults[3], 20.0);
+		assertEquals("24-30", 50, iaResults[4], 20.0);
 
 	}
 

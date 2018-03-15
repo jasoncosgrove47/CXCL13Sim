@@ -79,17 +79,17 @@ public class Create_LHC_Param_Files {
 		/**
 		 * Where parameter file generated in SPARTAN is
 		 */
-		String lhcParamsForRunsFilePath = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/emulation_new/2400_diffpartition/MOO/cxcl13optimisation/CXCL13params.csv";
+		String lhcParamsForRunsFilePath = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/emulation_new/3000/MOO/cxcl13optimisation/CXCL13params.csv";
 
 		/**
 		 * The original, calibrated parameter file
 		 */
-		String paramsMetaDataFilePath = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/emulation_new/2400_diffpartition/MOO/cxcl13optimisation/vPF/LymphSimParameters.xml";
+		String paramsMetaDataFilePath = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/emulation_new/3000/MOO/cxcl13optimisation/vPF/LymphSimParameters.xml";
 
 		/**
 		 * Folder where you want adapted parameter files to be stored
 		 */
-		String paramFileOutputFolder = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/emulation_new/2400_diffpartition/MOO/cxcl13optimisation/vPF/CXCL13parameters/";
+		String paramFileOutputFolder = "/Users/jc1571/Dropbox/CXCL13Sim/ResultsModel/ResultsModel/emulation_new/3000/MOO/cxcl13optimisation/vPF/CXCL13parameters/";
 
 		/**
 		 * Number of parameter sets generated

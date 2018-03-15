@@ -52,6 +52,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	double MRCsecretionRate_CXCL13 = Settings.MRC.CXCL13_EMITTED();
 
 	
+	
 	//dont want duplicate entries
 	private Set<Stroma> m_Nodes;
 	private Set<StromaEdge> m_Edges ;
@@ -172,6 +173,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	
 	
 	
+	
 	/**
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation
@@ -200,7 +202,6 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 
 
 	// Create a model to visualising the stroma node in 3D
-	//TODO test the other types apart from FDC
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
 		
 
@@ -211,8 +212,9 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			if (transf == null) {
 				transf = new TransformGroup();
 
-				Color col = new Color(20, 210, 100, 125);
-
+				//Color col = new Color(10, 210, 120, 125);
+				Color col = new Color(255, 0, 0, 200);
+				
 				SpherePortrayal3D s = new SpherePortrayal3D(
 						col,
 						Settings.FDC.STROMA_NODE_RADIUS , 6);
@@ -230,8 +232,8 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 				if (transf == null) {
 					transf = new TransformGroup();
 
-					Color col = new Color(10, 210, 120, 125);
-					
+					//Color col = new Color(10, 210, 120, 125);
+					Color col = new Color(255, 0, 0, 200);
 					SpherePortrayal3D s = new SpherePortrayal3D(
 							col,
 							Settings.FDC.STROMA_NODE_RADIUS, 6);
@@ -323,6 +325,8 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 			if(this.m_type == Stroma.TYPE.FDC){
 				Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
 						FDCsecretionRate_CXCL13);
+				
+		
 			}
 			else if(this.m_type == Stroma.TYPE.bRC){
 				Chemokine.add(Chemokine.TYPE.CXCL13, (int) x, (int) y, (int) z,
@@ -354,8 +358,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 		this.m_type = stromatype;
 	}
 
-	//TODO NEED TESTS FOR THIS
-	//TODO superfluous
+
 	public Color getM_col() {
 		return m_col;
 	}
@@ -364,7 +367,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	public void setM_col(Color m_col) {
 		this.m_col = m_col;
 	}
-	//TODO need tests for this
+
 	public int get_antigenLevel() {
 		return m_antigenLevel;
 	}
@@ -372,7 +375,7 @@ public class Stroma extends DrawableCell3D implements Steppable, Collidable {
 	public void set_antigenLevel(int m_antigenLevel) {
 		this.m_antigenLevel = m_antigenLevel;
 	}
-	//TODO need tests for this
+
 	public ArrayList<Integer> getCellsCollidedWith() {
 		return cellsCollidedWith;
 	}

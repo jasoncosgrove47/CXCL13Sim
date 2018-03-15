@@ -161,6 +161,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 */
 	private int antigenLevel;
 	
+	
 
 	
 	/**
@@ -207,7 +208,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 			this.m_edgeRadius = Settings.FDC.STROMA_EDGE_RADIUS;
 			
 			this.m_drawEnvironment = SimulationEnvironment.fdcEnvironment;
-			setM_col(col2);
+			setM_col(col);
 
 			this.setBranch(false);
 			
@@ -264,7 +265,6 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 	 * @see sim.portrayal3d.SimplePortrayal3D#getModel(java.lang.Object,
 	 * javax.media.j3d.TransformGroup)
 	 * 
-	 * TODO test
 	 */
 	@Override
 	public TransformGroup getModel(Object obj, TransformGroup transf) {
@@ -347,15 +347,13 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		return transf;
 	}
 
-	//This is tricky, how do we have it so we cant use the other method
+
 	/**
-	 * TODO it has to be point1 that gets passed into this 
-	 * due to how the code is set up, always has to be p1
+	 * Set the object of a location
 	 */
 	@Override
 	public final void setObjectLocation(Double3D d3Location) {
 	
-
 		this.setM_Location(d3Location);
 		
 		x = d3Location.x;
@@ -411,7 +409,7 @@ public class StromaEdge extends DrawableCell3D implements java.io.Serializable,
 		this.antigenLevel = antigenLevel;
 	}
 
-	//TODO test
+
 	public ArrayList<Integer> getCellsCollidedWith() {
 		return cellsCollidedWith;
 	}

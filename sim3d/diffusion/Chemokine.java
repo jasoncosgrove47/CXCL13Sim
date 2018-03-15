@@ -23,6 +23,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	double m_decayrate; //the decay rate of a class member
 	
 	
+	
 	/**
 	 * ENUM for the chemokine types
 	 */
@@ -359,6 +360,7 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 		@SuppressWarnings("unused")
 		double molarconc = calculateMolarConcentration(vol, totalChemokineinMoles);
 
+		//System.out.println("chemokine conc:" + molarconc);
 	}
 
 	/**
@@ -400,6 +402,8 @@ public class Chemokine extends DoubleGrid3D implements Steppable {
 	 */
 	public double calculateTotalChemokineLevels() {
 
+	
+		
 		double totalChemokineValue = 0;
 
 		for (int x = 0; x < m_iWidth; x++) {

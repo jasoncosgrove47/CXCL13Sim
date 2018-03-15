@@ -121,7 +121,7 @@ public class cognateBC extends BC {
 	
 	
 	/**
-	 * TODO add comments
+	 * tests getCheckpointsReached
 	 */
 	private void assessNewCheckPointReached(){
 		
@@ -153,6 +153,7 @@ public class cognateBC extends BC {
 		signallingreceptors.add(this.getM_LR(Lymphocyte.Receptor.CXCR5));
 		
 
+	
 		
 		Controller.getInstance().getFreereceptors()
 		.put(this.getIndex(), this.getFreereceptors());
@@ -379,7 +380,6 @@ public class cognateBC extends BC {
 
 	/**
 	 * Getters and setters 
-	 * TODO need to test these
 	 */
 	public int getAntigenCaptured() {
 		return antigenCaptured;

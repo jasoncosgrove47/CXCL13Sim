@@ -61,18 +61,19 @@ public final class FollicleInitialiser {
 
 		if (FDC) {
 			generateBranchesDynamically(cgGrid, SimulationEnvironment.fdcEnvironment, StromaEdge.TYPE.FDC_edge, 18, 5,
-					9);
+					10);
 		}
+		//18,5,9
 
 		if (BRC) {
-			generateBranchesDynamically(cgGrid, SimulationEnvironment.brcEnvironment, StromaEdge.TYPE.RC_edge, 6, 4, 5);//was 6,4,5
-		}
+			generateBranchesDynamically(cgGrid, SimulationEnvironment.brcEnvironment, StromaEdge.TYPE.RC_edge, 4, 4, 10);//was 6,4,5
+		} //6,4,5
 
 		if (MRC) {
 			generateBranchesDynamically(cgGrid, SimulationEnvironment.mrcEnvironment, StromaEdge.TYPE.MRC_edge, 4, 0,
 					4); //was 4,0,4
 
-		}
+		}//4,0,4
 	}
 
 	

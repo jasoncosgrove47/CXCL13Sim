@@ -19,6 +19,7 @@ import ec.util.MersenneTwisterFast;
 
 public class Settings {
 	
+	
 
 	public static void loadParameters(Document params) {
 		// Simulation Tag
@@ -70,6 +71,7 @@ public class Settings {
 	public static int NUM_THREADS;
 	
 
+	
 	
 	
 	/**
@@ -324,6 +326,9 @@ public class Settings {
 	
 			}
 
+			
+	
+			
 			/**
 			 * ligand bound receptors on cell surface
 			 */
@@ -475,7 +480,7 @@ public class Settings {
 
 		public static double CXCL13_EMITTED;
 
-		//how much is secreted in nanomoles (NOT MOLAR)
+		//input is in moles we want to scale this by the appropraite amount
 		public static double scaleEmissionRate(double emissionrate) {
 			return (emissionrate * 1E-21);
 		}

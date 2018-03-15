@@ -197,9 +197,7 @@ public class BCTest {
 		
 		assertEquals(loc2, bc.getM_d3aMovements().get(0));
 		// assert that the stroma and BC collide
-		 boolean test = bc.collideStromaNode(se, 1);
 
-		//TODO need to have a think about this one, the method is not behaving as we expect, might need to rewrite hi. 
 		assertNotEquals(loc2, bc.getM_d3aMovements().get(0));
 		
 
@@ -551,7 +549,7 @@ public class BCTest {
 		// Let it migrate for 100 timesteps, 
 		for (int i = 0; i < 100; i++) {
 			for (int j = 0; j < 1; j++) {
-				bcCells[j].step(null);// why are you passing in null
+				bcCells[j].step(null);
 			}
 			//add more chemokine to the field
 			m_pParticle.field[15][15][15] = (1.7 * Math.pow(10, -7));

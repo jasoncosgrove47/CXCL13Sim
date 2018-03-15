@@ -65,6 +65,7 @@ public class SimulationEnvironment extends SimState {
 	 */
 	ArrayList<StromaEdge> m_edges;
 
+	
 	/*
 	 * 3D grid for Stroma
 	 */
