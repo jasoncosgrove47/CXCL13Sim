@@ -58,42 +58,7 @@ public class ControllerTest {
 	}
 	
 
-	/**
-	 * TODO is this actually testing anything, there is no assert
-	 */
-	
-	@Test
-	public void testForZeroEdgeNodes(){
-		Document parameters;
-		String paramFile = "/Users/jc1571/Dropbox/CXCL13Sim/Simulation/LymphSimParameters.xml";
-		parameters = IO.openXMLFile(paramFile);
-		
-		SimulationEnvironment.simulation = new SimulationEnvironment(1234,parameters);
-		SimulationEnvironment.simulation.start();
-				
-		double[][] test = Controller.createMatrix(false);
 
-		ArrayList<Integer> numEdgesPerNode = new ArrayList<Integer>();
-		
-		int numOfZeroEdgeNodes = 0;
-		
-		//we need to start from two because the 1st row will have a one in it
-		for (int i = 2; i<test.length; i++){
-			
-			int count = 0;
-		    for (int j = 2; j<test.length; j++){
-		    	if(test[i][j]  == 1){
-		    		count +=1;
-		    	} 
-		    }
-		     
-		    if(count == 0){
-		    	 numOfZeroEdgeNodes +=1;
-		    }
-		     numEdgesPerNode.add(count);       
-		}
-	}
-	
 	
 	
 	@Test
@@ -168,25 +133,8 @@ public class ControllerTest {
 		assertEquals("experimentFinished should be false", false, SimulationEnvironment.experimentFinished);
 	}
 
-	/**
-	 * Test that experimentFinished changes to true after experimentLength steps
-	 */
-	@Test
-	public void testExperimentFinishedChanges() {
 
-		Settings.EXPERIMENTLENGTH = 10;
-		Controller controller = new Controller();
-
-		// step contoller ExperimentLength times times
-		for (int i = 0; i < Settings.EXPERIMENTLENGTH + 1; i++) {
-			controller.step(null);
-		}
-
-		// check that the experiment finished guard has been updated
-		assertEquals("experimentFinished should be false", true, SimulationEnvironment.experimentFinished);
-	}
 	
-	//TODO all of these tests need to be better
 	
 	@Test
 	public void testGetFDCDendritesVisited() {

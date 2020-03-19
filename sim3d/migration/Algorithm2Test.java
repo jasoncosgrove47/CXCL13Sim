@@ -26,7 +26,7 @@ import sim3d.util.Algorithm2;
 import sim3d.util.IO;
 
 
-//TODO this needs to be a test class for algorithm1 , put algotihm2 in the utilities for safe keeping
+
 
 public class Algorithm2Test {
 
@@ -236,15 +236,7 @@ public class Algorithm2Test {
 		assertThat(results[0], equalTo(0.0));
 	}
 
-	/**
-	 * test that getMoveDirection returns a double3D Integration tests ensure
-	 * that the correct direction is provided
-	 * 
-	 * TODO refine we could put the chemokine north of the cell and see 
-	 * if it orientates towards that direction
-	 * 
-	 * 
-	 */
+
 	
 
 	@Test

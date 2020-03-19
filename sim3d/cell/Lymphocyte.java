@@ -39,6 +39,7 @@ public abstract class Lymphocyte extends DrawableCell3D implements Steppable, Co
 	
 	public int numOfReceptors = 1;
 	
+	
 	/**
 	 * The drawing environment that houses this cell; used by
 	 * DrawableCell3D.setObjectLocation

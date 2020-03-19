@@ -22,6 +22,7 @@ public class consoleRun {
 	 */
 	public static String outputPath;
 
+	
 	/*
 	 * name of output filename
 	 */
@@ -58,8 +59,7 @@ public class consoleRun {
 			steps = SimulationEnvironment.simulation.schedule.getSteps();
 			System.out.println("Steps: " + steps);
 
-			// run the simulation for 500 steps to allow it to reach
-			// steady-state
+			// run the simulation for 100 steps prior to recording data for an experiment
 			if (steps == 100) {
 
 				// update the steadyState guard to begin recording data

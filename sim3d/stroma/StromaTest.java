@@ -143,7 +143,6 @@ public class StromaTest {
 
 	/**
 	 * Test that registerCollisions updates m_i3lCollisionPoints
-	 * TODO need to test the other cell types
 	 */
 	@Test
 	public void testRegisterCollisions() {

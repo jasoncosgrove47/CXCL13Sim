@@ -38,7 +38,7 @@ public final class FollicleInitialiser {
 
 		if (Settings.calculateTopologyData) {
 			generateBranches(cgGrid, true, true, false);
-			printNodeNumbers();
+			//printNodeNumbers();
 		}
 
 		updateNodeConnections();
@@ -75,7 +75,7 @@ public final class FollicleInitialiser {
 			generateBranchesDynamically(cgGrid, SimulationEnvironment.mrcEnvironment, StromaEdge.TYPE.MRC_edge, 4, 0,
 					4); //was 4,0,4
 
-		}//4,0,4
+		}
 	}
 
 	
@@ -562,7 +562,7 @@ public final class FollicleInitialiser {
 	
 
 	/**
-	 * Print the number of stroma nodes in the simulaiton to console
+	 * Print the number of stroma nodes in the simulation to console
 	 */
 	private static void printNodeNumbers() {
 

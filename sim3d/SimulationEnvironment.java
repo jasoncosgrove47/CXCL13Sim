@@ -27,6 +27,7 @@ import sim3d.stroma.StromaEdge;
 
 public class SimulationEnvironment extends SimState {
 
+	
 	/**
 	 * this is the size of the FDC network
 	 */

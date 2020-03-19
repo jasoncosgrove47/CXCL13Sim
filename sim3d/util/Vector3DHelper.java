@@ -17,8 +17,7 @@ public class Vector3DHelper {
 	 * @return A unit vector for a random direction
 	 */
 	public static Double3D getRandomDirection() {
-		// TODO which is faster? this one has less calcs, but one more random
-		// call - I suspect this is slower
+
 		// see http://mathworld.wolfram.com/SpherePointPicking.html at the
 		// bottom return new Double3D(Math.abs(Options.RNG.nextGaussian()),
 		// Options.RNG.nextGaussian(), Options.RNG.nextGaussian()).normalize();
@@ -176,7 +175,7 @@ public class Vector3DHelper {
 	 *            The start position of the rotation
 	 * @param d3NewDirection
 	 *            The end position of the rotation
-	 * @return The rotated vector TODO can we specify an angle here?
+	 * @return The rotated vector 
 	 */
 	public static Double3D rotateVectorToVector(Double3D d3Point,
 			Double3D d3OldDirection, Double3D d3NewDirection) {

@@ -352,13 +352,13 @@ public class StromaGenerator {
 
 				
 				
-				// If there's a cell there, try again..?
+				// If there's a cell there, try again
 				if (getAdjacentCells(iWidth, iHeight, iDepth,
 						frcla3CellLocations,
 						new StromalCelltemp(frcLocation.m_d3Location.add(d3aReturn[i])),
 						1.0).size() > 0) {
 					
-					i--;//what is this doing?
+					i--;
 					continue;
 				}
 

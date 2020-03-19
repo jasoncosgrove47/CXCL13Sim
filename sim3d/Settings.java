@@ -20,7 +20,6 @@ import ec.util.MersenneTwisterFast;
 public class Settings {
 	
 	
-
 	public static void loadParameters(Document params) {
 		// Simulation Tag
 		Element paramOElement = (Element) params.getElementsByTagName("O")
