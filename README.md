@@ -1,4 +1,4 @@
-This repository contains LymphSim, a 3D simulation of a lymph node cortex. Includes collisions, chemotaxis, random movement and diffusion.
+This repository contains LymphSim, a 3D simulation of a lymph node cortex. Includes collisions, chemotaxis, random movement and diffusion. More details about the underlying model are presented in the following publication: https://www.nature.com/articles/s41467-020-17135-2
 
 
 Uses:
