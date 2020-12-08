@@ -15,5 +15,5 @@ Notes:
 3) (optional) dependencies are not required to run the simulation. (required) dependencies will cause the simulation to crash when missing, but some may be able to be disabled.
 
 
-Created by Jason Cosgrove (jc1571@york.ac.uk) and Simon Jarrett (simonjjarrett@gmail.com)# CXCL13Sim
+Created by Jason Cosgrove (jason.cosgrove47@gmail.com) and Simon Jarrett (simonjjarrett@gmail.com)# CXCL13Sim
 
